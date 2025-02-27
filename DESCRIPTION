@@ -13,6 +13,7 @@ RoxygenNote: 7.3.2
 Imports: 
     cli,
     fiery,
+    fs,
     reqres,
-    rlang,
+    rlang (>= 1.1.0),
     roxygen2
