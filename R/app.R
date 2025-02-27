@@ -1,8 +1,8 @@
 plumber <- function(location = NULL, host = get_opts("host", "127.0.0.1"), port = get_opts("port", 8080), env = globalenv()) {
   app <- fiery::Fire$new(host = host, port = port)
+  class(app) <- c("plumber_server", class(app))
   router <- routr::RouteStack$new()
-  settings <- new.env(parent = emptyenv())
-  settings$api <- list()
+  app$data_store$plumber_settings <- list(api = list())
   modifiers <- list()
 
   if (!is.null(location)) {
@@ -24,7 +24,10 @@ plumber <- function(location = NULL, host = get_opts("host", "127.0.0.1"), port 
       lapply(names(parsed_route$routes), function(name) {
         router$add_route(parsed_route$routes[[name]], name)
       })
-      settings$api <- modifyList(settings$api, parsed_route$api)
+      app$data_store$plumber_settings$api <- modifyList(
+        app$data_store$plumber_settings$api,
+        parsed_route$api
+      )
       modifiers <- c(modifiers, parsed_route$mod)
     }
   }
@@ -36,11 +39,6 @@ plumber <- function(location = NULL, host = get_opts("host", "127.0.0.1"), port 
   if (!is.null(header_route)) {
     app$attach(header_route, "plumber_header_route")
   }
-
-  app <- structure(
-    list(app = app, settings = settings),
-    class = "plumber_server"
-  )
 
   for (mod in modifiers) {
     app <- mod(app)
@@ -55,25 +53,25 @@ plumber <- function(location = NULL, host = get_opts("host", "127.0.0.1"), port 
 #' @export
 print.plumber_server <- function(x, ...) {
   cli::cli_rule("A plumber server")
-  cli::cli_text("Serving on http://{x$app$host}:{x$app$port}")
-  cli::cli_text("Currently {if (x$app$is_running()) cli::col_green('running') else cli::col_red('not running')}")
+  cli::cli_text("Serving on http://{x$host}:{x$port}")
+  cli::cli_text("Currently {if (x$is_running()) cli::col_green('running') else cli::col_red('not running')}")
 }
 
 #' @export
 server_start <- function(server, block = TRUE, showcase = is_interactive(), ..., silent = FALSE) {
   openapi_file <- tempfile(fileext = ".json")
-  jsonlite::write_json(server$api, openapi_file, auto_unbox = TRUE)
+  jsonlite::write_json(server$data_store$plumber_settings$api, openapi_file, auto_unbox = TRUE)
   api_route <- routr::openapi_route(openapi_file, ui = "swagger")
-  router <- server$router
+  router <- server$plugins$plumber_request_route
   router$add_route(api_route, "openapi")
 
-  server$app$on("end", function(server, ...) {
+  server$on("end", function(server, ...) {
     on.exit(server$off("__plumber_cleanup__"))
-    router$remove_route("openapi")
+    server$plugins$plumber_request_route$remove_route("openapi")
     unlink(openapi_file)
   }, id = "__plumber_cleanup__")
 
-  if (!silent) cli::cli_text("Plumber server started at http://{server$app$host}:{server$app$port}")
+  if (!silent) cli::cli_text("Plumber server started at http://{server$host}:{server$port}")
   server$app$ignite(block = block, showcase = FALSE, ..., silent = TRUE)
   invisible(server)
 }
