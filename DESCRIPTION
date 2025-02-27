@@ -12,8 +12,13 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
     cli,
-    fiery,
+    fiery (>= 1.2.1.9000),
     fs,
-    reqres,
+    reqres (>= 0.2.5.9000),
     rlang (>= 1.1.0),
+    routr (>= 0.4.1.9000),
     roxygen2
+Remotes:  
+    thomasp85/fiery,
+    thomasp85/reqres,
+    thomasp85/routr
