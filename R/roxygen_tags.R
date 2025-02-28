@@ -157,3 +157,8 @@ roxy_tag_parse.roxy_tag_plumber <- function(x) {
 roxy_tag_parse.roxy_tag_websocket <- function(x) {
   x
 }
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_header <- function(x) {
+  x
+}
