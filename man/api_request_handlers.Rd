@@ -150,9 +150,9 @@ on the request \code{Accept} header}
 request body before passing it in as the \code{body} argument. Which one is
 selected is based on the request \code{Content-Type} header}
 
-\item{use_strict_serializer}{By default, if a serializer can not be found
-that respects the requests \code{Accept} header, then the first of the provided
-ones are used. Setting this to \code{TRUE} will instead send back a
+\item{use_strict_serializer}{By default, if a serializer that respects the
+requests \code{Accept} header cannot be found, then the first of the provided ones
+are used. Setting this to \code{TRUE} will instead send back a
 \verb{406 Not Acceptable} response}
 
 \item{download}{Should the response mark itself for download instead of being
@@ -162,7 +162,8 @@ to setting it to \code{TRUE} but will in addition also set the default filename 
 the download to the string value}
 
 \item{route}{The route this handler should be added to. Defaults to the last
-route in the stack.}
+route in the stack. If the route does not exist it will be created as the
+last route in the stack}
 
 \item{docs}{A list with the OpenAPI spec for the endpoint}
 }

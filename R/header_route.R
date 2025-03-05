@@ -7,7 +7,10 @@ create_header_route <- function() {
   }
   shared_secret <- get_opts("sharedSecret")
   if (!is.null(shared_secret)) {
-    stack$add_route(routr::shared_secret_route(shared_secret, "Plumber-Shared-Secret"))
+    stack$add_route(routr::shared_secret_route(
+      shared_secret,
+      "Plumber-Shared-Secret"
+    ))
   }
   stack
 }

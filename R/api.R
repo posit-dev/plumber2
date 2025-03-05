@@ -17,7 +17,12 @@
 #'
 #' @export
 #'
-api <- function(..., host = get_opts("host", "127.0.0.1"), port = get_opts("port", 8080), env = caller_env()) {
+api <- function(
+  ...,
+  host = get_opts("host", "127.0.0.1"),
+  port = get_opts("port", 8080),
+  env = caller_env()
+) {
   api <- Plumber$new(host, port)
   locations <- list2(...)
   lapply(locations, function(loc) {

@@ -1,12 +1,28 @@
 registry$parsers <- list()
 
+#' Register a parser to a name for use with the `@parser` tag
+#'
+#' plumber2 comes with many parsers that should cover almost all standard
+#' use cases. Still you might want to provide some of your own, which this
+#' function facilitates.
+#'
+#' @param name The name to register the parser function to. If already
+#' present the current parser will be overwritten by the one provided by you
+#' @param fun A function that, when called, returns a binary function that can
+#' parse a request body. The first argument takes a raw vector with the binary
+#' encoding of the request body, the second argument takes any additional
+#' directives given by the requests `Content-Type` header
+#' @param mime_types One or more mime types that this parser can handle. The
+#' mime types are allowed to contain wildcards, e.g. `"text/*"`
+#'
+#' @return This function is called for its side effects
+#'
+#' @seealso [register_serializer()]
 #' @export
+#'
 register_parser <- function(name, fun, mime_types) {
   check_function(fun)
   check_character(mime_types)
-  if (length(fn_fmls(fun())) != 2) {
-    cli::cli_abort("{.arg fun} must be a binary function")
-  }
   registry$parsers[[name]] <- list(fun = fun, types = mime_types)
   invisible(NULL)
 }
@@ -21,7 +37,7 @@ get_parsers <- function(types = NULL, env = caller_env()) {
   dots <- which(types == "...")
   if (length(dots) != 0) {
     types <- c(
-      types[seq_len(dots-1)],
+      types[seq_len(dots - 1)],
       setdiff(names(registry$parsers), types),
       types[dots + seq_len(length(types) - dots)]
     )
@@ -29,11 +45,9 @@ get_parsers <- function(types = NULL, env = caller_env()) {
   parsers <- lapply(types, function(type) {
     type <- stringi::stri_split_fixed(type, " ", n = 2)[[1]]
     if (stringi::stri_count_fixed(type[[1]], "/") == 1) {
-      parser_fun <- if (length(type) == 2) eval_bare(parse_expr(type[2]), env = env) else identity
+      parser_fun <- if (length(type) == 2)
+        eval_bare(parse_expr(type[2]), env = env) else identity
       check_function(parser_fun)
-      if (length(fn_fmls(parser_fun)) != 2) {
-        cli::cli_abort("Provided parser function must be a binary function")
-      }
       parser <- list(
         fun = parser_fun,
         type = type[1]
@@ -46,9 +60,17 @@ get_parsers <- function(types = NULL, env = caller_env()) {
       if (length(type) == 1) {
         args <- list()
       } else {
-        args <- eval_bare(parse_expr(paste0("list(", type[[2]], ")")), env = env)
+        args <- eval_bare(
+          parse_expr(paste0("list(", type[[2]], ")")),
+          env = env
+        )
       }
       parser$fun <- inject(parser$fun(!!!args))
+    }
+    if (length(fn_fmls(parser$fun)) != 2) {
+      cli::cli_abort(
+        "The parser provided for {.field {type}} must be a binary function"
+      )
     }
     parser
   })
@@ -113,17 +135,51 @@ parse_geojson <- function(...) {
 }
 
 on_load({
-  register_parser("csv", parse_csv, c("application/csv", "application/x-csv", "text/csv", "text/x-csv"))
-  register_parser("json", reqres::parse_json, c("application/json", "text/json"))
+  register_parser(
+    "csv",
+    parse_csv,
+    c("application/csv", "application/x-csv", "text/csv", "text/x-csv")
+  )
+  register_parser(
+    "json",
+    reqres::parse_json,
+    c("application/json", "text/json")
+  )
   # TODO: I don't think this is quite baked yet
   register_parser("multi", reqres::parse_multiform, "multipart/*")
   register_parser("octet", parse_octet, "application/octet-stream")
-  register_parser("form", reqres::parse_queryform, "application/x-www-form-urlencoded")
+  register_parser(
+    "form",
+    reqres::parse_queryform,
+    "application/x-www-form-urlencoded"
+  )
   register_parser("rds", parse_rds, "application/rds")
-  register_parser("feather", parse_feather, c("application/vnd.apache.arrow.file", "application/feather"))
+  register_parser(
+    "feather",
+    parse_feather,
+    c("application/vnd.apache.arrow.file", "application/feather")
+  )
   register_parser("parquet", parse_parquet, "application/vnd.apache.parquet")
   register_parser("text", parse_text, c("text/plain", "text/*"))
-  register_parser("tsv", parse_tsv, c("application/tab-separated-values", "text/tab-separated-values"))
-  register_parser("yaml", parse_yaml, c("text/vnd.yaml", "application/yaml", "application/x-yaml", "text/yaml", "text/x-yaml"))
-  register_parser("geojson", parse_geojson, c("application/geo+json", "application/vdn.geo+json"))
+  register_parser(
+    "tsv",
+    parse_tsv,
+    c("application/tab-separated-values", "text/tab-separated-values")
+  )
+  register_parser(
+    "yaml",
+    parse_yaml,
+    c(
+      "text/vnd.yaml",
+      "application/yaml",
+      "application/x-yaml",
+      "text/yaml",
+      "text/x-yaml"
+    )
+  )
+  register_parser(
+    "geojson",
+    parse_geojson,
+    c("application/geo+json", "application/vdn.geo+json")
+  )
 })

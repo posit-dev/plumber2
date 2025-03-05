@@ -13,7 +13,7 @@
 Next <- structure(TRUE, class = "plumber_control")
 #' @rdname Next
 #' @export
-#' 
+#'
 Break <- structure(FALSE, class = "plumber_control")
 
 is_plumber_control <- function(x) inherits(x, "plumber_control")

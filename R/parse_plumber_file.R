@@ -41,7 +41,13 @@ parse_plumber_file <- function(path, env = caller_env()) {
   blocks <- roxygen2::parse_file(tmp_file, srcref_path = path)
   route <- routr::route()
   header_route <- routr::route()
-  blocks <- lapply(blocks, parse_block, route = route, header_route = header_route, env = env)
+  blocks <- lapply(
+    blocks,
+    parse_block,
+    route = route,
+    header_route = header_route,
+    env = env
+  )
 
   # TODO: Use routeName tag if present
   route_name <- fs::path_file(fs::path_ext_remove(path))
@@ -49,14 +55,21 @@ parse_plumber_file <- function(path, env = caller_env()) {
   route <- set_names(list(route), route_name)
   header_route <- set_names(list(header_route), route_name)
   # Find the asset routes from the file
-  asset_routes <- blocks[vapply(blocks, function(x) inherits(x, "AssetRoute"), logical(1))]
+  asset_routes <- blocks[vapply(
+    blocks,
+    function(x) inherits(x, "AssetRoute"),
+    logical(1)
+  )]
   if (length(asset_routes) != 0) {
-    asset_routes <- set_names(asset_routes, vapply(asset_routes, function(s) s$at, character(1)))
+    asset_routes <- set_names(
+      asset_routes,
+      vapply(asset_routes, function(s) s$at, character(1))
+    )
   }
   apis <- blocks[vapply(blocks, is_bare_list, logical(1))]
   globals <- vapply(apis, function(x) !is.null(x$openapi), logical(1))
-  paths <- Reduce(modifyList, apis[!globals])
-  globals <- Reduce(modifyList, apis[globals])
+  paths <- Reduce(utils::modifyList, apis[!globals])
+  globals <- Reduce(utils::modifyList, apis[globals])
 
   modifiers <- blocks[vapply(blocks, inherits, logical(1), "plumber_call")]
   modifier <- function(api) {
@@ -72,7 +85,12 @@ parse_plumber_file <- function(path, env = caller_env()) {
     route = route,
     header_route = header_route,
     asset_routes = asset_routes,
-    message_handlers = blocks[vapply(blocks, inherits, logical(1), "message_call")],
+    message_handlers = blocks[vapply(
+      blocks,
+      inherits,
+      logical(1),
+      "message_call"
+    )],
     api = c(globals, paths),
     modifiers = modifier
   )
@@ -87,10 +105,25 @@ parse_block <- function(block, route, header_route, env = caller_env()) {
   } else if (any(tags == "statics")) {
     parse_static_block(call, block, tags, values, env)
   } else if (any(tags == "message")) {
-    parse_message_block(call, block, tags, values, route, env)
+    parse_message_block(call, block, tags, values)
   } else if (any(tags == "plumber")) {
     parse_plumber_block(call, tags)
-  } else if (any(tags %in% c("get", "head", "post", "put", "delete", "connect", "options", "trace", "patch"))) {
+  } else if (
+    any(
+      tags %in%
+        c(
+          "get",
+          "head",
+          "post",
+          "put",
+          "delete",
+          "connect",
+          "options",
+          "trace",
+          "patch"
+        )
+    )
+  ) {
     parse_handler_block(call, block, tags, values, route, header_route, env)
   } else {
     parse_global_api(tags, values, env)
@@ -107,8 +140,30 @@ parse_plumber_block <- function(call, tags) {
   structure(call, class = "plumber_call")
 }
 
-parse_handler_block <- function(handler, block, tags, values, route, header_route, env) {
-  methods <- which(tags %in% c("get", "head", "post", "put", "delete", "connect", "options", "trace", "patch", "any"))
+parse_handler_block <- function(
+  handler,
+  block,
+  tags,
+  values,
+  route,
+  header_route,
+  env
+) {
+  methods <- which(
+    tags %in%
+      c(
+        "get",
+        "head",
+        "post",
+        "put",
+        "delete",
+        "connect",
+        "options",
+        "trace",
+        "patch",
+        "any"
+      )
+  )
 
   serializers <- which(tags == "serializer")
   if (length(serializers) != 0) {
@@ -139,9 +194,22 @@ parse_handler_block <- function(handler, block, tags, values, route, header_rout
   for (i in methods) {
     method <- tags[i]
     if (method == "any") method <- "all"
-    path <- stringi::stri_replace_all_regex(trimws(values[[i]]), "<(.+?)(:.+?)?>", ":$1")
+    path <- stringi::stri_replace_all_regex(
+      trimws(values[[i]]),
+      "<(.+?)(:.+?)?>",
+      ":$1"
+    )
 
-    route$add_handler(method, path, create_plumber_request_handler(handler, serializers, parsers, strict_serializer, ))
+    route$add_handler(
+      method,
+      path,
+      create_plumber_request_handler(
+        handler,
+        serializers,
+        parsers,
+        strict_serializer,
+      )
+    )
   }
   parse_block_api(tags, values, names(parsers), names(serializers))
 }
@@ -155,9 +223,15 @@ parse_static_block <- function(call, block, tags, values, env) {
   }
   extra_tags <- setdiff(tags, c("statics", "except", "backref"))
   if (length(extra_tags) != 0) {
-    cli::cli_warn("Ignoring {.field {paste0('@', extra_tags)}} tag{?s} when parsing {.field @statics} tag")
+    cli::cli_warn(
+      "Ignoring {.field {paste0('@', extra_tags)}} tag{?s} when parsing {.field @statics} tag"
+    )
   }
-  mapping <- trimws(strsplit(values[[which(tags == "statics")]], " ", fixed = TRUE)[[1]])
+  mapping <- trimws(strsplit(
+    values[[which(tags == "statics")]],
+    " ",
+    fixed = TRUE
+  )[[1]])
   if (length(mapping) == 1) {
     mapping <- c(mapping, "/")
   }
@@ -174,9 +248,15 @@ parse_asset_block <- function(call, block, tags, values, route, env) {
   }
   extra_tags <- setdiff(tags, c("assets", "backref"))
   if (length(extra_tags) != 0) {
-    cli::cli_warn("Ignoring {.field {paste0('@', extra_tags)}} tag{?s} when parsing {.field @assets} tag")
+    cli::cli_warn(
+      "Ignoring {.field {paste0('@', extra_tags)}} tag{?s} when parsing {.field @assets} tag"
+    )
   }
-  mapping <- trimws(strsplit(values[[which(tags == "assets")]], " ", fixed = TRUE)[[1]])
+  mapping <- trimws(strsplit(
+    values[[which(tags == "assets")]],
+    " ",
+    fixed = TRUE
+  )[[1]])
   if (length(mapping) == 1) {
     mapping <- c(mapping, "/")
   }

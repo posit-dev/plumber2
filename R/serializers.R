@@ -1,12 +1,26 @@
 registry$serializers <- list()
 
+#' Register a serializer to a name for use with the `@serializer` tag
+#'
+#' plumber2 comes with many serializers that should cover almost all standard
+#' use cases. Still you might want to provide some of your own, which this
+#' function facilitates.
+#'
+#' @param name The name to register the serializer function to. If already
+#' present the current serializer will be overwritten by the one provided by you
+#' @param fun A function that, when called, returns a unary function that can
+#' serialize a response body to the mime type defined in `mime_type`
+#' @param mime_type The format this serializer creates. You should take care to
+#' ensure that the value provided is a standard mime type for the format
+#'
+#' @return This function is called for its side effects
+#'
+#' @seealso [register_parser()]
 #' @export
+#'
 register_serializer <- function(name, fun, mime_type) {
   check_function(fun)
   check_string(mime_type)
-  if (length(fn_fmls(fun())) != 1) {
-    cli::cli_abort("{.arg fun} must return a unary function")
-  }
   registry$serializers[[name]] <- list(fun = fun, type = mime_type)
   invisible(NULL)
 }
@@ -21,7 +35,7 @@ get_serializers <- function(types = NULL, env = caller_env()) {
   dots <- which(types == "...")
   if (length(dots) != 0) {
     types <- c(
-      types[seq_len(dots-1)],
+      types[seq_len(dots - 1)],
       setdiff(names(registry$serializers), types),
       types[dots + seq_len(length(types) - dots)]
     )
@@ -29,11 +43,9 @@ get_serializers <- function(types = NULL, env = caller_env()) {
   serializers <- lapply(types, function(type) {
     type <- stringi::stri_split_fixed(type, " ", n = 2)[[1]]
     if (stringi::stri_count_fixed(type[[1]], "/") == 1) {
-      serializer_fun <- if (length(type) == 2) eval_bare(parse_expr(type[2]), env = env) else identity
+      serializer_fun <- if (length(type) == 2)
+        eval_bare(parse_expr(type[2]), env = env) else identity
       check_function(serializer_fun)
-      if (length(fn_fmls(serializer_fun)) != 1) {
-        cli::cli_abort("Provided serializer function must be a unary function")
-      }
       serializer <- list(
         fun = serializer_fun,
         type = type[1]
@@ -46,9 +58,17 @@ get_serializers <- function(types = NULL, env = caller_env()) {
       if (length(type) == 1) {
         args <- list()
       } else {
-        args <- eval_bare(parse_expr(paste0("list(", type[[2]], ")")), env = env)
+        args <- eval_bare(
+          parse_expr(paste0("list(", type[[2]], ")")),
+          env = env
+        )
       }
       serializer$fun <- inject(serializer$fun(!!!args))
+    }
+    if (length(fn_fmls(serializer$fun)) != 1) {
+      cli::cli_abort(
+        "The serializer provided for {.field {type}} must be a unary function"
+      )
     }
     serializer
   })
@@ -81,8 +101,10 @@ format_geojson <- function(...) {
   check_installed("geojsonsf")
   function(x) {
     if (inherits(x, "sfc")) return(geojsonsf::sfc_geojson(x, ...))
-    if (inherits(x, "sf"))  return(geojsonsf::sf_geojson(x, ...))
-    cli::cli_abort("{.fun format_geojson} did not receive an `sf` or `sfc` object.")
+    if (inherits(x, "sf")) return(geojsonsf::sf_geojson(x, ...))
+    cli::cli_abort(
+      "{.fun format_geojson} did not receive an `sf` or `sfc` object."
+    )
   }
 }
 format_feather <- function(...) {
@@ -118,18 +140,24 @@ format_format <- function(..., sep = "\n") {
     paste0(format(x, ...), collapse = sep)
   }
 }
-format_print <- function(...sep = "\n") {
+format_print <- function(..., sep = "\n") {
   function(x) {
-    paste0(utils::capture.output({
-      print(x, ...)
-    }), sep = "\n")
+    paste0(
+      utils::capture.output({
+        print(x, ...)
+      }),
+      sep = "\n"
+    )
   }
 }
-format_cat <- function(...sep = "\n") {
+format_cat <- function(..., sep = "\n") {
   function(x) {
-    paste0(utils::capture.output({
-      cat(x, ...)
-    }), sep = "\n")
+    paste0(
+      utils::capture.output({
+        cat(x, ...)
+      }),
+      sep = "\n"
+    )
   }
 }
 format_unboxed <- function(...) {
@@ -144,8 +172,16 @@ on_load({
   register_serializer("geojson", format_geojson, "application/geo+json")
   register_serializer("csv", format_csv, "text/csv")
   register_serializer("tsv", format_tsv, "text/tab-separated-values")
-  register_serializer("feather", format_feather, "application/vnd.apache.arrow.file")
-  register_serializer("parquet", format_parquet, "application/vnd.apache.parquet")
+  register_serializer(
+    "feather",
+    format_feather,
+    "application/vnd.apache.arrow.file"
+  )
+  register_serializer(
+    "parquet",
+    format_parquet,
+    "application/vnd.apache.parquet"
+  )
   register_serializer("yaml", format_yaml, "text/yaml")
   register_serializer("htmlwidget", format_htmlwidget, "text/html")
   register_serializer("xml", reqres::format_xml, "text/xml")
@@ -157,14 +193,20 @@ on_load({
 
 # Device serializers -----------------------------------------------------------
 
-device_formatter <- function(dev_open, dev_close = dev.off()) {
+# TODO: Somehow, we need to keep these distinct from the other serializers so
+# that ... when used together with a device serializer only retrieves other
+# device serializers and vice versa
+
+device_formatter <- function(dev_open, dev_close = grDevices::dev.off()) {
   dev_name <- caller_arg(dev_open)
   check_function(dev_open)
   if (!"filename" %in% fn_fmls_names(dev_open)) {
     if ("file" %in% fn_fmls_names(dev_open)) {
       fn_fmls_names(dev_open)[fn_fmls_names(dev_open) == "file"] <- "filename"
     } else {
-      cli::cli_abort("{.arg dev_open} must be a function with a {.arg filename} or {.arg file} argument")
+      cli::cli_abort(
+        "{.arg dev_open} must be a function with a {.arg filename} or {.arg file} argument"
+      )
     }
   }
   function(...) {
@@ -172,30 +214,35 @@ device_formatter <- function(dev_open, dev_close = dev.off()) {
     dev_args <- fn_fmls_names(dev_open)
     extra_args <- setdiff(provided_args, dev_args)
     if (length(extra_args) != 0 && !"..." %in% dev_args) {
-      cli::cli_abort("Provided arguments does not match arguments in {.fun {dev_name}}")
+      cli::cli_abort(
+        "Provided arguments does not match arguments in {.fun {dev_name}}"
+      )
     }
     init_dev <- function() {
       output_file <- tempfile()
       dev_open(filename = output_file, ...)
-      dev_id <- dev.cur()
+      dev_id <- grDevices::dev.cur()
       list(path = output_file, dev = dev_id)
     }
     close_dev <- function(info) {
-      dev.set(info$dev)
-      dev.off()
+      grDevices::dev.set(info$dev)
+      grDevices::dev.off()
       if (!file.exists(info$path)) {
         return(NULL)
       }
       con <- file(info$path, "rb")
-      on.exit({
-        close(con)
-        unlink(info$path)
-      }, add = TRUE)
+      on.exit(
+        {
+          close(con)
+          unlink(info$path)
+        },
+        add = TRUE
+      )
       readBin(con, "raw", file.info(info$path)$size)
     }
     clean_dev <- function(info) {
-      dev.set(info$dev)
-      dev.off()
+      grDevices::dev.set(info$dev)
+      grDevices::dev.off()
       unlink(info$path)
     }
     structure(
@@ -231,10 +278,14 @@ clean_formatter <- function(formatter, info) {
   clean_fun(info)
 }
 
-format_png <- device_formatter(ragg::agg_png)
-format_jpeg <- device_formatter(ragg::agg_jpeg)
-format_tiff <- device_formatter(ragg::agg_tiff)
-format_svg <- device_formatter(svglite::svglite)
+#' @importFrom ragg agg_png
+format_png <- device_formatter(agg_png)
+#' @importFrom ragg agg_jpeg
+format_jpeg <- device_formatter(agg_jpeg)
+#' @importFrom ragg agg_tiff
+format_tiff <- device_formatter(agg_tiff)
+#' @importFrom svglite svglite
+format_svg <- device_formatter(svglite)
 format_bmp <- device_formatter(grDevices::bmp)
 format_pdf <- device_formatter(grDevices::pdf)
 

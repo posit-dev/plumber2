@@ -12,7 +12,7 @@ parse_global_api <- function(tags, values, env = caller_env()) {
       version = values$apiVersion
     )),
     tag = unname(lapply(values[tags == "apiTag"], function(tag) {
-      tag <- stringi::stri_match_all_regex(test, "^((\".+?\")|(\\S+))(.*)")[[1]]
+      tag <- stringi::stri_match_all_regex(tag, "^((\".+?\")|(\\S+))(.*)")[[1]]
       tag <- c(name = gsub('^"|"$', "", tag[2]), description = trimws(tag[5]))
       if (is.na(tag[2])) {
         tag[1]
@@ -28,11 +28,21 @@ parse_block_api <- function(tags, values, parsers, serializers) {
   if (any(tags == "noDoc")) return(NULL)
   api <- list()
   summary <- if ("title" %in% tags) values[[which(tags == "title")]]
-  description <- paste0(unlist(values[tags %in% c("description", "details")]), collapse = "\n\n")
+  description <- paste0(
+    unlist(values[tags %in% c("description", "details")]),
+    collapse = "\n\n"
+  )
   if (description == "") description <- NULL
-  params <- stringi::stri_split_fixed(unlist(values[tags == "param"]), " ", n = 2)
+  params <- stringi::stri_split_fixed(
+    unlist(values[tags == "param"]),
+    " ",
+    n = 2
+  )
   params <- lapply(params, function(param) {
-    arg_parsed <- stringi::stri_match_first_regex(param[1], "^(.+?)(:(.+?))?(\\*)?$")[1,]
+    arg_parsed <- stringi::stri_match_first_regex(
+      param[1],
+      "^(.+?)(:(.+?))?(\\*)?$"
+    )[1, ]
     arg_name <- arg_parsed[2]
     arg_description <- param[2]
     arg_type <- arg_parsed[4]
@@ -47,7 +57,14 @@ parse_block_api <- function(tags, values, parsers, serializers) {
     )
     compact(param)
   })
-  body_params <- vapply(params, function(param) !is.null(param$schema) && (param$schema$type == "object" || isTRUE(param$schema$format == "binary")), logical(1))
+  body_params <- vapply(
+    params,
+    function(param)
+      !is.null(param$schema) &&
+        (param$schema$type == "object" ||
+          isTRUE(param$schema$format == "binary")),
+    logical(1)
+  )
   names(params) <- vapply(params, `[[`, character(1), "name")
   params_body <- params[body_params]
   params <- params[!body_params]
@@ -59,8 +76,15 @@ parse_block_api <- function(tags, values, parsers, serializers) {
       content = rep_named(parsers, list(list(schema = params_body[[1]]$schema)))
     ))
   } else if (length(params_body) > 1) {
-    if (!all(parsers %in% c("application/x-www-form-urlencoded", "multipart/form-data"))) {
-      cli::cli_abort("Multiple {.field @params} tags for request body, but parser is not {.val application/x-www-form-urlencoded} or {.val multipart/form-data}")
+    if (
+      !all(
+        parsers %in%
+          c("application/x-www-form-urlencoded", "multipart/form-data")
+      )
+    ) {
+      cli::cli_abort(
+        "Multiple {.field @params} tags for request body, but parser is not {.val application/x-www-form-urlencoded} or {.val multipart/form-data}"
+      )
     }
     schema <- list(
       type = "object",
@@ -76,36 +100,61 @@ parse_block_api <- function(tags, values, parsers, serializers) {
   responses <- unlist(values[tags == "response"])
   responses <- stringi::stri_split_fixed(responses, " ", n = 2)
   response_codes <- vapply(responses, `[[`, character(1), 1)
-  responses <- set_names(lapply(responses, function(response) {
-    compact(list(
-      description = if (length(response) == 2) response[2]
-    ))
-  }), response_codes)
-  responses <- modifyList(default_responses, responses)
+  responses <- set_names(
+    lapply(responses, function(response) {
+      compact(list(
+        description = if (length(response) == 2) response[2]
+      ))
+    }),
+    response_codes
+  )
+  responses <- utils::modifyList(default_responses, responses)
   response_format <- which(tags == "responseFormat")
   if (length(response_format) != 0) {
     if (length(response_format) > 1) {
-      cli::cli_warn("Multiple {.field @responseFormat} tags. Only using the first")
+      cli::cli_warn(
+        "Multiple {.field @responseFormat} tags. Only using the first"
+      )
     }
     schema <- parse_openapi_type(values[[response_format[1]]])
   } else {
     schema <- list()
   }
-  responses[["200"]]$content <- rep_named(serializers, list(list(schema = schema)))
+  responses[["200"]]$content <- rep_named(
+    serializers,
+    list(list(schema = schema))
+  )
 
   tag <- unlist(values[tags == "tag"])
 
-  methods <- which(tags %in% c("get", "head", "post", "put", "delete", "connect", "options", "trace", "patch"))
+  methods <- which(
+    tags %in%
+      c(
+        "get",
+        "head",
+        "post",
+        "put",
+        "delete",
+        "connect",
+        "options",
+        "trace",
+        "patch"
+      )
+  )
   paths <- trimws(unlist(values[methods]))
   methods <- split(tags[methods], paths)
   for (path in names(methods)) {
-    args <- stringi::stri_match_all_regex(path, "<(.+?)>")[[1]][,2]
+    args <- stringi::stri_match_all_regex(path, "<(.+?)>")[[1]][, 2]
     if (isTRUE(is.na(args))) {
       args <- matrix(character())
     } else {
       args <- stringi::stri_match_first_regex(args, "^(.+?)(:(.+?))?(\\*)?$")
     }
-    clean_path <- stringi::stri_replace_all_regex(path, "<(.+?)(:.+?)?>", "{$1}")
+    clean_path <- stringi::stri_replace_all_regex(
+      path,
+      "<(.+?)(:.+?)?>",
+      "{$1}"
+    )
     endpoint <- list()
     for (method in methods[[path]]) {
       local_params <- params
@@ -118,7 +167,10 @@ parse_block_api <- function(tags, values, parsers, serializers) {
           style = "simple", # TODO: Should this be user definable
           schema = parse_openapi_type(args[i, 4])
         )
-        local_params[[args[i, 2]]] <- modifyList(local_params[[args[i, 2]]] %||% list(), compact(param))
+        local_params[[args[i, 2]]] <- utils::modifyList(
+          local_params[[args[i, 2]]] %||% list(),
+          compact(param)
+        )
       }
       endpoint[[method]] <- compact(list(
         summary = summary,
@@ -143,23 +195,36 @@ parse_openapi_type <- function(string) {
   if (grepl("^\\{", string)) {
     content <- gsub("^\\{|\\}$", "", string)
     last <- 0
-    seps <- stringi::stri_locate_all_fixed(content, ",")[[1]][,1]
-    curly_open <- stringi::stri_locate_all_fixed(content, "{")[[1]][,1]
-    curly_close <- stringi::stri_locate_all_fixed(content, "}")[[1]][,1]
-    brack_open <- stringi::stri_locate_all_fixed(content, "[")[[1]][,1]
-    brack_close <- stringi::stri_locate_all_fixed(content, "]")[[1]][,1]
-    if (length(curly_open) != length(curly_close) || length(brack_open) != length(brack_close)) {
-      cli::cli_abort("Syntax error in {.val {content}}. Opening and closing brackets doesn't match")
+    seps <- stringi::stri_locate_all_fixed(content, ",")[[1]][, 1]
+    curly_open <- stringi::stri_locate_all_fixed(content, "{")[[1]][, 1]
+    curly_close <- stringi::stri_locate_all_fixed(content, "}")[[1]][, 1]
+    brack_open <- stringi::stri_locate_all_fixed(content, "[")[[1]][, 1]
+    brack_close <- stringi::stri_locate_all_fixed(content, "]")[[1]][, 1]
+    if (
+      length(curly_open) != length(curly_close) ||
+        length(brack_open) != length(brack_close)
+    ) {
+      cli::cli_abort(
+        "Syntax error in {.val {content}}. Opening and closing brackets doesn't match"
+      )
     }
     for (i in seq_along(seps)) {
-      if (isFALSE(sum(curly_open > last & curly_open < seps[i]) == sum(curly_close > last & curly_close < seps[i])) ||
-          isFALSE(sum(brack_open > last & brack_open < seps[i]) == sum(brack_close > last & brack_close < seps[i]))) {
+      if (
+        isFALSE(
+          sum(curly_open > last & curly_open < seps[i]) ==
+            sum(curly_close > last & curly_close < seps[i])
+        ) ||
+          isFALSE(
+            sum(brack_open > last & brack_open < seps[i]) ==
+              sum(brack_close > last & brack_close < seps[i])
+          )
+      ) {
         seps[i] <- NA
         next
       }
       last <- seps[i]
     }
-    seps <- na.omit(seps)
+    seps <- seps[!is.na(seps)]
     from <- c(0, seps + 1)
     to <- c(seps - 1, stringi::stri_length(content))
     content <- trimws(stringi::stri_sub_all(content, from, to)[[1]])
@@ -167,7 +232,10 @@ parse_openapi_type <- function(string) {
 
     list(
       type = "object",
-      properties = set_names(lapply(content_split[,3], parse_openapi_type), content_split[,2] %|% content)
+      properties = set_names(
+        lapply(content_split[, 3], parse_openapi_type),
+        content_split[, 2] %|% content
+      )
     )
   } else if (grepl("^\\[", string)) {
     list(

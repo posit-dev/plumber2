@@ -2,11 +2,34 @@ handle_constructor <- function(method, header = FALSE) {
   force(method)
   force(header)
   docs <- NULL
-  fun <- function(api, path, handler, serializers = NULL, parsers = NULL, use_strict_serializer = FALSE, download = FALSE, route = NULL, docs = NULL) {
-    api$request_handler(method = method, path = path, handler = handler, serializers, parsers, use_strict_serializer, download, header)
+  fun <- function(
+    api,
+    path,
+    handler,
+    serializers = NULL,
+    parsers = NULL,
+    use_strict_serializer = FALSE,
+    download = FALSE,
+    route = NULL,
+    docs = NULL
+  ) {
+    api$request_handler(
+      method = method,
+      path = path,
+      handler = handler,
+      serializers,
+      parsers,
+      use_strict_serializer,
+      download,
+      header
+    )
     if (!is.null(docs)) {
-      clean_path <- stringi::stri_replace_all_regex(path, "<(.+?)(:.+?)?>", "{$1}")
-      api$add_api_spec(docs, subset = c("paths", cleanpath, method))
+      clean_path <- stringi::stri_replace_all_regex(
+        path,
+        "<(.+?)(:.+?)?>",
+        "{$1}"
+      )
+      api$add_api_spec(docs, subset = c("paths", clean_path, method))
     }
     api
   }
@@ -173,9 +196,9 @@ handle_constructor <- function(method, header = FALSE) {
 #' @param parsers A named list of parsers that can be used to parse the
 #' request body before passing it in as the `body` argument. Which one is
 #' selected is based on the request `Content-Type` header
-#' @param use_strict_serializer By default, if a serializer can not be found
-#' that respects the requests `Accept` header, then the first of the provided
-#' ones are used. Setting this to `TRUE` will instead send back a
+#' @param use_strict_serializer By default, if a serializer that respects the
+#' requests `Accept` header cannot be found, then the first of the provided ones
+#' are used. Setting this to `TRUE` will instead send back a
 #' `406 Not Acceptable` response
 #' @param download Should the response mark itself for download instead of being
 #' shown inline? Setting this to `TRUE` will set the `Content-Disposition`
@@ -183,7 +206,8 @@ handle_constructor <- function(method, header = FALSE) {
 #' to setting it to `TRUE` but will in addition also set the default filename of
 #' the download to the string value
 #' @param route The route this handler should be added to. Defaults to the last
-#' route in the stack.
+#' route in the stack. If the route does not exist it will be created as the
+#' last route in the stack
 #' @param docs A list with the OpenAPI spec for the endpoint
 #'
 #' @return These functions return the `api` object allowing for easy chaining
