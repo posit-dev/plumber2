@@ -115,6 +115,7 @@ parse_geojson <- function(...) {
 on_load({
   register_parser("csv", parse_csv, c("application/csv", "application/x-csv", "text/csv", "text/x-csv"))
   register_parser("json", reqres::parse_json, c("application/json", "text/json"))
+  # TODO: I don't think this is quite baked yet
   register_parser("multi", reqres::parse_multiform, "multipart/*")
   register_parser("octet", parse_octet, "application/octet-stream")
   register_parser("form", reqres::parse_queryform, "application/x-www-form-urlencoded")

@@ -1,4 +1,4 @@
-parse_global_api <- function(tags, values) {
+parse_global_api <- function(tags, values, env = caller_env()) {
   if (any(tags == "noDoc")) return(NULL)
   values <- set_names(values, tags)
   api <- list(
@@ -7,8 +7,8 @@ parse_global_api <- function(tags, values) {
       title = values$apiTitle,
       description = values$apiDescription,
       termsOfService = values$apiTOS,
-      contact = eval(parse(values$apiContact)),
-      license = eval(parse(values$apiLicense)),
+      contact = eval(parse(text = values$apiContact %||% "NULL"), env),
+      license = eval(parse(text = values$apiLicense %||% "NULL"), env),
       version = values$apiVersion
     )),
     tag = unname(lapply(values[tags == "apiTag"], function(tag) {

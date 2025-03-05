@@ -14,11 +14,12 @@ Imports:
     cli,
     fiery (>= 1.2.1.9000),
     fs,
+    R6,
     reqres (>= 0.2.5.9000),
     rlang (>= 1.1.0),
     routr (>= 0.4.1.9000),
     roxygen2
-Remotes:  
+Remotes: 
     thomasp85/fiery,
     thomasp85/reqres,
     thomasp85/routr

@@ -1,0 +1,340 @@
+handle_constructor <- function(method, header = FALSE) {
+  force(method)
+  force(header)
+  docs <- NULL
+  fun <- function(api, path, handler, serializers = NULL, parsers = NULL, use_strict_serializer = FALSE, download = FALSE, route = NULL, docs = NULL) {
+    api$request_handler(method = method, path = path, handler = handler, serializers, parsers, use_strict_serializer, download, header)
+    if (!is.null(docs)) {
+      clean_path <- stringi::stri_replace_all_regex(path, "<(.+?)(:.+?)?>", "{$1}")
+      api$add_api_spec(docs, subset = c("paths", cleanpath, method))
+    }
+    api
+  }
+  if (header) {
+    fn_fmls(fun) <- fn_fmls(fun)[fn_fmls_names(fun) != "docs"]
+  }
+  fun
+}
+
+#' Add a handler for a request
+#'
+#' This family of functions facilitates adding a request handler for a specific
+#' HTTP method and path.
+#'
+#' # HTTP Methods
+#' The HTTP specs provide a selection of specific methods that clients can send
+#' to the server (your plumber api). While there is no enforcement that the
+#' server follows any conventions you should strive to create a server API that
+#' adheres to common expectations. It is not required that a server understands
+#' all methods, most often the opposite is true. The HTTP methods are described
+#' below, but consider consulting [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
+#' to get acquainted with the HTTP spec in general
+#'
+#' * `GET`: This method is used to request specific content and is perhaps the
+#'   most ubiquitous method in use. `GET` requests should only retrieve data and
+#'   should not contain any body content
+#' * `HEAD`: This method is identical to `GET`, except the response should only
+#'   contain headers, no body. Apart from this it is expected that a `HEAD`
+#'   request is identical to a `GET` request for the same ressource
+#' * `POST`: This method delivers content, in the form of a request body, to the
+#'   server, potentially causing a change in the server. In the context of
+#'   plumber2 it is often used to call functions that require input larger than
+#'   what can be put in the URL
+#' * `PUT`: This method is used to update a specific ressource on the server. In
+#'   the context of a standard plumber2 server this is rarely relevant, though
+#'   usage can come up. `PUT` is considered by clients to be indemptotent meaning
+#'   that sending the same `PUT` request multiple times have no effect
+#' * `DELETE`: This method deletes a ressource and is the opposite to `PUT`. As
+#'   with `PUT` this method has limited use in most standard plumber2 servers
+#' * `CONNECT`: This method request the establishment of a proxy tunnel. It is
+#'   considered advanced use and is very unlikely to have a usecase for your
+#'   plumber2 api
+#' * `OPTIONS`: This method is used by clients to query a server about what
+#'   methods and other settings are supported on a server
+#' * `TRACE`: This method is a form of ping that should send a response
+#'   containing the request (stripped of any sensitive information). Many
+#'   servers disallow this method due to security concerns
+#' * `PATCH`: This method is like `PUT` but allows partial modification of a
+#'   ressource
+#'
+#' Apart from the above, plumber2 also understands the `ANY` method which
+#' responds to requests to any of the above methods, assuming that a specific
+#' handler for the method is not found. As the semantics of the various methods
+#' are quite different an `ANY` handler should mainly be used for rejections or
+#' for setting specific broad headers on the response, not as the main handler
+#' for the request
+#'
+#' # The Path
+#' The path defines the URL the request is being made to with the root removed.
+#' If your plumber2 server runs from `http://example.com/api/` and a request is
+#' made to `http://example.com/api/user/thomas/`, then the path would be
+#' `user/thomas/`. Paths can be static like the prior example, or dynamic as
+#' described below:
+#'
+#' ## Path arguments
+#' Consider you have a bunch of users. It would be impractical to register a
+#' handler for each one of them. Instead you can use a dynamic path like with
+#' the following syntax: `user/<username>/`. This path would be matched to any
+#' requests made to `user/..something../`. The actual value of `..something..`
+#' (e.g. `thomas`) would be made available to the handler (see below). A path
+#' can contain multiple arguments if needed, such as
+#' `user/<username>/settings/<setting>/`
+#'
+#' ## Path wildcards
+#' Apart from path arguments it is also possible to be even less specific by
+#' adding a wildcard to the path. The path `user/*` will match both
+#' `user/thomas/`, `user/thomas/settings/interests/`, and anything other path
+#' that begins with `user/`. As with arguments a path can contain multiple
+#' wildcards but the use of these have very diminishing returns. Contrary to
+#' path arguments the value(s) corresponding to `*` is not made available to the
+#' handler.
+#'
+#' ## Path Priority
+#' With the existence of path arguments and wildcards it is possible that
+#' multiple handlers in a route can be matched to a single request. Since only
+#' one can be selected we need to determine which one wins. The priority is
+#' based on the specificity of the path. Consider a server containing the
+#' following handler paths: `user/thomas/`, `user/<username>/`,
+#' `user/<username>/settings/<setting>/`, `user/*`. These paths will have the
+#' following priority:
+#'
+#' 1. `user/<username>/settings/<setting>/`
+#' 2. `user/thomas/`
+#' 3. `user/<username>/`
+#' 4. `user/*`
+#'
+#' The first spot is due to the fact that it is the path with the most elements
+#' so it is deemed most specific. For the remaining 3 they all have the same
+#' number of elements, but static paths are considered more specific than
+#' dynamic paths, and path arguments are considered more specific than
+#' wildcards.
+#'
+#' A request made to `user/carl` will thus end up in the third handler, while a
+#' request made to `user/thomas` will end up in the second. This ordering makes
+#' it possible to both provide default handlers as well as specialisations for
+#' specific paths.
+#'
+#' # The Handler
+#' The handler is a standard R function that is called when a request is made
+#' that matches the handlers path (unless a more specific handler path exists —
+#' see above). A handler function can perform any operation a normal R function
+#' can do, though you should consider strongly the security implications of your
+#' handler functions. However, there are certain expectations in plumber around
+#' the arguments a handler function takes and the return value it provides
+#'
+#' ## Handler Arguments
+#' The handler function can take one or more of the following arguments.
+#' * **Path arguments**: Any path arguments are passed on to the handler. If a
+#'   handler is registered for the following path
+#'   `user/<username>/settings/<setting>/` and it handles a request to
+#'   `user/thomas/settings/interests/` then it will be called with
+#'   `username = "thomas", setting = "interest"`
+#' * `request`: The request the handler is responding to as a [reqres::Request]
+#'   object
+#' * `response`: The response being returned to the client as a
+#'   [reqres::Response] object
+#' * `server`: The [Plumber] object representing your server implementation
+#' * `client_id`: A string uniquely identifying the session the request comes
+#'   from
+#' * `query`: A list giving any additional arguments passed into the handler as
+#'   part of the url query string
+#' * `body`: The request body, parsed as specified by the provided parsers
+#'
+#' ## Handler Return Value
+#' Handlers can return a range of different value types, which will inform
+#' plumber2 what to do next:
+#'
+#' ### Returning `Next` or `Break`
+#' These two control objects informs plumber2 to either proceed handling the
+#' request (`Next`) or return the response as is, circumventing any remaining
+#' routes (`Break`)
+#'
+#' ### Returning `NULL` or the `response` object
+#' This is the same as returning `Next`, ie. it signals that handling can
+#' proceed
+#'
+#' ### Returning a ggplot2 object
+#' If you return a ggplot2 object it will get plotted for you (and added to the
+#' response assuming a graphics serializer is provided) before handling
+#' continues
+#'
+#' ### Returning any other value
+#' Any kind of value returned that is not captured by the above description will
+#' be set to the response body (overwritting what was already there) and
+#' handling is then allowed to continue
+#'
+#' @param api A plumber2 api object to add the handler to
+#' @param path A string giving the path the handler responds to. See Details
+#' @param handler A handler function to call when a request is matched to the
+#' path
+#' @param serializers A named list of serializers that can be used to format the
+#' response before sending it back to the client. Which one is selected is based
+#' on the request `Accept` header
+#' @param parsers A named list of parsers that can be used to parse the
+#' request body before passing it in as the `body` argument. Which one is
+#' selected is based on the request `Content-Type` header
+#' @param use_strict_serializer By default, if a serializer can not be found
+#' that respects the requests `Accept` header, then the first of the provided
+#' ones are used. Setting this to `TRUE` will instead send back a
+#' `406 Not Acceptable` response
+#' @param download Should the response mark itself for download instead of being
+#' shown inline? Setting this to `TRUE` will set the `Content-Disposition`
+#' header in the response to `attachment`. Setting it to a string is equivalent
+#' to setting it to `TRUE` but will in addition also set the default filename of
+#' the download to the string value
+#' @param route The route this handler should be added to. Defaults to the last
+#' route in the stack.
+#' @param docs A list with the OpenAPI spec for the endpoint
+#'
+#' @return These functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @rdname api_request_handlers
+#' @name api_request_handlers
+#'
+#' @family Request Handlers
+#'
+NULL
+
+#' @rdname api_request_handlers
+#' @export
+#'
+api_get <- handle_constructor("get")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_head <- handle_constructor("head")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_post <- handle_constructor("post")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_put <- handle_constructor("put")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_delete <- handle_constructor("delete")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_connect <- handle_constructor("connect")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_options <- handle_constructor("options")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_trace <- handle_constructor("trace")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_patch <- handle_constructor("patch")
+#' @rdname api_request_handlers
+#' @export
+#'
+api_any <- handle_constructor("any")
+
+#' Add a handler for a request header
+#'
+#' These handlers are called before the request body has been recieved and lets y
+#' ou preemptively reject requests before recieving their full content. Most of
+#' your logic, however, will be in the main handlers and you are asked to
+#' consult the [api_request_handlers] docs for in-depth details on how to use
+#' request handlers in general.
+#'
+#' @inheritParams api_request_handlers
+#'
+#' @return These functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @rdname api_request_header_handlers
+#' @name api_request_header_handlers
+#'
+#' @family Request Handlers
+#'
+NULL
+
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_get_header <- handle_constructor("get", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_head_header <- handle_constructor("head", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_post_header <- handle_constructor("post", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_put_header <- handle_constructor("put", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_delete_header <- handle_constructor("delete", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_connect_header <- handle_constructor("connect", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_options_header <- handle_constructor("options", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_trace_header <- handle_constructor("trace", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_patch_header <- handle_constructor("patch", header = TRUE)
+#' @rdname api_request_header_handlers
+#' @export
+#'
+api_any_header <- handle_constructor("any", header = TRUE)
+
+#' Add a handler to a WebSocket message
+#'
+#' WebSockets is a bidirectional communication channel that can be established
+#' at the request of the client. While websocket communication is not really
+#' part of a standard REST api, it has many uses and can easily be used together
+#' with one.
+#'
+#' A handler for a websocket message is much simpler than for requests in
+#' general since it doesn't have to concern itself with methods, paths, and
+#' responses. Any message handler registered will get called in sequence when a
+#' websocket message is recieved from a client. Still, a few expectations apply
+#'
+#' ## Handler Arguments
+#' The handler can take any of the following arguments:
+#' * `message`: Either a raw vector if the message recieved is in binary form or
+#'   a single string, giving the message sent from the client
+#' * `server`: The [Plumber] object representing your server implementation
+#' * `client_id`: A string uniquely identifying the session the request comes
+#'   from
+#' * `request`: The request that was initially used to establish the websocket
+#'   connection with the client as a [reqres::Request] object
+#'
+#' ## Handler Return Value
+#' It is not expected that a websocket message sends a response and thus the
+#' handler is not required to do anything like that. However, if the handler
+#' returns either a raw vector or a single string it is taken as a signal to
+#' send this back to the client. Any other return value is silently ignored.
+#'
+#' @param handler A function conforming to the specifications laid out in
+#' Details
+#'
+#' @return These functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+api_message <- function(handler) {
+  api$message_handler(handler)
+  api
+}
