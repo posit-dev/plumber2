@@ -350,6 +350,7 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #' returns either a raw vector or a single string it is taken as a signal to
 #' send this back to the client. Any other return value is silently ignored.
 #'
+#' @param api A plumber2 api object to add the handler to
 #' @param handler A function conforming to the specifications laid out in
 #' Details
 #'
@@ -358,7 +359,7 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #'
 #' @export
 #'
-api_message <- function(handler) {
+api_message <- function(api, handler) {
   api$message_handler(handler)
   api
 }

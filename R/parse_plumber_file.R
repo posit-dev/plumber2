@@ -101,7 +101,7 @@ parse_block <- function(block, route, header_route, env = caller_env()) {
   tags <- vapply(block$tags, `[[`, character(1), "tag")
   values <- lapply(block$tags, `[[`, "raw")
   if (any(tags == "assets")) {
-    parse_asset_block(call, block, tags, values, route, env)
+    parse_asset_block(call, block, tags, values, header_route, env)
   } else if (any(tags == "statics")) {
     parse_static_block(call, block, tags, values, env)
   } else if (any(tags == "message")) {

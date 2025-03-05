@@ -4,9 +4,11 @@
 \alias{api_message}
 \title{Add a handler to a WebSocket message}
 \usage{
-api_message(handler)
+api_message(api, handler)
 }
 \arguments{
+\item{api}{A plumber2 api object to add the handler to}
+
 \item{handler}{A function conforming to the specifications laid out in
 Details}
 }
