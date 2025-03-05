@@ -1,0 +1,19 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/Next.html</loc></url>
+<url><loc>/reference/Plumber.html</loc></url>
+<url><loc>/reference/api.html</loc></url>
+<url><loc>/reference/api_message.html</loc></url>
+<url><loc>/reference/api_request_handlers.html</loc></url>
+<url><loc>/reference/api_request_header_handlers.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/parse_plumber_file.html</loc></url>
+<url><loc>/reference/plumber2-package.html</loc></url>
+<url><loc>/reference/register_parser.html</loc></url>
+<url><loc>/reference/register_serializer.html</loc></url>
+</urlset>
+
