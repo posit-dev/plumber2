@@ -26,11 +26,10 @@ registry$serializers <- list()
 #'
 #' @export
 #'
-register_serializer <- function(name, fun, mime_type, graphic = FALSE) {
+register_serializer <- function(name, fun, mime_type) {
   check_function(fun)
   check_string(mime_type)
   check_string(name)
-  check_bool(graphic)
   if (grepl("/", name, fixed = TRUE)) {
     cli::cli_abort(
       "{.arg name} must not contain the forward slash character ({.field /})"
@@ -43,8 +42,7 @@ register_serializer <- function(name, fun, mime_type, graphic = FALSE) {
   }
   registry$serializers[[name]] <- list(
     fun = fun,
-    type = mime_type,
-    graphic = graphic
+    type = mime_type
   )
   invisible(NULL)
 }

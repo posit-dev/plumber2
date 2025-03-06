@@ -5,7 +5,7 @@
 \alias{get_serializers}
 \title{Register or fetch a serializer}
 \usage{
-register_serializer(name, fun, mime_type, graphic = FALSE)
+register_serializer(name, fun, mime_type)
 
 get_serializers(serializers = NULL)
 }
