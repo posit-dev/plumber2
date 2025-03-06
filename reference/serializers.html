@@ -70,7 +70,19 @@ them to register them to alternative types if they know it makes sense.</p>
 <span></span>
 <span><span class="fu">format_cat</span><span class="op">(</span><span class="va">...</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">format_unboxed</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">format_unboxed</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">format_png</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">format_jpeg</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">format_tiff</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">format_svg</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">format_bmp</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">format_pdf</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -112,25 +124,25 @@ as <code>"csv"</code> to the mime type <code>text/csv</code></p></li>
 as <code>"tsv"</code> to the mime type <code>text/tsv</code></p></li>
 <li><p><code>format_rds()</code> uses <code><a href="https://rdrr.io/r/base/serialize.html" class="external-link">serialize()</a></code> for formatting. It is registered as
 <code>"rds"</code> to the mime type <code>application/rds</code></p></li>
-<li><p><code>format_geojson</code>uses <code><a href="https://rdrr.io/pkg/geojsonsf/man/sfc_geojson.html" class="external-link">geojsonsf::sfc_geojson()</a></code> or <code><a href="https://rdrr.io/pkg/geojsonsf/man/sf_geojson.html" class="external-link">geojsonsf::sf_geojson()</a></code>
+<li><p><code>format_geojson()</code> uses <code><a href="https://rdrr.io/pkg/geojsonsf/man/sfc_geojson.html" class="external-link">geojsonsf::sfc_geojson()</a></code> or <code><a href="https://rdrr.io/pkg/geojsonsf/man/sf_geojson.html" class="external-link">geojsonsf::sf_geojson()</a></code>
 for formatting depending on the class of the response body. It is
 registered as <code>"geojson"</code> to the mime type <code>application/geo+json</code></p></li>
-<li><p><code>format_feather</code>uses <code><a href="https://arrow.apache.org/docs/r/reference/write_feather.html" class="external-link">arrow::write_feather()</a></code> for formatting. It is
+<li><p><code>format_feather()</code> uses <code><a href="https://arrow.apache.org/docs/r/reference/write_feather.html" class="external-link">arrow::write_feather()</a></code> for formatting. It is
 registered as <code>"feather"</code> to the mime type
 <code>application/vnd.apache.arrow.file</code></p></li>
-<li><p><code>format_parquet</code>uses <code><a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" class="external-link">nanoparquet::write_parquet()</a></code> for formatting. It is
+<li><p><code>format_parquet()</code> uses <code><a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" class="external-link">nanoparquet::write_parquet()</a></code> for formatting. It is
 registered as <code>"parquet"</code> to the mime type <code>application/vnd.apache.parquet</code></p></li>
-<li><p><code>format_yaml</code>uses <code><a href="https://rdrr.io/pkg/yaml/man/as.yaml.html" class="external-link">yaml::as.yaml()</a></code> for formatting. It is registered
+<li><p><code>format_yaml()</code> uses <code><a href="https://rdrr.io/pkg/yaml/man/as.yaml.html" class="external-link">yaml::as.yaml()</a></code> for formatting. It is registered
 as <code>"yaml"</code> to the mime type <code>text/yaml</code></p></li>
-<li><p><code>format_htmlwidget</code>uses <code><a href="https://rdrr.io/pkg/htmlwidgets/man/saveWidget.html" class="external-link">htmlwidgets::saveWidget()</a></code> for formatting. It is
+<li><p><code>format_htmlwidget()</code> uses <code><a href="https://rdrr.io/pkg/htmlwidgets/man/saveWidget.html" class="external-link">htmlwidgets::saveWidget()</a></code> for formatting. It is
 registered as <code>"htmlwidget"</code> to the mime type <code>text/html</code></p></li>
-<li><p><code>format_format</code>uses <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> for formatting. It is registered
+<li><p><code>format_format()</code> uses <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> for formatting. It is registered
 as <code>"format"</code> to the mime type <code>text/plain</code></p></li>
-<li><p><code>format_print</code>uses <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> for formatting. It is registered
+<li><p><code>format_print()</code> uses <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> for formatting. It is registered
 as <code>"print"</code> to the mime type <code>text/plain</code></p></li>
-<li><p><code>format_cat</code>uses <code><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat()</a></code> for formatting. It is registered
+<li><p><code>format_cat()</code> uses <code><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat()</a></code> for formatting. It is registered
 as <code>"cat"</code> to the mime type <code>text/plain</code></p></li>
-<li><p><code>format_unboxed</code>uses <code><a href="https://reqres.data-imaginist.com/reference/formatters.html" class="external-link">reqres::format_json()</a></code> with <code>auto_unbox = TRUE</code> for
+<li><p><code>format_unboxed()</code> uses <code><a href="https://reqres.data-imaginist.com/reference/formatters.html" class="external-link">reqres::format_json()</a></code> with <code>auto_unbox = TRUE</code> for
 formatting. It is registered as <code>"unboxedJSON"</code> to the mime type
 <code>application/json</code></p></li>
 </ul><div class="section">
@@ -147,6 +159,25 @@ type <code>text/html</code></p></li>
 </ul></div>
 
     </div>
+    <div id="provided-graphics-serializers">
+    <h2>Provided graphics serializers</h2>
+    <p>Serializing graphic output is special because it requires operations before
+and after the handler is executed. Further, handlers creating graphics are
+expected to do so through side-effects (ie. call to graphics rendering) or
+by returning a ggplot2 object. If you want to create your own graphics
+serializer you should use <code><a href="device_formatter.html">device_formatter()</a></code> for constructing it.</p><ul><li><p><code>format_png()</code> uses <code><a href="https://ragg.r-lib.org/reference/agg_png.html" class="external-link">ragg::agg_png()</a></code> for rendering. It is registered
+as <code>"png"</code> to the mime type <code>image/png</code></p></li>
+<li><p><code>format_jpeg()</code> uses <code><a href="https://ragg.r-lib.org/reference/agg_jpeg.html" class="external-link">ragg::agg_jpeg()</a></code> for rendering. It is registered
+as <code>"jpeg"</code> to the mime type <code>image/jpeg</code></p></li>
+<li><p><code>format_tiff()</code> uses <code><a href="https://ragg.r-lib.org/reference/agg_tiff.html" class="external-link">ragg::agg_tiff()</a></code> for rendering. It is registered
+as <code>"tiff"</code> to the mime type <code>image/tiff</code></p></li>
+<li><p><code>format_svg()</code> uses <code><a href="https://svglite.r-lib.org/reference/svglite.html" class="external-link">svglite::svglite()</a></code> for rendering. It is registered
+as <code>"svg"</code> to the mime type <code>image/svg+xml</code></p></li>
+<li><p><code>format_bmp()</code> uses <code><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">grDevices::bmp()</a></code> for rendering. It is registered
+as <code>"bmp"</code> to the mime type <code>image/bmp</code></p></li>
+<li><p><code>format_pdf()</code> uses <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">grDevices::pdf()</a></code> for rendering. It is registered
+as <code>"pdf"</code> to the mime type <code>application/pdf</code></p></li>
+</ul></div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p><code><a href="register_serializer.html">register_serializer()</a></code></p></div>

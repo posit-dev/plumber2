@@ -78,7 +78,7 @@ vector of names of registered serializers or a list. If it is a list then the
 following expectations apply:</p><ul><li><p>Any unnamed elements containing a character vector will be considered as
 names of registered serializers constructed with default values. The
 special value <code>"..."</code> will fetch all the serializers that are otherwise not
-specified in the call</p></li>
+specified in the call.</p></li>
 <li><p>Any element containing a function are considered as a provided serializer
 and the element must be named by the mime type the serializer understands</p></li>
 <li><p>Any remaining named elements will be considered names of registered
@@ -98,6 +98,13 @@ their mime type. The order given in <code>serializers</code> is preserved.</p>
 must be a factory function, ie. a function returning a function. The returned
 function must accept a single argument which is the response body. All
 arguments to the factory function should be optional.</p>
+    </div>
+    <div id="note">
+    <h2>Note</h2>
+    <p>Using the <code>...</code> will provide remaining graphics serializers if a
+graphics serializer is explicitely requested elsewhere. Otherwise it will
+provide the remaining non-graphics serializers. A warning is thrown if a mix
+of graphics and non-graphics serializers are requested.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>

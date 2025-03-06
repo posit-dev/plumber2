@@ -110,6 +110,16 @@ object is desired, use the <code>clone()</code> method.</p>
 will pass through this router prior to reading in the body)</p></dd>
 
 
+<dt><code>doc_type</code></dt>
+<dd><p>The type of API documentation to generate. Can be either
+<code>"redoc"</code> (the default), <code>"swagger"</code>, or <code>NULL</code> (equating to not
+generating API docs)</p></dd>
+
+
+<dt><code>doc_path</code></dt>
+<dd><p>The URL path to serve the api documentation from</p></dd>
+
+
 </dl><p></p></div>
     </div>
     <div id="methods">
@@ -125,7 +135,7 @@ will pass through this router prior to reading in the body)</p></dd>
 <li><p><a href="#method-Plumber-request_handler"><code>Plumber$request_handler()</code></a></p></li>
 <li><p><a href="#method-Plumber-message_handler"><code>Plumber$message_handler()</code></a></p></li>
 <li><p><a href="#method-Plumber-parse_file"><code>Plumber$parse_file()</code></a></p></li>
-<li><p><a href="#method-Plumber-add_api_spec"><code>Plumber$add_api_spec()</code></a></p></li>
+<li><p><a href="#method-Plumber-add_api_doc"><code>Plumber$add_api_doc()</code></a></p></li>
 <li><p><a href="#method-Plumber-clone"><code>Plumber$clone()</code></a></p></li>
 </ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="fiery" data-topic="Fire" data-id="async"><a href="https://fiery.data-imaginist.com/reference/Fire.html#method-async"><code>fiery::Fire$async()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="fiery" data-topic="Fire" data-id="attach"><a href="https://fiery.data-imaginist.com/reference/Fire.html#method-attach"><code>fiery::Fire$attach()</code></a></span></li>
@@ -166,7 +176,13 @@ will pass through this router prior to reading in the body)</p></dd>
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/Plumber.html">Plumber</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  host <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"host"</span>, <span class="st">"127.0.0.1"</span><span class="op">)</span>,</span>
-<span>  port <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"port"</span>, <span class="fl">8080</span><span class="op">)</span></span>
+<span>  port <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"port"</span>, <span class="fl">8080</span><span class="op">)</span>,</span>
+<span>  doc_type <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"docs"</span>, <span class="st">"redoc"</span><span class="op">)</span>,</span>
+<span>  doc_path <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"apiPath"</span>, <span class="st">"__docs__"</span><span class="op">)</span>,</span>
+<span>  reject_missing_methods <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"methodNotAllowed"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  ignore_trailing_slash <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"trailingSlash"</span><span class="op">)</span>,</span>
+<span>  max_request_size <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"maxRequestSize"</span><span class="op">)</span>,</span>
+<span>  shared_secret <span class="op">=</span> <span class="fu">get_opts</span><span class="op">(</span><span class="st">"sharedSecret"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -178,6 +194,56 @@ will pass through this router prior to reading in the body)</p></dd>
 
 <dt><code>port</code></dt>
 <dd><p>An port number overriding the default port</p></dd>
+
+
+<dt><code>doc_type</code></dt>
+<dd><p>The type of API documentation to generate. Can be either
+<code>"redoc"</code> (the default), <code>"swagger"</code>, or <code>NULL</code> (equating to not
+generating API docs)</p></dd>
+
+
+<dt><code>doc_path</code></dt>
+<dd><p>The URL path to serve the api documentation from</p></dd>
+
+
+<dt><code>reject_missing_methods</code></dt>
+<dd><p>Should requests to paths that doesn't
+have a handler for the specific method automatically be rejected with a
+405 Method Not Allowed response with the correct Allow header informing
+the client of the implemented methods. Assigning a handler to <code>"any"</code> for
+the same path at a later point will overwrite this functionality. Be
+aware that setting this to <code>TRUE</code> will prevent the request from falling
+through to other routes that might have a matching method and path. This
+setting anly affects handlers on the request router.</p></dd>
+
+
+<dt><code>ignore_trailing_slash</code></dt>
+<dd><p>One of <code>"no"</code>, <code>"redirect"</code>, or <code>"remap"</code>.
+If <code>"no"</code> then the router consider the URL paths <code>path/to/ressource</code> and
+<code>path/to/ressource/</code> as different and they will end in different handlers.
+If <code>"redirect"</code> then any request that is made to a path with a trailing
+slash is send a <code>308 Permanent Redirect</code> response instructing the request
+to be redirected to the path without a slash. If <code>"remap"</code> then the
+trailing slash is silently removed from the request path before searching
+for handlers in the different routes of the stack. For the two last
+options all routes added to the stack will have the terminal slash
+removed from their handler paths</p></dd>
+
+
+<dt><code>max_request_size</code></dt>
+<dd><p>Sets a maximum size of request bodies. Setting this
+will add a handler to the header router that automatically rejects requests
+based on their <code>Content-Length</code> header</p></dd>
+
+
+<dt><code>shared_secret</code></dt>
+<dd><p>Assigns a shared secret to the api. Setting this will
+add a handler to the header router that automatically rejects requests if
+their <code>Plumber-Shared-Secret</code> header doesn't contain the same value. Be aware
+that this type of authentication is very weak. Never put the shared secret in
+plain text but rely on e.g. the keyring package for storage. Even so, if
+requests are send over HTTP (not HTTPS) then anyone can read the secret and
+use it</p></dd>
 
 
 </dl><p></p></div>
@@ -383,27 +449,27 @@ detailed information</p><div class="section">
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-Plumber-add_api_spec"></a><div class="section">
-<h3 id="method-add-api-spec-">Method <code>add_api_spec()</code><a class="anchor" aria-label="anchor" href="#method-add-api-spec-"></a></h3>
+</div><p></p><hr><a id="method-Plumber-add_api_doc"></a><div class="section">
+<h3 id="method-add-api-doc-">Method <code>add_api_doc()</code><a class="anchor" aria-label="anchor" href="#method-add-api-doc-"></a></h3>
 <p>Add a (partial) OpenAPI spec to the api docs</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber</span><span class="op">$</span><span class="fu">add_api_spec</span><span class="op">(</span><span class="va">spec</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span>, subset <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber</span><span class="op">$</span><span class="fu">add_api_doc</span><span class="op">(</span><span class="va">doc</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span>, subset <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>spec</code></dt>
-<dd><p>A list providing documentation</p></dd>
+<p></p><div class="arguments"><dl><dt><code>doc</code></dt>
+<dd><p>A list with the OpenAPI documentation</p></dd>
 
 
 <dt><code>overwrite</code></dt>
 <dd><p>Logical. Should already existing documentation be
-removed or should it be merged together with <code>spec</code></p></dd>
+removed or should it be merged together with <code>doc</code></p></dd>
 
 
 <dt><code>subset</code></dt>
 <dd><p>A character vector giving the path to the subset of the
-docs to assign <code>spec</code> to</p></dd>
+docs to assign <code>doc</code> to</p></dd>
 
 
 </dl><p></p></div>
