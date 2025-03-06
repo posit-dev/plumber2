@@ -40,6 +40,12 @@ object is desired, use the \code{clone()} method.
 
 \item{\code{header_router}}{The router handling partial requests (the request
 will pass through this router prior to reading in the body)}
+
+\item{\code{doc_type}}{The type of API documentation to generate. Can be either
+\code{"redoc"} (the default), \code{"swagger"}, or \code{NULL} (equating to not
+generating API docs)}
+
+\item{\code{doc_path}}{The URL path to serve the api documentation from}
 }
 \if{html}{\out{</div>}}
 }
@@ -53,7 +59,7 @@ will pass through this router prior to reading in the body)}
 \item \href{#method-Plumber-request_handler}{\code{Plumber$request_handler()}}
 \item \href{#method-Plumber-message_handler}{\code{Plumber$message_handler()}}
 \item \href{#method-Plumber-parse_file}{\code{Plumber$parse_file()}}
-\item \href{#method-Plumber-add_api_spec}{\code{Plumber$add_api_spec()}}
+\item \href{#method-Plumber-add_api_doc}{\code{Plumber$add_api_doc()}}
 \item \href{#method-Plumber-clone}{\code{Plumber$clone()}}
 }
 }
@@ -337,24 +343,24 @@ Parses a plumber file and updates the app according to it
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plumber-add_api_spec"></a>}}
-\if{latex}{\out{\hypertarget{method-Plumber-add_api_spec}{}}}
-\subsection{Method \code{add_api_spec()}}{
+\if{html}{\out{<a id="method-Plumber-add_api_doc"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber-add_api_doc}{}}}
+\subsection{Method \code{add_api_doc()}}{
 Add a (partial) OpenAPI spec to the api docs
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber$add_api_spec(spec, overwrite = FALSE, subset = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber$add_api_doc(doc, overwrite = FALSE, subset = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{spec}}{A list providing documentation}
+\item{\code{doc}}{A list with the OpenAPI documentation}
 
 \item{\code{overwrite}}{Logical. Should already existing documentation be
-removed or should it be merged together with \code{spec}}
+removed or should it be merged together with \code{doc}}
 
 \item{\code{subset}}{A character vector giving the path to the subset of the
-docs to assign \code{spec} to}
+docs to assign \code{doc} to}
 }
 \if{html}{\out{</div>}}
 }

@@ -11,7 +11,7 @@ handle_constructor <- function(method, header = FALSE) {
     use_strict_serializer = FALSE,
     download = FALSE,
     route = NULL,
-    docs = NULL
+    doc = NULL
   ) {
     api$request_handler(
       method = method,
@@ -29,7 +29,7 @@ handle_constructor <- function(method, header = FALSE) {
         "<(.+?)(:.+?)?>",
         "{$1}"
       )
-      api$add_api_spec(docs, subset = c("paths", clean_path, method))
+      api$add_api_doc(doc, subset = c("paths", clean_path, method))
     }
     api
   }
@@ -210,7 +210,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' @param route The route this handler should be added to. Defaults to the last
 #' route in the stack. If the route does not exist it will be created as the
 #' last route in the stack
-#' @param docs A list with the OpenAPI spec for the endpoint
+#' @param doc A list with the OpenAPI spec for the endpoint
 #'
 #' @return These functions return the `api` object allowing for easy chaining
 #' with the pipe

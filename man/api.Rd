@@ -9,6 +9,12 @@ api(
   ...,
   host = get_opts("host", "127.0.0.1"),
   port = get_opts("port", 8080),
+  doc_type = get_opts("docs", "redoc"),
+  doc_path = get_opts("apiPath", "__docs__"),
+  reject_missing_methods = get_opts("methodNotAllowed", FALSE),
+  ignore_trailing_slash = get_opts("trailingSlash"),
+  max_request_size = get_opts("maxRequestSize"),
+  shared_secret = get_opts("sharedSecret"),
   env = caller_env()
 )
 
@@ -25,6 +31,44 @@ server}
 \item{port}{A number or integer that indicates the server port that should be
 listened on. Note that on most Unix-like systems including Linux and macOS,
 port numbers smaller than 1024 require root privileges.}
+
+\item{doc_type}{The type of API documentation to generate. Can be either
+\code{"redoc"} (the default), \code{"swagger"}, or \code{NULL} (equating to not
+generating API docs)}
+
+\item{doc_path}{The URL path to serve the api documentation from}
+
+\item{reject_missing_methods}{Should requests to paths that doesn't
+have a handler for the specific method automatically be rejected with a
+405 Method Not Allowed response with the correct Allow header informing
+the client of the implemented methods. Assigning a handler to \code{"any"} for
+the same path at a later point will overwrite this functionality. Be
+aware that setting this to \code{TRUE} will prevent the request from falling
+through to other routes that might have a matching method and path. This
+setting anly affects handlers on the request router.}
+
+\item{ignore_trailing_slash}{One of \code{"no"}, \code{"redirect"}, or \code{"remap"}.
+If \code{"no"} then the router consider the URL paths \code{path/to/ressource} and
+\verb{path/to/ressource/} as different and they will end in different handlers.
+If \code{"redirect"} then any request that is made to a path with a trailing
+slash is send a \verb{308 Permanent Redirect} response instructing the request
+to be redirected to the path without a slash. If \code{"remap"} then the
+trailing slash is silently removed from the request path before searching
+for handlers in the different routes of the stack. For the two last
+options all routes added to the stack will have the terminal slash
+removed from their handler paths}
+
+\item{max_request_size}{Sets a maximum size of request bodies. Setting this
+will add a handler to the header router that automatically rejects requests
+based on their \code{Content-Length} header}
+
+\item{shared_secret}{Assigns a shared secret to the api. Setting this will
+add a handler to the header router that automatically rejects requests if
+their \code{Plumber-Shared-Secret} header doesn't contain the same value. Be aware
+that this type of authentication is very weak. Never put the shared secret in
+plain text but rely on e.g. the keyring package for storage. Even so, if
+requests are send over HTTP (not HTTPS) then anyone can read the secret and
+use it}
 
 \item{env}{The environment the files should be parsed in}
 

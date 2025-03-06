@@ -22,7 +22,8 @@ api_get_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_head_header(
@@ -33,7 +34,8 @@ api_head_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_post_header(
@@ -44,7 +46,8 @@ api_post_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_put_header(
@@ -55,7 +58,8 @@ api_put_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_delete_header(
@@ -66,7 +70,8 @@ api_delete_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_connect_header(
@@ -77,7 +82,8 @@ api_connect_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_options_header(
@@ -88,7 +94,8 @@ api_options_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_trace_header(
@@ -99,7 +106,8 @@ api_trace_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_patch_header(
@@ -110,7 +118,8 @@ api_patch_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 
 api_any_header(
@@ -121,7 +130,8 @@ api_any_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL
+  route = NULL,
+  doc = NULL
 )
 }
 \arguments{
@@ -156,6 +166,8 @@ the download to the string value}
 \item{route}{The route this handler should be added to. Defaults to the last
 route in the stack. If the route does not exist it will be created as the
 last route in the stack}
+
+\item{doc}{A list with the OpenAPI spec for the endpoint}
 }
 \value{
 These functions return the \code{api} object allowing for easy chaining

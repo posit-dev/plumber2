@@ -333,26 +333,30 @@ Plumber <- R6Class(
       for (handler in parsed$message_handlers) {
         self$message_handler(handler)
       }
-      self$add_api_spec(parsed$api)
+      self$add_api_doc(parsed$api)
       parsed$modifier(self)
     },
     #' @description Add a (partial) OpenAPI spec to the api docs
-    #' @param spec A list providing documentation
+    #' @param doc A list with the OpenAPI documentation
     #' @param overwrite Logical. Should already existing documentation be
-    #' removed or should it be merged together with `spec`
+    #' removed or should it be merged together with `doc`
     #' @param subset A character vector giving the path to the subset of the
-    #' docs to assign `spec` to
-    add_api_spec = function(spec, overwrite = FALSE, subset = NULL) {
+    #' docs to assign `doc` to
+    add_api_doc = function(doc, overwrite = FALSE, subset = NULL) {
       check_character(subset, allow_null = TRUE)
-      if (!(is_list(spec) && is_named2(spec))) {
-        stop_input_type(spec, "a named list")
+      if (!(is_list(doc) && is_named2(doc))) {
+        stop_input_type(doc, "a named list")
       }
 
-      spec <- subset_to_list(subset, spec)
+      doc <- subset_to_list(subset, doc)
       if (overwrite) {
-        private$OPENAPI <- list()
+        if (is.null(overwrite)) {
+          private$OPENAPI <- list()
+        } else if (list_has_subset(private$OPENAPI, subset)) {
+          private$OPENAPI[[subset]] <- list()
+        }
       }
-      private$OPENAPI <- utils::modifyList(private$OPENAPI, spec)
+      private$OPENAPI <- utils::modifyList(private$OPENAPI, doc)
     }
   ),
   active = list(
@@ -378,6 +382,22 @@ Plumber <- R6Class(
         self$attach(private$HEADER_ROUTER)
       }
       private$HEADER_ROUTER
+    },
+    #' @field doc_type The type of API documentation to generate. Can be either
+    #' `"redoc"` (the default), `"swagger"`, or `NULL` (equating to not
+    #' generating API docs)
+    doc_type = function(value) {
+      if (missing(value)) return(private$DOC_TYPE)
+      if (!is.null(value)) {
+        value <- arg_match0(value, c("swagger", "redoc"))
+      }
+      private$DOC_TYPE <- value
+    },
+    #' @field doc_path The URL path to serve the api documentation from
+    doc_path = function(value) {
+      if (missing(value)) return(private$DOC_PATH)
+      check_string(value)
+      private$DOC_PATH <- value
     }
   ),
   private = list(
@@ -527,4 +547,10 @@ subset_to_list <- function(x, end_value = list()) {
       !!x[1] := subset_to_list(x[-1])
     )
   }
+}
+list_has_subset <- function(x, subset) {
+  if (length(subset) == 0) return(TRUE)
+  x <- x[[subset[1]]]
+  if (is.null(x)) return(FALSE)
+  list_has_subset(x, subset[-1])
 }

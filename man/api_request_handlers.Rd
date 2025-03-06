@@ -23,7 +23,7 @@ api_get(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_head(
@@ -35,7 +35,7 @@ api_head(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_post(
@@ -47,7 +47,7 @@ api_post(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_put(
@@ -59,7 +59,7 @@ api_put(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_delete(
@@ -71,7 +71,7 @@ api_delete(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_connect(
@@ -83,7 +83,7 @@ api_connect(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_options(
@@ -95,7 +95,7 @@ api_options(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_trace(
@@ -107,7 +107,7 @@ api_trace(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_patch(
@@ -119,7 +119,7 @@ api_patch(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 
 api_any(
@@ -131,7 +131,7 @@ api_any(
   use_strict_serializer = FALSE,
   download = FALSE,
   route = NULL,
-  docs = NULL
+  doc = NULL
 )
 }
 \arguments{
@@ -167,7 +167,7 @@ the download to the string value}
 route in the stack. If the route does not exist it will be created as the
 last route in the stack}
 
-\item{docs}{A list with the OpenAPI spec for the endpoint}
+\item{doc}{A list with the OpenAPI spec for the endpoint}
 }
 \value{
 These functions return the \code{api} object allowing for easy chaining
