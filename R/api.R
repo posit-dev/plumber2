@@ -11,6 +11,38 @@
 #' @param port A number or integer that indicates the server port that should be
 #' listened on. Note that on most Unix-like systems including Linux and macOS,
 #' port numbers smaller than 1024 require root privileges.
+#' @param doc_type The type of API documentation to generate. Can be either
+#' `"redoc"` (the default), `"swagger"`, or `NULL` (equating to not
+#' generating API docs)
+#' @param doc_path The URL path to serve the api documentation from
+#' @param reject_missing_methods Should requests to paths that doesn't
+#' have a handler for the specific method automatically be rejected with a
+#' 405 Method Not Allowed response with the correct Allow header informing
+#' the client of the implemented methods. Assigning a handler to `"any"` for
+#' the same path at a later point will overwrite this functionality. Be
+#' aware that setting this to `TRUE` will prevent the request from falling
+#' through to other routes that might have a matching method and path. This
+#' setting anly affects handlers on the request router.
+#' @param ignore_trailing_slash One of `"no"`, `"redirect"`, or `"remap"`.
+#' If `"no"` then the router consider the URL paths `path/to/ressource` and
+#' `path/to/ressource/` as different and they will end in different handlers.
+#' If `"redirect"` then any request that is made to a path with a trailing
+#' slash is send a `308 Permanent Redirect` response instructing the request
+#' to be redirected to the path without a slash. If `"remap"` then the
+#' trailing slash is silently removed from the request path before searching
+#' for handlers in the different routes of the stack. For the two last
+#' options all routes added to the stack will have the terminal slash
+#' removed from their handler paths
+#' @param max_request_size Sets a maximum size of request bodies. Setting this
+#' will add a handler to the header router that automatically rejects requests
+#' based on their `Content-Length` header
+#' @param shared_secret Assigns a shared secret to the api. Setting this will
+#' add a handler to the header router that automatically rejects requests if
+#' their `Plumber-Shared-Secret` header doesn't contain the same value. Be aware
+#' that this type of authentication is very weak. Never put the shared secret in
+#' plain text but rely on e.g. the keyring package for storage. Even so, if
+#' requests are send over HTTP (not HTTPS) then anyone can read the secret and
+#' use it
 #' @param env The environment the files should be parsed in
 #'
 #' @return A Plumber object
@@ -21,9 +53,24 @@ api <- function(
   ...,
   host = get_opts("host", "127.0.0.1"),
   port = get_opts("port", 8080),
+  doc_type = get_opts("docs", "redoc"),
+  doc_path = get_opts("apiPath", "__docs__"),
+  reject_missing_methods = get_opts("methodNotAllowed", FALSE),
+  ignore_trailing_slash = get_opts("trailingSlash"),
+  max_request_size = get_opts("maxRequestSize"),
+  shared_secret = get_opts("sharedSecret"),
   env = caller_env()
 ) {
-  api <- Plumber$new(host, port)
+  api <- Plumber$new(
+    host = host,
+    port = port,
+    doc_type = doc_type,
+    doc_path = doc_path,
+    reject_missing_methods = reject_missing_methods,
+    ignore_trailing_slash = ignore_trailing_slash,
+    max_request_size = max_request_size,
+    shared_secret = shared_secret
+  )
   locations <- list2(...)
   lapply(locations, function(loc) {
     if (fs::is_dir(loc)) {

@@ -22,8 +22,7 @@
 #    plumber.methodNotAllowed     =   methodNotAllowed,
 #    plumber.apiPath              =   apiPath,
 #    plumber.maxRequestSize       =   maxRequestSize,
-#    plumber.sharedSecret         =   sharedSecret,
-#    plumber.legacyRedirects      =   legacyRedirects
+#    plumber.sharedSecret         =   sharedSecret
 #  )
 #}
 
@@ -38,7 +37,9 @@ get_opts <- function(x, default = NULL, prefix = c("plumber2", "plumber")) {
         res <- get_opts(x, default = default, prefix = prefix[-1])
       }
     } else {
-      mode(res) <- mode(default)
+      if (is.atomic(default)) {
+        mode(res) <- mode(default)
+      }
     }
     res
   })

@@ -39,13 +39,74 @@ Plumber <- R6Class(
     #' @description Create a new `Plumber` api
     #' @param host A string overriding the default host
     #' @param port An port number overriding the default port
+    #' @param doc_type The type of API documentation to generate. Can be either
+    #' `"redoc"` (the default), `"swagger"`, or `NULL` (equating to not
+    #' generating API docs)
+    #' @param doc_path The URL path to serve the api documentation from
+    #' @param reject_missing_methods Should requests to paths that doesn't
+    #' have a handler for the specific method automatically be rejected with a
+    #' 405 Method Not Allowed response with the correct Allow header informing
+    #' the client of the implemented methods. Assigning a handler to `"any"` for
+    #' the same path at a later point will overwrite this functionality. Be
+    #' aware that setting this to `TRUE` will prevent the request from falling
+    #' through to other routes that might have a matching method and path. This
+    #' setting anly affects handlers on the request router.
+    #' @param ignore_trailing_slash One of `"no"`, `"redirect"`, or `"remap"`.
+    #' If `"no"` then the router consider the URL paths `path/to/ressource` and
+    #' `path/to/ressource/` as different and they will end in different handlers.
+    #' If `"redirect"` then any request that is made to a path with a trailing
+    #' slash is send a `308 Permanent Redirect` response instructing the request
+    #' to be redirected to the path without a slash. If `"remap"` then the
+    #' trailing slash is silently removed from the request path before searching
+    #' for handlers in the different routes of the stack. For the two last
+    #' options all routes added to the stack will have the terminal slash
+    #' removed from their handler paths
+    #' @param max_request_size Sets a maximum size of request bodies. Setting this
+    #' will add a handler to the header router that automatically rejects requests
+    #' based on their `Content-Length` header
+    #' @param shared_secret Assigns a shared secret to the api. Setting this will
+    #' add a handler to the header router that automatically rejects requests if
+    #' their `Plumber-Shared-Secret` header doesn't contain the same value. Be aware
+    #' that this type of authentication is very weak. Never put the shared secret in
+    #' plain text but rely on e.g. the keyring package for storage. Even so, if
+    #' requests are send over HTTP (not HTTPS) then anyone can read the secret and
+    #' use it
     #' @return A `Plumber` object
     initialize = function(
       host = get_opts("host", "127.0.0.1"),
-      port = get_opts("port", 8080)
+      port = get_opts("port", 8080),
+      doc_type = get_opts("docs", "redoc"),
+      doc_path = get_opts("apiPath", "__docs__"),
+      reject_missing_methods = get_opts("methodNotAllowed", FALSE),
+      ignore_trailing_slash = get_opts("trailingSlash"),
+      max_request_size = get_opts("maxRequestSize"),
+      shared_secret = get_opts("sharedSecret")
     ) {
       super$initialize(host, port)
-      header_route <- create_header_route()
+
+      if (!is.null(doc_type)) {
+        private$DOC_TYPE <- arg_match0(doc_type, c("swagger", "redoc"))
+      }
+      check_string(doc_path)
+      private$DOC_PATH <- doc_path
+      check_bool(reject_missing_methods)
+      private$REJECT_MISSING_METHODS <- reject_missing_methods
+      ignore_trailing_slash <- ignore_trailing_slash %||% "redirect"
+      if (is.logical(ignore_trailing_slash)) {
+        ignore_trailing_slash <- if (ignore_trailing_slash) "redirect" else "no"
+      }
+      private$IGNORE_TRAILING_SLASH <- arg_match0(
+        ignore_trailing_slash,
+        c("no", "redirect", "remap")
+      )
+      check_number_decimal(max_request_size, allow_null = TRUE)
+      check_string(shared_secret)
+
+      header_route <- create_header_route(
+        max_request_size,
+        shared_secret,
+        private$IGNORE_TRAILING_SLASH
+      )
       if (length(header_route$routes) != 0) {
         private$HEADER_ROUTER <- header_route
       }
@@ -78,15 +139,13 @@ Plumber <- R6Class(
       ...,
       silent = FALSE
     ) {
-      if (length(private$OPENAPI) != 0) {
+      if (length(private$OPENAPI) != 0 && !is.null(private$DOC_TYPE)) {
         openapi_file <- tempfile(fileext = ".json")
         write_json(private$OPENAPI, openapi_file, auto_unbox = TRUE)
-        docs_path <- get_opts("apiPath", "__docs__")
-        doc_type <- get_opts("docs", "redoc")
         api_route <- openapi_route(
           openapi_file,
-          root = docs_path,
-          ui = doc_type
+          root = private$DOC_PATH,
+          ui = private$DOC_TYPE
         )
         self$request_router$add_route(api_route, "openapi")
 
@@ -224,7 +283,8 @@ Plumber <- R6Class(
           parsers,
           use_strict_serializer,
           download
-        )
+        ),
+        reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
     },
     #' @description Add a handler to a WebSocket message. See [api_message] for
@@ -299,7 +359,9 @@ Plumber <- R6Class(
     #' @field request_router The router handling requests
     request_router = function() {
       if (is.null(private$REQUEST_ROUTER)) {
-        private$REQUEST_ROUTER <- RouteStack$new()
+        private$REQUEST_ROUTER <- RouteStack$new(
+          ignore_trailing_slash = private$IGNORE_TRAILING_SLASH
+        )
         private$REQUEST_ROUTER$attach_to <- "request"
         self$attach(private$REQUEST_ROUTER)
       }
@@ -309,7 +371,9 @@ Plumber <- R6Class(
     #' will pass through this router prior to reading in the body)
     header_router = function() {
       if (is.null(private$HEADER_ROUTER)) {
-        private$HEADER_ROUTER <- RouteStack$new()
+        private$HEADER_ROUTER <- RouteStack$new(
+          ignore_trailing_slash = private$IGNORE_TRAILING_SLASH
+        )
         private$HEADER_ROUTER$attach_to <- "header"
         self$attach(private$HEADER_ROUTER)
       }
@@ -320,7 +384,11 @@ Plumber <- R6Class(
     OPENAPI = list(),
     REQUEST_ROUTER = NULL,
     HEADER_ROUTER = NULL,
-    MESSAGE_ROUTER = NULL
+    MESSAGE_ROUTER = NULL,
+    DOC_TYPE = NULL,
+    DOC_PATH = NULL,
+    REJECT_MISSING_METHODS = NULL,
+    IGNORE_TRAILING_SLASH = NULL
   )
 )
 

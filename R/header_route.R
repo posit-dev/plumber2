@@ -1,11 +1,9 @@
-create_header_route <- function() {
-  stack <- routr::RouteStack$new()
+create_header_route <- function(max_size, shared_secret, ignore_trailing_slash = "no") {
+  stack <- routr::RouteStack$new(ignore_trailing_slash = ignore_trailing_slash)
   stack$attach_to <- "header"
-  max_size <- get_opts("maxRequestSize")
   if (!is.null(max_size)) {
     stack$add_route(routr::sizelimit_route(max_size), "max_size")
   }
-  shared_secret <- get_opts("sharedSecret")
   if (!is.null(shared_secret)) {
     stack$add_route(routr::shared_secret_route(
       shared_secret,
