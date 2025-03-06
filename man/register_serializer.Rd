@@ -5,7 +5,7 @@
 \alias{get_serializers}
 \title{Register or fetch a serializer}
 \usage{
-register_serializer(name, fun, mime_type)
+register_serializer(name, fun, mime_type, graphic = FALSE)
 
 get_serializers(serializers = NULL)
 }
@@ -26,7 +26,7 @@ following expectations apply:
 \item Any unnamed elements containing a character vector will be considered as
 names of registered serializers constructed with default values. The
 special value \code{"..."} will fetch all the serializers that are otherwise not
-specified in the call
+specified in the call.
 \item Any element containing a function are considered as a provided serializer
 and the element must be named by the mime type the serializer understands
 \item Any remaining named elements will be considered names of registered
@@ -48,6 +48,12 @@ If you want to register your own serializer, then the function you register
 must be a factory function, ie. a function returning a function. The returned
 function must accept a single argument which is the response body. All
 arguments to the factory function should be optional.
+}
+\note{
+Using the \code{...} will provide remaining graphics serializers if a
+graphics serializer is explicitely requested elsewhere. Otherwise it will
+provide the remaining non-graphics serializers. A warning is thrown if a mix
+of graphics and non-graphics serializers are requested.
 }
 \seealso{
 \link{serializers}

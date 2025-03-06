@@ -98,9 +98,6 @@ get_parsers <- function(parsers = NULL) {
       return(list2(!!elem_names[i] := parsers[[i]]))
     }
     if (elem_names[i] == "" && is_character(parsers[[i]])) {
-      if (any(grepl("/", parsers[[i]], fixed = TRUE))) {
-        cli::cli_abort("mime types must be provided with a function")
-      }
       return(get_parsers_internal(
         parsers[[i]],
         env = env,

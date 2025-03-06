@@ -14,6 +14,12 @@
 \alias{format_print}
 \alias{format_cat}
 \alias{format_unboxed}
+\alias{format_png}
+\alias{format_jpeg}
+\alias{format_tiff}
+\alias{format_svg}
+\alias{format_bmp}
+\alias{format_pdf}
 \title{Serializer functions provided by plumber2}
 \usage{
 format_csv(...)
@@ -39,6 +45,18 @@ format_print(..., sep = "\\n")
 format_cat(..., sep = "\\n")
 
 format_unboxed(...)
+
+format_png(...)
+
+format_jpeg(...)
+
+format_tiff(...)
+
+format_svg(...)
+
+format_bmp(...)
+
+format_pdf(...)
 }
 \arguments{
 \item{...}{Further argument passed on to the internal formatting function.
@@ -71,25 +89,25 @@ as \code{"csv"} to the mime type \code{text/csv}
 as \code{"tsv"} to the mime type \code{text/tsv}
 \item \code{format_rds()} uses \code{\link[=serialize]{serialize()}} for formatting. It is registered as
 \code{"rds"} to the mime type \code{application/rds}
-\item \code{format_geojson}uses \code{\link[geojsonsf:sfc_geojson]{geojsonsf::sfc_geojson()}} or \code{\link[geojsonsf:sf_geojson]{geojsonsf::sf_geojson()}}
+\item \code{format_geojson()} uses \code{\link[geojsonsf:sfc_geojson]{geojsonsf::sfc_geojson()}} or \code{\link[geojsonsf:sf_geojson]{geojsonsf::sf_geojson()}}
 for formatting depending on the class of the response body. It is
 registered as \code{"geojson"} to the mime type \code{application/geo+json}
-\item \code{format_feather}uses \code{\link[arrow:write_feather]{arrow::write_feather()}} for formatting. It is
+\item \code{format_feather()} uses \code{\link[arrow:write_feather]{arrow::write_feather()}} for formatting. It is
 registered as \code{"feather"} to the mime type
 \code{application/vnd.apache.arrow.file}
-\item \code{format_parquet}uses \code{\link[nanoparquet:write_parquet]{nanoparquet::write_parquet()}} for formatting. It is
+\item \code{format_parquet()} uses \code{\link[nanoparquet:write_parquet]{nanoparquet::write_parquet()}} for formatting. It is
 registered as \code{"parquet"} to the mime type \code{application/vnd.apache.parquet}
-\item \code{format_yaml}uses \code{\link[yaml:as.yaml]{yaml::as.yaml()}} for formatting. It is registered
+\item \code{format_yaml()} uses \code{\link[yaml:as.yaml]{yaml::as.yaml()}} for formatting. It is registered
 as \code{"yaml"} to the mime type \code{text/yaml}
-\item \code{format_htmlwidget}uses \code{\link[htmlwidgets:saveWidget]{htmlwidgets::saveWidget()}} for formatting. It is
+\item \code{format_htmlwidget()} uses \code{\link[htmlwidgets:saveWidget]{htmlwidgets::saveWidget()}} for formatting. It is
 registered as \code{"htmlwidget"} to the mime type \code{text/html}
-\item \code{format_format}uses \code{\link[=format]{format()}} for formatting. It is registered
+\item \code{format_format()} uses \code{\link[=format]{format()}} for formatting. It is registered
 as \code{"format"} to the mime type \code{text/plain}
-\item \code{format_print}uses \code{\link[=print]{print()}} for formatting. It is registered
+\item \code{format_print()} uses \code{\link[=print]{print()}} for formatting. It is registered
 as \code{"print"} to the mime type \code{text/plain}
-\item \code{format_cat}uses \code{\link[=cat]{cat()}} for formatting. It is registered
+\item \code{format_cat()} uses \code{\link[=cat]{cat()}} for formatting. It is registered
 as \code{"cat"} to the mime type \code{text/plain}
-\item \code{format_unboxed}uses \code{\link[reqres:formatters]{reqres::format_json()}} with \code{auto_unbox = TRUE} for
+\item \code{format_unboxed()} uses \code{\link[reqres:formatters]{reqres::format_json()}} with \code{auto_unbox = TRUE} for
 formatting. It is registered as \code{"unboxedJSON"} to the mime type
 \code{application/json}
 }
@@ -104,6 +122,28 @@ type \code{text/html}
 \item \code{\link[reqres:formatters]{reqres::format_plain()}} is registered as "\code{text}" to the mime type
 \code{text/plain}
 }
+}
+}
+
+\section{Provided graphics serializers}{
+Serializing graphic output is special because it requires operations before
+and after the handler is executed. Further, handlers creating graphics are
+expected to do so through side-effects (ie. call to graphics rendering) or
+by returning a ggplot2 object. If you want to create your own graphics
+serializer you should use \code{\link[=device_formatter]{device_formatter()}} for constructing it.
+\itemize{
+\item \code{format_png()} uses \code{\link[ragg:agg_png]{ragg::agg_png()}} for rendering. It is registered
+as \code{"png"} to the mime type \code{image/png}
+\item \code{format_jpeg()} uses \code{\link[ragg:agg_jpeg]{ragg::agg_jpeg()}} for rendering. It is registered
+as \code{"jpeg"} to the mime type \code{image/jpeg}
+\item \code{format_tiff()} uses \code{\link[ragg:agg_tiff]{ragg::agg_tiff()}} for rendering. It is registered
+as \code{"tiff"} to the mime type \code{image/tiff}
+\item \code{format_svg()} uses \code{\link[svglite:svglite]{svglite::svglite()}} for rendering. It is registered
+as \code{"svg"} to the mime type \code{image/svg+xml}
+\item \code{format_bmp()} uses \code{\link[grDevices:png]{grDevices::bmp()}} for rendering. It is registered
+as \code{"bmp"} to the mime type \code{image/bmp}
+\item \code{format_pdf()} uses \code{\link[grDevices:pdf]{grDevices::pdf()}} for rendering. It is registered
+as \code{"pdf"} to the mime type \code{application/pdf}
 }
 }
 

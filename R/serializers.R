@@ -26,10 +26,11 @@ registry$serializers <- list()
 #'
 #' @export
 #'
-register_serializer <- function(name, fun, mime_type) {
+register_serializer <- function(name, fun, mime_type, graphic = FALSE) {
   check_function(fun)
   check_string(mime_type)
   check_string(name)
+  check_bool(graphic)
   if (grepl("/", name, fixed = TRUE)) {
     cli::cli_abort(
       "{.arg name} must not contain the forward slash character ({.field /})"
@@ -40,7 +41,11 @@ register_serializer <- function(name, fun, mime_type) {
       "{.arg name} must not be {.val {c('...', 'none')}}"
     )
   }
-  registry$serializers[[name]] <- list(fun = fun, type = mime_type)
+  registry$serializers[[name]] <- list(
+    fun = fun,
+    type = mime_type,
+    graphic = graphic
+  )
   invisible(NULL)
 }
 
@@ -51,12 +56,17 @@ register_serializer <- function(name, fun, mime_type) {
 #' * Any unnamed elements containing a character vector will be considered as
 #'   names of registered serializers constructed with default values. The
 #'   special value `"..."` will fetch all the serializers that are otherwise not
-#'   specified in the call
+#'   specified in the call.
 #' * Any element containing a function are considered as a provided serializer
 #'   and the element must be named by the mime type the serializer understands
 #' * Any remaining named elements will be considered names of registered
 #'   serializers that should be constructed with the arguments given in the
 #'   element
+#'
+#' @note Using the `...` will provide remaining graphics serializers if a
+#' graphics serializer is explicitely requested elsewhere. Otherwise it will
+#' provide the remaining non-graphics serializers. A warning is thrown if a mix
+#' of graphics and non-graphics serializers are requested.
 #'
 #' @export
 get_serializers <- function(serializers = NULL) {
@@ -97,13 +107,11 @@ get_serializers <- function(serializers = NULL) {
       return(list2(!!elem_names[i] := serializers[[i]]))
     }
     if (elem_names[i] == "" && is_character(serializers[[i]])) {
-      if (any(grepl("/", serializers[[i]], fixed = TRUE))) {
-        cli::cli_abort("mime types must be provided with a function")
-      }
       return(get_serializers_internal(
         serializers[[i]],
         env = env,
-        dots_serializers = dots_serializers
+        dots_serializers = dots_serializers,
+        prune_dots = FALSE
       ))
     }
     if (elem_names[i] != "") {
@@ -119,13 +127,29 @@ get_serializers <- function(serializers = NULL) {
     }
     cli::cli_abort("Don't know how to parse element {i} in {.arg serializers}")
   })
-  unlist(serializers, recursive = FALSE)
+  from_dots <- unlist(lapply(
+    serializers,
+    function(x) attr(x, "from_dots") %||% rep_along(x, FALSE)
+  ))
+  serializers <- unlist(serializers, recursive = FALSE)
+  is_graphics <- vapply(serializers, is_device_formatter, logical(1))
+  use_graphics <- if (all(from_dots)) FALSE else is_graphics[!from_dots][1]
+  keep <- !from_dots | is_graphics == use_graphics
+  serializers <- serializers[keep]
+  is_graphics <- is_graphics[keep]
+  if (!(all(is_graphics) || all(!is_graphics))) {
+    cli::cli_warn(
+      "Serializers are a mix of standard and graphics serializers"
+    )
+  }
+  serializers
 }
 
 get_serializers_internal <- function(
   types = NULL,
   env = caller_env(),
-  dots_serializers = NULL
+  dots_serializers = NULL,
+  prune_dots = TRUE
 ) {
   if (isTRUE(tolower(types) == "none")) {
     return(NULL)
@@ -134,10 +158,19 @@ get_serializers_internal <- function(
     types <- names(registry$serializers)
   }
   dots <- which(types == "...")
+  from_dots <- rep_along(types, FALSE)
   if (length(dots) != 0) {
+    if (length(dots) > 1) {
+      cli::cli_abort("{.val ...} can only be used once")
+    }
+    dnames <- dots_serializers %||% setdiff(names(registry$serializers), types)
+    from_dots <- rep(
+      c(FALSE, TRUE, FALSE),
+      c(dots - 1, length(dnames), length(types) - dots)
+    )
     types <- c(
       types[seq_len(dots - 1)],
-      dots_serializers %||% setdiff(names(registry$serializers), types),
+      dnames,
       types[dots + seq_len(length(types) - dots)]
     )
   }
@@ -177,7 +210,22 @@ get_serializers_internal <- function(
     lapply(serializers, `[[`, "fun"),
     vapply(serializers, `[[`, character(1), "type")
   )
-  serializers[!duplicated(names(serializers))]
+  is_graphics <- vapply(serializers, is_device_formatter, logical(1))
+  if (prune_dots) {
+    use_graphics <- if (all(from_dots)) FALSE else is_graphics[!from_dots][1]
+    keep <- !from_dots | is_graphics == use_graphics
+    serializers <- serializers[keep]
+    is_graphics <- is_graphics[keep]
+    if (!(all(is_graphics) || all(!is_graphics))) {
+      cli::cli_warn(
+        "Serializers are a mix of standard and graphics serializers"
+      )
+    }
+  }
+  structure(
+    serializers[!duplicated(names(serializers))],
+    from_dots = from_dots[!duplicated(names(serializers))]
+  )
 }
 
 # Default serializers ----------------------------------------------------------
@@ -195,25 +243,25 @@ get_serializers_internal <- function(
 #'   as `"tsv"` to the mime type `text/tsv`
 #' * `format_rds()` uses [serialize()] for formatting. It is registered as
 #'   `"rds"` to the mime type `application/rds`
-#' * `format_geojson`uses [geojsonsf::sfc_geojson()] or [geojsonsf::sf_geojson()]
+#' * `format_geojson()` uses [geojsonsf::sfc_geojson()] or [geojsonsf::sf_geojson()]
 #'   for formatting depending on the class of the response body. It is
 #'   registered as `"geojson"` to the mime type `application/geo+json`
-#' * `format_feather`uses [arrow::write_feather()] for formatting. It is
+#' * `format_feather()` uses [arrow::write_feather()] for formatting. It is
 #'   registered as `"feather"` to the mime type
 #'   `application/vnd.apache.arrow.file`
-#' * `format_parquet`uses [nanoparquet::write_parquet()] for formatting. It is
+#' * `format_parquet()` uses [nanoparquet::write_parquet()] for formatting. It is
 #'   registered as `"parquet"` to the mime type `application/vnd.apache.parquet`
-#' * `format_yaml`uses [yaml::as.yaml()] for formatting. It is registered
+#' * `format_yaml()` uses [yaml::as.yaml()] for formatting. It is registered
 #'   as `"yaml"` to the mime type `text/yaml`
-#' * `format_htmlwidget`uses [htmlwidgets::saveWidget()] for formatting. It is
+#' * `format_htmlwidget()` uses [htmlwidgets::saveWidget()] for formatting. It is
 #'   registered as `"htmlwidget"` to the mime type `text/html`
-#' * `format_format`uses [format()] for formatting. It is registered
+#' * `format_format()` uses [format()] for formatting. It is registered
 #'   as `"format"` to the mime type `text/plain`
-#' * `format_print`uses [print()] for formatting. It is registered
+#' * `format_print()` uses [print()] for formatting. It is registered
 #'   as `"print"` to the mime type `text/plain`
-#' * `format_cat`uses [cat()] for formatting. It is registered
+#' * `format_cat()` uses [cat()] for formatting. It is registered
 #'   as `"cat"` to the mime type `text/plain`
-#' * `format_unboxed`uses [reqres::format_json()] with `auto_unbox = TRUE` for
+#' * `format_unboxed()` uses [reqres::format_json()] with `auto_unbox = TRUE` for
 #'   formatting. It is registered as `"unboxedJSON"` to the mime type
 #'   `application/json`
 #'
@@ -226,6 +274,25 @@ get_serializers_internal <- function(
 #'   `text/xml`
 #' * [reqres::format_plain()] is registered as "`text`" to the mime type
 #'   `text/plain`
+#'
+#' # Provided graphics serializers
+#' Serializing graphic output is special because it requires operations before
+#' and after the handler is executed. Further, handlers creating graphics are
+#' expected to do so through side-effects (ie. call to graphics rendering) or
+#' by returning a ggplot2 object. If you want to create your own graphics
+#' serializer you should use [device_formatter()] for constructing it.
+#' * `format_png()` uses [ragg::agg_png()] for rendering. It is registered
+#'   as `"png"` to the mime type `image/png`
+#' * `format_jpeg()` uses [ragg::agg_jpeg()] for rendering. It is registered
+#'   as `"jpeg"` to the mime type `image/jpeg`
+#' * `format_tiff()` uses [ragg::agg_tiff()] for rendering. It is registered
+#'   as `"tiff"` to the mime type `image/tiff`
+#' * `format_svg()` uses [svglite::svglite()] for rendering. It is registered
+#'   as `"svg"` to the mime type `image/svg+xml`
+#' * `format_bmp()` uses [grDevices::bmp()] for rendering. It is registered
+#'   as `"bmp"` to the mime type `image/bmp`
+#' * `format_pdf()` uses [grDevices::pdf()] for rendering. It is registered
+#'   as `"pdf"` to the mime type `application/pdf`
 #'
 #' @param ... Further argument passed on to the internal formatting function.
 #' See Details for information on which function handles the formatting
@@ -392,10 +459,19 @@ on_load({
 
 # Device serializers -----------------------------------------------------------
 
-# TODO: Somehow, we need to keep these distinct from the other serializers so
-# that ... when used together with a device serializer only retrieves other
-# device serializers and vice versa
-
+#' Create a graphics device formatter
+#'
+#' This internal function facilitates creating a formatter that uses a specific
+#' device for rendering.
+#'
+#' @param dev_open The function that opens the device
+#' @param dev_close The function closing the device. Usually this would be
+#' [grDevices::dev.off()]
+#'
+#' @return A device formatter function
+#' @keywords internal
+#' @export
+#'
 device_formatter <- function(dev_open, dev_close = grDevices::dev.off()) {
   dev_name <- caller_arg(dev_open)
   check_function(dev_open)
@@ -408,50 +484,54 @@ device_formatter <- function(dev_open, dev_close = grDevices::dev.off()) {
       )
     }
   }
-  function(...) {
-    provided_args <- names(enquos(...))
-    dev_args <- fn_fmls_names(dev_open)
-    extra_args <- setdiff(provided_args, dev_args)
-    if (length(extra_args) != 0 && !"..." %in% dev_args) {
-      cli::cli_abort(
-        "Provided arguments does not match arguments in {.fun {dev_name}}"
-      )
-    }
-    init_dev <- function() {
-      output_file <- tempfile()
-      dev_open(filename = output_file, ...)
-      dev_id <- grDevices::dev.cur()
-      list(path = output_file, dev = dev_id)
-    }
-    close_dev <- function(info) {
-      grDevices::dev.set(info$dev)
-      grDevices::dev.off()
-      if (!file.exists(info$path)) {
-        return(NULL)
+  structure(
+    function(...) {
+      provided_args <- names(enquos(...))
+      dev_args <- fn_fmls_names(dev_open)
+      extra_args <- setdiff(provided_args, dev_args)
+      if (length(extra_args) != 0 && !"..." %in% dev_args) {
+        cli::cli_abort(
+          "Provided arguments does not match arguments in {.fun {dev_name}}"
+        )
       }
-      con <- file(info$path, "rb")
-      on.exit(
-        {
-          close(con)
-          unlink(info$path)
-        },
-        add = TRUE
+      init_dev <- function() {
+        output_file <- tempfile()
+        dev_open(filename = output_file, ...)
+        dev_id <- grDevices::dev.cur()
+        list(path = output_file, dev = dev_id)
+      }
+      close_dev <- function(info) {
+        grDevices::dev.set(info$dev)
+        grDevices::dev.off()
+        if (!file.exists(info$path)) {
+          return(NULL)
+        }
+        con <- file(info$path, "rb")
+        on.exit(
+          {
+            close(con)
+            unlink(info$path)
+          },
+          add = TRUE
+        )
+        readBin(con, "raw", file.info(info$path)$size)
+      }
+      clean_dev <- function(info) {
+        grDevices::dev.set(info$dev)
+        grDevices::dev.off()
+        unlink(info$path)
+      }
+      structure(
+        identity,
+        init = init_dev,
+        close = close_dev,
+        clean = clean_dev,
+        class = "device_formatter"
       )
-      readBin(con, "raw", file.info(info$path)$size)
     }
-    clean_dev <- function(info) {
-      grDevices::dev.set(info$dev)
-      grDevices::dev.off()
-      unlink(info$path)
-    }
-    structure(
-      identity,
-      init = init_dev,
-      close = close_dev,
-      clean = clean_dev
-    )
-  }
+  )
 }
+is_device_formatter <- function(x) inherits(x, "device_formatter")
 
 init_formatter <- function(formatter) {
   init_fun <- attr(formatter, "init")
@@ -477,15 +557,33 @@ clean_formatter <- function(formatter, info) {
   clean_fun(info)
 }
 
+#' @rdname serializers
+#' @export
 #' @importFrom ragg agg_png
+#'
 format_png <- device_formatter(agg_png)
+#' @rdname serializers
+#' @export
 #' @importFrom ragg agg_jpeg
+#'
 format_jpeg <- device_formatter(agg_jpeg)
+#' @rdname serializers
+#' @export
 #' @importFrom ragg agg_tiff
+#'
 format_tiff <- device_formatter(agg_tiff)
+#' @rdname serializers
+#' @export
 #' @importFrom svglite svglite
+#'
 format_svg <- device_formatter(svglite)
+#' @rdname serializers
+#' @export
+#'
 format_bmp <- device_formatter(grDevices::bmp)
+#' @rdname serializers
+#' @export
+#'
 format_pdf <- device_formatter(grDevices::pdf)
 
 on_load({
@@ -493,6 +591,6 @@ on_load({
   register_serializer("jpeg", format_jpeg, "image/jpeg")
   register_serializer("tiff", format_tiff, "image/tiff")
   register_serializer("svg", format_svg, "image/svg+xml")
-  register_serializer("bmp", format_bmp, "aimage/bmp")
+  register_serializer("bmp", format_bmp, "image/bmp")
   register_serializer("pdf", format_pdf, "application/pdf")
 })
