@@ -12,7 +12,7 @@
 #' listened on. Note that on most Unix-like systems including Linux and macOS,
 #' port numbers smaller than 1024 require root privileges.
 #' @param doc_type The type of API documentation to generate. Can be either
-#' `"redoc"` (the default), `"swagger"`, or `NULL` (equating to not
+#' `"rapidoc"` (the default), `"redoc"`, `"swagger"`, or `NULL` (equating to not
 #' generating API docs)
 #' @param doc_path The URL path to serve the api documentation from
 #' @param reject_missing_methods Should requests to paths that doesn't
@@ -53,7 +53,7 @@ api <- function(
   ...,
   host = get_opts("host", "127.0.0.1"),
   port = get_opts("port", 8080),
-  doc_type = get_opts("docs", "redoc"),
+  doc_type = get_opts("docs", "rapidoc"),
   doc_path = get_opts("apiPath", "__docs__"),
   reject_missing_methods = get_opts("methodNotAllowed", FALSE),
   ignore_trailing_slash = get_opts("trailingSlash"),

@@ -42,8 +42,8 @@ object is desired, use the \code{clone()} method.
 will pass through this router prior to reading in the body)}
 
 \item{\code{doc_type}}{The type of API documentation to generate. Can be either
-\code{"redoc"} (the default), \code{"swagger"}, or \code{NULL} (equating to not
-generating API docs)}
+\code{"rapidoc"} (the default), \code{"redoc"}, \code{"swagger"}, or \code{NULL} (equating to
+not generating API docs)}
 
 \item{\code{doc_path}}{The URL path to serve the api documentation from}
 }
@@ -128,8 +128,8 @@ Create a new \code{Plumber} api
 \item{\code{port}}{An port number overriding the default port}
 
 \item{\code{doc_type}}{The type of API documentation to generate. Can be either
-\code{"redoc"} (the default), \code{"swagger"}, or \code{NULL} (equating to not
-generating API docs)}
+\code{"rapidoc"} (the default), \code{"redoc"}, \code{"swagger"}, or \code{NULL} (equating to
+not generating API docs)}
 
 \item{\code{doc_path}}{The URL path to serve the api documentation from}
 

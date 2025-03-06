@@ -40,8 +40,8 @@ Plumber <- R6Class(
     #' @param host A string overriding the default host
     #' @param port An port number overriding the default port
     #' @param doc_type The type of API documentation to generate. Can be either
-    #' `"redoc"` (the default), `"swagger"`, or `NULL` (equating to not
-    #' generating API docs)
+    #' `"rapidoc"` (the default), `"redoc"`, `"swagger"`, or `NULL` (equating to
+    #' not generating API docs)
     #' @param doc_path The URL path to serve the api documentation from
     #' @param reject_missing_methods Should requests to paths that doesn't
     #' have a handler for the specific method automatically be rejected with a
@@ -85,7 +85,7 @@ Plumber <- R6Class(
       super$initialize(host, port)
 
       if (!is.null(doc_type)) {
-        private$DOC_TYPE <- arg_match0(doc_type, c("swagger", "redoc"))
+        private$DOC_TYPE <- arg_match0(doc_type, c("rapidoc", "redoc", "swagger"))
       }
       check_string(doc_path)
       private$DOC_PATH <- doc_path
@@ -384,12 +384,12 @@ Plumber <- R6Class(
       private$HEADER_ROUTER
     },
     #' @field doc_type The type of API documentation to generate. Can be either
-    #' `"redoc"` (the default), `"swagger"`, or `NULL` (equating to not
-    #' generating API docs)
+    #' `"rapidoc"` (the default), `"redoc"`, `"swagger"`, or `NULL` (equating to
+    #' not generating API docs)
     doc_type = function(value) {
       if (missing(value)) return(private$DOC_TYPE)
       if (!is.null(value)) {
-        value <- arg_match0(value, c("swagger", "redoc"))
+        value <- arg_match0(value, c("rapidoc", "redoc", "swagger"))
       }
       private$DOC_TYPE <- value
     },

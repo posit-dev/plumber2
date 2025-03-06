@@ -9,7 +9,7 @@ api(
   ...,
   host = get_opts("host", "127.0.0.1"),
   port = get_opts("port", 8080),
-  doc_type = get_opts("docs", "redoc"),
+  doc_type = get_opts("docs", "rapidoc"),
   doc_path = get_opts("apiPath", "__docs__"),
   reject_missing_methods = get_opts("methodNotAllowed", FALSE),
   ignore_trailing_slash = get_opts("trailingSlash"),
@@ -33,7 +33,7 @@ listened on. Note that on most Unix-like systems including Linux and macOS,
 port numbers smaller than 1024 require root privileges.}
 
 \item{doc_type}{The type of API documentation to generate. Can be either
-\code{"redoc"} (the default), \code{"swagger"}, or \code{NULL} (equating to not
+\code{"rapidoc"} (the default), \code{"redoc"}, \code{"swagger"}, or \code{NULL} (equating to not
 generating API docs)}
 
 \item{doc_path}{The URL path to serve the api documentation from}
