@@ -134,11 +134,13 @@ path}
 
 \item{serializers}{A named list of serializers that can be used to format the
 response before sending it back to the client. Which one is selected is based
-on the request \code{Accept} header}
+on the request \code{Accept} header. See \code{\link[=get_serializers]{get_serializers()}} for a helper to
+construct this}
 
 \item{parsers}{A named list of parsers that can be used to parse the
 request body before passing it in as the \code{body} argument. Which one is
-selected is based on the request \code{Content-Type} header}
+selected is based on the request \code{Content-Type} header. See \code{\link[=get_parsers]{get_parsers()}}
+for a helper to construct this}
 
 \item{use_strict_serializer}{By default, if a serializer that respects the
 requests \code{Accept} header cannot be found, then the first of the provided ones

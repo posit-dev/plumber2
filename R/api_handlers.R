@@ -192,10 +192,12 @@ handle_constructor <- function(method, header = FALSE) {
 #' path
 #' @param serializers A named list of serializers that can be used to format the
 #' response before sending it back to the client. Which one is selected is based
-#' on the request `Accept` header
+#' on the request `Accept` header. See [get_serializers()] for a helper to
+#' construct this
 #' @param parsers A named list of parsers that can be used to parse the
 #' request body before passing it in as the `body` argument. Which one is
-#' selected is based on the request `Content-Type` header
+#' selected is based on the request `Content-Type` header. See [get_parsers()]
+#' for a helper to construct this
 #' @param use_strict_serializer By default, if a serializer that respects the
 #' requests `Accept` header cannot be found, then the first of the provided ones
 #' are used. Setting this to `TRUE` will instead send back a

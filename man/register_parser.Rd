@@ -2,9 +2,12 @@
 % Please edit documentation in R/parsers.R
 \name{register_parser}
 \alias{register_parser}
-\title{Register a parser to a name for use with the \verb{@parser} tag}
+\alias{get_parsers}
+\title{Register or fetch a parser}
 \usage{
 register_parser(name, fun, mime_types)
+
+get_parsers(parsers = NULL)
 }
 \arguments{
 \item{name}{The name to register the parser function to. If already
@@ -17,15 +20,41 @@ directives given by the requests \code{Content-Type} header}
 
 \item{mime_types}{One or more mime types that this parser can handle. The
 mime types are allowed to contain wildcards, e.g. \code{"text/*"}}
+
+\item{parsers}{Parsers to collect. This can either be a character vector of
+names of registered parsers or a list. If it is a list then the following
+expectations apply:
+\itemize{
+\item Any unnamed elements containing a character vector will be considered as
+names of registered parsers constructed with default values. The special
+value \code{"..."} will fetch all the parsers that are otherwise not specified
+in the call
+\item Any element containing a function are considered as a provided parser and
+the element must be named by the mime type the parser understands
+(wildcards allowed)
+\item Any remaining named elements will be considered names of registered parsers
+that should be constructed with the arguments given in the element
+}}
 }
 \value{
-This function is called for its side effects
+For \code{get_parsers} a named list of parser functions named by their
+mime types. The order given in \code{parsers} is preserved.
 }
 \description{
 plumber2 comes with many parsers that should cover almost all standard
 use cases. Still you might want to provide some of your own, which this
 function facilitates.
 }
+\details{
+If you want to register your own parser, then the function you register must
+be a factory function, ie. a function returning a function. The returned
+function must accept two arguments, the first being a raw vector
+corresponding to the request body, the second being the parsed directives
+from the request \code{Content-Type} header. All arguments to the factory function
+should be optional.
+}
 \seealso{
+\link{parsers}
+
 \code{\link[=register_serializer]{register_serializer()}}
 }

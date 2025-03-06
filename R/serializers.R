@@ -1,10 +1,15 @@
 registry$serializers <- list()
 
-#' Register a serializer to a name for use with the `@serializer` tag
+#' Register or fetch a serializer
 #'
 #' plumber2 comes with many serializers that should cover almost all standard
 #' use cases. Still you might want to provide some of your own, which this
 #' function facilitates.
+#'
+#' If you want to register your own serializer, then the function you register
+#' must be a factory function, ie. a function returning a function. The returned
+#' function must accept a single argument which is the response body. All
+#' arguments to the factory function should be optional.
 #'
 #' @param name The name to register the serializer function to. If already
 #' present the current serializer will be overwritten by the one provided by you
@@ -13,19 +18,115 @@ registry$serializers <- list()
 #' @param mime_type The format this serializer creates. You should take care to
 #' ensure that the value provided is a standard mime type for the format
 #'
-#' @return This function is called for its side effects
+#' @return For `get_serializers` a named list of serializer functions named by
+#' their mime type. The order given in `serializers` is preserved.
 #'
-#' @seealso [register_parser()]
+#' @seealso [serializers]
+#' @seealso [register_serializer()]
+#'
 #' @export
 #'
 register_serializer <- function(name, fun, mime_type) {
   check_function(fun)
   check_string(mime_type)
+  check_string(name)
+  if (grepl("/", name, fixed = TRUE)) {
+    cli::cli_abort(
+      "{.arg name} must not contain the forward slash character ({.field /})"
+    )
+  }
+  if (name %in% c("...", "none")) {
+    cli::cli_abort(
+      "{.arg name} must not be {.val {c('...', 'none')}}"
+    )
+  }
   registry$serializers[[name]] <- list(fun = fun, type = mime_type)
   invisible(NULL)
 }
 
-get_serializers <- function(types = NULL, env = caller_env()) {
+#' @rdname register_serializer
+#' @param serializers Serializers to collect. This can either be a character
+#' vector of names of registered serializers or a list. If it is a list then the
+#' following expectations apply:
+#' * Any unnamed elements containing a character vector will be considered as
+#'   names of registered serializers constructed with default values. The
+#'   special value `"..."` will fetch all the serializers that are otherwise not
+#'   specified in the call
+#' * Any element containing a function are considered as a provided serializer
+#'   and the element must be named by the mime type the serializer understands
+#' * Any remaining named elements will be considered names of registered
+#'   serializers that should be constructed with the arguments given in the
+#'   element
+#'
+#' @export
+get_serializers <- function(serializers = NULL) {
+  if (is.null(serializers)) {
+    serializers <- names(registry$serializers)
+  }
+  elem_names <- names(serializers) %||% rep_along(serializers, "")
+  named_serializers <- unlist(lapply(seq_along(serializers), function(i) {
+    if (elem_names[i] == "") {
+      if (is_character(serializers[[i]])) {
+        serializers[[i]]
+      } else {
+        NULL
+      }
+    } else {
+      elem_names[i]
+    }
+  }))
+  if (sum(named_serializers == "...") > 1) {
+    cli::cli_abort("{.val ...} can only be used once in {.arg serializers}")
+  }
+  named_serializers <- named_serializers[
+    !grepl("/|^\\.\\.\\.$", named_serializers)
+  ]
+  dots_serializers <- setdiff(names(registry$serializers), named_serializers)
+  serializers <- lapply(seq_along(serializers), function(i) {
+    if (is_function(serializers[[i]])) {
+      if (length(fn_fmls(serializers[[i]])) != 1) {
+        cli::cli_abort(
+          "Provided serializers must be unary functions"
+        )
+      }
+      if (!grepl("/", elem_names[i], fixed = TRUE)) {
+        cli::cli_abort(
+          "Serializers provided as functions must be named by their mime type"
+        )
+      }
+      return(list2(!!elem_names[i] := serializers[[i]]))
+    }
+    if (elem_names[i] == "" && is_character(serializers[[i]])) {
+      if (any(grepl("/", serializers[[i]], fixed = TRUE))) {
+        cli::cli_abort("mime types must be provided with a function")
+      }
+      return(get_serializers_internal(
+        serializers[[i]],
+        env = env,
+        dots_serializers = dots_serializers
+      ))
+    }
+    if (elem_names[i] != "") {
+      if (is.null(registry$serializers[[elem_names[i]]])) {
+        cli::cli_abort(
+          "No serializer registered with {.val {elem_names[i]}} as name"
+        )
+      }
+      if (!is.list(serializers[[i]])) serializers[[i]] <- list(serializers[[i]])
+      type <- registry$serializers[[elem_names[i]]]$type
+      fun <- registry$serializers[[elem_names[i]]]$fun
+      return(list2(!!type := inject(fun(!!!serializers[[i]]))))
+    }
+    cli::cli_abort("Don't know how to parse element {i} in {.arg serializers}")
+  })
+  unlist(serializers, recursive = FALSE)
+}
+
+get_serializers_internal <- function(
+  types = NULL,
+  env = caller_env(),
+  dots_serializers = NULL
+) {
   if (isTRUE(tolower(types) == "none")) {
     return(NULL)
   }
@@ -36,7 +137,7 @@ get_serializers <- function(types = NULL, env = caller_env()) {
   if (length(dots) != 0) {
     types <- c(
       types[seq_len(dots - 1)],
-      setdiff(names(registry$serializers), types),
+      dots_serializers %||% setdiff(names(registry$serializers), types),
       types[dots + seq_len(length(types) - dots)]
     )
   }
@@ -80,23 +181,94 @@ get_serializers <- function(types = NULL, env = caller_env()) {
 }
 
 # Default serializers ----------------------------------------------------------
+
+#' Serializer functions provided by plumber2
+#'
+#' These functions cover a large area of potential response body formats. They
+#' are all registered to their standard mime type but users may want to use
+#' them to register them to alternative types if they know it makes sense.
+#'
+#' # Provided serializers
+#' * `format_csv()` uses [readr::format_csv()] for formatting. It is registered
+#'   as `"csv"` to the mime type `text/csv`
+#' * `format_tsv()` uses [readr::format_tsv()] for formatting. It is registered
+#'   as `"tsv"` to the mime type `text/tsv`
+#' * `format_rds()` uses [serialize()] for formatting. It is registered as
+#'   `"rds"` to the mime type `application/rds`
+#' * `format_geojson`uses [geojsonsf::sfc_geojson()] or [geojsonsf::sf_geojson()]
+#'   for formatting depending on the class of the response body. It is
+#'   registered as `"geojson"` to the mime type `application/geo+json`
+#' * `format_feather`uses [arrow::write_feather()] for formatting. It is
+#'   registered as `"feather"` to the mime type
+#'   `application/vnd.apache.arrow.file`
+#' * `format_parquet`uses [nanoparquet::write_parquet()] for formatting. It is
+#'   registered as `"parquet"` to the mime type `application/vnd.apache.parquet`
+#' * `format_yaml`uses [yaml::as.yaml()] for formatting. It is registered
+#'   as `"yaml"` to the mime type `text/yaml`
+#' * `format_htmlwidget`uses [htmlwidgets::saveWidget()] for formatting. It is
+#'   registered as `"htmlwidget"` to the mime type `text/html`
+#' * `format_format`uses [format()] for formatting. It is registered
+#'   as `"format"` to the mime type `text/plain`
+#' * `format_print`uses [print()] for formatting. It is registered
+#'   as `"print"` to the mime type `text/plain`
+#' * `format_cat`uses [cat()] for formatting. It is registered
+#'   as `"cat"` to the mime type `text/plain`
+#' * `format_unboxed`uses [reqres::format_json()] with `auto_unbox = TRUE` for
+#'   formatting. It is registered as `"unboxedJSON"` to the mime type
+#'   `application/json`
+#'
+#' ## Additional registered serializers
+#' * [reqres::format_json()] is registered as "`json`" to the mime type
+#'   `application/json`
+#' * [reqres::format_html()] is registered as "`html`" to the mime
+#'   type `text/html`
+#' * [reqres::format_xml()] is registered as "`xml`" to the mime type
+#'   `text/xml`
+#' * [reqres::format_plain()] is registered as "`text`" to the mime type
+#'   `text/plain`
+#'
+#' @param ... Further argument passed on to the internal formatting function.
+#' See Details for information on which function handles the formatting
+#' internally in each serializer
+#'
+#' @return A function accepting the response body
+#'
+#' @seealso [register_serializer()]
+#' @rdname serializers
+#' @name serializers
+#'
+NULL
+
+#' @rdname serializers
+#' @export
+#'
 format_csv <- function(...) {
   check_installed("readr")
   function(x) {
     readr::format_csv(x, ...)
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_tsv <- function(...) {
   check_installed("readr")
   function(x) {
     readr::format_tsv(x, ...)
   }
 }
+#' @rdname serializers
+#' @inheritParams base::serialize
+#' @export
+#'
 format_rds <- function(version = "3", ascii = FALSE, ...) {
   function(x) {
     serialize(x, NULL, ascii = ascii, version = version, ...)
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_geojson <- function(...) {
   check_installed("geojsonsf")
   function(x) {
@@ -107,39 +279,60 @@ format_geojson <- function(...) {
     )
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_feather <- function(...) {
   check_installed("arrow")
   function(x) {
     tmpfile <- tempfile()
+    on.exit(unlink(tmpfile))
     arrow::write_feather(x, tmpfile, ...)
     readBin(tmpfile, what = "raw", n = file.info(tmpfile)$size)
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_parquet <- function(...) {
   check_installed("nanoparquet")
   function(x) {
     nanoparquet::write_parquet(x, file = ":raw:", ...)
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_yaml <- function(...) {
   check_installed("yaml")
   function(x) {
     yaml::as.yaml(x, ...)
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_htmlwidget <- function(...) {
   check_installed("htmlwidgets")
   function(x) {
     tmpfile <- tempfile(fileext = ".html")
+    on.exit(unlink(tmpfile))
     htmlwidgets::saveWidget(x, tmpfile, selfcontained = TRUE, ...)
     readLines(tmpfile)
   }
 }
+#' @rdname serializers
+#' @param sep The separator between multiple elements
+#' @export
+#'
 format_format <- function(..., sep = "\n") {
   function(x) {
     paste0(format(x, ...), collapse = sep)
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_print <- function(..., sep = "\n") {
   function(x) {
     paste0(
@@ -150,6 +343,9 @@ format_print <- function(..., sep = "\n") {
     )
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_cat <- function(..., sep = "\n") {
   function(x) {
     paste0(
@@ -160,6 +356,9 @@ format_cat <- function(..., sep = "\n") {
     )
   }
 }
+#' @rdname serializers
+#' @export
+#'
 format_unboxed <- function(...) {
   reqres::format_json(auto_unbox = TRUE, ...)
 }

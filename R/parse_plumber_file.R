@@ -171,7 +171,7 @@ parse_handler_block <- function(
   } else {
     serializers <- NULL
   }
-  serializers <- get_serializers(serializers, env)
+  serializers <- get_serializers_internal(serializers, env)
 
   parsers <- which(tags == "parser")
   if (length(parsers) != 0) {
@@ -179,7 +179,7 @@ parse_handler_block <- function(
   } else {
     parsers <- NULL
   }
-  parsers <- get_parsers(parsers, env)
+  parsers <- get_parsers_internal(parsers, env)
 
   download <- which(tags == "download")
   if (length(download) != 0) {
