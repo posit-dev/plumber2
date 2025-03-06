@@ -183,13 +183,15 @@ path</p></dd>
 <dt id="arg-serializers">serializers<a class="anchor" aria-label="anchor" href="#arg-serializers"></a></dt>
 <dd><p>A named list of serializers that can be used to format the
 response before sending it back to the client. Which one is selected is based
-on the request <code>Accept</code> header</p></dd>
+on the request <code>Accept</code> header. See <code><a href="register_serializer.html">get_serializers()</a></code> for a helper to
+construct this</p></dd>
 
 
 <dt id="arg-parsers">parsers<a class="anchor" aria-label="anchor" href="#arg-parsers"></a></dt>
 <dd><p>A named list of parsers that can be used to parse the
 request body before passing it in as the <code>body</code> argument. Which one is
-selected is based on the request <code>Content-Type</code> header</p></dd>
+selected is based on the request <code>Content-Type</code> header. See <code><a href="register_parser.html">get_parsers()</a></code>
+for a helper to construct this</p></dd>
 
 
 <dt id="arg-use-strict-serializer">use_strict_serializer<a class="anchor" aria-label="anchor" href="#arg-use-strict-serializer"></a></dt>

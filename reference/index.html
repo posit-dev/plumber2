@@ -54,6 +54,10 @@
         </td>
         <td><p>Create a new plumber API, optionally based on one or more plumber files</p></td>
       </tr><tr><td>
+          <p><code><a href="api_assets.html">api_assets()</a></code> <code><a href="api_assets.html">api_statics()</a></code> </p>
+        </td>
+        <td><p>Serve ressources from your file system</p></td>
+      </tr><tr><td>
           <p><code><a href="api_message.html">api_message()</a></code> </p>
         </td>
         <td><p>Add a handler to a WebSocket message</p></td>
@@ -66,17 +70,29 @@
         </td>
         <td><p>Add a handler for a request header</p></td>
       </tr><tr><td>
+          <p><code><a href="api_session_cookie.html">api_session_cookie()</a></code> </p>
+        </td>
+        <td><p>Turn on session cookie data storage for your API</p></td>
+      </tr><tr><td>
           <p><code><a href="parse_plumber_file.html">parse_plumber_file()</a></code> </p>
         </td>
         <td><p>Parse a plumber file</p></td>
       </tr><tr><td>
-          <p><code><a href="register_parser.html">register_parser()</a></code> </p>
+          <p><code><a href="parsers.html">parse_csv()</a></code> <code><a href="parsers.html">parse_octet()</a></code> <code><a href="parsers.html">parse_rds()</a></code> <code><a href="parsers.html">parse_feather()</a></code> <code><a href="parsers.html">parse_parquet()</a></code> <code><a href="parsers.html">parse_text()</a></code> <code><a href="parsers.html">parse_tsv()</a></code> <code><a href="parsers.html">parse_yaml()</a></code> <code><a href="parsers.html">parse_geojson()</a></code> </p>
         </td>
-        <td><p>Register a parser to a name for use with the <code>@parser</code> tag</p></td>
+        <td><p>Parser functions provided by plumber2</p></td>
       </tr><tr><td>
-          <p><code><a href="register_serializer.html">register_serializer()</a></code> </p>
+          <p><code><a href="register_parser.html">register_parser()</a></code> <code><a href="register_parser.html">get_parsers()</a></code> </p>
         </td>
-        <td><p>Register a serializer to a name for use with the <code>@serializer</code> tag</p></td>
+        <td><p>Register or fetch a parser</p></td>
+      </tr><tr><td>
+          <p><code><a href="register_serializer.html">register_serializer()</a></code> <code><a href="register_serializer.html">get_serializers()</a></code> </p>
+        </td>
+        <td><p>Register or fetch a serializer</p></td>
+      </tr><tr><td>
+          <p><code><a href="serializers.html">format_csv()</a></code> <code><a href="serializers.html">format_tsv()</a></code> <code><a href="serializers.html">format_rds()</a></code> <code><a href="serializers.html">format_geojson()</a></code> <code><a href="serializers.html">format_feather()</a></code> <code><a href="serializers.html">format_parquet()</a></code> <code><a href="serializers.html">format_yaml()</a></code> <code><a href="serializers.html">format_htmlwidget()</a></code> <code><a href="serializers.html">format_format()</a></code> <code><a href="serializers.html">format_print()</a></code> <code><a href="serializers.html">format_cat()</a></code> <code><a href="serializers.html">format_unboxed()</a></code> </p>
+        </td>
+        <td><p>Serializer functions provided by plumber2</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
