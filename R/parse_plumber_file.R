@@ -32,6 +32,9 @@ parse_plumber_file <- function(path, env = caller_env()) {
   if (!fs::file_exists(path)) {
     cli::cli_abort("{.arg path} must point to an existing file", call = env)
   }
+
+  source(path, local = env, verbose = FALSE)
+
   file <- readLines(path)
   file <- sub("^#([^\\*])", "##\\1", file)
   file <- sub("^#\\*", "#'", file)

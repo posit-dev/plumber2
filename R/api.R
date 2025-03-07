@@ -43,7 +43,9 @@
 #' plain text but rely on e.g. the keyring package for storage. Even so, if
 #' requests are send over HTTP (not HTTPS) then anyone can read the secret and
 #' use it
-#' @param env The environment the files should be parsed in
+#' @param env The parent environment to the environment the files should be
+#' evaluated in. Each file will be evaluated in it's own environment so they
+#' don't interfere with each other
 #'
 #' @return A Plumber object
 #'

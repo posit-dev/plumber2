@@ -70,7 +70,9 @@ plain text but rely on e.g. the keyring package for storage. Even so, if
 requests are send over HTTP (not HTTPS) then anyone can read the secret and
 use it}
 
-\item{env}{The environment the files should be parsed in}
+\item{env}{The parent environment to the environment the files should be
+evaluated in. Each file will be evaluated in it's own environment so they
+don't interfere with each other}
 
 \item{x}{An object to test for whether it is a plumber api}
 }

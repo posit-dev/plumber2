@@ -25,7 +25,7 @@ construct one using \code{\link[=api]{api()}}
 
 \subsection{Copying}{
 
-As \code{Plumbrer} objects are using reference semantics new copies of an api cannot
+As \code{Plumber} objects are using reference semantics new copies of an api cannot
 be made simply be assigning it to a new variable. If a true copy of a \code{Plumber}
 object is desired, use the \code{clone()} method.
 }
@@ -337,7 +337,8 @@ Parses a plumber file and updates the app according to it
 \describe{
 \item{\code{file}}{The path to a file to parse}
 
-\item{\code{env}}{The environment to evaluate the content of the file in}
+\item{\code{env}}{The parent environment to the environment the file should be
+evaluated in}
 }
 \if{html}{\out{</div>}}
 }

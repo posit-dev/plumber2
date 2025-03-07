@@ -300,9 +300,11 @@ Plumber <- R6Class(
     },
     #' @description Parses a plumber file and updates the app according to it
     #' @param file The path to a file to parse
-    #' @param env The environment to evaluate the content of the file in
+    #' @param env The parent environment to the environment the file should be
+    #' evaluated in
     parse_file = function(file, env = caller_env()) {
-      parsed <- parse_plumber_file(file, env)
+      eval_env <- new.env(parent = env)
+      parsed <- parse_plumber_file(file, eval_env)
       if (!parsed$route[[1]]$empty) {
         if (!self$request_router$has_route(names(parsed$route))) {
           self$add_route(names(parsed$route))
