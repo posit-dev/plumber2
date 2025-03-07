@@ -2,7 +2,6 @@ parse_global_api <- function(tags, values, env = caller_env()) {
   if (any(tags == "noDoc")) return(NULL)
   values <- set_names(values, tags)
   api <- list(
-    openapi = "3.0.0",
     info = compact(list(
       title = values$apiTitle,
       description = values$apiDescription,
