@@ -404,7 +404,7 @@ Plumber <- R6Class(
     }
   ),
   private = list(
-    OPENAPI = list(openapi = "3.0.0"),
+    OPENAPI = list(openapi = "3.0.0", info = list(title = "", description = "")),
     REQUEST_ROUTER = NULL,
     HEADER_ROUTER = NULL,
     MESSAGE_ROUTER = NULL,
