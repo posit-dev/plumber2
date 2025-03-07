@@ -1,0 +1,116 @@
+---
+title: "Upgrading From Plumber"
+vignette: >
+  %\VignetteIndexEntry{Upgrading From Plumber}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(plumber2)
+```
+
+Plumber2 is designed in a way that should make it very familiar to long-time
+plumber users. However, it has been created with the explicit intend to not be
+API-compatible with old plumber code and plumber files, except in the simplest
+of cases. We have done this to allow us to learn from many years of experience
+with plumber and keep what work while shedding what has proven to be suboptimal.
+
+If you are coming from plumber then this document may serve as a starting ground
+for recalibrating yourself to the ways of plumber2, as well as an aid when
+updating old plumber APIs to plumber2.
+
+## `pr_*()` to `api_*()
+One of the first changes you may recognise is that the functional interface has
+gotten a prefix change. This has been done, partly to avoid any namespace
+conflicts with plumber, partly to avoid users assuming the functions worked 100%
+equivalently, and partly because the `pr` prefix was not very descriptive. It
+is an acronym for Plumber Route, but an API is much more than its router
+(especially in plumber2) so having that as a general prefix doesn't make sense.
+
+The new prefix, `api`, is a well-known acronym (Application Programming
+Interface) with a single meaning that fits what plumber2 is meant to help
+creates. The plumber object you are creating is also referred to as a Plumber
+API to further underscore this.
+
+The functional interface does not match 1-to-1 if you substitute the prefix so
+you shouldn't expect a find-replace to be all that is needed.
+
+## Only path arguments are passed as named arguments to your handler
+In plumber, both path argument, query parameters, and potentially body parts
+where used as named arguments when calling your handler function. This presented
+multiple problems, first and foremost which one would win if there were name
+clashes between them. It also meant that the query string was always parsed even
+if your handler didn't use it for anything, adding unnecessary overhead.
+
+In plumber2 we avoid the confusion by only supplying path arguments to the
+handler function as named arguments. Query parameters and request body is passed
+to the function as the `query` and `body` argument respectively. Further, they
+are passed in a way that means that if your function doesn't touch them they
+will never be parsed.
+
+This change means that if your handler contains arguments that is meant to come
+from the query string or request body you should update it to accept a `query`
+and/or `body` argument and grab what you need from there.
+
+## No more filter and preempt
+Filters and preempt has been removed completely from plumber2. They existed
+mainly because plumber had no other way of letting users perform multiple
+chained operations on requests. In plumber2 it is possible to have as many
+routes as you want, each one being tried in sequence. Further it is possible to
+have a routes that are called before the request has been completely recieved.
+These can be used to inspect the headers of the request and reject it before it
+even enters your main router chain.
+
+The functionality from the default filters in plumber has been moved. body,
+query, and cookie parsing is now handled by reqres in a fully automated way. The
+shared-secret filter is automatically created as a handler on the header route
+if a shared secret is found in the options.
+
+## `forward` replaced by `Next` and `Break``
+Since filters are no more, `forward` which was a filter specific construct is
+also gone. However, since every handler might now only be one in a chain of
+handlers, we have added new ways to control the flow of request handling. Any
+handler is assumed to pass handling on to the next (if any) handler in the
+chain. You can make this explicit by returning `Next` from your handler, but
+this is not required. You'd often like to instead return an object to be
+assigned to the response body which you can do as well. Basically returning
+anything other than `Break` will allow the handling chain to continue its
+execution. However, returning `Break` will inform plumber2 that this handler
+specifically wants to return the response as it is *right now* with no further
+modification (except for serializing). This is useful in header route handlers
+to reject requests early on, but can also be used in the normal request handling
+if e.g. you know a ressource has been moved and you want to return a redirect
+response immediately.
+
+You might also want to use `Break` if your handler catches an error and need to
+abort. However, plumber2 offers a much better way to do this by utilising the
+[`abort_*()`](https://reqres.data-imaginist.com/reference/abort_http_problem.html) functions from reqres. Throwing such an exception will immediately
+stop the handling of the request, set the response according to the abort
+content and log the error.
+
+## New Request and Response objects
+Plumber provided its own objects for working with HTTP request and responses. In
+plumber2 we now uses the
+[`Request`](https://reqres.data-imaginist.com/reference/Request.html) and
+[`Response`](https://reqres.data-imaginist.com/reference/Response.html) objects
+from reqres. These are highly capable classes that has removed a lot of the
+internal logic from plumber2. They are responsible for content negotiation,
+cookies, headers, etc. and support encrypted session data storage like you are
+used to from plumber.
+
+## New Plumber object
+The main class encapsulating your API has, unsurprisingly, also changed in
+plumber2. [Fiery](https://fiery.data-imaginist.com) is now used as a backbone of
+plumber2 and the `Plumber` class is now a subclass of the powerful
+[`Fire`](https://fiery.data-imaginist.com/reference/Fire.html) class which
+offers many capabilities for advanced use, should you wish to level up your
+plumber API
+

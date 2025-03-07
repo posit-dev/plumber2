@@ -1,7 +1,7 @@
 Package: plumber2
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person("Thomas Lin", "Pedersen", , "thomasp85@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5147-4711"))
 Description: What the package does (one paragraph).
@@ -9,7 +9,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Imports: 
+Imports:
     cli,
     fiery (>= 1.2.1.9000),
     fs,
@@ -22,14 +22,16 @@ Imports:
     roxygen2,
     stringi,
     svglite
-Remotes: 
+Remotes:
     thomasp85/fiery,
     thomasp85/reqres,
     thomasp85/routr
-Suggests: 
+Suggests:
     arrow,
     geojsonsf,
     htmlwidgets,
     nanoparquet,
+    quarto,
     readr,
     yaml
+VignetteBuilder: quarto

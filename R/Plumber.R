@@ -20,7 +20,7 @@
 #' construct one using [api()]
 #'
 #' ## Copying
-#' As `Plumbrer` objects are using reference semantics new copies of an api cannot
+#' As `Plumber` objects are using reference semantics new copies of an api cannot
 #' be made simply be assigning it to a new variable. If a true copy of a `Plumber`
 #' object is desired, use the `clone()` method.
 #'
@@ -85,7 +85,10 @@ Plumber <- R6Class(
       super$initialize(host, port)
 
       if (!is.null(doc_type)) {
-        private$DOC_TYPE <- arg_match0(doc_type, c("rapidoc", "redoc", "swagger"))
+        private$DOC_TYPE <- arg_match0(
+          doc_type,
+          c("rapidoc", "redoc", "swagger")
+        )
       }
       check_string(doc_path)
       private$DOC_PATH <- doc_path
