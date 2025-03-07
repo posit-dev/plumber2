@@ -103,7 +103,7 @@ Plumber <- R6Class(
         c("no", "redirect", "remap")
       )
       check_number_decimal(max_request_size, allow_null = TRUE)
-      check_string(shared_secret)
+      check_string(shared_secret, allow_null = TRUE)
 
       header_route <- create_header_route(
         max_request_size,
@@ -163,7 +163,7 @@ Plumber <- R6Class(
         )
 
         if (isTRUE(showcase)) {
-          showcase <- sub("/?$", "/", docs_path)
+          showcase <- sub("/?$", "/", private$DOC_PATH)
         }
       }
 
