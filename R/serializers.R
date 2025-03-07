@@ -153,7 +153,7 @@ get_serializers_internal <- function(
     return(NULL)
   }
   if (is.null(types)) {
-    types <- names(registry$serializers)
+    types <- "..."
   }
   dots <- which(types == "...")
   from_dots <- rep_along(types, FALSE)
