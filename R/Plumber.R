@@ -51,16 +51,11 @@ Plumber <- R6Class(
     #' aware that setting this to `TRUE` will prevent the request from falling
     #' through to other routes that might have a matching method and path. This
     #' setting anly affects handlers on the request router.
-    #' @param ignore_trailing_slash One of `"no"`, `"redirect"`, or `"remap"`.
-    #' If `"no"` then the router consider the URL paths `path/to/ressource` and
-    #' `path/to/ressource/` as different and they will end in different handlers.
-    #' If `"redirect"` then any request that is made to a path with a trailing
-    #' slash is send a `308 Permanent Redirect` response instructing the request
-    #' to be redirected to the path without a slash. If `"remap"` then the
-    #' trailing slash is silently removed from the request path before searching
-    #' for handlers in the different routes of the stack. For the two last
-    #' options all routes added to the stack will have the terminal slash
-    #' removed from their handler paths
+    #' @param ignore_trailing_slash Logical. Should the trailing slash of a path
+    #' be ignored when adding handlers and handling requests. Setting this will
+    #' not change the request or the path associated with but just ensure that
+    #' both `path/to/ressource` and `path/to/ressource/` ends up in the same
+    #' handler. This setting will only affect routes that are created automatically.
     #' @param max_request_size Sets a maximum size of request bodies. Setting this
     #' will add a handler to the header router that automatically rejects requests
     #' based on their `Content-Length` header
@@ -78,7 +73,7 @@ Plumber <- R6Class(
       doc_type = get_opts("docs", "redoc"),
       doc_path = get_opts("apiPath", "__docs__"),
       reject_missing_methods = get_opts("methodNotAllowed", FALSE),
-      ignore_trailing_slash = get_opts("trailingSlash"),
+      ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
       max_request_size = get_opts("maxRequestSize"),
       shared_secret = get_opts("sharedSecret")
     ) {
@@ -94,14 +89,8 @@ Plumber <- R6Class(
       private$DOC_PATH <- doc_path
       check_bool(reject_missing_methods)
       private$REJECT_MISSING_METHODS <- reject_missing_methods
-      ignore_trailing_slash <- ignore_trailing_slash %||% "redirect"
-      if (is.logical(ignore_trailing_slash)) {
-        ignore_trailing_slash <- if (ignore_trailing_slash) "redirect" else "no"
-      }
-      private$IGNORE_TRAILING_SLASH <- arg_match0(
-        ignore_trailing_slash,
-        c("no", "redirect", "remap")
-      )
+      check_bool(ignore_trailing_slash)
+      private$IGNORE_TRAILING_SLASH <- ignore_trailing_slash
       check_number_decimal(max_request_size, allow_null = TRUE)
       check_string(shared_secret, allow_null = TRUE)
 
@@ -182,7 +171,8 @@ Plumber <- R6Class(
     #' will place it at the end. Will not have an effect if a route with the
     #' given name already exists.
     add_route = function(name, route = NULL, header = FALSE, after = NULL) {
-      route <- route %||% Route$new()
+      route <- route %||%
+        Route$new(ignore_trailing_slash = private$IGNORE_TRAILING_SLASH)
       if (header) {
         router <- self$header_router
       } else {
@@ -303,7 +293,11 @@ Plumber <- R6Class(
     #' evaluated in
     parse_file = function(file, env = caller_env()) {
       eval_env <- new.env(parent = env)
-      parsed <- parse_plumber_file(file, eval_env)
+      parsed <- parse_plumber_file(
+        file,
+        ignore_trailing_slash = private$IGNORE_TRAILING_SLASH,
+        env = eval_env
+      )
       if (!parsed$route[[1]]$empty) {
         if (!self$request_router$has_route(names(parsed$route))) {
           self$add_route(names(parsed$route))
@@ -367,9 +361,7 @@ Plumber <- R6Class(
     #' @field request_router The router handling requests
     request_router = function() {
       if (is.null(private$REQUEST_ROUTER)) {
-        private$REQUEST_ROUTER <- RouteStack$new(
-          ignore_trailing_slash = private$IGNORE_TRAILING_SLASH
-        )
+        private$REQUEST_ROUTER <- RouteStack$new()
         private$REQUEST_ROUTER$attach_to <- "request"
         self$attach(private$REQUEST_ROUTER)
       }
@@ -379,9 +371,7 @@ Plumber <- R6Class(
     #' will pass through this router prior to reading in the body)
     header_router = function() {
       if (is.null(private$HEADER_ROUTER)) {
-        private$HEADER_ROUTER <- RouteStack$new(
-          ignore_trailing_slash = private$IGNORE_TRAILING_SLASH
-        )
+        private$HEADER_ROUTER <- RouteStack$new()
         private$HEADER_ROUTER$attach_to <- "header"
         self$attach(private$HEADER_ROUTER)
       }

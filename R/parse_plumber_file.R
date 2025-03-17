@@ -7,6 +7,11 @@
 #' directly.
 #'
 #' @param path The path to the file to parse
+#' @param ignore_trailing_slash Logical. Should the trailing slash of a path
+#' be ignored when adding handlers and handling requests. Setting this will
+#' not change the request or the path associated with but just ensure that
+#' both `path/to/ressource` and `path/to/ressource/` ends up in the same
+#' handler.
 #' @param env The environment to evaluate the code and annotations in
 #'
 #' @return A list containing:
@@ -26,7 +31,11 @@
 #'
 #' @export
 #'
-parse_plumber_file <- function(path, env = caller_env()) {
+parse_plumber_file <- function(
+  path,
+  ignore_trailing_slash,
+  env = caller_env()
+) {
   check_string(path)
   check_environment(env)
   if (!fs::file_exists(path)) {
@@ -42,8 +51,10 @@ parse_plumber_file <- function(path, env = caller_env()) {
   on.exit(unlink(tmp_file), add = TRUE)
   writeLines(file, tmp_file)
   blocks <- roxygen2::parse_file(tmp_file, srcref_path = path)
-  route <- routr::route()
-  header_route <- routr::route()
+  route <- routr::Route$new(ignore_trailing_slash = ignore_trailing_slash)
+  header_route <- routr::Route$new(
+    ignore_trailing_slash = ignore_trailing_slash
+  )
   blocks <- lapply(
     blocks,
     parse_block,

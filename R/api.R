@@ -23,16 +23,11 @@
 #' aware that setting this to `TRUE` will prevent the request from falling
 #' through to other routes that might have a matching method and path. This
 #' setting anly affects handlers on the request router.
-#' @param ignore_trailing_slash One of `"no"`, `"redirect"`, or `"remap"`.
-#' If `"no"` then the router consider the URL paths `path/to/ressource` and
-#' `path/to/ressource/` as different and they will end in different handlers.
-#' If `"redirect"` then any request that is made to a path with a trailing
-#' slash is send a `308 Permanent Redirect` response instructing the request
-#' to be redirected to the path without a slash. If `"remap"` then the
-#' trailing slash is silently removed from the request path before searching
-#' for handlers in the different routes of the stack. For the two last
-#' options all routes added to the stack will have the terminal slash
-#' removed from their handler paths
+#' @param ignore_trailing_slash Logical. Should the trailing slash of a path
+#' be ignored when adding handlers and handling requests. Setting this will
+#' not change the request or the path associated with but just ensure that
+#' both `path/to/ressource` and `path/to/ressource/` ends up in the same
+#' handler.
 #' @param max_request_size Sets a maximum size of request bodies. Setting this
 #' will add a handler to the header router that automatically rejects requests
 #' based on their `Content-Length` header
