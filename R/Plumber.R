@@ -105,13 +105,12 @@ Plumber <- R6Class(
       check_number_decimal(max_request_size, allow_null = TRUE)
       check_string(shared_secret, allow_null = TRUE)
 
-      header_route <- create_header_route(
+      header_router <- create_header_router(
         max_request_size,
-        shared_secret,
-        private$IGNORE_TRAILING_SLASH
+        shared_secret
       )
-      if (length(header_route$routes) != 0) {
-        private$HEADER_ROUTER <- header_route
+      if (length(header_router$routes) != 0) {
+        private$HEADER_ROUTER <- header_router
       }
     },
     #' @description Human readable description of the api object
