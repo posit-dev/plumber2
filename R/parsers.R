@@ -142,7 +142,7 @@ get_parsers_internal <- function(
     )
   }
   parsers <- lapply(types, function(type) {
-    type <- stringi::stri_split_fixed(type, " ", n = 2)[[1]]
+    type <- stringi::stri_split_fixed(type, "{", n = 2)[[1]]
     if (stringi::stri_count_fixed(type[[1]], "/") == 1) {
       parser_fun <- if (length(type) == 2)
         eval_bare(parse_expr(type[2]), env = env) else function(x, ...) x
@@ -160,7 +160,7 @@ get_parsers_internal <- function(
         args <- list()
       } else {
         args <- eval_bare(
-          parse_expr(paste0("list(", type[[2]], ")")),
+          parse_expr(paste0("list(", sub("\\}$", "", type[[2]]), ")")),
           env = env
         )
       }
