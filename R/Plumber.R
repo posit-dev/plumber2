@@ -105,6 +105,8 @@ Plumber <- R6Class(
       if (length(header_router$routes) != 0) {
         private$HEADER_ROUTER <- header_router
       }
+
+      self$set_logger(fiery::logger_console())
     },
     #' @description Human readable description of the api object
     #' @param ... ignored
@@ -212,6 +214,8 @@ Plumber <- R6Class(
     #' @param route The route this handler should be added to. Defaults to the
     #' last route in the stack. If the route does not exist it will be created
     #' as the last route in the stack.
+    #' @param doc OpenAPI documentation for the handler. Will be added to the
+    #' `paths$<handler_path>$<handler_method>` portion of the API.
     #' @param header Logical. Should the handler be added to the header router
     #'
     request_handler = function(
@@ -223,6 +227,7 @@ Plumber <- R6Class(
       use_strict_serializer = FALSE,
       download = FALSE,
       route = NULL,
+      doc = NULL,
       header = FALSE
     ) {
       method <- arg_match0(
@@ -245,6 +250,16 @@ Plumber <- R6Class(
       check_bool(header)
       check_string(path)
       check_string(route, allow_null = TRUE)
+
+      # Augment docs with path info
+      path_info <- parse_path(path)
+      doc <- doc %||% list(parameters = list())
+      doc$parameters <- combine_parameters(path_info$params, doc$parameters)
+      operation_id <- paste0(path_info$path, "-", method)
+      doc$parameters <- lapply(doc$parameters, function(par) {
+        par$operationId <- par$operationId %||% operation_id
+        par
+      })
 
       # Substitute the plumber style path arg for a routr style
       path <- stri_replace_all_regex(path, "<(.+?)(:.+?)?>", ":$1")
@@ -278,10 +293,14 @@ Plumber <- R6Class(
           serializers,
           parsers,
           use_strict_serializer,
-          download
+          download,
+          doc
         ),
         reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
+      if (!header) {
+        self$add_api_doc(doc, subset = c("paths", path_info$path, method))
+      }
     },
     #' @description Add a handler to a WebSocket message. See [api_message] for
     #' detailed information
@@ -303,20 +322,14 @@ Plumber <- R6Class(
         env = eval_env
       )
       if (!parsed$route[[1]]$empty) {
-        if (!self$request_router$has_route(names(parsed$route))) {
-          self$add_route(names(parsed$route))
-        }
-        self$request_router$get_route(names(
-          parsed$route
-        ))$merge_route(parsed$route[[1]])
+        self$add_route(names(parsed$route), parsed$route[[1]], header = FALSE)
       }
       if (!parsed$header_route[[1]]$empty) {
-        if (!self$header_router$has_route(names(parsed$header_route))) {
-          self$add_route(names(parsed$header_route), header = TRUE)
-        }
-        self$header_router$get_route(names(
-          parsed$header_route
-        ))$merge_route(parsed$header_route[[1]])
+        self$add_route(
+          names(parsed$header_route),
+          parsed$header_route[[1]],
+          header = TRUE
+        )
       }
       for (asset in parsed$asset_routes) {
         self$serve_static(
@@ -399,7 +412,10 @@ Plumber <- R6Class(
     }
   ),
   private = list(
-    OPENAPI = list(openapi = "3.0.0", info = list(title = "", description = "")),
+    OPENAPI = list(
+      openapi = "3.0.0",
+      info = list(title = "", description = "")
+    ),
     REQUEST_ROUTER = NULL,
     HEADER_ROUTER = NULL,
     MESSAGE_ROUTER = NULL,
@@ -416,6 +432,7 @@ create_plumber_request_handler <- function(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  doc = NULL,
   call = caller_env()
 ) {
   check_function(handler)
@@ -441,6 +458,8 @@ create_plumber_request_handler <- function(
   } else {
     stop_input_type(download, "a boolean or a string", call = call)
   }
+
+  type_casters <- create_type_casters(doc)
 
   function(request, response, keys, server, id, ...) {
     # Default the response to 200 if it is 404 (the default) as we hit an endpoint
@@ -480,13 +499,13 @@ create_plumber_request_handler <- function(
 
     # Call the handler with all available data
     result <- inject(handler(
-      !!!keys,
+      !!!type_casters$path(keys),
       request = request,
       response = response,
       server = server,
       client_id = id,
-      query = request$query,
-      body = request$body
+      query = type_casters$query(request$query),
+      body = type_casters$body(request$body, request$headers$Content_Type)
     ))
 
     # If the handler returns a ggplot and a device serializer is in effect we render it

@@ -4,10 +4,16 @@
 \alias{parse_plumber_file}
 \title{Parse a plumber file}
 \usage{
-parse_plumber_file(path, env = caller_env())
+parse_plumber_file(path, ignore_trailing_slash, env = caller_env())
 }
 \arguments{
 \item{path}{The path to the file to parse}
+
+\item{ignore_trailing_slash}{Logical. Should the trailing slash of a path
+be ignored when adding handlers and handling requests. Setting this will
+not change the request or the path associated with but just ensure that
+both \code{path/to/ressource} and \verb{path/to/ressource/} ends up in the same
+handler.}
 
 \item{env}{The environment to evaluate the code and annotations in}
 }

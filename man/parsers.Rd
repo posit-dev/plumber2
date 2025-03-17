@@ -11,6 +11,7 @@
 \alias{parse_tsv}
 \alias{parse_yaml}
 \alias{parse_geojson}
+\alias{parse_multipart}
 \title{Parser functions provided by plumber2}
 \usage{
 parse_csv(...)
@@ -30,6 +31,8 @@ parse_tsv(...)
 parse_yaml(...)
 
 parse_geojson(...)
+
+parse_multipart(parsers = get_parsers())
 }
 \arguments{
 \item{...}{Further argument passed on to the internal parsing function. See
@@ -53,6 +56,11 @@ them to register them to alternative types if they know it makes sense.
 \item \code{parse_csv()} uses \code{\link[readr:read_delim]{readr::read_csv()}} for parsing. It is registered as
 \code{"csv"} for the mime types \code{application/csv}, \code{application/x-csv},
 \code{text/csv}, and \code{text/x-csv}
+\item \code{parse_multipart} uses \code{\link[webutils:parse_multipart]{webutils::parse_multipart()}} for the initial
+parsing. It then goes through each part and tries to find a parser that
+matches the content type (either given directly or guessed from the file
+extension provided). If a parser is not found it leaves the value as a raw
+vector. It is registered as "\code{multi}" for the mime type \verb{multipart/*}
 \item \code{parse_octet()} passes the raw data through unchanged. It is registered as
 \code{"octet"} for the mime type \code{application/octet-stream}
 \item \code{parse_rds()} uses \code{\link[=unserialize]{unserialize()}} for parsing. It is registered as
@@ -78,8 +86,6 @@ registered as \code{"geojson"} for the mime types \code{application/geo+json} an
 \itemize{
 \item \code{\link[reqres:parsers]{reqres::parse_json()}} is registered as "\code{json}" for the mime types
 \code{application/json} and \code{text/json}
-\item \code{\link[reqres:parsers]{reqres::parse_multiform()}} is registered as "\code{multi}" for the mime
-type \verb{multipart/*}
 \item \code{\link[reqres:parsers]{reqres::parse_queryform()}} is registered as "\code{form}" for the mime type
 \code{application/x-www-form-urlencoded}
 }

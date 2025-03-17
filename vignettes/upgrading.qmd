@@ -6,13 +6,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
-
 ```{r setup}
 library(plumber2)
 ```
@@ -114,3 +107,9 @@ plumber2 and the `Plumber` class is now a subclass of the powerful
 offers many capabilities for advanced use, should you wish to level up your
 plumber API
 
+## Added `@query` and `@body` tags
+In plumber the `@param` tag was used to document both path parameters, query
+parameters and request body. In line with making the handler function arguments
+more explicit we also want to apply that to the documentation and so, you now
+document query and body with the explicit `@query` and `@body` tags. The syntax
+for these tags are the same as for `@param`

@@ -9,12 +9,13 @@ api(
   ...,
   host = get_opts("host", "127.0.0.1"),
   port = get_opts("port", 8080),
-  doc_type = get_opts("docs", "rapidoc"),
-  doc_path = get_opts("apiPath", "__docs__"),
+  doc_type = get_opts("docType", "rapidoc"),
+  doc_path = get_opts("docPath", "__docs__"),
   reject_missing_methods = get_opts("methodNotAllowed", FALSE),
-  ignore_trailing_slash = get_opts("trailingSlash"),
+  ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
+  compression_limit = get_opts("compressionLimit", 1000),
   env = caller_env()
 )
 
@@ -47,16 +48,11 @@ aware that setting this to \code{TRUE} will prevent the request from falling
 through to other routes that might have a matching method and path. This
 setting anly affects handlers on the request router.}
 
-\item{ignore_trailing_slash}{One of \code{"no"}, \code{"redirect"}, or \code{"remap"}.
-If \code{"no"} then the router consider the URL paths \code{path/to/ressource} and
-\verb{path/to/ressource/} as different and they will end in different handlers.
-If \code{"redirect"} then any request that is made to a path with a trailing
-slash is send a \verb{308 Permanent Redirect} response instructing the request
-to be redirected to the path without a slash. If \code{"remap"} then the
-trailing slash is silently removed from the request path before searching
-for handlers in the different routes of the stack. For the two last
-options all routes added to the stack will have the terminal slash
-removed from their handler paths}
+\item{ignore_trailing_slash}{Logical. Should the trailing slash of a path
+be ignored when adding handlers and handling requests. Setting this will
+not change the request or the path associated with but just ensure that
+both \code{path/to/ressource} and \verb{path/to/ressource/} ends up in the same
+handler.}
 
 \item{max_request_size}{Sets a maximum size of request bodies. Setting this
 will add a handler to the header router that automatically rejects requests
@@ -69,6 +65,9 @@ that this type of authentication is very weak. Never put the shared secret in
 plain text but rely on e.g. the keyring package for storage. Even so, if
 requests are send over HTTP (not HTTPS) then anyone can read the secret and
 use it}
+
+\item{compression_limit}{The size threshold in bytes for trying to
+compress the response body (it is still dependant on content negotiation)}
 
 \item{env}{The parent environment to the environment the files should be
 evaluated in. Each file will be evaluated in it's own environment so they

@@ -192,6 +192,11 @@ get_parsers_internal <- function(
 #' * `parse_csv()` uses [readr::read_csv()] for parsing. It is registered as
 #'   `"csv"` for the mime types `application/csv`, `application/x-csv`,
 #'   `text/csv`, and `text/x-csv`
+#' * `parse_multipart` uses [webutils::parse_multipart()] for the initial
+#'   parsing. It then goes through each part and tries to find a parser that
+#'   matches the content type (either given directly or guessed from the file
+#'   extension provided). If a parser is not found it leaves the value as a raw
+#'   vector. It is registered as "`multi`" for the mime type `multipart/*`
 #' * `parse_octet()` passes the raw data through unchanged. It is registered as
 #'   `"octet"` for the mime type `application/octet-stream`
 #' * `parse_rds()` uses [unserialize()] for parsing. It is registered as
@@ -216,8 +221,6 @@ get_parsers_internal <- function(
 #' ## Additional registered parsers
 #' * [reqres::parse_json()] is registered as "`json`" for the mime types
 #'   `application/json` and `text/json`
-#' * [reqres::parse_multiform()] is registered as "`multi`" for the mime
-#'   type `multipart/*`
 #' * [reqres::parse_queryform()] is registered as "`form`" for the mime type
 #'   `application/x-www-form-urlencoded`
 #'
@@ -313,6 +316,59 @@ parse_geojson <- function(...) {
     geojsonsf::geojson_sf(rawToChar(raw), ...)
   }
 }
+#' @rdname parsers
+#' @export
+#'
+parse_multipart <- function(parsers = get_parsers()) {
+  # We need to do this dance to avoid recursion hell
+  parsers <- enquo(parsers)
+  evaled_parsers <- NULL
+  function(raw, directives) {
+    res <- webutils::parse_multipart(raw, directives$boundary)
+    lapply(res, function(part) {
+      filename <- part$filename
+      type <- part$content_type
+      if (!is.null(type)) {
+        type <- stringi::stri_split_fixed(type, ";", n = 2)[[1]][1]
+      }
+
+      if (!is.null(filename)) {
+        if (is.null(type) || type == "application/octet-stream") {
+          type <- reqres::mime_type_from_file(filename)$name
+        } else {
+          type <- reqres::mime_type_info(type)$name
+        }
+      } else {
+        type <- type %||% "text/plain"
+      }
+
+      parser_fun <- NULL
+      if (length(type) > 0) {
+        if (is.null(evaled_parsers)) {
+          # Second part of the dance described above
+          parsers <- eval_tidy(parsers) %||% list()
+          parsers <- parsers[order(stringi::stri_count_fixed(
+            names(parsers),
+            "*"
+          ))]
+          names(parsers) <- gsub("*", ".+?", names(parsers), fixed = TRUE)
+          evaled_parsers <<- parsers
+        }
+        type <- type[[1]][1]
+        parser <- which(stringi::stri_detect_regex(type, names(evaled_parsers)))
+        if (length(parser) != 0) {
+          parser_fun <- evaled_parsers[[parser[1]]]
+        }
+      }
+      val <- part$value
+      if (!is.null(parser_fun)) {
+        val <- parser_fun(val, list())
+      }
+      attributes(val) <- part[names(part) != "value"]
+      val
+    })
+  }
+}
 
 on_load({
   register_parser(
@@ -325,8 +381,7 @@ on_load({
     reqres::parse_json,
     c("application/json", "text/json")
   )
-  # TODO: I don't think this is quite baked yet
-  register_parser("multi", reqres::parse_multiform, "multipart/*")
+  register_parser("multi", parse_multipart, "multipart/*")
   register_parser("octet", parse_octet, "application/octet-stream")
   register_parser(
     "form",

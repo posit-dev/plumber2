@@ -21,16 +21,9 @@ handle_constructor <- function(method, header = FALSE) {
       parsers,
       use_strict_serializer,
       download,
+      doc,
       header
     )
-    if (!is.null(docs)) {
-      clean_path <- stringi::stri_replace_all_regex(
-        path,
-        "<(.+?)(:.+?)?>",
-        "{$1}"
-      )
-      api$add_api_doc(doc, subset = c("paths", clean_path, method))
-    }
     api
   }
   if (header) {

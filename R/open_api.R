@@ -3,12 +3,12 @@ parse_global_api <- function(tags, values, env = caller_env()) {
   values <- set_names(values, tags)
   api <- list(
     info = compact(list(
-      title = values$apiTitle,
-      description = values$apiDescription,
-      termsOfService = values$apiTOS,
+      title = trimws(values$apiTitle),
+      description = trimws(values$apiDescription),
+      termsOfService = trimws(values$apiTOS),
       contact = eval(parse(text = values$apiContact %||% "NULL"), env),
       license = eval(parse(text = values$apiLicense %||% "NULL"), env),
-      version = values$apiVersion
+      version = trimws(values$apiVersion)
     )),
     tag = unname(lapply(values[tags == "apiTag"], function(tag) {
       tag <- stringi::stri_match_all_regex(tag, "^((\".+?\")|(\\S+))(.*)")[[1]]
@@ -23,79 +23,49 @@ parse_global_api <- function(tags, values, env = caller_env()) {
   compact(api)
 }
 
-parse_block_api <- function(tags, values, parsers, serializers) {
-  if (any(tags == "noDoc")) return(NULL)
-  api <- list()
-  summary <- if ("title" %in% tags) values[[which(tags == "title")]]
-  description <- paste0(
-    unlist(values[tags %in% c("description", "details")]),
-    collapse = "\n\n"
-  )
-  if (description == "") description <- NULL
-  params <- stringi::stri_split_fixed(
-    unlist(values[tags == "param"]),
-    " ",
-    n = 2
-  )
-  params <- lapply(params, function(param) {
-    arg_parsed <- stringi::stri_match_first_regex(
-      param[1],
-      "^(.+?)(:(.+?))?(\\*)?$"
-    )[1, ]
-    arg_name <- arg_parsed[2]
-    arg_description <- param[2]
-    arg_type <- arg_parsed[4]
-    arg_is_required <- !is.na(arg_parsed[5])
-    param <- list(
-      `in` = "query", # Will get overwritten if present in path
-      name = arg_name,
-      description = if (!is.na(arg_description)) arg_description,
-      required = arg_is_required,
-      style = "form", # TODO: Should this be user definable
-      schema = parse_openapi_type(arg_type)
+parse_path <- function(path) {
+  args <- stringi::stri_match_all_regex(path, "<(.+?)>")[[1]][, 2]
+  if (isTRUE(is.na(args))) {
+    args <- matrix(character())
+  } else {
+    args <- stringi::stri_match_first_regex(
+      args,
+      "^(.+?)(:(.+?))?(\\((.*?)\\))?(\\*)?$"
     )
-    compact(param)
-  })
-  body_params <- vapply(
-    params,
-    function(param)
-      !is.null(param$schema) &&
-        (param$schema$type == "object" ||
-          isTRUE(param$schema$format == "binary")),
-    logical(1)
+  }
+  params <- list()
+  for (i in seq_len(nrow(args))) {
+    params[[args[i, 2]]] <- list(
+      `in` = "path",
+      name = args[i, 2],
+      required = TRUE,
+      style = "simple", # TODO: Should this be user definable
+      schema = parse_openapi_type(args[i, 4], NA)
+    )
+  }
+  list(
+    path = as_openapi_path(path),
+    params = params
   )
-  names(params) <- vapply(params, `[[`, character(1), "name")
-  params_body <- params[body_params]
-  params <- params[!body_params]
+}
 
-  if (length(params_body) == 1) {
-    request_body <- compact(list(
-      description = params_body[[1]]$description,
-      required = params_body[[1]]$required,
-      content = rep_named(parsers, list(list(schema = params_body[[1]]$schema)))
-    ))
-  } else if (length(params_body) > 1) {
+combine_parameters <- function(path, doc, from_block = TRUE) {
+  common_names <- intersect(names(path), names(doc))
+  for (param in common_names) {
     if (
-      !all(
-        parsers %in%
-          c("application/x-www-form-urlencoded", "multipart/form-data")
-      )
+      length(path[[param]]$schema) != 0 &&
+        length(doc[[param]]$schema) != 0 &&
+        !identical(path[[param]]$schema, doc[[param]]$schema)
     ) {
       cli::cli_abort(
-        "Multiple {.field @params} tags for request body, but parser is not {.val application/x-www-form-urlencoded} or {.val multipart/form-data}"
+        "The type information for {.arg {param}} provided in the path doens't match the information provided in {if (from_block) '@param' else '`doc`'}"
       )
     }
-    schema <- list(
-      type = "object",
-      properties = lapply(params_body, `[[`, "schema")
-    )
-    request_body <- list(
-      content = rep_named(parsers, list(schema))
-    )
-  } else {
-    request_body <- NULL
   }
+  utils::modifyList(doc, path)
+}
 
+parse_responses <- function(tags, values, serializers) {
   responses <- unlist(values[tags == "response"])
   responses <- stringi::stri_split_fixed(responses, " ", n = 2)
   response_codes <- vapply(responses, `[[`, character(1), 1)
@@ -123,8 +93,33 @@ parse_block_api <- function(tags, values, parsers, serializers) {
     serializers,
     list(list(schema = schema))
   )
+}
+
+parse_block_api <- function(tags, values, parsers, serializers) {
+  if (any(tags == "noDoc")) return(NULL)
+  api <- list()
+  summary <- if ("title" %in% tags) values[[which(tags == "title")]]
+  description <- paste0(
+    unlist(values[tags %in% c("description", "details")]),
+    collapse = "\n\n"
+  )
+  if (description == "") description <- NULL
+  path_params <- parse_params(tags, values, "path")
+  query_params <- parse_params(tags, values, "query")
+  body_params <- parse_params(tags, values, "body")
+
+  request_body <- parse_body_params(body_params, parsers)
+
+  responses <- parse_responses(tags, values, serializers)
 
   tag <- unlist(values[tags == "tag"])
+
+  endpoint_template <- compact(list(
+    summary = summary,
+    description = description,
+    tags = tag,
+    responses = responses
+  ))
 
   methods <- which(
     tags %in%
@@ -142,53 +137,31 @@ parse_block_api <- function(tags, values, parsers, serializers) {
   )
   paths <- trimws(unlist(values[methods]))
   methods <- split(tags[methods], paths)
+
   for (path in names(methods)) {
-    args <- stringi::stri_match_all_regex(path, "<(.+?)>")[[1]][, 2]
-    if (isTRUE(is.na(args))) {
-      args <- matrix(character())
-    } else {
-      args <- stringi::stri_match_first_regex(args, "^(.+?)(:(.+?))?(\\*)?$")
-    }
-    clean_path <- stringi::stri_replace_all_regex(
-      path,
-      "<(.+?)(:.+?)?>",
-      "{$1}"
-    )
+    path_info <- parse_path(path)
+    local_params <- combine_parameters(path_info$params, path_params)
+    local_params <- unname(c(local_params, query_params))
     endpoint <- list()
     for (method in methods[[path]]) {
-      local_params <- params
-      for (i in seq_len(nrow(args))) {
-        param <- list(
-          `in` = "path",
-          name = args[i, 2],
-          operationId = paste0(clean_path, "-", method),
-          required = TRUE,
-          style = "simple", # TODO: Should this be user definable
-          schema = parse_openapi_type(args[i, 4])
-        )
-        local_params[[args[i, 2]]] <- utils::modifyList(
-          local_params[[args[i, 2]]] %||% list(),
-          compact(param)
-        )
-      }
-      endpoint[[method]] <- compact(list(
-        summary = summary,
-        description = description,
-        tags = tag,
-        parameters = unname(local_params),
-        responses = responses
-      ))
+      operation_id <- paste0(path_info$path, "-", method)
+      endpoint[[method]] <- endpoint_template
+      endpoint[[method]]$parameters <- lapply(local_params, function(par) {
+        par$operationId <- operation_id
+        par
+      })
       if (!is.null(request_body) && method %in% c("put", "post", "patch")) {
         endpoint[[method]]$requestBody <- request_body
       }
     }
-    api[[clean_path]] <- endpoint
+    api[[path_info$path]] <- endpoint
   }
   list(paths = api)
 }
 
-parse_openapi_type <- function(string) {
+parse_openapi_type <- function(string, default = NA) {
   check_string(string, allow_na = TRUE, allow_null = TRUE)
+  check_string(default, allow_na = TRUE)
   if (is.na(string) || is.null(string)) return(list())
   string <- trimws(string)
   if (grepl("^\\{", string)) {
@@ -229,7 +202,7 @@ parse_openapi_type <- function(string) {
     content <- trimws(stringi::stri_sub_all(content, from, to)[[1]])
     content_split <- stringi::stri_match_first_regex(content, "^(.+?):(.+?)$")
 
-    list(
+    type <- list(
       type = "object",
       properties = set_names(
         lapply(content_split[, 3], parse_openapi_type),
@@ -237,22 +210,26 @@ parse_openapi_type <- function(string) {
       )
     )
   } else if (grepl("^\\[", string)) {
-    list(
+    type <- list(
       type = "array",
       items = parse_openapi_type(gsub("^\\[|\\]$", "", string))
     )
   } else {
     if (string %in% c("date", "date-time", "byte", "binary")) {
-      list(
+      type <- list(
         type = "string",
         format = string
       )
     } else {
-      list(
+      type <- list(
         type = string
       )
     }
   }
+  if (!is.na(default)) {
+    type$default <- default
+  }
+  type
 }
 
 default_responses <- list(
@@ -272,3 +249,72 @@ default_responses <- list(
     description = "Internal server error"
   )
 )
+
+parse_params <- function(tags, values, type = "path") {
+  tag_name <- switch(type, path = "param", type)
+  params <- stringi::stri_split_fixed(
+    unlist(values[tags == tag_name]),
+    " ",
+    n = 2
+  )
+  params <- lapply(params, function(param) {
+    arg_parsed <- stringi::stri_match_first_regex(
+      param[1],
+      "^(.+?)(:(.+?))?(\\((.*?)\\))?(\\*)?$"
+    )[1, ]
+    arg_name <- arg_parsed[2]
+    arg_description <- param[2]
+    arg_type <- arg_parsed[4]
+    arg_default <- arg_parsed[6]
+    arg_required <- type == "path" || !is.na(arg_parsed[7])
+    list(
+      `in` = type, # Will get overwritten if present in path
+      name = arg_name,
+      description = if (!is.na(arg_description)) arg_description else "",
+      required = arg_required,
+      style = "form", # TODO: Should this be user definable
+      schema = parse_openapi_type(
+        arg_type,
+        if (arg_required) NA else arg_default
+      )
+    )
+  })
+  set_names(params, vapply(params, `[[`, character(1), "name"))
+}
+
+parse_body_params <- function(params, parsers) {
+  if (length(params) == 1) {
+    request_body <- compact(list(
+      description = params[[1]]$description,
+      required = params[[1]]$required,
+      content = rep_named(parsers, list(list(schema = params[[1]]$schema)))
+    ))
+  } else if (length(params) > 1) {
+    schema <- list(
+      type = "object",
+      properties = lapply(params, `[[`, "schema"),
+      required = names(params)[vapply(
+        params,
+        `[[`,
+        logical(1),
+        "required"
+      )]
+    )
+    body_description <- vapply(params, `[[`, character(1), "description")
+    body_description <- paste0(
+      "*",
+      names(params)[body_description != ""],
+      "*: ",
+      body_description[body_description != ""],
+      collapse = "; "
+    )
+    parsers <- sub("multipart/*", "multipart/form-data", parsers, fixed = TRUE)
+    request_body <- list(
+      description = body_description,
+      content = rep_named(parsers, list(list(schema = schema)))
+    )
+  } else {
+    request_body <- NULL
+  }
+  request_body
+}

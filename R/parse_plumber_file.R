@@ -205,27 +205,29 @@ parse_handler_block <- function(
   strict_serializer <- any(tags == "serializerStrict")
   if (any(tags == "header")) route <- header_route
 
+  doc <- parse_block_api(tags, values, names(parsers), names(serializers))
+
   for (i in methods) {
     method <- tags[i]
     if (method == "any") method <- "all"
-    path <- stringi::stri_replace_all_regex(
-      trimws(values[[i]]),
-      "<(.+?)(:.+?)?>",
-      ":$1"
-    )
+    path <- as_routr_path(trimws(values[[i]]))
+    oapi_path <- as_openapi_path(trimws(values[[i]]))
 
     route$add_handler(
       method,
       path,
       create_plumber_request_handler(
         handler,
-        serializers,
-        parsers,
-        strict_serializer,
+        serializers = serializers,
+        parsers = parsers,
+        use_strict_serializer = strict_serializer,
+        download = download,
+        doc = doc$paths[[oapi_path]][[method]]
       )
     )
   }
-  parse_block_api(tags, values, names(parsers), names(serializers))
+
+  doc
 }
 
 parse_static_block <- function(call, block, tags, values, env) {

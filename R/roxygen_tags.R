@@ -99,6 +99,16 @@ roxy_tag_parse.roxy_tag_any <- function(x) {
 }
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_query <- function(x) {
+  x
+}
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_body <- function(x) {
+  x
+}
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_serializer <- function(x) {
   x
 }
@@ -168,11 +178,6 @@ roxy_tag_parse.roxy_tag_plumber <- function(x) {
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_rejectMissingMethods <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_ignoreTrailingSlash <- function(x) {
   x
 }
 #' @export
