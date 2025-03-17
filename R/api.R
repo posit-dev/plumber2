@@ -38,6 +38,8 @@
 #' plain text but rely on e.g. the keyring package for storage. Even so, if
 #' requests are send over HTTP (not HTTPS) then anyone can read the secret and
 #' use it
+#' @param compression_limit The size threshold in bytes for trying to
+#' compress the response body (it is still dependant on content negotiation)
 #' @param env The parent environment to the environment the files should be
 #' evaluated in. Each file will be evaluated in it's own environment so they
 #' don't interfere with each other
@@ -56,6 +58,7 @@ api <- function(
   ignore_trailing_slash = get_opts("trailingSlash"),
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
+  compression_limit = get_opts("compressionLimit", 1e3),
   env = caller_env()
 ) {
   api <- Plumber$new(
@@ -66,7 +69,8 @@ api <- function(
     reject_missing_methods = reject_missing_methods,
     ignore_trailing_slash = ignore_trailing_slash,
     max_request_size = max_request_size,
-    shared_secret = shared_secret
+    shared_secret = shared_secret,
+    compression_limit = compression_limit
   )
   locations <- list2(...)
   lapply(locations, function(loc) {

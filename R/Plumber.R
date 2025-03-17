@@ -66,6 +66,8 @@ Plumber <- R6Class(
     #' plain text but rely on e.g. the keyring package for storage. Even so, if
     #' requests are send over HTTP (not HTTPS) then anyone can read the secret and
     #' use it
+    #' @param compression_limit The size threshold in bytes for trying to
+    #' compress the response body (it is still dependant on content negotiation)
     #' @return A `Plumber` object
     initialize = function(
       host = get_opts("host", "127.0.0.1"),
@@ -75,7 +77,8 @@ Plumber <- R6Class(
       reject_missing_methods = get_opts("methodNotAllowed", FALSE),
       ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
       max_request_size = get_opts("maxRequestSize"),
-      shared_secret = get_opts("sharedSecret")
+      shared_secret = get_opts("sharedSecret"),
+      compression_limit = get_opts("compressionLimit", 1e3)
     ) {
       super$initialize(host, port)
 
@@ -93,6 +96,7 @@ Plumber <- R6Class(
       private$IGNORE_TRAILING_SLASH <- ignore_trailing_slash
       check_number_decimal(max_request_size, allow_null = TRUE)
       check_string(shared_secret, allow_null = TRUE)
+      self$compression_limit <- compression_limit
 
       header_router <- create_header_router(
         max_request_size,
