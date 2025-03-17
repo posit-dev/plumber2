@@ -72,8 +72,8 @@ Plumber <- R6Class(
     initialize = function(
       host = get_opts("host", "127.0.0.1"),
       port = get_opts("port", 8080),
-      doc_type = get_opts("docs", "redoc"),
-      doc_path = get_opts("apiPath", "__docs__"),
+      doc_type = get_opts("docType", "rapidoc"),
+      doc_path = get_opts("docPath", "__docs__"),
       reject_missing_methods = get_opts("methodNotAllowed", FALSE),
       ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
       max_request_size = get_opts("maxRequestSize"),
@@ -403,10 +403,10 @@ Plumber <- R6Class(
     REQUEST_ROUTER = NULL,
     HEADER_ROUTER = NULL,
     MESSAGE_ROUTER = NULL,
-    DOC_TYPE = NULL,
-    DOC_PATH = NULL,
-    REJECT_MISSING_METHODS = NULL,
-    IGNORE_TRAILING_SLASH = NULL
+    DOC_TYPE = "rapidoc",
+    DOC_PATH = "__docs__",
+    REJECT_MISSING_METHODS = FALSE,
+    IGNORE_TRAILING_SLASH = TRUE
   )
 )
 
