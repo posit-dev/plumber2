@@ -289,7 +289,7 @@ Plumber <- R6Class(
         if (length(router$routes) == 0) {
           route <- "default"
         } else {
-          route <- router$routes[length(route$routes)]
+          route <- router$routes[length(router$routes)]
         }
       }
       if (!router$has_route(route)) {
