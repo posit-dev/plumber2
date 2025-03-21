@@ -6,7 +6,7 @@
 ^LICENSE\.md$
 ^[\.]?air\.toml$
 ^\.vscode$
-^vignettes/_ex*$
+^.*/_ex[^/]*.qmd$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
