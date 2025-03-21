@@ -7,13 +7,13 @@ articles:
   hosting: hosting.html
   introduction: introduction.html
   migration: migration.html
+  plumber: plumber.html
   programmatic-usage: programmatic-usage.html
-  quickstart: quickstart.html
   rendering-output: rendering-output.html
   routing-and-input: routing-and-input.html
   security: security.html
   tips-and-tricks: tips-and-tricks.html
-last_built: 2025-03-21T13:54Z
+last_built: 2025-03-21T14:13Z
 urls:
   reference: https://laughing-spoon-ywk3ewq.pages.github.io/reference
   article: https://laughing-spoon-ywk3ewq.pages.github.io/articles
