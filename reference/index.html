@@ -15,10 +15,11 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/plumber.html">Get Started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/quickstart.html">1. Introduction</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/introduction.html">1. Introduction</a></li>
     <li><a class="dropdown-item" href="../articles/routing-and-input.html">2. Routing &amp; Input</a></li>
     <li><a class="dropdown-item" href="../articles/rendering-output.html">3. Rendering output</a></li>
     <li><a class="dropdown-item" href="../articles/execution-model.html">4. Runtime</a></li>
@@ -42,7 +43,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="create-an-run-an-api">Create an run an API<a class="anchor" aria-label="anchor" href="#create-an-run-an-api"></a></h2>
 
 
 
@@ -54,53 +55,28 @@
 
       <dl><dt>
 
-          <code><a href="Next.html">Next</a></code> <code><a href="Next.html">Break</a></code>
-
-        </dt>
-        <dd>Router control flow</dd>
-      </dl><dl><dt>
-
-          <code><a href="Plumber.html">Plumber</a></code>
-
-        </dt>
-        <dd>The Plumber Class</dd>
-      </dl><dl><dt>
-
           <code><a href="api.html">api()</a></code> <code><a href="api.html">is_plumber_api()</a></code> <code><a href="api.html">api_parse()</a></code>
 
         </dt>
         <dd>Create a new plumber API, optionally based on one or more plumber files</dd>
       </dl><dl><dt>
 
-          <code><a href="api_add_route.html">api_add_route()</a></code>
+          <code><a href="api_run.html">api_run()</a></code> <code><a href="api_run.html">api_stop()</a></code>
 
         </dt>
-        <dd>Add a new route to either the request or header router</dd>
-      </dl><dl><dt>
+        <dd>Launch the API</dd>
+      </dl></div><div class="section level2">
+      <h2 id="adding-handlers-and-routes">Adding handlers and routes<a class="anchor" aria-label="anchor" href="#adding-handlers-and-routes"></a></h2>
 
-          <code><a href="api_assets.html">api_assets()</a></code> <code><a href="api_assets.html">api_statics()</a></code>
 
-        </dt>
-        <dd>Serve ressources from your file system</dd>
-      </dl><dl><dt>
 
-          <code><a href="api_docs.html">api_doc_setting()</a></code> <code><a href="api_docs.html">api_doc_add()</a></code>
 
-        </dt>
-        <dd>Configure your API for serving documentation for itself</dd>
-      </dl><dl><dt>
+    </div><div class="section level2">
 
-          <code><a href="api_message.html">api_message()</a></code>
 
-        </dt>
-        <dd>Add a handler to a WebSocket message</dd>
-      </dl><dl><dt>
 
-          <code><a href="api_on.html">api_on()</a></code> <code><a href="api_on.html">api_off()</a></code>
 
-        </dt>
-        <dd>Add a handler to an event</dd>
-      </dl><dl><dt>
+      <dl><dt>
 
           <code><a href="api_request_handlers.html">api_get()</a></code> <code><a href="api_request_handlers.html">api_head()</a></code> <code><a href="api_request_handlers.html">api_post()</a></code> <code><a href="api_request_handlers.html">api_put()</a></code> <code><a href="api_request_handlers.html">api_delete()</a></code> <code><a href="api_request_handlers.html">api_connect()</a></code> <code><a href="api_request_handlers.html">api_options()</a></code> <code><a href="api_request_handlers.html">api_trace()</a></code> <code><a href="api_request_handlers.html">api_patch()</a></code> <code><a href="api_request_handlers.html">api_any()</a></code>
 
@@ -114,29 +90,57 @@
         <dd>Add a handler for a request header</dd>
       </dl><dl><dt>
 
-          <code><a href="api_run.html">api_run()</a></code> <code><a href="api_run.html">api_stop()</a></code>
+          <code><a href="api_assets.html">api_assets()</a></code> <code><a href="api_assets.html">api_statics()</a></code>
 
         </dt>
-        <dd>Launch the API</dd>
+        <dd>Serve ressources from your file system</dd>
       </dl><dl><dt>
 
-          <code><a href="api_session_cookie.html">api_session_cookie()</a></code>
+          <code><a href="api_message.html">api_message()</a></code>
 
         </dt>
-        <dd>Turn on session cookie data storage for your API</dd>
+        <dd>Add a handler to a WebSocket message</dd>
       </dl><dl><dt>
 
-          <code><a href="parsers.html">parse_csv()</a></code> <code><a href="parsers.html">parse_octet()</a></code> <code><a href="parsers.html">parse_rds()</a></code> <code><a href="parsers.html">parse_feather()</a></code> <code><a href="parsers.html">parse_parquet()</a></code> <code><a href="parsers.html">parse_text()</a></code> <code><a href="parsers.html">parse_tsv()</a></code> <code><a href="parsers.html">parse_yaml()</a></code> <code><a href="parsers.html">parse_geojson()</a></code> <code><a href="parsers.html">parse_multipart()</a></code>
+          <code><a href="api_add_route.html">api_add_route()</a></code>
 
         </dt>
-        <dd>Parser functions provided by plumber2</dd>
-      </dl><dl><dt>
+        <dd>Add a new route to either the request or header router</dd>
+      </dl></div><div class="section level2">
+      <h2 id="parsers">Parsers<a class="anchor" aria-label="anchor" href="#parsers"></a></h2>
+
+
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="register_parser.html">register_parser()</a></code> <code><a href="register_parser.html">show_registered_parsers()</a></code> <code><a href="register_parser.html">get_parsers()</a></code>
 
         </dt>
         <dd>Register or fetch a parser</dd>
       </dl><dl><dt>
+
+          <code><a href="parsers.html">parse_csv()</a></code> <code><a href="parsers.html">parse_octet()</a></code> <code><a href="parsers.html">parse_rds()</a></code> <code><a href="parsers.html">parse_feather()</a></code> <code><a href="parsers.html">parse_parquet()</a></code> <code><a href="parsers.html">parse_text()</a></code> <code><a href="parsers.html">parse_tsv()</a></code> <code><a href="parsers.html">parse_yaml()</a></code> <code><a href="parsers.html">parse_geojson()</a></code> <code><a href="parsers.html">parse_multipart()</a></code>
+
+        </dt>
+        <dd>Parser functions provided by plumber2</dd>
+      </dl></div><div class="section level2">
+      <h2 id="serializers">Serializers<a class="anchor" aria-label="anchor" href="#serializers"></a></h2>
+
+
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="register_serializer.html">register_serializer()</a></code> <code><a href="register_serializer.html">show_registered_serializers()</a></code> <code><a href="register_serializer.html">get_serializers()</a></code>
 
@@ -148,8 +152,50 @@
 
         </dt>
         <dd>Serializer functions provided by plumber2</dd>
+      </dl></div><div class="section level2">
+      <h2 id="advanced">Advanced<a class="anchor" aria-label="anchor" href="#advanced"></a></h2>
+
+
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="Plumber.html">Plumber</a></code>
+
+        </dt>
+        <dd>The Plumber Class</dd>
+      </dl><dl><dt>
+
+          <code><a href="api_docs.html">api_doc_setting()</a></code> <code><a href="api_docs.html">api_doc_add()</a></code>
+
+        </dt>
+        <dd>Configure your API for serving documentation for itself</dd>
+      </dl><dl><dt>
+
+          <code><a href="api_on.html">api_on()</a></code> <code><a href="api_on.html">api_off()</a></code>
+
+        </dt>
+        <dd>Add a handler to an event</dd>
+      </dl><dl><dt>
+
+          <code><a href="api_session_cookie.html">api_session_cookie()</a></code>
+
+        </dt>
+        <dd>Turn on session cookie data storage for your API</dd>
+      </dl><dl><dt>
+
+          <code><a href="Next.html">Next</a></code> <code><a href="Next.html">Break</a></code>
+
+        </dt>
+        <dd>Router control flow</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
