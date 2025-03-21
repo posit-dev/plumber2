@@ -35,17 +35,7 @@ roxy_tag_parse.roxy_tag_apiTag <- function(x) {
   x
 }
 
-#* @apiTitle Sample Pet Store App
-#* @apiDescription This is a sample server for a pet store.
-#* @apiTOS http://example.com/terms/
-#* @apiContact list(name = "API Support", url = "http://www.example.com/support", email = "support@example.com")
-#* @apiLicense list(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html")
-#* @apiVersion 1.0.1
-#* @apiTag pet Pets operations
-#* @apiTag toy Toys operations
-#* @apiTag "toy space" Toys operations
-
-## Block annotations -----------------------------------------------------------
+## Handler annotations ---------------------------------------------------------
 
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
@@ -130,11 +120,6 @@ roxy_tag_parse.roxy_tag_download <- function(x) {
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_response <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_responseFormat <- function(x) {
   x
 }
 #' @export

@@ -22,8 +22,8 @@ api_get(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_head(
@@ -34,8 +34,8 @@ api_head(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_post(
@@ -46,8 +46,8 @@ api_post(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_put(
@@ -58,8 +58,8 @@ api_put(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_delete(
@@ -70,8 +70,8 @@ api_delete(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_connect(
@@ -82,8 +82,8 @@ api_connect(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_options(
@@ -94,8 +94,8 @@ api_options(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_trace(
@@ -106,8 +106,8 @@ api_trace(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_patch(
@@ -118,8 +118,8 @@ api_patch(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 
 api_any(
@@ -130,8 +130,8 @@ api_any(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
-  doc = NULL
+  doc = NULL,
+  route = NULL
 )
 }
 \arguments{
@@ -163,11 +163,11 @@ header in the response to \code{attachment}. Setting it to a string is equivalen
 to setting it to \code{TRUE} but will in addition also set the default filename of
 the download to the string value}
 
+\item{doc}{A list with the OpenAPI spec for the endpoint}
+
 \item{route}{The route this handler should be added to. Defaults to the last
 route in the stack. If the route does not exist it will be created as the
 last route in the stack}
-
-\item{doc}{A list with the OpenAPI spec for the endpoint}
 }
 \value{
 These functions return the \code{api} object allowing for easy chaining

@@ -1,7 +1,7 @@
 handle_constructor <- function(method, header = FALSE) {
   force(method)
   force(header)
-  docs <- NULL
+  doc <- NULL
   fun <- function(
     api,
     path,
@@ -10,24 +10,25 @@ handle_constructor <- function(method, header = FALSE) {
     parsers = NULL,
     use_strict_serializer = FALSE,
     download = FALSE,
-    route = NULL,
-    doc = NULL
+    doc = NULL,
+    route = NULL
   ) {
     api$request_handler(
       method = method,
       path = path,
       handler = handler,
-      serializers,
-      parsers,
-      use_strict_serializer,
-      download,
-      doc,
-      header
+      serializers = serializers,
+      parsers = parsers,
+      use_strict_serializer = use_strict_serializer,
+      download = download,
+      doc = doc,
+      route = route,
+      header = header
     )
     api
   }
   if (header) {
-    fn_fmls(fun) <- fn_fmls(fun)[fn_fmls_names(fun) != "docs"]
+    fn_fmls(fun) <- fn_fmls(fun)[fn_fmls_names(fun) != "doc"]
   }
   fun
 }
@@ -200,10 +201,10 @@ handle_constructor <- function(method, header = FALSE) {
 #' header in the response to `attachment`. Setting it to a string is equivalent
 #' to setting it to `TRUE` but will in addition also set the default filename of
 #' the download to the string value
+#' @param doc A list with the OpenAPI spec for the endpoint
 #' @param route The route this handler should be added to. Defaults to the last
 #' route in the stack. If the route does not exist it will be created as the
 #' last route in the stack
-#' @param doc A list with the OpenAPI spec for the endpoint
 #'
 #' @return These functions return the `api` object allowing for easy chaining
 #' with the pipe

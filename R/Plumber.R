@@ -211,6 +211,8 @@ Plumber <- R6Class(
     #' `Content-Disposition` header in the response to `attachment`. Setting it
     #' to a string is equivalent to setting it to `TRUE` but will in addition
     #' also set the default filename of the download to the string value
+    #' @param doc OpenAPI documentation for the handler. Will be added to the
+    #' `paths$<handler_path>$<handler_method>` portion of the API.
     #' @param route The route this handler should be added to. Defaults to the
     #' last route in the stack. If the route does not exist it will be created
     #' as the last route in the stack.
@@ -226,8 +228,8 @@ Plumber <- R6Class(
       parsers = NULL,
       use_strict_serializer = FALSE,
       download = FALSE,
-      route = NULL,
       doc = NULL,
+      route = NULL,
       header = FALSE
     ) {
       method <- arg_match0(
@@ -254,7 +256,16 @@ Plumber <- R6Class(
       # Augment docs with path info
       path_info <- parse_path(path)
       doc <- doc %||% list(parameters = list())
-      doc$parameters <- combine_parameters(path_info$params, doc$parameters)
+      doc_path_param <- vapply(
+        doc$parameters,
+        function(p) p$`in` == "path",
+        logical(1)
+      )
+      doc$parameters <- c(combine_parameters(
+        path_info$params,
+        doc$parameters[doc_path_param],
+        from_block = FALSE
+      ), doc$parameters[!doc_path_param])
       operation_id <- paste0(path_info$path, "-", method)
       doc$parameters <- lapply(doc$parameters, function(par) {
         par$operationId <- par$operationId %||% operation_id
@@ -299,6 +310,7 @@ Plumber <- R6Class(
         reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
       if (!header) {
+        doc$parameters <- doc$parameters %||% list()
         self$add_api_doc(doc, subset = c("paths", path_info$path, method))
       }
     },
@@ -561,7 +573,7 @@ subset_to_list <- function(x, end_value = list()) {
     end_value
   } else {
     list2(
-      !!x[1] := subset_to_list(x[-1])
+      !!x[1] := subset_to_list(x[-1], end_value)
     )
   }
 }

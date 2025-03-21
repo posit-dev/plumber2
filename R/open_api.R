@@ -3,8 +3,11 @@ parse_global_api <- function(tags, values, env = caller_env()) {
   values <- set_names(values, tags)
   api <- list(
     info = compact(list(
-      title = trimws(values$apiTitle),
-      description = trimws(values$apiDescription),
+      title = trimws(values$apiTitle %||% values$title),
+      description = trimws(
+        values$apiDescription %||%
+          paste0(values$description, "\n\n", values$details)
+      ),
       termsOfService = trimws(values$apiTOS),
       contact = eval(parse(text = values$apiContact %||% "NULL"), env),
       license = eval(parse(text = values$apiLicense %||% "NULL"), env),
@@ -50,6 +53,10 @@ parse_path <- function(path) {
 }
 
 combine_parameters <- function(path, doc, from_block = TRUE) {
+  path <- path %||% list()
+  doc <- doc %||% list()
+  names(path) <- vapply(path, `[[`, character(1), "name")
+  names(doc) <- vapply(doc, `[[`, character(1), "name")
   common_names <- intersect(names(path), names(doc))
   for (param in common_names) {
     if (
@@ -62,37 +69,29 @@ combine_parameters <- function(path, doc, from_block = TRUE) {
       )
     }
   }
-  utils::modifyList(doc, path)
+  unname(utils::modifyList(doc, path))
 }
 
 parse_responses <- function(tags, values, serializers) {
   responses <- unlist(values[tags == "response"])
-  responses <- stringi::stri_split_fixed(responses, " ", n = 2)
-  response_codes <- vapply(responses, `[[`, character(1), 1)
+  responses <- stringi::stri_match_first_regex(
+    responses,
+    "^([^\\:\\s]+):?([^\\s]+?)?( (.*))?$"
+  )
+
   responses <- set_names(
-    lapply(responses, function(response) {
+    lapply(seq_len(nrow(responses)), function(i) {
       compact(list(
-        description = if (length(response) == 2) response[2]
+        description = if (!is.na(responses[i, 5])) responses[i, 5],
+        content = rep_named(
+          if (responses[i, 2] == "200") serializers else "*/*",
+          list(list(schema = parse_openapi_type(responses[i, 3])))
+        )
       ))
     }),
-    response_codes
+    responses[, 2]
   )
-  responses <- utils::modifyList(default_responses, responses)
-  response_format <- which(tags == "responseFormat")
-  if (length(response_format) != 0) {
-    if (length(response_format) > 1) {
-      cli::cli_warn(
-        "Multiple {.field @responseFormat} tags. Only using the first"
-      )
-    }
-    schema <- parse_openapi_type(values[[response_format[1]]])
-  } else {
-    schema <- list()
-  }
-  responses[["200"]]$content <- rep_named(
-    serializers,
-    list(list(schema = schema))
-  )
+  utils::modifyList(default_responses, responses)
 }
 
 parse_block_api <- function(tags, values, parsers, serializers) {
@@ -214,18 +213,17 @@ parse_openapi_type <- function(string, default = NA) {
       type = "array",
       items = parse_openapi_type(gsub("^\\[|\\]$", "", string))
     )
+  } else if (string %in% c("date", "date-time", "byte", "binary")) {
+    type <- list(
+      type = "string",
+      format = string
+    )
   } else {
-    if (string %in% c("date", "date-time", "byte", "binary")) {
-      type <- list(
-        type = "string",
-        format = string
-      )
-    } else {
-      type <- list(
-        type = string
-      )
-    }
+    type <- list(
+      type = string
+    )
   }
+
   if (!is.na(default)) {
     type$default <- default
   }
@@ -260,7 +258,7 @@ parse_params <- function(tags, values, type = "path") {
   params <- lapply(params, function(param) {
     arg_parsed <- stringi::stri_match_first_regex(
       param[1],
-      "^(.+?)(:(.+?))?(\\((.*?)\\))?(\\*)?$"
+      "^([^\\:]+)?(:(.+?))?(\\((.*?)\\))?(\\*)?$"
     )[1, ]
     arg_name <- arg_parsed[2]
     arg_description <- param[2]
@@ -283,7 +281,7 @@ parse_params <- function(tags, values, type = "path") {
 }
 
 parse_body_params <- function(params, parsers) {
-  if (length(params) == 1) {
+  if (length(params) == 1 && is.na(params[[1]]$name)) {
     request_body <- compact(list(
       description = params[[1]]$description,
       required = params[[1]]$required,
