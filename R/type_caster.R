@@ -99,6 +99,9 @@ string_caster <- function(schema, required, name, loc) {
 array_caster <- function(schema, required, name, loc) {
   error_string <- missing_required_error_string(name, loc)
   default <- schema$default
+  if (is_string(default)) {
+    default <- jsonlite::fromJSON(default)
+  }
   caster <- type_caster(schema$items, required, name, loc)
   if (schema$items$type %in% c("array", "object")) {
     caster <- function(val) {
@@ -125,7 +128,9 @@ array_caster <- function(schema, required, name, loc) {
 object_caster <- function(schema, required, name, loc) {
   error_string <- missing_required_error_string(name, loc)
   default <- schema$default
-
+  if (is_string(default)) {
+    default <- jsonlite::fromJSON(default)
+  }
   name <- names(schema$properties)
   required <- name %in% (schema$required %||% "")
   casters <- lapply(seq_along(schema$properties), function(i) {
