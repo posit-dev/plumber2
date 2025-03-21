@@ -478,16 +478,18 @@ create_plumber_request_handler <- function(
   }
 
   type_casters <- create_type_casters(doc)
+  body_parser <- function(request) {
+    # Parse body unless parser is set to 'none'
+    if (!is.null(parsers)) {
+      request$parse(!!!parsers)
+    }
+    type_casters$body(request$body, request$headers$Content_Type)
+  }
 
   function(request, response, keys, server, id, ...) {
     # Default the response to 200 if it is 404 (the default) as we hit an endpoint
     if (response$status == 404L) response$status <- 200L
 
-    # Parse body unless parser is set to 'none'
-    if (!is.null(parsers)) {
-      success <- request$parse(!!!parsers)
-      if (!success) return(Break)
-    }
     # Add serializers for the finalizing route
     success <- response$set_formatter(
       !!!serializers,
@@ -523,7 +525,8 @@ create_plumber_request_handler <- function(
       server = server,
       client_id = id,
       query = type_casters$query(request$query),
-      body = type_casters$body(request$body, request$headers$Content_Type)
+      body = body_parser(request),
+      ...
     ))
 
     # If the handler returns a ggplot and a device serializer is in effect we render it

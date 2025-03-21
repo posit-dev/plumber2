@@ -134,6 +134,14 @@ roxy_tag_parse.roxy_tag_header <- function(x) {
 }
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_message <- function(x) {
+  x
+}
+
+## Asset annotations ---------------------------------------------------------
+
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_assets <- function(x) {
   x
 }
@@ -147,6 +155,9 @@ roxy_tag_parse.roxy_tag_statics <- function(x) {
 roxy_tag_parse.roxy_tag_except <- function(x) {
   x
 }
+
+## Other annotations ---------------------------------------------------------
+
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_noDoc <- function(x) {
