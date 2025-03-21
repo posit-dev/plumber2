@@ -6,9 +6,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
-library(plumber2)
+```{r}
+#| include: false
+source("_helpers.R")
 ```
+
+## Moving from plumber
 
 Plumber2 is designed in a way that should make it very familiar to long-time
 plumber users. However, it has been created with the explicit intend to not be

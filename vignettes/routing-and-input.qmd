@@ -1,0 +1,367 @@
+---
+title: "Routing & Input"
+vignette: >
+  %\VignetteIndexEntry{Routing & Input}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+#| include: false
+source("_helpers.R")
+```
+
+```{r}
+#| echo: false
+#| out.width: 45%
+#| out.extra: style="float:right;"
+knitr::include_graphics("files/images/plumber_input.png")
+```
+
+Plumber's primary job is to execute R code in response to incoming HTTP requests, so it's important to understand how incoming HTTP requests get translated into the execution of R functions.
+
+An incoming HTTP request must be "routed" to one or more R functions. Routing is the process of taking the path a request is sent to (the part of the URL after the domain and before query parameters) and figuring out which handler function that path corresponds to. In plumber2 a central router passes a request through one or more routes. Each route can have multiple handlers attached to different paths and will select one or none to pass the request through. This means that at most a request will pass through a handler for each route in the router, but the number can easily be lower.
+
+Usually you will have one main handler that takes care of a specific path, but then potentially have more general handlers in earlier routes that takes care of things like authentication etc. and perhaps later handlers that wraps things up.
+
+## Handlers {#endpoints}
+
+Handlers are standard R functions that gets executed once a request is received which matches it's path (assuming a more specific handler is not present in the same route). You create an endpoint by annotating a function like so:
+
+```{r}
+#| eval: false
+#| code: !expr readLines("files/apis/03-01-endpoint.R")
+```
+
+This annotation specifies that this function is responsible for generating the response to any `GET` request to `/hello`. The value returned from the function will be used as the response to the request (after being run through a serializer to e.g. convert the response into JSON). In this case, a `GET` response to `/hello` would return the content `["hello world"]` with a `application/json` `Content-Type` (unless the request include any preference for another return format).
+
+### Handler methods
+
+The annotations that generate an endpoint include:
+
+-   `@get`
+-   `@post`
+-   `@put`
+-   `@delete`
+-   `@head`
+
+These map to the HTTP methods that an API client might send along with a request. By default when you open a page in a web browser, that sends a `GET` request to the API. But you can use other API clients (or even JavaScript inside of a web browser) to form HTTP requests using the other methods listed here. There are conventions around when each of these methods should be used which you can read more about [here](http://www.restapitutorial.com/lessons/httpmethods.html). Note that some of these conventions carry with them security implications, so it's a good idea to follow the recommended uses for each method until you fully understand why you might deviate from them.
+
+Note that a single endpoint can support multiple verbs. The following function would be used to service any incoming `GET`, `POST`, or `PUT` request to `/cars`.
+
+``` r
+#* @get /cars
+#* @post /cars
+#* @put /cars
+function(){
+  ...
+}
+```
+
+There is also the special method `@any` which will make the handler respond to any method that matches the path. This can be useful for e.g. an authentication handler that needs to be called for every request that comes in.
+
+## Paths
+
+At the heart of routing is the path a handler gets assigned to. Apart from static paths such as `/cars` as we saw above which will be selected when there is an exact match, it is possible to create dynamic paths that responds to a set of paths sharing a common structure. Dynamic paths allow handlers to define a more flexible set of paths against which they should match.
+
+### Path parameters
+
+A common REST convention is to include the identifier of an object in the API paths associated with it. So to lookup information about user #13, you might make a `GET` request to the path `/users/13`. Rather than having to register handlers for every user your API might possibly encounter, you can use a dynamic path to associate a handler with a variety of paths.
+
+```{r}
+#| eval: false
+#| code: !expr readLines("files/apis/03-01-dynamic.R")
+```
+
+This API uses the dynamic path `/users/<id>` to match any request that is of the form `/users/` followed by some path element like a number or letters. In this case, it will return information about the user if a user with the associated ID was found, or an empty object if not.
+
+You can name these dynamic path elements however you'd like, but note that the name used in the dynamic path must match the name of the argument to the handler (in this case, both `id`).
+
+You can even do more complex dynamic routes like:
+
+``` r
+#* @get /user/<from>/connect/<to>
+function(from, to){
+  # Do something with the `from` and `to` variables...
+}
+```
+
+### Path wildcard
+
+Often path parameters are all you need as they allow you to provide a dynamic but structured path and extract parameters from the input. However, plumber2 also support path wildcards which can match to *anything* you pass it to. Conceptually it works like `*` in file globbing or `.*` in regular expressions.
+
+``` r
+#* @get /images/*
+function() {
+  # do something
+}
+```
+
+In the example above, the handler would match to both `/images/index.html`, `/images/february/img_03.png`, `/images/metadata/` or any other path that starts with `/images/`. Wildcards needs to be on their own, ie. you can't have a path like `/imag*` that match to anything that starts with `/imag` (like `/images/` and `/imaginary`). However, they do not need to be on the end, so you could have a path like `/*/robot.txt` that matches to any path that ends with `robot.txt`. The fact that they are so "unspecific" as well as doesn't give rise to argument input to your handler means that wildcards are used much less frequently but they can be an indispensable tool in your belt in some situations.
+
+### Path priority
+
+As discussed above, every route will only select at most one handler for the request. However, the existence of path parameters and path wildcards means that a route can easily contain multiple handlers that can match to a given request. How does a route decide which one wins?
+
+Internally the route will order the handlers based on three metrics: The specificity (ie. the number of elements in the path) - the higher the better, the number of path parameters - the lower the better, and the number of wildcards - the lower the better. Consider the following paths
+
+1.  `/path/to/something/specific`
+2.  `/path/to/<name>/specific`
+3.  `/path/to/<name>/<setting>`
+4.  `/path/to/something/*`
+5.  `/path/*`
+
+They have been ordered as the route would order it, with the highest priority on top. This means that a request for `/path/to/something/specific` will get matched to the first path, even though it matches all of the given paths. `/path/to/anything/specific` will get matched to the second path even though it matches both the second, third and fifth, and so on. While it may seem complicated to figure out which handler gets a request, the priority ordering has been designed in a way that generally matches how you'd rank the specificity of a set of paths.
+
+## Handler input {#input-handling}
+
+Plumber routes requests based exclusively on the path and method of the incoming HTTP request, but requests can contain much more information than just this. They might include additional HTTP headers, a query string, or a request body. All of these fields may be viewed as "inputs" to your Plumber API.
+
+### Handler arguments
+
+In general when you think of inputs to a function in R you think about the arguments to that function. In plumber2 there are certain rules around the arguments in the handler function that determines what kind of input the handler gets access to. Most importantly perhaps, the path parameters are being provided directly to your handler as named arguments. For example, given the following handler
+
+``` r
+#* @get /user/<id>/setting/<type>
+function(user, type) {
+  # ...
+}
+```
+
+A request to `/user/123/setting/security` will call the handler function with `user = "123"` and `type = "security"`.
+
+Path arguments are documented with the `@param` tag that you may also know from roxygen documentation.
+
+Path parameters are the only type of variable handler arguments. All other are predefined and can be included at your leisure if your handler needs access to it. In the following you'll get an overview of them all:
+
+#### `query`
+
+A query string may be appended to a URL in order to convey additional information beyond just the request route. Query strings allow for the encoding of character string keys and values. For example, in the URL `https://duckduckgo.com/?q=bread&pretty=1`, everything following the `?` constitutes the query string. In this case, two variables (`q` and `pretty`) have been set (to `bread` and `1`, respectively).
+
+Plumber will automatically parse the query string and make it available as the `query` argument of the handler function. The following example defines a search API that mimics the example from [DuckDuckGo](https://duckduckgo.com) above but merely prints out what it receives.
+
+```{r}
+#| eval: false
+#| code: !expr readLines("files/apis/03-03-search.R")
+```
+
+Visiting http://localhost:8080/?q=bread&pretty=1 will print:
+
+```{r}
+#| echo: false
+#| results: asis
+papi <- api("files/apis/03-03-search.R")
+
+req <- fiery::fake_request("http://localhost:8080/?q=bread&pretty=1")
+res <- papi$test_request(req)
+
+code_chunk(res$body, "json")
+```
+
+In the handler above we use `%||%` to provide a fallback value in case the query parameter weren't provided. Later you'll learn how to provide default values or mark parameters as required.
+
+Since the query string is "open" in the sense that the user can send anything along with it the `query` value can contain a multitude of values your handler isn't expecting. These values may be meant for other handlers in other routes or may be included in error. Because of this open nature it is a good practice to document all the query parameters your handler understand. This is done with the `@query` tag which works much like `@param`.
+
+Your API may need array-like input from the query string. plumber2 understands two forms of providing array data: Either by providing the same parameter multiple times, e.g. `?arg=1&arg=2&arg=3`, or by separating values with a comma, e.g. `?arg=1,2,3`. While the latter approach is more condensed it too will become quite unwieldy for large amount of data. On top of this some web browsers impose limitations on the length of a URL. Internet Explorer, in particular, caps the query string at 2,048 characters. Because of this, larger amount of data is better served through a request body.
+
+#### `body`
+
+Another way to provide additional information inside an HTTP request is using the message body. Effectively, once a client specifies all the metadata about a request (the path it's trying to reach, some HTTP headers, etc.) it can then provide a message body. The maximum size of a request body depends largely on the technologies involved (client, proxies, etc.) but is typically at least 2MB -- much larger than a query string. This approach is most commonly seen with `PUT`, `POST`, and `PATCH` requests, though you could encounter it with other HTTP methods.
+
+Plumber will attempt to parse the request body using the best matching parser provided to the handler through one or more `@parser` tags. If no parsers are provided then plumber2 will try all registered parsers. The result of the parsing is then made available as the `body` argument. You can document your expectations around the request body using the `@body` tag which works much like `@param` and `@query`.
+
+Plumber2 comes with a selection of parsers for the most common data transfer formats:
+
+| Annotation | Content Type | Description/References |
+|------------------------|------------------------|------------------------|
+| `@parser csv` | `application/csv`, `application/x-csv`, `text/csv`, `text/x-csv` | Body processed with `readr::read_csv()` |
+| `@parser json` | `application/json`, `text/json` | Body processed with `jsonlite::fromJSON()` |
+| `@parser multi` | `multipart/*` | Body processed with `webutils::parse_multipart()` and each part is then processed by the parsers available |
+| `@parser octet` | `application/octet-stream` | Body is set to the unprocessed raw binary value |
+| `@parser form` | `application/x-www-form-urlencoded` | Body processed with `reqres::query_parser()` |
+| `@parser rds` | `application/rds` | Body processed with `unserialize()` |
+| `@parser feather` | `application/vnd.apache.arrow.file`, `application/feather` | Body processed with `arrow::read_feather()` |
+| `@parser parquet` | `application/vnd.apache.parquet` | Body processed with `arrow::read_parquet()` |
+| `@parser text` | `text/plain`, `text/*` | Body processed with `rawToChar()` |
+| `@parser tsv` | `application/tab-separated-values`, `text/tab-separated-values` | Body processed with `readr::read_tsv()` |
+| `@parser yaml` | `text/vnd.yaml`, `application/yaml`, `application/x-yaml`, `text/yaml`, `text/x-yaml` | Body processed with `yaml::yaml.load()` |
+| `@parser xml` | `application/xml`, `text/xml` | Body processed with `xml2::as_list()` |
+| `@parser html` | `text/html` | Body processed with `xml2::as_list()` |
+| `@parser geojson` | `application/geo+json`, `application/vdn.geo+json` | Body processed with `geojsonsf::geojson_sf()` |
+
+You can also provide your own parsers and register them so you can reference them by name. There are two special names you can use: `none` and `...`. If setting `@parser none` then no parsing of the request body will be attempted. This can still be done manually through the `request` at a later stage. While it may seem like a good idea to set `@parser none` if you do not intend to use the request body in your handler in order to speed up processing, it is not necessary since the body is only parsed if your code tries to access it. Setting `@parser ...` selects all the parsers that have not yet been referenced in your handler block. This can be useful if you have registered an alternative parser for a specific mime type and wish to move it to the top of the list so that it is selected over the one provided by plumber. An example could be:
+
+``` r
+#* @parser artisinal_json_parser
+#* @parser ...
+```
+
+This would give your handler access to all parsers registered with plumber2 but will select `artisinal_json_parser` over `json` if the content type is `application/json`. You register new parsers using `register_parser()`, but can also provide them directly in the block annotation like so:
+
+``` r
+#* @parser application/toml function(x, ...) blogdown::read_toml(x = rawToChar(x))
+```
+
+However, you are probably better off registering the parser rather than having to redefine it every time you need it
+
+Unfortunately, crafting a request with a message body requires a bit more work than making a `GET` request with a query string from your web browser, but you can use tools like `curl` on the command line or the [httr2 R package](https://httr2.r-lib.org). We'll use `curl` for the examples below.
+
+```{r}
+#| eval: false
+#| code: !expr readLines("files/apis/03-04-body.R")
+```
+
+Running `curl --data "id=123&name=Jennifer" -H "Content-Type: application/x-www-form-urlencoded" "http://localhost:8080/user"` will return:
+
+```{r}
+#| echo: false
+#| results: asis
+papi <- api("files/apis/03-04-body.R")
+
+req <- fiery::fake_request(
+  "http://localhost:8080/user",
+  method = "post",
+  content = "id=123&name=Jennifer",
+  headers = list(Content_Type = "application/x-www-form-urlencoded")
+)
+res <- papi$test_request(req)
+
+code_chunk(res$body, "json")
+```
+
+Alternatively, `echo {"id":123, "name": "Jennifer"} > call.json & curl --data @call.json "http://localhost:8080/user" -H "content-type: application/json"` (formatting the body as JSON) will have the same effect.
+
+#### `request`
+
+The `request` argument contains the request object. In plumber2 this object is provided by the reqres package and the[documentation there](https://reqres.data-imaginist.com/reference/Request.html) gives a great overview of the information it contains. Of special interest is the `headers`, `cookies`, and `session` field which gives access to additional input that are otherwise not available through handler arguments.
+
+##### Cookies {#read-cookies}
+
+If cookies are attached to the incoming request, they'll be made available via `request$cookies`. This will contain a list of all the cookies that were included with the request. The names of the list correspond to the names of the cookies and the value for each element will be a character string that has been URL-decoded. See the [Setting Cookies section](./rendering-output.html#setting-cookies) for details on how to set cookies from Plumber.
+
+If you've set encrypted cookies (as discussed in the [Encrypted Cookies section](./rendering-output.html#encrypted-cookies)), that session will be decrypted and made available at `request$session`.
+
+##### Headers
+
+HTTP headers attached to the incoming request are available through the request object. You can either access it with the `get_header()` method or the `headers` field from the request object
+
+```{r}
+#| eval: false
+#| code: !expr readLines("files/apis/03-05-headers.R")
+```
+
+Running `curl --header "Custom-Header: abc123" http://localhost:8080` will return:
+
+```{r}
+#| echo: false
+#| results: asis
+papi <- api("files/apis/03-05-headers.R")
+
+req <- fiery::fake_request(
+  "http://localhost:8080",
+  headers = list(Custom_Header = "abc123")
+)
+res <- papi$test_request(req)
+
+code_chunk(res$body, "json")
+```
+
+There is a slight difference in `get_header()` and `headers` you should be aware of. Because R is not fond of `-` in symbols, the names in the list provided by `headers` has `-` substituted with `_`. With `get_header()` you can use the real header name.
+
+#### `response`
+
+Like the `request` argument, the `response` argument holds the object that encapsulates the response under constructed. This is also provided by reqres and have [extensive documentation there](https://reqres.data-imaginist.com/reference/Response.html). See the article on [rendering output](./rendering-output.html) for the various way you may want to interact with the response.
+
+#### `server`
+
+The `server` argument in a handler will be populated with the Plumber API object. You can use this for logging, accessing the server data store, etc. See the documentation on the [fiery webpage](https://fiery.data-imaginist.com/reference/Fire.html) to get an overview of what is possible
+
+#### `client_id`
+
+Plumber automatically tries to keep track of the clients that tries to access it's API. It does this be setting a cookie the first time a request comes in from a new client giving it a unique id. This id is then passed on to the handlers through the `client_id` argument.
+
+## Type casting input {#typed-dynamic-routes}
+
+Path and query paramters comes from a text string, and as such they are provided as string to your handler. However, you can provide type hints to these and have plumber automatically cast them to the expected type before providing them to your handler. Consider the following API.
+
+```{r}
+#| eval: false
+#| code: !expr readLines("files/apis/03-02-types.R")
+```
+
+Visiting http://localhost:8080/type/14 will return:
+
+```{r}
+#| echo: false
+#| results: asis
+papi <- api("files/apis/03-02-types.R")
+
+req <- fiery::fake_request("http://localhost:8080/type/14")
+res <- papi$test_request(req)
+
+code_chunk(res$body, "json")
+```
+
+If you only intend to support a particular data type for a particular parameter in your dynamic route, you can specify the desired type in the path itself, or in the `@param` field.
+
+``` r
+#* @get /user/<id:integer>
+function(id){
+  next <- id + 1
+  # ...
+}
+
+#* @post /user/activated/<active>
+#* @param active:boolean Whether the user is active
+function(active){
+  if (!active){
+    # ...
+  }
+}
+```
+
+The syntax is: Anything following up to the first `:` is the name of the parameter. Anything following it is a type specification.
+
+The following details the mapping of the scalar type names that you can use in your dynamic types and how they map to R data types.
+
+| R Type    | Plumber Name     |
+|-----------|------------------|
+| logical   | `boolean`        |
+| numeric   | `number`         |
+| integer   | `integer`        |
+| character | `string`         |
+| Date      | `date`           |
+| POSIXlt   | `date-time`      |
+| raw       | `byte`, `binary` |
+
+You can also specify any of the above as an array, by enclosing it in `[...]`, (e.g. `[integer]` for an array of integers). Arrays can even be nested (e.g. `[[integer]]` for an array of arrays of integers).
+
+Lastly, it is possible to specify "object", which will be cast to lists in R. The syntax for this is `{name:Type, ...}` and allows you to provide concise specifications for very complex data structures (e.g. the specification for the iris dataset is `{Sepal.Length:number,Sepal.Width:number,Petal.Length:number,Petal.Width:number,Species:string}`. It is unlikely that you'll need objects for path and query parameters, but request bodies will often be in the form of an object.
+
+### Defaults
+
+From R you are used to providing default values for function arguments. In plumber you can do the same by adding a default value in parenthesis after the type specification, e.g. `integer(10)`. The type caster will automatically ensure that the value is inserted if missing from the query or body of a request so you can assume it is always present in your code.
+
+### Required parameters
+
+Path parameters are always required. After all, you can't arrive at the handler if a path parameter is missing. For query and body parameters they are assumed to be optional, but you can mark them as required as well by adding a `*` after the type, like so `[number]*`. If a required parameter is missing the type converter will automatically throw an error and return 400 to the client. Be aware that you cannot have a required parameter with a default value as that is a logical fallacy.
+
+## Static File Handler
+
+Plumber includes a static file server which can be used to host directories of static assets such as JavaScript, CSS, or HTML files. These servers are fairly simple to configure and integrate into your plumber application.
+
+``` r
+#* @assets ./files/static
+NULL
+```
+
+This example would expose the local directory `./files/static` at the root `/` path on your server. So if you had a file `./files/static/branding.html`, it would be available on your Plumber server at `/branding.html`.
+
+You can optionally provide an additional argument to configure the path used for your server. For instance
+
+``` r
+#* @assets ./files/static /static
+NULL
+```
+
+would expose the local directory `files/static` not at `/`, but at `/static`.
