@@ -1,7 +1,7 @@
 #' Create a new plumber API, optionally based on one or more plumber files
 #'
 #' This is the main way to create a new Plumber object that encapsulates your
-#' full api.
+#' full api. It is also possible to add files to the API after creation using
 #'
 #' @param ... plumber files or directories containing plumber files to be parsed
 #' in the given order. The order of parsing determines the final order of the
@@ -70,21 +70,29 @@ api <- function(
     ignore_trailing_slash = ignore_trailing_slash,
     max_request_size = max_request_size,
     shared_secret = shared_secret,
-    compression_limit = compression_limit
+    compression_limit = compression_limit,
+    env = env
   )
-  locations <- list2(...)
-  lapply(locations, function(loc) {
-    if (fs::is_dir(loc)) {
-      loc <- fs::dir_ls(loc)
-    }
-    for (file in loc) {
-      api$parse_file(file, env = env)
-    }
-  })
-  api
+  api_parse(api, ...)
 }
 #' @rdname api
 #' @param x An object to test for whether it is a plumber api
 #' @export
 #'
 is_plumber_api <- function(x) inherits(x, "Plumber")
+
+#' @rdname api
+#' @param api A plumber2 api object to parse files into
+#' @export
+api_parse <- function(api, ...) {
+  locations <- list2(...)
+  lapply(locations, function(loc) {
+    if (fs::is_dir(loc)) {
+      loc <- fs::dir_ls(loc)
+    }
+    for (file in loc) {
+      api$parse_file(file)
+    }
+  })
+  api
+}

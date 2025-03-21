@@ -68,6 +68,8 @@ Plumber <- R6Class(
     #' use it
     #' @param compression_limit The size threshold in bytes for trying to
     #' compress the response body (it is still dependant on content negotiation)
+    #' @param env An environment that will be used as the default execution
+    #' environment for the API
     #' @return A `Plumber` object
     initialize = function(
       host = get_opts("host", "127.0.0.1"),
@@ -78,7 +80,8 @@ Plumber <- R6Class(
       ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
       max_request_size = get_opts("maxRequestSize"),
       shared_secret = get_opts("sharedSecret"),
-      compression_limit = get_opts("compressionLimit", 1e3)
+      compression_limit = get_opts("compressionLimit", 1e3),
+      env = caller_env()
     ) {
       super$initialize(host, port)
 
@@ -106,7 +109,10 @@ Plumber <- R6Class(
         private$HEADER_ROUTER <- header_router
       }
 
-      self$set_logger(fiery::logger_console())
+      check_environment(env)
+      private$PARENT_ENV <- env
+
+      #self$set_logger(fiery::logger_console())
     },
     #' @description Human readable description of the api object
     #' @param ... ignored
@@ -216,8 +222,6 @@ Plumber <- R6Class(
     #' @param route The route this handler should be added to. Defaults to the
     #' last route in the stack. If the route does not exist it will be created
     #' as the last route in the stack.
-    #' @param doc OpenAPI documentation for the handler. Will be added to the
-    #' `paths$<handler_path>$<handler_method>` portion of the API.
     #' @param header Logical. Should the handler be added to the header router
     #'
     request_handler = function(
@@ -325,9 +329,10 @@ Plumber <- R6Class(
     #' @description Parses a plumber file and updates the app according to it
     #' @param file The path to a file to parse
     #' @param env The parent environment to the environment the file should be
-    #' evaluated in
-    parse_file = function(file, env = caller_env()) {
-      eval_env <- new.env(parent = env)
+    #' evaluated in. If `NULL` the environment provided at construction will be
+    #' used
+    parse_file = function(file, env = NULL) {
+      eval_env <- new.env(parent = env %||% private$PARENT_ENV)
       parsed <- parse_plumber_file(
         file,
         ignore_trailing_slash = private$IGNORE_TRAILING_SLASH,
@@ -434,7 +439,8 @@ Plumber <- R6Class(
     DOC_TYPE = "rapidoc",
     DOC_PATH = "__docs__",
     REJECT_MISSING_METHODS = FALSE,
-    IGNORE_TRAILING_SLASH = TRUE
+    IGNORE_TRAILING_SLASH = TRUE,
+    PARENT_ENV = NULL
   )
 )
 

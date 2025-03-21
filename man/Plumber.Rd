@@ -117,7 +117,8 @@ Create a new \code{Plumber} api
   ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
-  compression_limit = get_opts("compressionLimit", 1000)
+  compression_limit = get_opts("compressionLimit", 1000),
+  env = caller_env()
 )}\if{html}{\out{</div>}}
 }
 
@@ -163,6 +164,9 @@ use it}
 
 \item{\code{compression_limit}}{The size threshold in bytes for trying to
 compress the response body (it is still dependant on content negotiation)}
+
+\item{\code{env}}{An environment that will be used as the default execution
+environment for the API}
 }
 \if{html}{\out{</div>}}
 }
@@ -260,8 +264,8 @@ detailed information
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
-  route = NULL,
   doc = NULL,
+  route = NULL,
   header = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -295,12 +299,12 @@ being shown inline? Setting this to \code{TRUE} will set the
 to a string is equivalent to setting it to \code{TRUE} but will in addition
 also set the default filename of the download to the string value}
 
+\item{\code{doc}}{OpenAPI documentation for the handler. Will be added to the
+\verb{paths$<handler_path>$<handler_method>} portion of the API.}
+
 \item{\code{route}}{The route this handler should be added to. Defaults to the
 last route in the stack. If the route does not exist it will be created
 as the last route in the stack.}
-
-\item{\code{doc}}{OpenAPI documentation for the handler. Will be added to the
-\verb{paths$<handler_path>$<handler_method>} portion of the API.}
 
 \item{\code{header}}{Logical. Should the handler be added to the header router}
 }
@@ -332,7 +336,7 @@ detailed information
 \subsection{Method \code{parse_file()}}{
 Parses a plumber file and updates the app according to it
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber$parse_file(file, env = caller_env())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber$parse_file(file, env = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -341,7 +345,8 @@ Parses a plumber file and updates the app according to it
 \item{\code{file}}{The path to a file to parse}
 
 \item{\code{env}}{The parent environment to the environment the file should be
-evaluated in}
+evaluated in. If \code{NULL} the environment provided at construction will be
+used}
 }
 \if{html}{\out{</div>}}
 }

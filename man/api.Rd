@@ -3,6 +3,7 @@
 \name{api}
 \alias{api}
 \alias{is_plumber_api}
+\alias{api_parse}
 \title{Create a new plumber API, optionally based on one or more plumber files}
 \usage{
 api(
@@ -20,6 +21,8 @@ api(
 )
 
 is_plumber_api(x)
+
+api_parse(api, ...)
 }
 \arguments{
 \item{...}{plumber files or directories containing plumber files to be parsed
@@ -74,11 +77,13 @@ evaluated in. Each file will be evaluated in it's own environment so they
 don't interfere with each other}
 
 \item{x}{An object to test for whether it is a plumber api}
+
+\item{api}{A plumber2 api object to parse files into}
 }
 \value{
 A Plumber object
 }
 \description{
 This is the main way to create a new Plumber object that encapsulates your
-full api.
+full api. It is also possible to add files to the API after creation using
 }
