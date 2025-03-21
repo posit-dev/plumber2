@@ -2,3 +2,26 @@ url: https://laughing-spoon-ywk3ewq.pages.github.io/
 template:
   bootstrap: 5
 
+navbar:
+ components:
+   articles:
+    text: Articles
+    menu:
+    - text: 1. Introduction
+      href: articles/quickstart.html
+    - text: 2. Routing & Input
+      href: articles/routing-and-input.html
+    - text: 3. Rendering output
+      href: articles/rendering-output.html
+    - text: 4. Runtime
+      href: articles/execution-model.html
+    - text: 5. Hosting
+      href: articles/hosting.html
+    - text: 6. Programmatic usage
+      href: articles/programmatic-usage.html
+    - text: 7. Annotation Reference
+      href: articles/annotations.html
+    - text: 8. Security
+      href: articles/security.html
+    - text: 9. Tips & Tricks
+      href: articles/tips-and-tricks.html

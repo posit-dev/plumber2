@@ -1,11 +1,11 @@
 ---
-title: "Quickstart"
+title: "Get Started"
 knitr:
   opts_chunk:
     collapse: false
     comment: "#>"
 vignette: >
-  %\VignetteIndexEntry{Quickstart}
+  %\VignetteIndexEntry{Get Started}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---

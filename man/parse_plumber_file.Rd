@@ -41,3 +41,4 @@ plumber app after the routes have been added. This function does not attach
 the parsed data to a plumber api, and it is rarely necessary to call it
 directly.
 }
+\keyword{internal}

@@ -30,6 +30,7 @@
 #'   blocks together
 #'
 #' @export
+#' @keywords internal
 #'
 parse_plumber_file <- function(
   path,
