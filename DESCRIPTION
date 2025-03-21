@@ -37,3 +37,4 @@ Suggests:
     readr,
     yaml
 VignetteBuilder: quarto
+URL: https://laughing-spoon-ywk3ewq.pages.github.io/
