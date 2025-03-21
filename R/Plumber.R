@@ -458,12 +458,12 @@ create_plumber_request_handler <- function(
     fn_fmls(handler) <- c(fn_fmls(handler), "..." = missing_arg())
   }
   if (
-    !is.null(serializers) && !(is_list(serializers) && is_named(serializers))
+    !is.null(serializers) && !(is_list(serializers) && is_named2(serializers))
   ) {
     stop_input_type(serializers, "a named list", allow_null = TRUE, call = call)
   }
   if (length(serializers) == 0) serializers <- NULL
-  if (!is.null(parsers) && !(is_list(parsers) && is_named(parsers))) {
+  if (!is.null(parsers) && !(is_list(parsers) && is_named2(parsers))) {
     stop_input_type(parsers, "a named list", allow_null = TRUE, call = call)
   }
   if (length(parsers) == 0) parsers <- NULL
