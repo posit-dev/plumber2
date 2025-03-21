@@ -1,5 +1,9 @@
 ---
 title: "Programmatic Usage"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Programmatic Usage}
   %\VignetteEngine{quarto::html}
@@ -7,7 +11,7 @@ vignette: >
 ---
 
 ```{r}
-#| include: false
+#| include: false
 source("_helpers.R")
 ```
 

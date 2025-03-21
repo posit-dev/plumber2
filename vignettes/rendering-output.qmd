@@ -1,5 +1,9 @@
 ---
 title: "Rendering Output"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Rendering Output}
   %\VignetteEngine{quarto::html}
@@ -11,12 +15,7 @@ vignette: >
 source("_helpers.R")
 ```
 
-```{r}
-#| echo: false
-#| out.width: 45%
-#| out.extra: style="float:right;"
-knitr::include_graphics("files/images/plumber_output.png")
-```
+![](files/images/plumber_output.png){width="45%" style="float:right;"}
 
 ## The Response Object {#response-object}
 

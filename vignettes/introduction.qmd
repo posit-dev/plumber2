@@ -1,5 +1,9 @@
 ---
 title: "Introduction"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Introduction}
   %\VignetteEngine{quarto::html}

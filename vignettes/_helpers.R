@@ -1,10 +1,5 @@
 library(plumber2)
 
-knitr::opts_chunk$set(
-  collapse = FALSE,
-  comment = "#>"
-)
-
 code_chunk <- function(output, language=""){
   cat(paste0("```",language,"\n"))
   output <- switch(
@@ -25,7 +20,4 @@ code_chunk <- function(output, language=""){
 #* This way if the logic changes we consolidate all references to here.
 json_serialize <- function(obj){
   jsonlite::toJSON(obj, auto_unbox = FALSE, pretty = TRUE)
-}
-pretty_json_output <- function(x) {
-  code_chunk()
 }

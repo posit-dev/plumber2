@@ -1,5 +1,9 @@
 ---
 title: "Annotations reference"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Annotations reference}
   %\VignetteEngine{quarto::html}
@@ -360,6 +364,6 @@ use_swagger
 
 ```{r}
 #| output: false
-api() %>%
+api() |>
   api_doc_setting("swagger")
 ```

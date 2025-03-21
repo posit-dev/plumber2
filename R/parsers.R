@@ -330,6 +330,7 @@ parse_geojson <- function(...) {
   }
 }
 #' @rdname parsers
+#' @param parsers A list of parsers to use for parsing the parts of the body
 #' @export
 #'
 parse_multipart <- function(parsers = get_parsers()) {

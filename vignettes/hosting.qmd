@@ -1,5 +1,9 @@
 ---
 title: "Hosting"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Hosting}
   %\VignetteEngine{quarto::html}

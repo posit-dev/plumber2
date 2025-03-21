@@ -1,5 +1,9 @@
 ---
 title: "Routing & Input"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Routing & Input}
   %\VignetteEngine{quarto::html}
@@ -11,12 +15,7 @@ vignette: >
 source("_helpers.R")
 ```
 
-```{r}
-#| echo: false
-#| out.width: 45%
-#| out.extra: style="float:right;"
-knitr::include_graphics("files/images/plumber_input.png")
-```
+![](files/images/plumber_input.png){width="45%" style="float:right;"}
 
 Plumber's primary job is to execute R code in response to incoming HTTP requests, so it's important to understand how incoming HTTP requests get translated into the execution of R functions.
 

@@ -1,5 +1,9 @@
 ---
 title: "Upgrading From Plumber"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Upgrading From Plumber}
   %\VignetteEngine{quarto::html}

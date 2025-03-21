@@ -54,6 +54,7 @@ type_caster <- function(schema, required, name, loc) {
 }
 
 caster_constructor <- function(coercer, ...) {
+  args <- list2(...)
   function(schema, required, name, loc) {
     error_string <- missing_required_error_string(name, loc)
     default <- schema$default
@@ -66,7 +67,7 @@ caster_constructor <- function(coercer, ...) {
         }
         NULL
       } else {
-        suppressWarnings(coercer(val, ...))
+        suppressWarnings(inject(coercer(val, !!!args)))
       }
     }
   }
@@ -76,14 +77,15 @@ number_caster <- caster_constructor(as.numeric)
 integer_caster <- caster_constructor(as.integer)
 bool_caster <- caster_constructor(as.logical)
 date_caster <- caster_constructor(as.Date, format = "%Y-%m-%d")
-datetime_caster <- caster_constructor(function(x) {
+datetime_caster <- caster_constructor(function(x, ...) {
   as.POSIXlt(
     sub(":(\\d\\d)$", "\\1", sub("Z$", "+0000", x)),
     format = "%FT%T%z"
   )
 })
-byte_caster <- caster_constructor(base64enc::base64decode)
-required_caster <- caster_constructor(identity)
+#' @importFrom base64enc base64decode
+byte_caster <- caster_constructor(base64decode)
+required_caster <- caster_constructor(function(x, ...) x)
 
 string_caster <- function(schema, required, name, loc) {
   switch(

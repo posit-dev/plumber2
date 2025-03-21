@@ -1,5 +1,9 @@
 ---
 title: "Quickstart"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Quickstart}
   %\VignetteEngine{quarto::html}

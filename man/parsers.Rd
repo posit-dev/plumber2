@@ -41,6 +41,8 @@ each parser}
 
 \item{multiple}{logical: should the conversion be to a single
     character string or multiple individual characters?}
+
+\item{parsers}{A list of parsers to use for parsing the parts of the body}
 }
 \value{
 A function accepting a raw vector along with a \code{directives} argument

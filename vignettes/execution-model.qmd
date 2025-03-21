@@ -1,5 +1,9 @@
 ---
 title: "Runtime"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Runtime}
   %\VignetteEngine{quarto::html}

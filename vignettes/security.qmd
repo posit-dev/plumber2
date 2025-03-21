@@ -1,5 +1,9 @@
 ---
 title: "Security"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Security}
   %\VignetteEngine{quarto::html}

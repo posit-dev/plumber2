@@ -1,5 +1,9 @@
 ---
 title: "Tips & Tricks"
+knitr:
+  opts_chunk:
+    collapse: false
+    comment: "#>"
 vignette: >
   %\VignetteIndexEntry{Tips & Tricks}
   %\VignetteEngine{quarto::html}
@@ -11,12 +15,7 @@ vignette: >
 source("_helpers.R")
 ```
 
-```{r}
-#| echo: false
-#| out.width: 45%
-#| out.extra: style="float:right;"
-knitr::include_graphics("files/images/plumber_broken.png")
-```
+![](files/images/plumber_broken.png){width="45%" style="float:right;"}
 
 ## Debugging
 
