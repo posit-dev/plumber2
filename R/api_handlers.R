@@ -350,7 +350,7 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #' @param handler A function conforming to the specifications laid out in
 #' Details
 #'
-#' @return These functions return the `api` object allowing for easy chaining
+#' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
 #'
 #' @export

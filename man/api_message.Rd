@@ -13,7 +13,7 @@ api_message(api, handler)
 Details}
 }
 \value{
-These functions return the \code{api} object allowing for easy chaining
+This functions return the \code{api} object allowing for easy chaining
 with the pipe
 }
 \description{
