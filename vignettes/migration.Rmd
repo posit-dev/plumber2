@@ -27,7 +27,7 @@ If you are coming from plumber then this document may serve as a starting ground
 for recalibrating yourself to the ways of plumber2, as well as an aid when
 updating old plumber APIs to plumber2.
 
-## `pr_*()` to `api_*()
+## `pr_*()` to `api_*()`
 One of the first changes you may recognise is that the functional interface has
 gotten a prefix change. This has been done, partly to avoid any namespace
 conflicts with plumber, partly to avoid users assuming the functions worked 100%
@@ -74,7 +74,7 @@ query, and cookie parsing is now handled by reqres in a fully automated way. The
 shared-secret filter is automatically created as a handler on the header route
 if a shared secret is found in the options.
 
-## `forward` replaced by `Next` and `Break``
+## `forward` replaced by `Next` and `Break`
 Since filters are no more, `forward` which was a filter specific construct is
 also gone. However, since every handler might now only be one in a chain of
 handlers, we have added new ways to control the flow of request handling. Any
