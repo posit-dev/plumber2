@@ -46,7 +46,16 @@ register_parser <- function(name, fun, mime_types) {
   registry$parsers[[name]] <- list(fun = fun, types = mime_types)
   invisible(NULL)
 }
-
+#' @rdname register_parser
+#' @export
+show_registered_parsers <- function() {
+  res <- data.frame(
+    name = names(registry$parsers),
+    mime_types = I(lapply(registry$parsers, `[[`, "types"))
+  )
+  attr(res, "row.names") <- .set_row_names(nrow(res))
+  res
+}
 #' @rdname register_parser
 #' @param parsers Parsers to collect. This can either be a character vector of
 #' names of registered parsers or a list. If it is a list then the following
@@ -142,7 +151,7 @@ get_parsers_internal <- function(
     )
   }
   parsers <- lapply(types, function(type) {
-    type <- stringi::stri_split_fixed(type, "{", n = 2)[[1]]
+    type <- stringi::stri_split_regex(type, "\\{|\\s", n = 2)[[1]]
     if (stringi::stri_count_fixed(type[[1]], "/") == 1) {
       parser_fun <- if (length(type) == 2)
         eval_bare(parse_expr(type[2]), env = env) else function(x, ...) x
@@ -223,6 +232,10 @@ get_parsers_internal <- function(
 #'   `application/json` and `text/json`
 #' * [reqres::parse_queryform()] is registered as "`form`" for the mime type
 #'   `application/x-www-form-urlencoded`
+#' * [reqres::parse_xml()] is registered as "`xml`" for the mime types
+#'   `application/xml` and `text/xml`
+#' * [reqres::parse_html()] is registered as "`html`" for the mime type
+#'   `text/html`
 #'
 #' @param ... Further argument passed on to the internal parsing function. See
 #' Details for information on which function handles the parsing internally in
@@ -412,6 +425,8 @@ on_load({
       "text/x-yaml"
     )
   )
+  register_parser("xml", reqres::parse_xml, c("application/xml", "text/xml"))
+  register_parser("html", reqres::parse_html, c("text/html"))
   register_parser(
     "geojson",
     parse_geojson,

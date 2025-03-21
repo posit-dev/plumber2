@@ -2,10 +2,13 @@
 % Please edit documentation in R/serializers.R
 \name{register_serializer}
 \alias{register_serializer}
+\alias{show_registered_serializers}
 \alias{get_serializers}
 \title{Register or fetch a serializer}
 \usage{
 register_serializer(name, fun, mime_type)
+
+show_registered_serializers()
 
 get_serializers(serializers = NULL)
 }

@@ -2,10 +2,13 @@
 % Please edit documentation in R/parsers.R
 \name{register_parser}
 \alias{register_parser}
+\alias{show_registered_parsers}
 \alias{get_parsers}
 \title{Register or fetch a parser}
 \usage{
 register_parser(name, fun, mime_types)
+
+show_registered_parsers()
 
 get_parsers(parsers = NULL)
 }

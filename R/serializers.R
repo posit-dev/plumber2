@@ -46,6 +46,21 @@ register_serializer <- function(name, fun, mime_type) {
   )
   invisible(NULL)
 }
+#' @rdname register_serializer
+#' @export
+show_registered_serializers <- function() {
+  res <- data.frame(
+    name = names(registry$serializers),
+    mime_type = vapply(registry$serializers, `[[`, character(1), "type"),
+    graphic = vapply(
+      registry$serializers,
+      function(x) is_device_constructor(x$fun),
+      logical(1)
+    )
+  )
+  attr(res, "row.names") <- .set_row_names(nrow(res))
+  res
+}
 
 #' @rdname register_serializer
 #' @param serializers Serializers to collect. This can either be a character
@@ -173,7 +188,7 @@ get_serializers_internal <- function(
     )
   }
   serializers <- lapply(types, function(type) {
-    type <- stringi::stri_split_fixed(type, "{", n = 2)[[1]]
+    type <- stringi::stri_split_regex(type, "\\{|\\s", n = 2)[[1]]
     if (stringi::stri_count_fixed(type[[1]], "/") == 1) {
       serializer_fun <- if (length(type) == 2)
         eval_bare(parse_expr(type[2]), env = env) else identity
@@ -432,8 +447,7 @@ on_load({
   register_serializer("json", reqres::format_json, "application/json")
   register_serializer("unboxedJSON", format_unboxed, "application/json")
   register_serializer("html", reqres::format_html, "text/html")
-  register_serializer("rds", format_rds, "text/html")
-  register_serializer("geojson", format_geojson, "application/geo+json")
+  register_serializer("rds", format_rds, "application/rds")
   register_serializer("csv", format_csv, "text/csv")
   register_serializer("tsv", format_tsv, "text/tab-separated-values")
   register_serializer(
@@ -447,12 +461,13 @@ on_load({
     "application/vnd.apache.parquet"
   )
   register_serializer("yaml", format_yaml, "text/yaml")
-  register_serializer("htmlwidget", format_htmlwidget, "text/html")
   register_serializer("xml", reqres::format_xml, "text/xml")
   register_serializer("text", reqres::format_plain, "text/plain")
   register_serializer("format", format_format, "text/plain")
   register_serializer("print", format_print, "text/plain")
   register_serializer("cat", format_cat, "text/plain")
+  register_serializer("htmlwidget", format_htmlwidget, "text/html")
+  register_serializer("geojson", format_geojson, "application/geo+json")
 })
 
 # Device serializers -----------------------------------------------------------
@@ -526,10 +541,12 @@ device_formatter <- function(dev_open, dev_close = grDevices::dev.off()) {
         clean = clean_dev,
         class = "device_formatter"
       )
-    }
+    },
+    class = "device_constructor"
   )
 }
 is_device_formatter <- function(x) inherits(x, "device_formatter")
+is_device_constructor <- function(x) inherits(x, "device_constructor")
 
 init_formatter <- function(formatter) {
   init_fun <- attr(formatter, "init")

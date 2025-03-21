@@ -88,6 +88,10 @@ registered as \code{"geojson"} for the mime types \code{application/geo+json} an
 \code{application/json} and \code{text/json}
 \item \code{\link[reqres:parsers]{reqres::parse_queryform()}} is registered as "\code{form}" for the mime type
 \code{application/x-www-form-urlencoded}
+\item \code{\link[reqres:parsers]{reqres::parse_xml()}} is registered as "\code{xml}" for the mime types
+\code{application/xml} and \code{text/xml}
+\item \code{\link[reqres:parsers]{reqres::parse_html()}} is registered as "\code{html}" for the mime type
+\code{text/html}
 }
 }
 }
