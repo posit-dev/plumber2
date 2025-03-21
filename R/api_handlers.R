@@ -318,6 +318,34 @@ api_patch_header <- handle_constructor("patch", header = TRUE)
 #'
 api_any_header <- handle_constructor("any", header = TRUE)
 
+#' Add a new route to either the request or header router
+#'
+#' This function allows explicit creation of routes or addition/merging of a
+#' predefined [routr::Route] into the router of the api. A new route can also be
+#' created with the `route` argument when [adding a handler][api_get]. However,
+#' that way will always add new routes to the end of the stack, whereas using
+#' `api_add_route()` allows you full control of the placement.
+#'
+#' @param api A plumber2 api object to add the route to
+#' @param name The name of the route to add. If a route is already present
+#' with this name then the provided route (if any) is merged into it
+#' @param route The route to add. If `NULL` a new empty route will be
+#' created
+#' @param header Logical. Should the route be added to the header router?
+#' @param after The location to place the new route on the stack. `NULL`
+#' will place it at the end. Will not have an effect if a route with the
+#' given name already exists.
+#'
+#' @return This functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+api_add_route <- function(api, name, route = NULL, header = FALSE, after = NULL) {
+  api$add_route(name = name, route = route, header = header, after = after)
+  api
+}
+
 #' Add a handler to a WebSocket message
 #'
 #' WebSockets is a bidirectional communication channel that can be established
