@@ -5,7 +5,9 @@
 #'
 #' @param ... plumber files or directories containing plumber files to be parsed
 #' in the given order. The order of parsing determines the final order of the
-#' routes in the stack
+#' routes in the stack. If `...` contains a `_server.yml` file then all other
+#' files in `...` will be ignored and the `_server.yml` file will be used as the
+#' basis for the API
 #' @param host A string that is a valid IPv4 address that is owned by this
 #' server
 #' @param port A number or integer that indicates the server port that should be
@@ -61,19 +63,59 @@ api <- function(
   compression_limit = get_opts("compressionLimit", 1e3),
   env = caller_env()
 ) {
-  api <- Plumber$new(
-    host = host,
-    port = port,
-    doc_type = doc_type,
-    doc_path = doc_path,
-    reject_missing_methods = reject_missing_methods,
-    ignore_trailing_slash = ignore_trailing_slash,
-    max_request_size = max_request_size,
-    shared_secret = shared_secret,
-    compression_limit = compression_limit,
-    env = env
-  )
-  api_parse(api, ...)
+  locations <- dots_to_plumber_files(...)
+  if (isTRUE(is_plumber2_server_yml(locations))) {
+    server_yml <- yaml::read_yaml(locations)
+    if (!is.null(server_yml$constructor)) {
+      api <- source(
+        fs::path(
+          fs::path_dir(locations),
+          server_yml$constructor
+        ),
+        verbose = FALSE
+      )
+      if (!is_plumber_api(api)) {
+        cli::cli_abort(
+          "The constructor file in {.file {locations}} did not produce a plumber2 API"
+        )
+      }
+    } else {
+      api <- Plumber$new(
+        host = server_yml$options$host %||% host,
+        port = server_yml$options$port %||% port,
+        doc_type = server_yml$options$docType %||% doc_type,
+        doc_path = server_yml$options$docPath %||% doc_path,
+        reject_missing_methods = server_yml$options$methodNotAllowed %||%
+          reject_missing_methods,
+        ignore_trailing_slash = server_yml$options$ignoreTrailingSlash %||%
+          ignore_trailing_slash,
+        max_request_size = server_yml$options$maxRequestSize %||%
+          max_request_size,
+        shared_secret = shared_secret,
+        compression_limit = server_yml$options$compressionLimit %||%
+          compression_limit,
+        env = env
+      )
+    }
+    locations <- fs::path(
+      fs::path_dir(locations),
+      server_yml$routes
+    )
+  } else {
+    api <- Plumber$new(
+      host = host,
+      port = port,
+      doc_type = doc_type,
+      doc_path = doc_path,
+      reject_missing_methods = reject_missing_methods,
+      ignore_trailing_slash = ignore_trailing_slash,
+      max_request_size = max_request_size,
+      shared_secret = shared_secret,
+      compression_limit = compression_limit,
+      env = env
+    )
+  }
+  api_parse(api, locations)
 }
 #' @rdname api
 #' @param x An object to test for whether it is a plumber api
@@ -85,14 +127,55 @@ is_plumber_api <- function(x) inherits(x, "Plumber")
 #' @param api A plumber2 api object to parse files into
 #' @export
 api_parse <- function(api, ...) {
-  locations <- list2(...)
-  lapply(locations, function(loc) {
-    if (fs::is_dir(loc)) {
-      loc <- fs::dir_ls(loc)
-    }
-    for (file in loc) {
-      api$parse_file(file)
-    }
-  })
+  locations <- dots_to_plumber_files(..., prefer_yml = FALSE)
+  for (loc in locations) {
+    api$parse_file(file)
+  }
   api
 }
+
+dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
+  locations <- unlist(lapply(list2(...), function(loc) {
+    if (fs::is_dir(loc)) {
+      loc <- fs::dir_ls(loc, all = TRUE, recurse = TRUE)
+      server_yml <- is_plumber2_server_yml(loc)
+      if (prefer_yml && any(server_yml)) {
+        loc <- loc[server_yml]
+      } else {
+        loc <- loc[fs::path_ext(loc) %in% c("R", "r")]
+      }
+    }
+    loc
+  }))
+  if (length(locations) == 0) return(character())
+  if (!all(fs::file_exists(locations))) {
+    cli::cli_abort("{.arg ...} must point to existing files", call = call)
+  }
+  server_yml <- is_plumber2_server_yml(locations)
+  if (prefer_yml && any(server_yml)) {
+    if (sum(server_yml) != 1) {
+      cli::cli_abort(
+        "You can at most use one {.file _server.yml} file to specify your API",
+        call = call
+      )
+    }
+    if (length(locations) != 1) {
+      cli::cli_warn(
+        "{.file _server.yml} found. Ignoring all other files provided in {.arg ...}",
+        call = call
+      )
+    }
+    locations[server_yml]
+  } else {
+    if (any(server_yml)) {
+      cli::cli_warn(
+        "Ignoring {.file _server.yml} files in {.arg ...}",
+        call = call
+      )
+    }
+    locations[!server_yml]
+  }
+}
+
+# For use by connect etc
+create_server <- api

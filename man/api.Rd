@@ -27,7 +27,9 @@ api_parse(api, ...)
 \arguments{
 \item{...}{plumber files or directories containing plumber files to be parsed
 in the given order. The order of parsing determines the final order of the
-routes in the stack}
+routes in the stack. If \code{...} contains a \verb{_server.yml} file then all other
+files in \code{...} will be ignored and the \verb{_server.yml} file will be used as the
+basis for the API}
 
 \item{host}{A string that is a valid IPv4 address that is owned by this
 server}

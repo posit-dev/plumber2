@@ -26,7 +26,7 @@
 #  )
 #}
 
-get_opts <- function(x, default = NULL, prefix = c("plumber2", "plumber")) {
+get_opts <- function(x, default = NULL, prefix = "plumber2") {
   getOption(paste0(prefix[1], ".", x), default = {
     env_name <- toupper(paste0(prefix[1], "_", x))
     res <- Sys.getenv(env_name)
@@ -43,4 +43,17 @@ get_opts <- function(x, default = NULL, prefix = c("plumber2", "plumber")) {
     }
     res
   })
+}
+
+all_opts <- function(prefix = "plumber2") {
+  compact(list(
+    host = get_opts("host", prefix = prefix),
+    port = get_opts("port", prefix = prefix),
+    docType = get_opts("docType", prefix = prefix),
+    docPath = get_opts("docPath", prefix = prefix),
+    methodNotAllowed = get_opts("methodNotAllowed", prefix = prefix),
+    ignoreTrailingSlash = get_opts("ignoreTrailingSlash", prefix = prefix),
+    maxRequestSize = get_opts("maxRequestSize", prefix = prefix),
+    compressionLimit = get_opts("compressionLimit", prefix = prefix)
+  ))
 }

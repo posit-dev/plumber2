@@ -23,7 +23,8 @@ Imports:
     roxygen2,
     stringi,
     svglite,
-    webutils
+    webutils,
+    yaml
 Remotes:
     thomasp85/fiery,
     thomasp85/reqres,
@@ -34,7 +35,6 @@ Suggests:
     htmlwidgets,
     nanoparquet,
     quarto,
-    readr,
-    yaml
+    readr
 VignetteBuilder: quarto
 URL: https://laughing-spoon-ywk3ewq.pages.github.io/

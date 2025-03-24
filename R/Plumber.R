@@ -88,7 +88,7 @@ Plumber <- R6Class(
       if (!is.null(doc_type)) {
         private$DOC_TYPE <- arg_match0(
           doc_type,
-          c("rapidoc", "redoc", "swagger")
+          c("rapidoc", "redoc", "swagger", "")
         )
       }
       check_string(doc_path)
@@ -142,7 +142,7 @@ Plumber <- R6Class(
       ...,
       silent = FALSE
     ) {
-      if (length(private$OPENAPI) != 0 && !is.null(private$DOC_TYPE)) {
+      if (length(private$OPENAPI) != 0 && !is.null(private$DOC_TYPE) && private$DOC_TYPE != "") {
         openapi_file <- tempfile(fileext = ".json")
         write_json(private$OPENAPI, openapi_file, auto_unbox = TRUE)
         api_route <- openapi_route(
