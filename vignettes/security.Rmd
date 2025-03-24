@@ -30,7 +30,7 @@ In the first case, there's typically very little to consider from a networking p
 
 In the second case, however, you may need to consider the network environment in between yourself and the server running the API. These are the same considerations you'll need to make when hosting an API on a server for production use. In particular, you should investigate whether or not there are any firewalls between the server hosting the Plumber API and the clients that you want to be able to connect.
 
-Firewalls are a way to block undesired network traffic. Most desktop computers and many servers come with firewalls enabled out-of-the-box. This means that if you want to expose your API running on port 8000, you will need to configure your firewall to accept incoming connections on that port. Firewalls can also be configured on other network intermediaries, so you may need to configure multiple firewalls to allow traffic through in order to expose the desired port to your API clients.
+Firewalls are a way to block undesired network traffic. Most desktop computers and many servers come with firewalls enabled out-of-the-box. This means that if you want to expose your API running on port 8080, you will need to configure your firewall to accept incoming connections on that port. Firewalls can also be configured on other network intermediaries, so you may need to configure multiple firewalls to allow traffic through in order to expose the desired port to your API clients.
 
 ## HTTPS
 

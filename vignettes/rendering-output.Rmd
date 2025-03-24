@@ -109,7 +109,7 @@ res <- papi$test_request(req)
 code_chunk(res$body, "json")
 ```
 
-However, http://localhost:8000/boxed?letter=Y will produce:
+However, http://localhost:8080/boxed?letter=Y will produce:
 
 ```{r}
 #| echo: false
@@ -120,7 +120,7 @@ res <- papi$test_request(req)
 code_chunk(res$body, "json")
 ```
 
-while http://localhost:8000/unboxed?letter=Y will produce:
+while http://localhost:8080/unboxed?letter=Y will produce:
 
 ```{r}
 #| echo: false
@@ -212,7 +212,7 @@ Plumber wraps each endpoint invocation so that it can gracefully capture errors.
 #| code: !expr readLines("files/apis/04-05-error.R")
 ```
 
-If you run this API in interactive mode and visit http://localhost:8000/simple, you'll notice two things:
+If you run this API in interactive mode and visit http://localhost:8080/simple, you'll notice two things:
 
 1.  An HTTP response with a status code of `500` ("internal server error") is sent to the client. The response does not give any clues as to the nature of the error
 2.  The error is printed to the console
