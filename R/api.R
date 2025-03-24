@@ -136,6 +136,7 @@ api_parse <- function(api, ...) {
 
 dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
   locations <- unlist(lapply(list2(...), function(loc) {
+    if (length(loc) == 0) return(NULL)
     if (fs::is_dir(loc)) {
       loc <- fs::dir_ls(loc, all = TRUE, recurse = TRUE)
       server_yml <- is_plumber2_server_yml(loc)
