@@ -362,7 +362,13 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #'
 #' @export
 #'
-api_add_route <- function(api, name, route = NULL, header = FALSE, after = NULL) {
+api_add_route <- function(
+  api,
+  name,
+  route = NULL,
+  header = FALSE,
+  after = NULL
+) {
   api$add_route(name = name, route = route, header = header, after = after)
   api
 }
@@ -406,5 +412,36 @@ api_add_route <- function(api, name, route = NULL, header = FALSE, after = NULL)
 #'
 api_message <- function(api, handler) {
   api$message_handler(handler)
+  api
+}
+
+#' Redirect request to another resource
+#'
+#' While it is optimal that an API remains stable over its lifetime it is often
+#' not fully attainable. In order to direct requests for ressources that has
+#' been moved to the new location you can add a redirect that ensures a smooth
+#' transition for clients still using the old path. Depending on the value
+#' of `permanent` the redirect will respond with a `307 Temporary Redirect` or
+#' `308 Permanent Redirect`. `from` and `to` can contain path parameters and
+#' wildcards which will be matched between the two to construct the correct
+#' redirect path. Further, `to` can either be a path to the same server or a
+#' fully qualified URL to redirect requests to another server alltogether.
+#'
+#' @param api A plumber2 api object to add the redirect to
+#' @param method The HTTP method the redirect should respond to
+#' @param from The path the redirect should respond to
+#' @param to The path/URL to redirect the incoming request towards. After
+#' resolving any path parameters and wildcards it will be used in the
+#' `Location` header
+#' @param permanent Logical. Is the redirect considered permanent or
+#' temporary? Determines the type of redirct status code to use
+#'
+#' @return This functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+api_redirect <- function(api, method, from, to, permanent = TRUE) {
+  api$redirect(method, from, to, permanent)
   api
 }

@@ -138,7 +138,7 @@ roxy_tag_parse.roxy_tag_message <- function(x) {
   x
 }
 
-## Asset annotations ---------------------------------------------------------
+## Asset annotations -----------------------------------------------------------
 
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
@@ -156,7 +156,15 @@ roxy_tag_parse.roxy_tag_except <- function(x) {
   x
 }
 
-## Other annotations ---------------------------------------------------------
+## Redirect annotations --------------------------------------------------------
+
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_redirect <- function(x) {
+  x
+}
+
+## Other annotations -----------------------------------------------------------
 
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
@@ -179,10 +187,5 @@ roxy_tag_parse.roxy_tag_rejectMissingMethods <- function(x) {
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_routeName <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_logger <- function(x) {
   x
 }

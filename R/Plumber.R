@@ -140,7 +140,11 @@ Plumber <- R6Class(
       ...,
       silent = FALSE
     ) {
-      if (length(private$OPENAPI) != 0 && !is.null(private$DOC_TYPE) && private$DOC_TYPE != "") {
+      if (
+        length(private$OPENAPI) != 0 &&
+          !is.null(private$DOC_TYPE) &&
+          private$DOC_TYPE != ""
+      ) {
         openapi_file <- tempfile(fileext = ".json")
         write_json(private$OPENAPI, openapi_file, auto_unbox = TRUE)
         api_route <- openapi_route(
@@ -263,11 +267,14 @@ Plumber <- R6Class(
         function(p) p$`in` == "path",
         logical(1)
       )
-      doc$parameters <- c(combine_parameters(
-        path_info$params,
-        doc$parameters[doc_path_param],
-        from_block = FALSE
-      ), doc$parameters[!doc_path_param])
+      doc$parameters <- c(
+        combine_parameters(
+          path_info$params,
+          doc$parameters[doc_path_param],
+          from_block = FALSE
+        ),
+        doc$parameters[!doc_path_param]
+      )
       operation_id <- paste0(path_info$path, "-", method)
       doc$parameters <- lapply(doc$parameters, function(par) {
         par$operationId <- par$operationId %||% operation_id
@@ -324,6 +331,41 @@ Plumber <- R6Class(
       handler <- create_plumber_message_handler(handler)
       self$on("message", handler)
     },
+    #' @description Add a redirect to the header router. Depending on the value
+    #' of `permanent` it will respond with a 307 Temporary Redirect or 308
+    #' Permanent Redirect. `from` and `to` can contain path parameters and
+    #' wildcards which will be matched between the two to construct the correct
+    #' redirect path.
+    #' @param method The HTTP method the redirect should respond to
+    #' @param from The path the redirect should respond to
+    #' @param to The path/URL to redirect the incoming request towards. After
+    #' resolving any path parameters and wildcards it will be used in the
+    #' `Location` header
+    #' @param permanent Logical. Is the redirect considered permanent or
+    #' temporary? Determines the type of redirct status code to use
+    redirect = function(method, from, to, permanent = TRUE) {
+      method <- arg_match0(
+        tolower(method),
+        c(
+          "get",
+          "head",
+          "post",
+          "put",
+          "delete",
+          "connect",
+          "options",
+          "trace",
+          "patch",
+          "any",
+          "all"
+        )
+      )
+      if (method == "any") method <- "all"
+      check_string(from)
+      check_string(to)
+      check_bool(permanent)
+      self$header_router(method, from, to, permanent)
+    },
     #' @description Parses a plumber file and updates the app according to it
     #' @param file The path to a file to parse
     #' @param env The parent environment to the environment the file should be
@@ -362,6 +404,14 @@ Plumber <- R6Class(
       }
       for (handler in parsed$message_handlers) {
         self$message_handler(handler)
+      }
+      for (redirect in parsed$redirects) {
+        self$redirect(
+          redirect$method,
+          redirect$from,
+          redirect$to,
+          redirect$permanent
+        )
       }
       self$add_api_doc(parsed$api)
       parsed$modifier(self)

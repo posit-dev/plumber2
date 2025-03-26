@@ -58,6 +58,7 @@ not generating API docs)}
 \item \href{#method-Plumber-add_route}{\code{Plumber$add_route()}}
 \item \href{#method-Plumber-request_handler}{\code{Plumber$request_handler()}}
 \item \href{#method-Plumber-message_handler}{\code{Plumber$message_handler()}}
+\item \href{#method-Plumber-redirect}{\code{Plumber$redirect()}}
 \item \href{#method-Plumber-parse_file}{\code{Plumber$parse_file()}}
 \item \href{#method-Plumber-add_api_doc}{\code{Plumber$add_api_doc()}}
 \item \href{#method-Plumber-clone}{\code{Plumber$clone()}}
@@ -326,6 +327,36 @@ detailed information
 \describe{
 \item{\code{handler}}{A function conforming to the specifications laid out in
 \code{\link[=api_message]{api_message()}}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber-redirect"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber-redirect}{}}}
+\subsection{Method \code{redirect()}}{
+Add a redirect to the header router. Depending on the value
+of \code{permanent} it will respond with a 307 Temporary Redirect or 308
+Permanent Redirect. \code{from} and \code{to} can contain path parameters and
+wildcards which will be matched between the two to construct the correct
+redirect path.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber$redirect(method, from, to, permanent = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{method}}{The HTTP method the redirect should respond to}
+
+\item{\code{from}}{The path the redirect should respond to}
+
+\item{\code{to}}{The path/URL to redirect the incoming request towards. After
+resolving any path parameters and wildcards it will be used in the
+\code{Location} header}
+
+\item{\code{permanent}}{Logical. Is the redirect considered permanent or
+temporary? Determines the type of redirct status code to use}
 }
 \if{html}{\out{</div>}}
 }

@@ -96,6 +96,9 @@ parse_plumber_file <- function(
     }
   }
 
+  redirects <- blocks[vapply(blocks, inherits, logical(1), "plumber_redirect")]
+  redirects <- unlist(redirects, recursive = FALSE)
+
   list(
     route = route,
     header_route = header_route,
@@ -106,6 +109,7 @@ parse_plumber_file <- function(
       logical(1),
       "message_call"
     )],
+    redirects = redirects,
     api = c(globals, paths),
     modifiers = modifier
   )
@@ -116,11 +120,13 @@ parse_block <- function(block, route, header_route, env = caller_env()) {
   tags <- vapply(block$tags, `[[`, character(1), "tag")
   values <- lapply(block$tags, `[[`, "raw")
   if (any(tags == "assets")) {
-    parse_asset_block(call, block, tags, values, header_route, env)
+    parse_asset_block(call, block, tags, values, route, env)
   } else if (any(tags == "statics")) {
     parse_static_block(call, block, tags, values, env)
   } else if (any(tags == "message")) {
     parse_message_block(call, block, tags, values)
+  } else if (any(tags == "redirect")) {
+    parse_redirect_block(call, block, tags, values)
   } else if (any(tags == "plumber")) {
     parse_plumber_block(call, tags)
   } else if (
@@ -289,4 +295,26 @@ parse_message_block <- function(call, block, tags, values) {
     fn_fmls(call) <- c(fn_fmls(call), "..." = missing_arg())
   }
   structure(call, class = "message_call")
+}
+
+parse_redirect_block <- function(call, block, tags, values) {
+  res <- lapply(values[tags == "redirect"], function(x) {
+    x <- stringi::stri_split_fixed(x, " ", n = 3)[[1]]
+    if (length(x) != 3) {
+      cli::cli_warn(c(
+        "Malformed {.field @redirect} tag",
+        i = "The format must conform to: <method> <from path> <to path>"
+      ))
+      return(NULL)
+    }
+    is_permanent <- grepl("^\\!", x[1])
+    x[1] <- sub("!", "", x[1], fixed = TRUE)
+    list(
+      method = x[1],
+      from = x[2],
+      to = x[3],
+      permanent = is_permanent
+    )
+  })
+  class(res) <- "plumber2_redirect"
 }
