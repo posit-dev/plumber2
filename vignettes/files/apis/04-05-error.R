@@ -7,7 +7,7 @@ function() {
 #* Generate a friendly error
 #* @get /friendly
 function() {
-  reqres::abort_bad_request(
+  abort_bad_request(
     "Your request could not be parsed"
   )
 }

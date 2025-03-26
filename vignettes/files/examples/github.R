@@ -30,7 +30,7 @@ function(request) {
   hm <- digest::hmac(secret, request$body, algo="sha1")
   hm <- paste0("sha1=", hm)
   if (!identical(hm, request$HTTP_X_HUB_SIGNATURE)) {
-    reqres::abort_bad_request("invalid GitHub signature.")
+    abort_bad_request("invalid GitHub signature.")
   }
 
   # Install new package

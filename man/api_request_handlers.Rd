@@ -340,6 +340,29 @@ handling is then allowed to continue
 }
 
 }
+
+\subsection{Handler conditions}{
+
+Like any function in R, a handler may need to signal that something happened,
+either by throwing an error or warning or by emitting a message. You can use
+\code{\link[=stop]{stop()}}, \code{\link[=warning]{warning()}}, and \code{\link[=message]{message()}} as you are used to. For all of them,
+the condition message will end up in the log. Further, for \code{stop()} any
+further handling of the request will end and a \verb{500 Internal Error} response
+is returned. To take more control over problems you can use the
+\code{\link[=abort_status]{abort_*()}} family of conditions from reqres. Like \code{stop()}
+they will halt any further processing, but they also allow control over what
+kind of response is sent back, what kind of information about the issue is
+communicated to the client, and what kind of information is logged
+internally. The response they send back (except for \code{abort_status()}) all
+adhere to the HTTP Problem spec defined in
+\href{https://datatracker.ietf.org/doc/html/rfc9457}{RFC 9457}.
+
+While it may feel like a good idea to send a detailed error message back to
+the client it is often better to only inform the client of what they need to
+change to solve the issue. Too much information about internal implementation
+details can be a security risk and forwarding internal errors to a client can
+help inform the client about how the server has been implemented.
+}
 }
 
 \seealso{

@@ -40,3 +40,7 @@ api_session_cookie <- function(
   )
   api
 }
+
+#' @export
+#' @importFrom reqres random_key
+reqres::random_key

@@ -180,6 +180,27 @@ handle_constructor <- function(method, header = FALSE) {
 #' be set to the response body (overwritting what was already there) and
 #' handling is then allowed to continue
 #'
+#' ## Handler conditions
+#' Like any function in R, a handler may need to signal that something happened,
+#' either by throwing an error or warning or by emitting a message. You can use
+#' [stop()], [warning()], and [message()] as you are used to. For all of them,
+#' the condition message will end up in the log. Further, for `stop()` any
+#' further handling of the request will end and a `500 Internal Error` response
+#' is returned. To take more control over problems you can use the
+#' [`abort_*()`][abort_status] family of conditions from reqres. Like `stop()`
+#' they will halt any further processing, but they also allow control over what
+#' kind of response is sent back, what kind of information about the issue is
+#' communicated to the client, and what kind of information is logged
+#' internally. The response they send back (except for `abort_status()`) all
+#' adhere to the HTTP Problem spec defined in
+#' [RFC 9457](https://datatracker.ietf.org/doc/html/rfc9457).
+#'
+#' While it may feel like a good idea to send a detailed error message back to
+#' the client it is often better to only inform the client of what they need to
+#' change to solve the issue. Too much information about internal implementation
+#' details can be a security risk and forwarding internal errors to a client can
+#' help inform the client about how the server has been implemented.
+#'
 #' @param api A plumber2 api object to add the handler to
 #' @param path A string giving the path the handler responds to. See Details
 #' @param handler A handler function to call when a request is matched to the
