@@ -55,6 +55,7 @@ reference:
   - title: "Advanced"
     contents:
       - Plumber
+      - api_logger
       - api_doc_add
       - api_on
       - api_session_cookie

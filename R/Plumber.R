@@ -111,8 +111,6 @@ Plumber <- R6Class(
 
       check_environment(env)
       private$PARENT_ENV <- env
-
-      #self$set_logger(fiery::logger_console())
     },
     #' @description Human readable description of the api object
     #' @param ... ignored
