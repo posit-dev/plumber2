@@ -282,7 +282,7 @@ Plumber <- R6Class(
       })
 
       # Substitute the plumber style path arg for a routr style
-      path <- stri_replace_all_regex(path, "<(.+?)(:.+?)?>", ":$1")
+      path <- as_routr_path(path)
 
       if (header) {
         router <- self$header_router
