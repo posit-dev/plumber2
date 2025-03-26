@@ -167,11 +167,11 @@ again.</p>
 just to see things at work. By default, the <code>rstudio/plumber</code>
 image will take the first argument after the image name as the name of
 the file that you want to <code>plumb()</code> and serve on port
-<code>8000</code>. So right away you can run one of the examples that’s
+<code>8080</code>. So right away you can run one of the examples that’s
 included in plumber as it is already installed on the image.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8000:8000 rstudio/plumber</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 rstudio/plumber</span></code></pre></div>
 <p>which is the same as:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8000:8000 rstudio/plumber <span class="dt">\</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 rstudio/plumber <span class="dt">\</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  /usr/local/lib/R/site-library/plumber/plumber/04-mean-sum/plumber.R</span></code></pre></div>
 <ul>
 <li>
@@ -180,8 +180,8 @@ included in plumber as it is already installed on the image.</p>
 <code>--rm</code> tells Docker to clean-up after the container when
 it’s done</li>
 <li>
-<code>-p 8000:8000</code> says to map port 8000 from the plumber
-container (which is where we’ll run the server) to port 8000 of your
+<code>-p 8080:8080</code> says to map port 8080 from the plumber
+container (which is where we’ll run the server) to port 8080 of your
 local machine</li>
 <li>
 <code>rstudio/plumber</code> is the name of the image we want to
@@ -198,10 +198,10 @@ path is the default path that the image uses if you don’t specify one
 yourself.</li>
 </ul>
 <p>This will ask Plumber to <code>plumb</code> and <code>run</code> the
-file you specified on port 8000 of that new container. Because you used
-the <code>-p</code> argument, port 8000 of your local machine will be
+file you specified on port 8080 of that new container. Because you used
+the <code>-p</code> argument, port 8080 of your local machine will be
 forwarded into your container. You can test this by running this on the
-machine where Docker is running: <code>curl localhost:8000/mean</code>,
+machine where Docker is running: <code>curl localhost:8080/mean</code>,
 or if you know the IP address of the machine where Docker is running,
 you could visit it in a web browser. The <code>/mean</code> path is one
 that’s defined in the plumber file we just specified – you should get an
@@ -216,7 +216,7 @@ plumber definition.</p>
 <p>For instance if you have a plumber file saved in your current
 directory called <code>api.R</code>, you could use the following
 command</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8000:8000 <span class="at">-v</span> <span class="kw">`</span><span class="bu">pwd</span><span class="kw">`</span>/api.R:/plumber.R rstudio/plumber /plumber.R</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 <span class="at">-v</span> <span class="kw">`</span><span class="bu">pwd</span><span class="kw">`</span>/api.R:/plumber.R rstudio/plumber /plumber.R</span></code></pre></div>
 <p>You’ll notice that we used the <code>-v</code> argument to specify a
 “volume” that should be mapped from our host machine into the Docker
 container. We defined that the location of that file should be at
@@ -294,7 +294,7 @@ volume mounted at <code>/app</code>.</p>
 <p>If you want your container to start automatically when your machine
 is booted, you can use the <code>--restart</code> parameter for
 <code>docker run</code>.</p>
-<p><code>docker run -p 1234:8000 -dit --restart=unless-stopped myCustomDocker</code>
+<p><code>docker run -p 1234:8080 -dit --restart=unless-stopped myCustomDocker</code>
 would run the custom image you created above automatically every time
 your machine boots and expose the plumber service on port
 <code>1234</code> of your host machine, unless the container is
@@ -339,7 +339,7 @@ configuration like the following:</p>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ./app1:/app</span></span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> always</span></span>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"7000:8000"</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"7000:8080"</span></span>
 <span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="at">  </span><span class="fu">app2</span><span class="kw">:</span></span>
 <span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> rstudio/plumber</span></span>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> /app/plumber.R</span></span>
@@ -347,7 +347,7 @@ configuration like the following:</p>
 <span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ../app2:/app</span></span>
 <span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> always</span></span>
 <span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"7001:8000"</span></span></code></pre></div>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"7001:8080"</span></span></code></pre></div>
 <p>More detail on what each of these options does and what other options
 exist can be found <a href="https://docs.docker.com/compose/compose-file/" class="external-link">here</a>. This
 configuration defines two Docker containers that should run
@@ -370,7 +370,7 @@ Since we’re mapping our host’s <code>./app2</code> to <code>/app</code>
 inside of the container, the definition would be found in
 <code>/app/plumber.R</code>. We specify that it should
 <code>always</code> restart if anything ever happens to the container,
-and we export port <code>8000</code> from the container to port
+and we export port <code>8080</code> from the container to port
 <code>7001</code> on the host.</p>
 <p><code>app1</code> is our more complicated app. It has some extra data
 in another directory that needs to be loaded, and it has a custom
@@ -438,12 +438,12 @@ http {
                 server_name MYSERVER.ORG;
 
                 location /app1/ {
-                        proxy_pass http://app1:8000/;
+                        proxy_pass http://app1:8080/;
                         proxy_set_header Host $host;
                 }
 
                 location /app2/ {
-                        proxy_pass http://app2:8000/;
+                        proxy_pass http://app2:8080/;
                         proxy_set_header Host $host;
                 }
 
@@ -458,10 +458,10 @@ whatever the public address is of your server. You can save this file as
 <code>nginx.conf</code> in the same directory as your Compose config
 file.</p>
 <p>Docker Compose is intelligent enough to know to route traffic for
-<code>http://app1:8000/</code> to the <code>app1</code> container, port
-<code>8000</code>, so we can leverage that in our config file. Docker
+<code>http://app1:8080/</code> to the <code>app1</code> container, port
+<code>8080</code>, so we can leverage that in our config file. Docker
 containers are able to contact each other on their non-public ports, so
-we can go directly to port <code>8000</code> for both containers. This
+we can go directly to port <code>8080</code> for both containers. This
 proxy configuration will trim the prefix off of the request before it
 sends it on to the applications, so your applications don’t need to know
 anything about being hosted publicly at a URL that includes the

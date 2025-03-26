@@ -79,7 +79,9 @@ full api. It is also possible to add files to the API after creation using</p>
 <dl><dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>plumber files or directories containing plumber files to be parsed
 in the given order. The order of parsing determines the final order of the
-routes in the stack</p></dd>
+routes in the stack. If <code>...</code> contains a <code>_server.yml</code> file then all other
+files in <code>...</code> will be ignored and the <code>_server.yml</code> file will be used as the
+basis for the API</p></dd>
 
 
 <dt id="arg-host">host<a class="anchor" aria-label="anchor" href="#arg-host"></a></dt>

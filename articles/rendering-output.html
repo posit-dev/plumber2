@@ -313,11 +313,11 @@ identical responses:</p>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="st">"Y"</span><span class="ot">,</span></span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="st">"Z"</span></span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
-<p>However, <a href="http://localhost:8000/boxed?letter=Y" class="external-link uri">http://localhost:8000/boxed?letter=Y</a> will produce:</p>
+<p>However, <a href="http://localhost:8080/boxed?letter=Y" class="external-link uri">http://localhost:8080/boxed?letter=Y</a> will produce:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ot">[</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="st">"Z"</span></span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
-<p>while <a href="http://localhost:8000/unboxed?letter=Y" class="external-link uri">http://localhost:8000/unboxed?letter=Y</a> will produce:</p>
+<p>while <a href="http://localhost:8080/unboxed?letter=Y" class="external-link uri">http://localhost:8080/unboxed?letter=Y</a> will produce:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="er">"Z"</span></span></code></pre></div>
 <p>The <code>/boxed</code> endpoint, as the name implies, produces
 “boxed” JSON output in which length-1 vectors are still rendered as an
@@ -497,11 +497,11 @@ capture errors.</p>
 <span><span class="co">#* Generate a friendly error</span></span>
 <span><span class="co">#* @get /friendly</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">reqres</span><span class="fu">::</span><span class="fu"><a href="https://reqres.data-imaginist.com/reference/abort_http_problem.html" class="external-link">abort_bad_request</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://reqres.data-imaginist.com/reference/abort_http_problem.html" class="external-link">abort_bad_request</a></span><span class="op">(</span></span>
 <span>    <span class="st">"Your request could not be parsed"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>If you run this API in interactive mode and visit <a href="http://localhost:8000/simple" class="external-link uri">http://localhost:8000/simple</a>, you’ll notice two
+<p>If you run this API in interactive mode and visit <a href="http://localhost:8080/simple" class="external-link uri">http://localhost:8080/simple</a>, you’ll notice two
 things:</p>
 <ol style="list-style-type: decimal">
 <li>An HTTP response with a status code of <code>500</code> (“internal
