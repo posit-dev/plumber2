@@ -167,6 +167,7 @@ not generating API docs)</p></dd>
 <li><p><a href="#method-Plumber-add_route"><code>Plumber$add_route()</code></a></p></li>
 <li><p><a href="#method-Plumber-request_handler"><code>Plumber$request_handler()</code></a></p></li>
 <li><p><a href="#method-Plumber-message_handler"><code>Plumber$message_handler()</code></a></p></li>
+<li><p><a href="#method-Plumber-redirect"><code>Plumber$redirect()</code></a></p></li>
 <li><p><a href="#method-Plumber-parse_file"><code>Plumber$parse_file()</code></a></p></li>
 <li><p><a href="#method-Plumber-add_api_doc"><code>Plumber$add_api_doc()</code></a></p></li>
 <li><p><a href="#method-Plumber-clone"><code>Plumber$clone()</code></a></p></li>
@@ -475,15 +476,50 @@ detailed information</p><div class="section">
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-Plumber-parse_file"></a><div class="section">
-<h3 id="method-parse-file-">Method <code>parse_file()</code><a class="anchor" aria-label="anchor" href="#method-parse-file-"></a></h3>
-<p>Parses a plumber file and updates the app according to it</p><div class="section">
+</div><p></p><hr><a id="method-Plumber-redirect"></a><div class="section">
+<h3 id="method-redirect-">Method <code>redirect()</code><a class="anchor" aria-label="anchor" href="#method-redirect-"></a></h3>
+<p>Add a redirect to the header router. Depending on the value
+of <code>permanent</code> it will respond with a 307 Temporary Redirect or 308
+Permanent Redirect. <code>from</code> and <code>to</code> can contain path parameters and
+wildcards which will be matched between the two to construct the correct
+redirect path.</p><div class="section">
 <h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber</span><span class="op">$</span><span class="fu">parse_file</span><span class="op">(</span><span class="va">file</span>, env <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber</span><span class="op">$</span><span class="fu">redirect</span><span class="op">(</span><span class="va">method</span>, <span class="va">from</span>, <span class="va">to</span>, permanent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>method</code></dt>
+<dd><p>The HTTP method the redirect should respond to</p></dd>
+
+
+<dt><code>from</code></dt>
+<dd><p>The path the redirect should respond to</p></dd>
+
+
+<dt><code>to</code></dt>
+<dd><p>The path/URL to redirect the incoming request towards. After
+resolving any path parameters and wildcards it will be used in the
+<code>Location</code> header</p></dd>
+
+
+<dt><code>permanent</code></dt>
+<dd><p>Logical. Is the redirect considered permanent or
+temporary? Determines the type of redirct status code to use</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-Plumber-parse_file"></a><div class="section">
+<h3 id="method-parse-file-">Method <code>parse_file()</code><a class="anchor" aria-label="anchor" href="#method-parse-file-"></a></h3>
+<p>Parses a plumber file and updates the app according to it</p><div class="section">
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber</span><span class="op">$</span><span class="fu">parse_file</span><span class="op">(</span><span class="va">file</span>, env <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>file</code></dt>
 <dd><p>The path to a file to parse</p></dd>
 
@@ -500,12 +536,12 @@ used</p></dd>
 </div><p></p><hr><a id="method-Plumber-add_api_doc"></a><div class="section">
 <h3 id="method-add-api-doc-">Method <code>add_api_doc()</code><a class="anchor" aria-label="anchor" href="#method-add-api-doc-"></a></h3>
 <p>Add a (partial) OpenAPI spec to the api docs</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber</span><span class="op">$</span><span class="fu">add_api_doc</span><span class="op">(</span><span class="va">doc</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span>, subset <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>doc</code></dt>
 <dd><p>A list with the OpenAPI documentation</p></dd>
 
@@ -526,12 +562,12 @@ docs to assign <code>doc</code> to</p></dd>
 </div><p></p><hr><a id="method-Plumber-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
