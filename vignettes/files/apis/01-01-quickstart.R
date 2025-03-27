@@ -2,7 +2,7 @@
 #*
 #* @get /echo/<msg>
 #*
-#* @param msg:string* The message to echo back.
+#* @param msg:string The message to echo back.
 #*
 function(msg) {
   list(
