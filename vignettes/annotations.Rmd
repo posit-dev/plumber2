@@ -168,6 +168,8 @@ Some types can have a nested structure which is also supported, but the type spe
 
 Types can have a default value, which is given in parentheses after the type specification, e.g. `integer(10)`. For objects and arrays you should use JSON notation to describe the default value (e.g. `[integer]([2, 6, 1])`).
 
+For the `integer` and `number` types it is also possible to specify the lower and/or upper bounds of the value. This is done by putting these between `|` like so: `integer|3, 7|`. Omitting one of these will remove that bound requirement (e.g. `integer|,7|` only requires the input to be below or equal to 7). If combining this with a default value the range comes first (`integer|3,7|(5)`).
+
 parameters can be specified as optional or required in their type notation. Path parameters are always required so any setting is ignored for this. A parameter can be marked as required by adding a `*` suffix to the type description, e.g. `arg1:integer*` to indicate that `arg1` is required and an integer. A parameter cannot both be required and have a default value (for reasons of logic).
 
 Apart from being used in the documentation of your API, the type information you provide for parameters will also be used to cast the incoming values to the correct type and add defaults if missing. Further, missing required parameters will result in an error. The response is not type checked so it is up to you to conform with the specification you provide.
