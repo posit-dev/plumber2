@@ -26,6 +26,9 @@ create_par_caster <- function(parameters, loc) {
   name <- vapply(parameters, `[[`, character(1), "name")
   has_schema <- lengths(schemas) != 0
   schemas <- schemas[has_schema | required]
+  if (length(schemas) == 0) {
+    return(identity)
+  }
   required <- required[has_schema | required]
   name <- name[has_schema | required]
   casters <- lapply(seq_along(schemas), function(i) {
@@ -157,16 +160,32 @@ object_caster <- function(schema, required, name, loc) {
 }
 
 create_body_caster <- function(desc) {
+  requires_caster <- vapply(desc$content, function(content) {
+    !is.null(content$schema$type)
+  }, logical(1))
+  
+  if (!any(requires_caster)) {
+    if (desc$required) {
+      caster <- required_caster(list(), TRUE, loc = "body")
+    } else {
+      caster <- identity
+    }
+    return(function(val, type) {
+      caster(val)
+    })
+  }
+
   casters <- lapply(desc$content, function(content) {
     type_caster(content$schema, isTRUE(desc$required), loc = "body")
   })
+  names(casters) <- stringi::stri_replace_all_fixed(names(casters), "*", ".+?")
   function(val, type) {
     type <- stringi::stri_split_fixed(type, ";", 2)[[1]][1]
     caster <- casters[[type]]
     if (is.null(caster)) {
-      type <- stringi::stri_replace_all_fixed(type, "*", ".+?")
-      caster <- casters[[type]]
-      if (is.null(caster)) return(NULL)
+      type <- which(stringi::stri_detect_regex(type, names(casters)))
+      if (length(type) == 0) return(val)
+      caster <- casters[[type[1]]]
     }
     caster(val)
   }
