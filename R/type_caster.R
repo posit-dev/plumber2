@@ -61,16 +61,27 @@ caster_constructor <- function(coercer, ...) {
   function(schema, required, name, loc) {
     error_string <- missing_required_error_string(name, loc)
     default <- schema$default
-    function(val) {
-      val <- val %||% default
+    min <- schema$minimum
+    max <- schema$maximum
+    range_check <- identity
+    if (!is.null(min) || !is.null(max)) {
+      range_error_string <- outside_range_error_string(name, min, max)
+      range_check <- function(val, call = caller_env()) {
+        if ((!is.null(min) && val < min) || (!is.null(max) && val > max)) {
+          reqres::abort_bad_request(range_error_string, call = call)
+        }
+        val
+      }
+    }
+    function(val, call = caller_env()) {
       if (is.null(val)) {
         if (required) {
-          call <- caller_env()
           reqres::abort_bad_request(error_string, call = call)
         }
-        NULL
+        default
       } else {
-        suppressWarnings(inject(coercer(val, !!!args)))
+        val <- suppressWarnings(inject(coercer(val, !!!args)))
+        range_check(val)
       }
     }
   }
@@ -197,6 +208,22 @@ missing_required_error_string <- function(name, loc) {
   } else {
     cli::format_inline(
       "{.arg name} is a required {loc} parameter but is missing"
+    )
+  }
+}
+
+outside_range_error_string <- function(name, min, max) {
+  if (!is.null(min) && !is.null(max)) {
+    cli::format_inline(
+      "{.arg name} must be between {min} and {max}"
+    )
+  } else if (is.null(max)) {
+    cli::format_inline(
+      "{.arg name} must be greater than or equal to {min}"
+    )
+  } else {
+    cli::format_inline(
+      "{.arg name} must be less than or equal to {max}"
     )
   }
 }

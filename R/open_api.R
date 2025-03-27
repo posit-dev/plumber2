@@ -27,23 +27,20 @@ parse_global_api <- function(tags, values, env = caller_env()) {
 }
 
 parse_path <- function(path) {
-  args <- stringi::stri_match_all_regex(path, "<(.+?)>")[[1]][, 2]
-  if (isTRUE(is.na(args))) {
-    args <- matrix(character())
-  } else {
-    args <- stringi::stri_match_first_regex(
-      args,
-      "^(.+?)(:(.+?))?(\\((.*?)\\))?(\\*)?$"
-    )
-  }
+  args <- stringi::stri_match_all_regex(
+    path,
+    "<(.+?)>",
+    omit_no_match = TRUE
+  )[[1]][, 2]
   params <- list()
-  for (i in seq_len(nrow(args))) {
-    params[[args[i, 2]]] <- list(
+  for (arg in args) {
+    arg <- split_param_spec(arg)
+    params[[arg$name]] <- list(
       `in` = "path",
-      name = args[i, 2],
+      name = arg$name,
       required = TRUE,
       style = "simple", # TODO: Should this be user definable
-      schema = parse_openapi_type(args[i, 4], NA)
+      schema = parse_openapi_type(arg$type, NULL, min = arg$min, max = arg$max)
     )
   }
   list(
@@ -73,24 +70,20 @@ combine_parameters <- function(path, doc, from_block = TRUE) {
 }
 
 parse_responses <- function(tags, values, serializers) {
-  responses <- unlist(values[tags == "response"])
-  responses <- stringi::stri_match_first_regex(
-    responses,
-    "^([^\\:\\s]+):?([^\\s]+?)?( (.*))?$"
-  )
-
-  responses <- set_names(
-    lapply(seq_len(nrow(responses)), function(i) {
-      compact(list(
-        description = if (!is.na(responses[i, 5])) responses[i, 5],
+  responses <- lapply(unlist(values[tags == "response"]), function(response) {
+    response <- split_param_spec(response)
+    list2(
+      !!response$name := compact(list(
+        description = response$description,
         content = rep_named(
-          if (responses[i, 2] == "200") serializers else "*/*",
-          list(list(schema = parse_openapi_type(responses[i, 3])))
+          if (response$name == "200") serializers else "*/*",
+          list(list(schema = parse_openapi_type(response$type)))
         )
       ))
-    }),
-    responses[, 2]
-  )
+    )
+  })
+  responses <- unlist(responses, recursive = FALSE) %||% list()
+
   utils::modifyList(default_responses, responses)
 }
 
@@ -158,10 +151,11 @@ parse_block_api <- function(tags, values, parsers, serializers) {
   list(paths = api)
 }
 
-parse_openapi_type <- function(string, default = NA) {
+parse_openapi_type <- function(string, default = NULL, min = NULL, max = NULL) {
   check_string(string, allow_na = TRUE, allow_null = TRUE)
-  check_string(default, allow_na = TRUE)
-  if (is.na(string) || is.null(string)) return(list())
+  check_number_decimal(min, allow_null = TRUE)
+  check_number_decimal(max, allow_null = TRUE)
+  if (is.na(string) || is.null(string) || string == "any") return(list())
   string <- trimws(string)
   if (grepl("^\\{", string)) {
     content <- gsub("^\\{|\\}$", "", string)
@@ -223,9 +217,21 @@ parse_openapi_type <- function(string, default = NA) {
       type = string
     )
   }
-
-  if (!is.na(default)) {
-    type$default <- default
+  if (!is.null(min)) {
+    if (!type$type %in% c("integer", "number")) {
+      cli::cli_abort("Range boundaries requires integer or number type")
+    }
+    type$minimum <- min
+  }
+  if (!is.null(max)) {
+    if (!type$type %in% c("integer", "number")) {
+      cli::cli_abort("Range boundaries requires integer or number type")
+    }
+    type$maximum <- max
+  }
+  if (!is.null(default)) {
+    caster <- type_caster(type, FALSE, "", "")
+    type$default <- caster(default)
   }
   type
 }
@@ -250,30 +256,19 @@ default_responses <- list(
 
 parse_params <- function(tags, values, type = "path") {
   tag_name <- switch(type, path = "param", type)
-  params <- stringi::stri_split_fixed(
-    unlist(values[tags == tag_name]),
-    " ",
-    n = 2
-  )
-  params <- lapply(params, function(param) {
-    arg_parsed <- stringi::stri_match_first_regex(
-      param[1],
-      "^([^\\:]+)?(:(.+?))?(\\((.*?)\\))?(\\*)?$"
-    )[1, ]
-    arg_name <- arg_parsed[2]
-    arg_description <- param[2]
-    arg_type <- arg_parsed[4]
-    arg_default <- arg_parsed[6]
-    arg_required <- type == "path" || !is.na(arg_parsed[7])
+  params <- lapply(unlist(values[tags == tag_name]), function(param) {
+    p <- split_param_spec(param)
     list(
       `in` = type, # Will get overwritten if present in path
-      name = arg_name,
-      description = if (!is.na(arg_description)) arg_description else "",
-      required = arg_required,
+      name = p$name,
+      description = p$description,
+      required = type == "path" || p$required,
       style = "form", # TODO: Should this be user definable
       schema = parse_openapi_type(
-        arg_type,
-        if (arg_required) NA else arg_default
+        p$type,
+        default = if (p$required) NULL else p$default,
+        min = p$min,
+        max = p$max
       )
     )
   })
@@ -281,7 +276,10 @@ parse_params <- function(tags, values, type = "path") {
 }
 
 parse_body_params <- function(params, parsers) {
-  if (length(params) == 1 && is.na(params[[1]]$name)) {
+  parsers <- sub("multipart/*", "multipart/form-data", parsers, fixed = TRUE)
+  if (
+    length(params) == 1 && (is.na(params[[1]]$name) || params[[1]]$name == "")
+  ) {
     request_body <- compact(list(
       description = params[[1]]$description,
       required = params[[1]]$required,
@@ -306,7 +304,6 @@ parse_body_params <- function(params, parsers) {
       body_description[body_description != ""],
       collapse = "; "
     )
-    parsers <- sub("multipart/*", "multipart/form-data", parsers, fixed = TRUE)
     request_body <- list(
       description = body_description,
       content = rep_named(parsers, list(list(schema = schema)))
@@ -315,4 +312,30 @@ parse_body_params <- function(params, parsers) {
     request_body <- NULL
   }
   request_body
+}
+
+split_param_spec <- function(x) {
+  x <- stringi::stri_match_first_regex(
+    gsub("\n", " ", x),
+    "^(\\w*)(:?(.*?))?((?<!,|:)\\s(.*))?$"
+  )
+
+  list2(
+    name = x[2],
+    !!!split_type_spec(x[4]),
+    description = if (is.na(x[6])) "" else trimws(x[6])
+  )
+}
+split_type_spec <- function(x) {
+  x <- stringi::stri_match_first_regex(
+    x,
+    "^([^\\|\\(]*)(\\|([^,]*),?\\s?(.*)\\|)?(\\((.*)\\))?(\\*)?$"
+  )
+  list(
+    type = if (is.na(x[2]) || x[2] == "") NULL else x[2],
+    default = if (is.na(x[7]) || x[7] == "") NULL else jsonlite::fromJSON(x[7]),
+    min = if (is.na(x[4]) || x[4] == "") NULL else as.numeric(x[4]),
+    max = if (is.na(x[5]) || x[5] == "") NULL else as.numeric(x[5]),
+    required = !is.na(x[8])
+  )
 }
