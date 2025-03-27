@@ -386,14 +386,14 @@ parse_multipart <- function(parsers = get_parsers()) {
 
 on_load({
   register_parser(
-    "csv",
-    parse_csv,
-    c("application/csv", "application/x-csv", "text/csv", "text/x-csv")
-  )
-  register_parser(
     "json",
     reqres::parse_json,
     c("application/json", "text/json")
+  )
+  register_parser(
+    "csv",
+    parse_csv,
+    c("application/csv", "application/x-csv", "text/csv", "text/x-csv")
   )
   register_parser("multi", parse_multipart, "multipart/*")
   register_parser("octet", parse_octet, "application/octet-stream")
