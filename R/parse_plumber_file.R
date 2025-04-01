@@ -250,7 +250,7 @@ parse_handler_block <- function(
     route$add_handler(
       method,
       path,
-      create_plumber_request_handler(
+      create_request_handler(
         handler,
         serializers = serializers,
         parsers = parsers,
@@ -329,7 +329,7 @@ parse_message_block <- function(call, block, tags, values, default_async) {
     async <- NULL
   }
   structure(
-    create_plumber_message_handler(call, async = get_async(async)),
+    create_message_handler(call, async = get_async(async)),
     class = "message_call"
   )
 }

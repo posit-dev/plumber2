@@ -4,6 +4,7 @@
 \name{Next}
 \alias{Next}
 \alias{Break}
+\alias{should_break}
 \title{Router control flow}
 \format{
 An object of class \code{plumber_control} of length 1.
@@ -14,6 +15,8 @@ An object of class \code{plumber_control} of length 1.
 Next
 
 Break
+
+should_break(x)
 }
 \description{
 In plumber2 your API can have multiple middleware that a request passes

@@ -27,4 +27,6 @@ print.plumber_control <- function(x, ...) {
   }
 }
 
+#' @rdname Next
+#' @export
 should_break <- function(x) is_plumber_control(x) && !x
