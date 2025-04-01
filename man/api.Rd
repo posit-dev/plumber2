@@ -12,11 +12,12 @@ api(
   port = get_opts("port", 8080),
   doc_type = get_opts("docType", "rapidoc"),
   doc_path = get_opts("docPath", "__docs__"),
-  reject_missing_methods = get_opts("methodNotAllowed", FALSE),
+  reject_missing_methods = get_opts("rejectMissingMethods", FALSE),
   ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
   compression_limit = get_opts("compressionLimit", 1000),
+  default_async = get_opts("async", "future"),
   env = caller_env()
 )
 
@@ -73,6 +74,8 @@ use it}
 
 \item{compression_limit}{The size threshold in bytes for trying to
 compress the response body (it is still dependant on content negotiation)}
+
+\item{default_async}{The default evaluater to use for async request handling}
 
 \item{env}{The parent environment to the environment the files should be
 evaluated in. Each file will be evaluated in it's own environment so they

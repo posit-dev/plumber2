@@ -12,6 +12,8 @@
 #' not change the request or the path associated with but just ensure that
 #' both `path/to/ressource` and `path/to/ressource/` ends up in the same
 #' handler.
+#' @param default_async The async evaluater to use by default when the `@async`
+#' tag is used without further argument
 #' @param env The environment to evaluate the code and annotations in
 #'
 #' @return A list containing:
@@ -35,6 +37,7 @@
 parse_plumber_file <- function(
   path,
   ignore_trailing_slash,
+  default_async,
   env = caller_env()
 ) {
   check_string(path)
@@ -61,6 +64,7 @@ parse_plumber_file <- function(
     parse_block,
     route = route,
     header_route = header_route,
+    default_async = default_async,
     env = env
   )
 
@@ -115,7 +119,13 @@ parse_plumber_file <- function(
   )
 }
 
-parse_block <- function(block, route, header_route, env = caller_env()) {
+parse_block <- function(
+  block,
+  route,
+  header_route,
+  default_async,
+  env = caller_env()
+) {
   call <- eval_bare(block$call, env = env)
   tags <- vapply(block$tags, `[[`, character(1), "tag")
   values <- lapply(block$tags, `[[`, "raw")
@@ -124,7 +134,7 @@ parse_block <- function(block, route, header_route, env = caller_env()) {
   } else if (any(tags == "statics")) {
     parse_static_block(call, block, tags, values, env)
   } else if (any(tags == "message")) {
-    parse_message_block(call, block, tags, values)
+    parse_message_block(call, block, tags, values, default_async)
   } else if (any(tags == "redirect")) {
     parse_redirect_block(call, block, tags, values)
   } else if (any(tags == "plumber")) {
@@ -145,7 +155,16 @@ parse_block <- function(block, route, header_route, env = caller_env()) {
         )
     )
   ) {
-    parse_handler_block(call, block, tags, values, route, header_route, env)
+    parse_handler_block(
+      call,
+      block,
+      tags,
+      values,
+      route,
+      header_route,
+      default_async,
+      env
+    )
   } else {
     parse_global_api(tags, values, env)
   }
@@ -168,6 +187,7 @@ parse_handler_block <- function(
   values,
   route,
   header_route,
+  default_async,
   env
 ) {
   methods <- which(
@@ -209,6 +229,13 @@ parse_handler_block <- function(
     download <- FALSE
   }
 
+  if ("async" %in% tags) {
+    async <- trimws(values[[which(tags == "async")[1]]])
+    if (async == "") async <- default_async
+  } else {
+    async <- NULL
+  }
+
   strict_serializer <- any(tags == "serializerStrict")
   if (any(tags == "header")) route <- header_route
 
@@ -229,7 +256,8 @@ parse_handler_block <- function(
         parsers = parsers,
         use_strict_serializer = strict_serializer,
         download = download,
-        doc = doc$paths[[oapi_path]][[method]]
+        doc = doc$paths[[oapi_path]][[method]],
+        async = get_async(async)
       )
     )
   }
@@ -289,12 +317,21 @@ parse_asset_block <- function(call, block, tags, values, route, env) {
   NULL
 }
 
-parse_message_block <- function(call, block, tags, values) {
+parse_message_block <- function(call, block, tags, values, default_async) {
   check_function(call)
   if (!"..." %in% fn_fmls_names(call)) {
     fn_fmls(call) <- c(fn_fmls(call), "..." = missing_arg())
   }
-  structure(call, class = "message_call")
+  if ("async" %in% tags) {
+    async <- trimws(values[[which(tags == "async")[1]]])
+    if (async == "") async <- default_async
+  } else {
+    async <- NULL
+  }
+  structure(
+    create_plumber_message_handler(call, async = get_async(async)),
+    class = "message_call"
+  )
 }
 
 parse_redirect_block <- function(call, block, tags, values) {

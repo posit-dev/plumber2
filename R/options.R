@@ -51,7 +51,7 @@ all_opts <- function(prefix = "plumber2") {
     port = get_opts("port", prefix = prefix),
     docType = get_opts("docType", prefix = prefix),
     docPath = get_opts("docPath", prefix = prefix),
-    methodNotAllowed = get_opts("methodNotAllowed", prefix = prefix),
+    rejectMissingMethods = get_opts("rejectMissingMethods", prefix = prefix),
     ignoreTrailingSlash = get_opts("ignoreTrailingSlash", prefix = prefix),
     maxRequestSize = get_opts("maxRequestSize", prefix = prefix),
     compressionLimit = get_opts("compressionLimit", prefix = prefix)

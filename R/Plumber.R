@@ -68,6 +68,8 @@ Plumber <- R6Class(
     #' use it
     #' @param compression_limit The size threshold in bytes for trying to
     #' compress the response body (it is still dependant on content negotiation)
+    #' @param default_async The default evaluater to use for async request
+    #' handling
     #' @param env An environment that will be used as the default execution
     #' environment for the API
     #' @return A `Plumber` object
@@ -76,11 +78,12 @@ Plumber <- R6Class(
       port = get_opts("port", 8080),
       doc_type = get_opts("docType", "rapidoc"),
       doc_path = get_opts("docPath", "__docs__"),
-      reject_missing_methods = get_opts("methodNotAllowed", FALSE),
+      reject_missing_methods = get_opts("rejectMissingMethods", FALSE),
       ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
       max_request_size = get_opts("maxRequestSize"),
       shared_secret = get_opts("sharedSecret"),
       compression_limit = get_opts("compressionLimit", 1e3),
+      default_async = get_opts("async", "future"),
       env = caller_env()
     ) {
       super$initialize(host, port)
@@ -108,6 +111,8 @@ Plumber <- R6Class(
       if (length(header_router$routes) != 0) {
         private$HEADER_ROUTER <- header_router
       }
+
+      private$ASYNC_EVALUATER <- get_async(default_async)
 
       check_environment(env)
       private$PARENT_ENV <- env
@@ -219,6 +224,10 @@ Plumber <- R6Class(
     #' `Content-Disposition` header in the response to `attachment`. Setting it
     #' to a string is equivalent to setting it to `TRUE` but will in addition
     #' also set the default filename of the download to the string value
+    #' @param async If `FALSE` create a regular handler. If `TRUE`, use the
+    #' default async evaluater to create an async handler. If a string, the
+    #' async evaluater registered to that name is used. If a function is
+    #' provided then this is used as the async evaluater
     #' @param doc OpenAPI documentation for the handler. Will be added to the
     #' `paths$<handler_path>$<handler_method>` portion of the API.
     #' @param route The route this handler should be added to. Defaults to the
@@ -234,6 +243,7 @@ Plumber <- R6Class(
       parsers = NULL,
       use_strict_serializer = FALSE,
       download = FALSE,
+      async = FALSE,
       doc = NULL,
       route = NULL,
       header = FALSE
@@ -305,6 +315,12 @@ Plumber <- R6Class(
       }
       route <- router$get_route(route)
 
+      if (isTRUE(async)) {
+        async <- private$ASYNC_EVALUATER
+      } else if (isFALSE(async)) {
+        async <- NULL
+      }
+
       route$add_handler(
         method,
         path,
@@ -314,7 +330,8 @@ Plumber <- R6Class(
           parsers,
           use_strict_serializer,
           download,
-          doc
+          doc,
+          get_async(async)
         ),
         reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
@@ -327,8 +344,17 @@ Plumber <- R6Class(
     #' detailed information
     #' @param handler A function conforming to the specifications laid out in
     #' [api_message()]
-    message_handler = function(handler) {
-      handler <- create_plumber_message_handler(handler)
+    #' @param async If `FALSE` create a regular handler. If `TRUE`, use the
+    #' default async evaluater to create an async handler. If a string, the
+    #' async evaluater registered to that name is used. If a function is
+    #' provided then this is used as the async evaluater
+    message_handler = function(handler, async = FALSE) {
+      if (isTRUE(async)) {
+        async <- private$ASYNC_EVALUATER
+      } else if (isFALSE(async)) {
+        async <- NULL
+      }
+      handler <- create_plumber_message_handler(handler, get_async(async))
       self$on("message", handler)
     },
     #' @description Add a redirect to the header router. Depending on the value
@@ -376,6 +402,7 @@ Plumber <- R6Class(
       parsed <- parse_plumber_file(
         file,
         ignore_trailing_slash = private$IGNORE_TRAILING_SLASH,
+        default_async = private$ASYNC_EVALUATER,
         env = eval_env
       )
       if (!parsed$route[[1]]$empty) {
@@ -403,7 +430,7 @@ Plumber <- R6Class(
         }
       }
       for (handler in parsed$message_handlers) {
-        self$message_handler(handler)
+        self$on("message", handler)
       }
       for (redirect in parsed$redirects) {
         self$redirect(
@@ -488,6 +515,7 @@ Plumber <- R6Class(
     DOC_PATH = "__docs__",
     REJECT_MISSING_METHODS = FALSE,
     IGNORE_TRAILING_SLASH = TRUE,
+    ASYNC_EVALUATER = NULL,
     PARENT_ENV = NULL
   )
 )
@@ -499,6 +527,7 @@ create_plumber_request_handler <- function(
   use_strict_serializer = FALSE,
   download = FALSE,
   doc = NULL,
+  async = NULL,
   call = caller_env()
 ) {
   check_function(handler)
@@ -534,96 +563,276 @@ create_plumber_request_handler <- function(
     type_casters$body(request$body, request$headers$Content_Type)
   }
 
-  function(request, response, keys, server, id, ...) {
-    # Default the response to 200 if it is 404 (the default) as we hit an endpoint
-    if (response$status == 404L) response$status <- 200L
+  check_function(async, allow_null = TRUE)
 
-    # Add serializers for the finalizing route
-    success <- response$set_formatter(
-      !!!serializers,
-      default = if (use_strict_serializer) NULL else names(serializers)[1]
-    )
-    if (!success) {
-      # Shortcircuit evaluation if we cannot serve the requested content type
-      return(Break)
+  if (is.null(async)) {
+    function(request, response, keys, server, id, ...) {
+      # Default the response to 200 if it is 404 (the default) as we hit an endpoint
+      if (response$status == 404L) response$status <- 200L
+
+      # Add serializers for the finalizing route
+      success <- response$set_formatter(
+        !!!serializers,
+        default = if (use_strict_serializer) NULL else names(serializers)[1]
+      )
+      if (!success) {
+        # Shortcircuit evaluation if we cannot serve the requested content type
+        return(Break)
+      }
+
+      # Mark body as download if requested
+      if (download) {
+        response$as_download(dl_file)
+      }
+
+      is_clean <- FALSE
+
+      # Set up formatter - currently only used for devices
+      info <- init_formatter(response$formatter)
+
+      on.exit(
+        {
+          if (!is_clean) clean_formatter(response$formatter, info)
+        },
+        add = TRUE
+      )
+
+      # Call the handler with all available data
+      result <- with_formatter(
+        inject(handler(
+          !!!type_casters$path(keys),
+          request = request,
+          response = response,
+          server = server,
+          client_id = id,
+          query = type_casters$query(request$query),
+          body = body_parser(request),
+          ...
+        )),
+        response$formatter,
+        info
+      )
+
+      if (promises::is.promising(result)) {
+        is_clean <- TRUE # Don't close device
+        promises::then(result, function(result) {
+          is_clean <- FALSE
+          on.exit(
+            {
+              if (!is_clean) clean_formatter(response$formatter, info)
+            },
+            add = TRUE
+          )
+          # If the handler returns a ggplot and a device serializer is in effect we render it
+          if (!is.null(info) && inherits(result, "ggplot")) {
+            plot(result)
+          }
+
+          # Cache break signal as it may get overwritten below
+          signals_break <- should_break(result)
+
+          # Overwrite result with closing value if any
+          result <- close_formatter(response$formatter, info) %||% result
+          is_clean <- TRUE
+
+          # Check if return value is of a type that should be added as body
+          if (
+            !is_plumber_control(result) &&
+              !is.null(result) &&
+              !inherits(result, "Response")
+          ) {
+            response$body <- result
+          }
+
+          # If an explicit break is returned forward that signal
+          if (signals_break) {
+            Break
+          } else {
+            Next
+          }
+        })
+      } else {
+        # Complete rehash of the above then() block
+
+        # If the handler returns a ggplot and a device serializer is in effect we render it
+        if (!is.null(info) && inherits(result, "ggplot")) {
+          plot(result)
+        }
+
+        # Cache break signal as it may get overwritten below
+        signals_break <- should_break(result)
+
+        # Overwrite result with closing value if any
+        result <- close_formatter(response$formatter, info) %||% result
+        is_clean <- TRUE
+
+        # Check if return value is of a type that should be added as body
+        if (
+          !is_plumber_control(result) &&
+            !is.null(result) &&
+            !inherits(result, "Response")
+        ) {
+          response$body <- result
+        }
+
+        # If an explicit break is returned forward that signal
+        if (signals_break) {
+          Break
+        } else {
+          Next
+        }
+      }
     }
-
-    # Mark body as download if requested
-    if (download) {
-      response$as_download(dl_file)
-    }
-
-    is_clean <- FALSE
-
-    # Set up formatter - currently only used for devices
-    info <- init_formatter(response$formatter)
-
-    on.exit(
-      {
-        if (!is_clean) clean_formatter(response$formatter, info)
-      },
-      add = TRUE
-    )
-
-    # Call the handler with all available data
-    result <- inject(handler(
-      !!!type_casters$path(keys),
-      request = request,
-      response = response,
-      server = server,
-      client_id = id,
-      query = type_casters$query(request$query),
-      body = body_parser(request),
-      ...
+  } else {
+    envir <- list2env(list(
+      handler = handler,
+      query = NULL,
+      body = NULL
     ))
-
-    # If the handler returns a ggplot and a device serializer is in effect we render it
-    if (!is.null(info) && inherits(result, "ggplot")) {
-      plot(result)
+    if (any(c("request", "response", "server") %in% fn_fmls_names(handler))) {
+      cli::cli_abort(c(
+        "async handlers cannot access {.arg request}, {.arg response}, or {.arg server}",
+        i = "remove all of these arguments from the handler definition"
+      ))
     }
+    has_query <- "query" %in% fn_fmls_names(handler)
+    has_body <- "body" %in% fn_fmls_names(handler)
+    function(request, response, keys, server, id, ...) {
+      # Default the response to 200 if it is 404 (the default) as we hit an endpoint
+      if (response$status == 404L) response$status <- 200L
 
-    # Cache break signal as it may get overwritten below
-    signals_break <- should_break(result)
+      # Add serializers for the finalizing route
+      success <- response$set_formatter(
+        !!!serializers,
+        default = if (use_strict_serializer) NULL else names(serializers)[1]
+      )
+      if (!success) {
+        # Shortcircuit evaluation if we cannot serve the requested content type
+        return(Break)
+      }
 
-    # Overwrite result with closing value if any
-    result <- close_formatter(response$formatter, info) %||% result
-    is_clean <- TRUE
+      # Mark body as download if requested
+      if (download) {
+        response$as_download(dl_file)
+      }
 
-    # Check if return value is of a type that should be added as body
-    if (
-      !is_plumber_control(result) &&
-        !is.null(result) &&
-        !inherits(result, "Response")
-    ) {
-      response$body <- result
-    }
+      # Collect all variables - minimise the amount of data send to async
+      envir$formatter <- response$formatter
+      envir$keys <- type_casters$path(keys)
+      envir$id <- id
+      if (has_query) envir$query <- type_casters$query(request$query)
+      if (has_body) envir$body <- body_parser(request)
+      envir$dots <- list(...)
 
-    # If an explicit break is returned forward that signal
-    if (signals_break) {
-      Break
-    } else {
-      Next
+      result <- async(async_request_call, envir = envir)
+
+      promises::then(
+        result,
+        function(result) {
+          response$body <- result$result
+          result$continue
+        }
+      )
     }
   }
 }
 
-create_plumber_message_handler <- function(handler) {
+async_request_call <- quote({
+  is_clean <- FALSE
+
+  # Set up formatter - currently only used for devices
+  info <- plumber2::init_formatter(formatter)
+
+  on.exit(
+    {
+      if (!is_clean) plumber2::clean_formatter(formatter, info)
+    },
+    add = TRUE
+  )
+
+  # Call the handler with all available data
+  result <- rlang::inject(handler(
+    !!!keys,
+    client_id = id,
+    query = query,
+    body = body,
+    !!!dots
+  ))
+
+  # Complete rehash of the above then() block
+
+  # If the handler returns a ggplot and a device serializer is in effect we render it
+  if (!is.null(info) && inherits(result, "ggplot")) {
+    graphics::plot(result)
+  }
+
+  # Cache break signal as it may get overwritten below
+  signals_break <- plumber2:::should_break(result)
+
+  # Overwrite result with closing value if any (equivalent to %||%)
+  result2 <- plumber2::close_formatter(formatter, info)
+  is_clean <- TRUE
+  if (!is.null(result2)) result <- result2
+
+  # Return the result and continue signal so it can be used in the then()
+  list(
+    result = result,
+    continue = if (signals_break) plumber2::Break else plumber2::Next
+  )
+})
+
+create_plumber_message_handler <- function(handler, async = NULL) {
   check_function(handler)
+  check_function(async, allow_null = TRUE)
   if (!"..." %in% fn_fmls_names(handler)) {
     fn_fmls(handler) <- c(fn_fmls(handler), "..." = missing_arg())
   }
-  function(server, id, binary, message, request, ...) {
-    response <- handler(
-      message = message,
-      server = server,
-      client_id = id,
-      request = request
-    )
-    if (is.raw(response) || is_string(response)) {
-      server$send(response, id)
+  if (is.null(async)) {
+    function(server, id, binary, message, request, ...) {
+      response <- handler(
+        message = message,
+        server = server,
+        client_id = id,
+        request = request
+      )
+      if (is.raw(response) || is_string(response)) {
+        server$send(response, id)
+      }
+      if (promises::is.promising(response)) {
+        promises::then(response, function(response) {
+          if (is.raw(response) || is_string(response)) {
+            server$send(response, id)
+          }
+        })
+      }
+    }
+  } else {
+    envir <- list2env(list(
+      handler = handler
+    ))
+    function(server, id, binary, message, request, ...) {
+      envir$message <- message
+      envir$server <- server
+      envir$id <- id
+      envir$request <- request
+      response <- async(async_message_call, envir = envir)
+      promises::then(response, function(response) {
+        if (is.raw(response) || is_string(response)) {
+          server$send(response, id)
+        }
+      })
     }
   }
 }
+
+async_message_call <- quote({
+  handler(
+    message = message,
+    server = server,
+    client_id = id,
+    request = request
+  )
+})
 
 subset_to_list <- function(x, end_value = list()) {
   if (length(x) == 0) {

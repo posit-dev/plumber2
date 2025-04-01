@@ -534,11 +534,18 @@ device_formatter <- function(dev_open, dev_close = grDevices::dev.off()) {
         grDevices::dev.off()
         unlink(info$path)
       }
+      with_dev <- function(x, info) {
+        promises::with_promise_domain(
+          create_graphics_device_promise_domain(info$dev),
+          x
+        )
+      }
       structure(
         identity,
         init = init_dev,
         close = close_dev,
         clean = clean_dev,
+        with = with_dev,
         class = "device_formatter"
       )
     },
@@ -548,6 +555,23 @@ device_formatter <- function(dev_open, dev_close = grDevices::dev.off()) {
 is_device_formatter <- function(x) inherits(x, "device_formatter")
 is_device_constructor <- function(x) inherits(x, "device_constructor")
 
+#' Formatter orchestration
+#'
+#' These functions are for internal use and only exported to ease async
+#' evaluation
+#'
+#' @param formatter A serializer function
+#' @param info A structure returned by `init_formatter()`
+#' @param expr An expression to evaluate in the context of the formatter
+#'
+#' @return `init_formatter()` returns a opaque structure capturing information
+#' used by the other functions. `close_formatter()` may return a value that
+#' should be used as response body. `with_formatter()` returns the result of
+#' `expr`. `clean_formatter()` is called for it's side effects and should only
+#' be called if `close_formatter()` never evaluated.
+#'
+#' @export
+#' @keywords internal
 init_formatter <- function(formatter) {
   init_fun <- attr(formatter, "init")
   if (is.null(init_fun)) {
@@ -555,7 +579,8 @@ init_formatter <- function(formatter) {
   }
   init_fun()
 }
-
+#' @rdname init_formatter
+#' @export
 close_formatter <- function(formatter, info) {
   close_fun <- attr(formatter, "close")
   if (is.null(info) || is.null(close_fun)) {
@@ -563,13 +588,57 @@ close_formatter <- function(formatter, info) {
   }
   close_fun(info)
 }
-
+#' @rdname init_formatter
+#' @export
 clean_formatter <- function(formatter, info) {
   clean_fun <- attr(formatter, "clean")
   if (is.null(info) || is.null(clean_fun)) {
     return(NULL)
   }
   clean_fun(info)
+}
+#' @rdname init_formatter
+#' @export
+with_formatter <- function(expr, formatter, info) {
+  with_fun <- attr(formatter, "with")
+  if (is.null(info) || is.null(with_fun)) {
+    return(expr)
+  }
+  with_fun(expr, info)
+}
+
+create_graphics_device_promise_domain <- function(which = dev.cur()) {
+  force(which)
+
+  promises::new_promise_domain(
+    wrapOnFulfilled = function(onFulfilled) {
+      force(onFulfilled)
+      function(...) {
+        old <- dev.cur()
+        dev.set(which)
+        on.exit(dev.set(old))
+
+        onFulfilled(...)
+      }
+    },
+    wrapOnRejected = function(onRejected) {
+      force(onRejected)
+      function(...) {
+        old <- dev.cur()
+        dev.set(which)
+        on.exit(dev.set(old))
+
+        onRejected(...)
+      }
+    },
+    wrapSync = function(expr) {
+      old <- dev.cur()
+      dev.set(which)
+      on.exit(dev.set(old))
+
+      force(expr)
+    }
+  )
 }
 
 #' @rdname serializers

@@ -15,6 +15,7 @@ Imports:
     fiery (>= 1.2.1.9000),
     fs,
     jsonlite,
+    promises,
     R6,
     ragg,
     reqres (>= 0.2.5.9000),
@@ -33,6 +34,7 @@ Suggests:
     arrow,
     geojsonsf,
     htmlwidgets,
+    mirai,
     nanoparquet,
     quarto,
     readr

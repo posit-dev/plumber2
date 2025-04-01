@@ -114,11 +114,12 @@ Create a new \code{Plumber} api
   port = get_opts("port", 8080),
   doc_type = get_opts("docType", "rapidoc"),
   doc_path = get_opts("docPath", "__docs__"),
-  reject_missing_methods = get_opts("methodNotAllowed", FALSE),
+  reject_missing_methods = get_opts("rejectMissingMethods", FALSE),
   ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
   compression_limit = get_opts("compressionLimit", 1000),
+  default_async = get_opts("async", "future"),
   env = caller_env()
 )}\if{html}{\out{</div>}}
 }
@@ -165,6 +166,9 @@ use it}
 
 \item{\code{compression_limit}}{The size threshold in bytes for trying to
 compress the response body (it is still dependant on content negotiation)}
+
+\item{\code{default_async}}{The default evaluater to use for async request
+handling}
 
 \item{\code{env}}{An environment that will be used as the default execution
 environment for the API}
@@ -265,6 +269,7 @@ detailed information
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL,
   header = FALSE
@@ -300,6 +305,11 @@ being shown inline? Setting this to \code{TRUE} will set the
 to a string is equivalent to setting it to \code{TRUE} but will in addition
 also set the default filename of the download to the string value}
 
+\item{\code{async}}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the
+default async evaluater to create an async handler. If a string, the
+async evaluater registered to that name is used. If a function is
+provided then this is used as the async evaluater}
+
 \item{\code{doc}}{OpenAPI documentation for the handler. Will be added to the
 \verb{paths$<handler_path>$<handler_method>} portion of the API.}
 
@@ -319,7 +329,7 @@ as the last route in the stack.}
 Add a handler to a WebSocket message. See \link{api_message} for
 detailed information
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber$message_handler(handler)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber$message_handler(handler, async = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -327,6 +337,11 @@ detailed information
 \describe{
 \item{\code{handler}}{A function conforming to the specifications laid out in
 \code{\link[=api_message]{api_message()}}}
+
+\item{\code{async}}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the
+default async evaluater to create an async handler. If a string, the
+async evaluater registered to that name is used. If a function is
+provided then this is used as the async evaluater}
 }
 \if{html}{\out{</div>}}
 }

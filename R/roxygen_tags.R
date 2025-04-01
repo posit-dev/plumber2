@@ -176,14 +176,14 @@ roxy_tag_parse.roxy_tag_noDoc <- function(x) {
 roxy_tag_parse.roxy_tag_plumber <- function(x) {
   x
 }
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_async <- function(x) {
+  x
+}
 
 ## TODO: Unimplemented
 
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_rejectMissingMethods <- function(x) {
-  x
-}
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_routeName <- function(x) {

@@ -42,6 +42,7 @@
 #' use it
 #' @param compression_limit The size threshold in bytes for trying to
 #' compress the response body (it is still dependant on content negotiation)
+#' @param default_async The default evaluater to use for async request handling
 #' @param env The parent environment to the environment the files should be
 #' evaluated in. Each file will be evaluated in it's own environment so they
 #' don't interfere with each other
@@ -56,11 +57,12 @@ api <- function(
   port = get_opts("port", 8080),
   doc_type = get_opts("docType", "rapidoc"),
   doc_path = get_opts("docPath", "__docs__"),
-  reject_missing_methods = get_opts("methodNotAllowed", FALSE),
+  reject_missing_methods = get_opts("rejectMissingMethods", FALSE),
   ignore_trailing_slash = get_opts("ignoreTrailingSlash", TRUE),
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
   compression_limit = get_opts("compressionLimit", 1e3),
+  default_async = get_opts("async", "future"),
   env = caller_env()
 ) {
   locations <- dots_to_plumber_files(...)
@@ -85,7 +87,7 @@ api <- function(
         port = server_yml$options$port %||% port,
         doc_type = server_yml$options$docType %||% doc_type,
         doc_path = server_yml$options$docPath %||% doc_path,
-        reject_missing_methods = server_yml$options$methodNotAllowed %||%
+        reject_missing_methods = server_yml$options$rejectMissingMethods %||%
           reject_missing_methods,
         ignore_trailing_slash = server_yml$options$ignoreTrailingSlash %||%
           ignore_trailing_slash,
@@ -94,6 +96,7 @@ api <- function(
         shared_secret = shared_secret,
         compression_limit = server_yml$options$compressionLimit %||%
           compression_limit,
+        default_async = server_yml$options$default_async %||% default_async,
         env = env
       )
     }
@@ -112,6 +115,7 @@ api <- function(
       max_request_size = max_request_size,
       shared_secret = shared_secret,
       compression_limit = compression_limit,
+      default_async = default_async,
       env = env
     )
   }
