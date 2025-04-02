@@ -94,7 +94,7 @@ parse_plumber_file <- function(
   modifier <- function(api) {
     for (mod in modifiers) {
       api <- mod(api)
-      if (!inherits(api, "Plumber")) {
+      if (!is_plumber_api(api)) {
         cli::cli_abort("All modifiers must return the plumber api")
       }
     }

@@ -299,7 +299,7 @@ handler is registered for the following path
 object
 \item \code{response}: The response being returned to the client as a
 \link[reqres:Response]{reqres::Response} object
-\item \code{server}: The \link{Plumber} object representing your server implementation
+\item \code{server}: The \link{Plumber2} object representing your server implementation
 \item \code{client_id}: A string uniquely identifying the session the request comes
 from
 \item \code{query}: A list giving any additional arguments passed into the handler as

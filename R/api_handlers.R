@@ -150,7 +150,7 @@ handle_constructor <- function(method, header = FALSE) {
 #'   object
 #' * `response`: The response being returned to the client as a
 #'   [reqres::Response] object
-#' * `server`: The [Plumber] object representing your server implementation
+#' * `server`: The [Plumber2] object representing your server implementation
 #' * `client_id`: A string uniquely identifying the session the request comes
 #'   from
 #' * `query`: A list giving any additional arguments passed into the handler as
@@ -389,7 +389,7 @@ api_add_route <- function(
 #' The handler can take any of the following arguments:
 #' * `message`: Either a raw vector if the message recieved is in binary form or
 #'   a single string, giving the message sent from the client
-#' * `server`: The [Plumber] object representing your server implementation
+#' * `server`: The [Plumber2] object representing your server implementation
 #' * `client_id`: A string uniquely identifying the session the request comes
 #'   from
 #' * `request`: The request that was initially used to establish the websocket

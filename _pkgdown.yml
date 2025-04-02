@@ -59,7 +59,7 @@ reference:
       - async_evaluaters
   - title: "Advanced"
     contents:
-      - Plumber
+      - Plumber2
       - api_logger
       - api_doc_add
       - api_on

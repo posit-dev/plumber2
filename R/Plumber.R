@@ -1,27 +1,27 @@
-#' The Plumber Class
+#' The Plumber2 Class
 #'
 #' @description
 #' This class encapsulates all of the logic of a plumber2 api, and is what gets
-#' passed around in the functional api of plumber2. The Plumber class is a
+#' passed around in the functional api of plumber2. The Plumber2 class is a
 #' subclass of the [fiery::Fire] class. Please consult the documentation for
 #' this for additional information on what this type of server is capable of.
-#' Note that the Plumber objects are reference objects, meaning that any change
+#' Note that the Plumber2 objects are reference objects, meaning that any change
 #' to it will change all instances of the object.
 #'
 #' ## Initialization
-#' A new 'Plumber'-object is initialized using the `new()` method on the
+#' A new 'Plumber2'-object is initialized using the `new()` method on the
 #' generator:
 #'
 #' \tabular{l}{
-#'  `api <- Plumber$new()`
+#'  `api <- Plumber2$new()`
 #' }
 #'
 #' However, most users will use the functional api of the package and thus
 #' construct one using [api()]
 #'
 #' ## Copying
-#' As `Plumber` objects are using reference semantics new copies of an api cannot
-#' be made simply be assigning it to a new variable. If a true copy of a `Plumber`
+#' As `Plumber2` objects are using reference semantics new copies of an api cannot
+#' be made simply be assigning it to a new variable. If a true copy of a `Plumber2`
 #' object is desired, use the `clone()` method.
 #'
 #' @importFrom R6 R6Class
@@ -32,11 +32,11 @@
 #'
 #' @export
 #'
-Plumber <- R6Class(
-  "Plumber",
+Plumber2 <- R6Class(
+  "Plumber2",
   inherit = Fire,
   public = list(
-    #' @description Create a new `Plumber` api
+    #' @description Create a new `Plumber2` api
     #' @param host A string overriding the default host
     #' @param port An port number overriding the default port
     #' @param doc_type The type of API documentation to generate. Can be either
@@ -72,7 +72,7 @@ Plumber <- R6Class(
     #' handling
     #' @param env An environment that will be used as the default execution
     #' environment for the API
-    #' @return A `Plumber` object
+    #' @return A `Plumber2` object
     initialize = function(
       host = get_opts("host", "127.0.0.1"),
       port = get_opts("port", 8080),
@@ -176,7 +176,7 @@ Plumber <- R6Class(
 
       if (!silent)
         cli::cli_text(
-          "Plumber server started at http://{self$host}:{self$port}"
+          "Plumber2 server started at http://{self$host}:{self$port}"
         )
       super$ignite(block = block, showcase = showcase, ..., silent = TRUE)
     },

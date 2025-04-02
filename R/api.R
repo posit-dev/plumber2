@@ -1,7 +1,8 @@
 #' Create a new plumber API, optionally based on one or more plumber files
 #'
-#' This is the main way to create a new Plumber object that encapsulates your
+#' This is the main way to create a new Plumber2 object that encapsulates your
 #' full api. It is also possible to add files to the API after creation using
+#' `api_parse()`
 #'
 #' @param ... plumber files or directories containing plumber files to be parsed
 #' in the given order. The order of parsing determines the final order of the
@@ -47,7 +48,7 @@
 #' evaluated in. Each file will be evaluated in it's own environment so they
 #' don't interfere with each other
 #'
-#' @return A Plumber object
+#' @return A [Plumber2] object
 #'
 #' @export
 #'
@@ -82,7 +83,7 @@ api <- function(
         )
       }
     } else {
-      api <- Plumber$new(
+      api <- Plumber2$new(
         host = server_yml$options$host %||% host,
         port = server_yml$options$port %||% port,
         doc_type = server_yml$options$docType %||% doc_type,
@@ -105,7 +106,7 @@ api <- function(
       server_yml$routes
     )
   } else {
-    api <- Plumber$new(
+    api <- Plumber2$new(
       host = host,
       port = port,
       doc_type = doc_type,
@@ -125,7 +126,7 @@ api <- function(
 #' @param x An object to test for whether it is a plumber api
 #' @export
 #'
-is_plumber_api <- function(x) inherits(x, "Plumber")
+is_plumber_api <- function(x) inherits(x, "Plumber2")
 
 #' @rdname api
 #' @param api A plumber2 api object to parse files into

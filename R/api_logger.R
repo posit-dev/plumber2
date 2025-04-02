@@ -1,6 +1,6 @@
 #' Set logging function and access log format for the API
 #'
-#' Plumber has a build-in logging facility that takes care of logging any
+#' Plumber2 has a build-in logging facility that takes care of logging any
 #' conditions that are caught, as well as access logs. Further it is possible to
 #' log custom messages using the `log()` method on the api object. However, the
 #' actual logging is handled by a customizable function that can be set. You can

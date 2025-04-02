@@ -86,9 +86,10 @@ don't interfere with each other}
 \item{api}{A plumber2 api object to parse files into}
 }
 \value{
-A Plumber object
+A \link{Plumber2} object
 }
 \description{
-This is the main way to create a new Plumber object that encapsulates your
+This is the main way to create a new Plumber2 object that encapsulates your
 full api. It is also possible to add files to the API after creation using
+\code{api_parse()}
 }

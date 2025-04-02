@@ -33,7 +33,7 @@ The handler can take any of the following arguments:
 \itemize{
 \item \code{message}: Either a raw vector if the message recieved is in binary form or
 a single string, giving the message sent from the client
-\item \code{server}: The \link{Plumber} object representing your server implementation
+\item \code{server}: The \link{Plumber2} object representing your server implementation
 \item \code{client_id}: A string uniquely identifying the session the request comes
 from
 \item \code{request}: The request that was initially used to establish the websocket
