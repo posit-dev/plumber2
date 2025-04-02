@@ -17,7 +17,7 @@
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/authors.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/index.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/Next.html</loc></url>
-<url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/Plumber.html</loc></url>
+<url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/Plumber2.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/api.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/api_add_route.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/api_assets.html</loc></url>
@@ -30,13 +30,16 @@
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/api_request_header_handlers.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/api_run.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/api_session_cookie.html</loc></url>
+<url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/async_evaluaters.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/create_server_yml.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/device_formatter.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/index.html</loc></url>
+<url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/init_formatter.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/parse_plumber_file.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/parsers.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/plumber2-package.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/reexports.html</loc></url>
+<url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/register_async.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/register_parser.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/register_serializer.html</loc></url>
 <url><loc>https://laughing-spoon-ywk3ewq.pages.github.io/reference/serializers.html</loc></url>

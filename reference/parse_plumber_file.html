@@ -62,7 +62,12 @@ directly.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">parse_plumber_file</span><span class="op">(</span><span class="va">path</span>, <span class="va">ignore_trailing_slash</span>, env <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">parse_plumber_file</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  <span class="va">ignore_trailing_slash</span>,</span>
+<span>  <span class="va">default_async</span>,</span>
+<span>  env <span class="op">=</span> <span class="fu">caller_env</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -79,6 +84,11 @@ be ignored when adding handlers and handling requests. Setting this will
 not change the request or the path associated with but just ensure that
 both <code>path/to/ressource</code> and <code>path/to/ressource/</code> ends up in the same
 handler.</p></dd>
+
+
+<dt id="arg-default-async">default_async<a class="anchor" aria-label="anchor" href="#arg-default-async"></a></dt>
+<dd><p>The async evaluater to use by default when the <code>@async</code>
+tag is used without further argument</p></dd>
 
 
 <dt id="arg-env">env<a class="anchor" aria-label="anchor" href="#arg-env"></a></dt>

@@ -10,7 +10,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Upgrading From Plumber">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="migration_files/libs/quarto-html/popper.min.js"></script><script src="migration_files/libs/quarto-html/tippy.umd.min.js"></script><link href="migration_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="migration_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Upgrading From Plumber">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -55,156 +57,163 @@
 
 
   </div>
-</nav><div class="container template-article">
-
-
-
-
+</nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Upgrading From Plumber</h1>
-            
-      
 
-      <div class="d-none name"><code>migration.Rmd</code></div>
+
+
+
+
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<div class="section level2">
-<h2 id="moving-from-plumber">Moving from plumber<a class="anchor" aria-label="anchor" href="#moving-from-plumber"></a>
+
+
+
+
+
+    <section class="level2"><h2 id="moving-from-plumber">Moving from plumber<a class="anchor" aria-label="anchor" href="#moving-from-plumber"></a>
 </h2>
-<p>Plumber2 is designed in a way that should make it very familiar to
-long-time plumber users. However, it has been created with the explicit
-intend to not be API-compatible with old plumber code and plumber files,
-except in the simplest of cases. We have done this to allow us to learn
-from many years of experience with plumber and keep what work while
-shedding what has proven to be suboptimal.</p>
-<p>If you are coming from plumber then this document may serve as a
-starting ground for recalibrating yourself to the ways of plumber2, as
-well as an aid when updating old plumber APIs to plumber2.</p>
-</div>
-<div class="section level2">
-<h2 id="pr_-to-api_">
-<code>pr_*()</code> to <code>api_*()</code><a class="anchor" aria-label="anchor" href="#pr_-to-api_"></a>
+<p>Plumber2 is designed in a way that should make it very familiar to long-time plumber users. However, it has been created with the explicit intend to not be API-compatible with old plumber code and plumber files, except in the simplest of cases. We have done this to allow us to learn from many years of experience with plumber and keep what work while shedding what has proven to be suboptimal.</p>
+<p>If you are coming from plumber then this document may serve as a starting ground for recalibrating yourself to the ways of plumber2, as well as an aid when updating old plumber APIs to plumber2.</p>
+</section><section class="level2"><h2 id="pr_-to-api_">
+<code>pr_*()</code> to <code>api_*()</code>
+<a class="anchor" aria-label="anchor" href="#pr_-to-api_"></a>
 </h2>
-<p>One of the first changes you may recognise is that the functional
-interface has gotten a prefix change. This has been done, partly to
-avoid any namespace conflicts with plumber, partly to avoid users
-assuming the functions worked 100% equivalently, and partly because the
-<code>pr</code> prefix was not very descriptive. It is an acronym for
-Plumber Route, but an API is much more than its router (especially in
-plumber2) so having that as a general prefix doesn’t make sense.</p>
-<p>The new prefix, <code>api</code>, is a well-known acronym
-(Application Programming Interface) with a single meaning that fits what
-plumber2 is meant to help creates. The plumber object you are creating
-is also referred to as a Plumber API to further underscore this.</p>
-<p>The functional interface does not match 1-to-1 if you substitute the
-prefix so you shouldn’t expect a find-replace to be all that is
-needed.</p>
-</div>
-<div class="section level2">
-<h2 id="only-path-arguments-are-passed-as-named-arguments-to-your-handler">Only path arguments are passed as named arguments to your
-handler<a class="anchor" aria-label="anchor" href="#only-path-arguments-are-passed-as-named-arguments-to-your-handler"></a>
+<p>One of the first changes you may recognise is that the functional interface has gotten a prefix change. This has been done, partly to avoid any namespace conflicts with plumber, partly to avoid users assuming the functions worked 100% equivalently, and partly because the <code>pr</code> prefix was not very descriptive. It is an acronym for Plumber Route, but an API is much more than its router (especially in plumber2) so having that as a general prefix doesn’t make sense.</p>
+<p>The new prefix, <code>api</code>, is a well-known acronym (Application Programming Interface) with a single meaning that fits what plumber2 is meant to help creates. The plumber object you are creating is also referred to as a Plumber API to further underscore this.</p>
+<p>The functional interface does not match 1-to-1 if you substitute the prefix so you shouldn’t expect a find-replace to be all that is needed.</p>
+</section><section class="level2"><h2 id="only-path-arguments-are-passed-as-named-arguments-to-your-handler">Only path arguments are passed as named arguments to your handler<a class="anchor" aria-label="anchor" href="#only-path-arguments-are-passed-as-named-arguments-to-your-handler"></a>
 </h2>
-<p>In plumber, both path argument, query parameters, and potentially
-body parts where used as named arguments when calling your handler
-function. This presented multiple problems, first and foremost which one
-would win if there were name clashes between them. It also meant that
-the query string was always parsed even if your handler didn’t use it
-for anything, adding unnecessary overhead.</p>
-<p>In plumber2 we avoid the confusion by only supplying path arguments
-to the handler function as named arguments. Query parameters and request
-body is passed to the function as the <code>query</code> and
-<code>body</code> argument respectively. Further, they are passed in a
-way that means that if your function doesn’t touch them they will never
-be parsed.</p>
-<p>This change means that if your handler contains arguments that is
-meant to come from the query string or request body you should update it
-to accept a <code>query</code> and/or <code>body</code> argument and
-grab what you need from there.</p>
-</div>
-<div class="section level2">
-<h2 id="no-more-filter-and-preempt">No more filter and preempt<a class="anchor" aria-label="anchor" href="#no-more-filter-and-preempt"></a>
+<p>In plumber, both path argument, query parameters, and potentially body parts where used as named arguments when calling your handler function. This presented multiple problems, first and foremost which one would win if there were name clashes between them. It also meant that the query string was always parsed even if your handler didn’t use it for anything, adding unnecessary overhead.</p>
+<p>In plumber2 we avoid the confusion by only supplying path arguments to the handler function as named arguments. Query parameters and request body is passed to the function as the <code>query</code> and <code>body</code> argument respectively. Further, they are passed in a way that means that if your function doesn’t touch them they will never be parsed.</p>
+<p>This change means that if your handler contains arguments that is meant to come from the query string or request body you should update it to accept a <code>query</code> and/or <code>body</code> argument and grab what you need from there.</p>
+</section><section class="level2"><h2 id="no-more-filter-and-preempt">No more filter and preempt<a class="anchor" aria-label="anchor" href="#no-more-filter-and-preempt"></a>
 </h2>
-<p>Filters and preempt has been removed completely from plumber2. They
-existed mainly because plumber had no other way of letting users perform
-multiple chained operations on requests. In plumber2 it is possible to
-have as many routes as you want, each one being tried in sequence.
-Further it is possible to have a routes that are called before the
-request has been completely recieved. These can be used to inspect the
-headers of the request and reject it before it even enters your main
-router chain.</p>
-<p>The functionality from the default filters in plumber has been moved.
-body, query, and cookie parsing is now handled by reqres in a fully
-automated way. The shared-secret filter is automatically created as a
-handler on the header route if a shared secret is found in the
-options.</p>
-</div>
-<div class="section level2">
-<h2 id="forward-replaced-by-next-and-break">
-<code>forward</code> replaced by <code>Next</code> and
-<code>Break</code><a class="anchor" aria-label="anchor" href="#forward-replaced-by-next-and-break"></a>
+<p>Filters and preempt has been removed completely from plumber2. They existed mainly because plumber had no other way of letting users perform multiple chained operations on requests. In plumber2 it is possible to have as many routes as you want, each one being tried in sequence. Further it is possible to have a routes that are called before the request has been completely recieved. These can be used to inspect the headers of the request and reject it before it even enters your main router chain.</p>
+<p>The functionality from the default filters in plumber has been moved. body, query, and cookie parsing is now handled by reqres in a fully automated way. The shared-secret filter is automatically created as a handler on the header route if a shared secret is found in the options.</p>
+</section><section class="level2"><h2 id="forward-replaced-by-next-and-break">
+<code>forward</code> replaced by <code>Next</code> and <code>Break</code>
+<a class="anchor" aria-label="anchor" href="#forward-replaced-by-next-and-break"></a>
 </h2>
-<p>Since filters are no more, <code>forward</code> which was a filter
-specific construct is also gone. However, since every handler might now
-only be one in a chain of handlers, we have added new ways to control
-the flow of request handling. Any handler is assumed to pass handling on
-to the next (if any) handler in the chain. You can make this explicit by
-returning <code>Next</code> from your handler, but this is not required.
-You’d often like to instead return an object to be assigned to the
-response body which you can do as well. Basically returning anything
-other than <code>Break</code> will allow the handling chain to continue
-its execution. However, returning <code>Break</code> will inform
-plumber2 that this handler specifically wants to return the response as
-it is <em>right now</em> with no further modification (except for
-serializing). This is useful in header route handlers to reject requests
-early on, but can also be used in the normal request handling if
-e.g. you know a ressource has been moved and you want to return a
-redirect response immediately.</p>
-<p>You might also want to use <code>Break</code> if your handler catches
-an error and need to abort. However, plumber2 offers a much better way
-to do this by utilising the <a href="https://reqres.data-imaginist.com/reference/abort_http_problem.html" class="external-link"><code>abort_*()</code></a>
-functions from reqres. Throwing such an exception will immediately stop
-the handling of the request, set the response according to the abort
-content and log the error.</p>
-</div>
-<div class="section level2">
-<h2 id="new-request-and-response-objects">New Request and Response objects<a class="anchor" aria-label="anchor" href="#new-request-and-response-objects"></a>
+<p>Since filters are no more, <code>forward</code> which was a filter specific construct is also gone. However, since every handler might now only be one in a chain of handlers, we have added new ways to control the flow of request handling. Any handler is assumed to pass handling on to the next (if any) handler in the chain. You can make this explicit by returning <code>Next</code> from your handler, but this is not required. You’d often like to instead return an object to be assigned to the response body which you can do as well. Basically returning anything other than <code>Break</code> will allow the handling chain to continue its execution. However, returning <code>Break</code> will inform plumber2 that this handler specifically wants to return the response as it is <em>right now</em> with no further modification (except for serializing). This is useful in header route handlers to reject requests early on, but can also be used in the normal request handling if e.g. you know a ressource has been moved and you want to return a redirect response immediately.</p>
+<p>You might also want to use <code>Break</code> if your handler catches an error and need to abort. However, plumber2 offers a much better way to do this by utilising the <a href="https://reqres.data-imaginist.com/reference/abort_http_problem.html" class="external-link"><code>abort_*()</code></a> functions from reqres. Throwing such an exception will immediately stop the handling of the request, set the response according to the abort content and log the error.</p>
+</section><section class="level2"><h2 id="new-request-and-response-objects">New Request and Response objects<a class="anchor" aria-label="anchor" href="#new-request-and-response-objects"></a>
 </h2>
-<p>Plumber provided its own objects for working with HTTP request and
-responses. In plumber2 we now uses the <a href="https://reqres.data-imaginist.com/reference/Request.html" class="external-link"><code>Request</code></a>
-and <a href="https://reqres.data-imaginist.com/reference/Response.html" class="external-link"><code>Response</code></a>
-objects from reqres. These are highly capable classes that has removed a
-lot of the internal logic from plumber2. They are responsible for
-content negotiation, cookies, headers, etc. and support encrypted
-session data storage like you are used to from plumber.</p>
-</div>
-<div class="section level2">
-<h2 id="new-plumber-object">New Plumber object<a class="anchor" aria-label="anchor" href="#new-plumber-object"></a>
+<p>Plumber provided its own objects for working with HTTP request and responses. In plumber2 we now uses the <a href="https://reqres.data-imaginist.com/reference/Request.html" class="external-link"><code>Request</code></a> and <a href="https://reqres.data-imaginist.com/reference/Response.html" class="external-link"><code>Response</code></a> objects from reqres. These are highly capable classes that has removed a lot of the internal logic from plumber2. They are responsible for content negotiation, cookies, headers, etc. and support encrypted session data storage like you are used to from plumber.</p>
+</section><section class="level2"><h2 id="new-plumber-object">New Plumber object<a class="anchor" aria-label="anchor" href="#new-plumber-object"></a>
 </h2>
-<p>The main class encapsulating your API has, unsurprisingly, also
-changed in plumber2. <a href="https://fiery.data-imaginist.com" class="external-link">Fiery</a> is now used as a
-backbone of plumber2 and the <code>Plumber</code> class is now a
-subclass of the powerful <a href="https://fiery.data-imaginist.com/reference/Fire.html" class="external-link"><code>Fire</code></a>
-class which offers many capabilities for advanced use, should you wish
-to level up your plumber API</p>
-</div>
-<div class="section level2">
-<h2 id="added-query-and-body-tags">Added <code>@query</code> and <code>@body</code> tags<a class="anchor" aria-label="anchor" href="#added-query-and-body-tags"></a>
+<p>The main class encapsulating your API has, unsurprisingly, also changed in plumber2. <a href="https://fiery.data-imaginist.com" class="external-link">Fiery</a> is now used as a backbone of plumber2 and the <code>Plumber</code> class is now a subclass of the powerful <a href="https://fiery.data-imaginist.com/reference/Fire.html" class="external-link"><code>Fire</code></a> class which offers many capabilities for advanced use, should you wish to level up your plumber API</p>
+</section><section class="level2"><h2 id="added-query-and-body-tags">Added <code>@query</code> and <code>@body</code> tags<a class="anchor" aria-label="anchor" href="#added-query-and-body-tags"></a>
 </h2>
-<p>In plumber the <code>@param</code> tag was used to document both path
-parameters, query parameters and request body. In line with making the
-handler function arguments more explicit we also want to apply that to
-the documentation and so, you now document query and body with the
-explicit <code>@query</code> and <code>@body</code> tags. The syntax for
-these tags are the same as for <code>@param</code></p>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+<p>In plumber the <code>@param</code> tag was used to document both path parameters, query parameters and request body. In line with making the handler function arguments more explicit we also want to apply that to the documentation and so, you now document query and body with the explicit <code>@query</code> and <code>@body</code> tags. The syntax for these tags are the same as for <code>@param</code></p>
+</section><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'light-border',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config);
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
-
 
 
     <footer><div class="pkgdown-footer-left">

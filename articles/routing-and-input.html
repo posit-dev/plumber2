@@ -10,7 +10,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Routing &amp; Input">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="routing-and-input_files/libs/quarto-html/popper.min.js"></script><script src="routing-and-input_files/libs/quarto-html/tippy.umd.min.js"></script><link href="routing-and-input_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="routing-and-input_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Routing &amp; Input">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -55,64 +57,41 @@
 
 
   </div>
-</nav><div class="container template-article">
-
-
-
-
+</nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Routing &amp; Input</h1>
-            
-      
 
-      <div class="d-none name"><code>routing-and-input.Rmd</code></div>
+
+
+
+
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<p><img src="files%2Fimages%2Fplumber_input.png" style="float:right;;width:45.0%"></p>
-<p>Plumber’s primary job is to execute R code in response to incoming
-HTTP requests, so it’s important to understand how incoming HTTP
-requests get translated into the execution of R functions.</p>
-<p>An incoming HTTP request must be “routed” to one or more R functions.
-Routing is the process of taking the path a request is sent to (the part
-of the URL after the domain and before query parameters) and figuring
-out which handler function that path corresponds to. In plumber2 a
-central router passes a request through one or more routes. Each route
-can have multiple handlers attached to different paths and will select
-one or none to pass the request through. This means that at most a
-request will pass through a handler for each route in the router, but
-the number can easily be lower.</p>
-<p>Usually you will have one main handler that takes care of a specific
-path, but then potentially have more general handlers in earlier routes
-that takes care of things like authentication etc. and perhaps later
-handlers that wraps things up.</p>
-<div class="section level2">
-<h2 id="endpoints">Handlers<a class="anchor" aria-label="anchor" href="#endpoints"></a>
+
+
+
+
+
+    <p><img src="files/images/plumber_input.png" style="float:right;;width:45.0%"></p>
+<p>Plumber’s primary job is to execute R code in response to incoming HTTP requests, so it’s important to understand how incoming HTTP requests get translated into the execution of R functions.</p>
+<p>An incoming HTTP request must be “routed” to one or more R functions. Routing is the process of taking the path a request is sent to (the part of the URL after the domain and before query parameters) and figuring out which handler function that path corresponds to. In plumber2 a central router passes a request through one or more routes. Each route can have multiple handlers attached to different paths and will select one or none to pass the request through. This means that at most a request will pass through a handler for each route in the router, but the number can easily be lower.</p>
+<p>Usually you will have one main handler that takes care of a specific path, but then potentially have more general handlers in earlier routes that takes care of things like authentication etc. and perhaps later handlers that wraps things up.</p>
+<section class="level2"><h2 id="endpoints">Handlers<a class="anchor" aria-label="anchor" href="#endpoints"></a>
 </h2>
-<p>Handlers are standard R functions that gets executed once a request
-is received which matches it’s path (assuming a more specific handler is
-not present in the same route). You create an endpoint by annotating a
-function like so:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<p>Handlers are standard R functions that gets executed once a request is received which matches it’s path (assuming a more specific handler is not present in the same route). You create an endpoint by annotating a function like so:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Return "hello world"</span></span>
 <span><span class="co">#* @get /hello</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="st">"hello world"</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>This annotation specifies that this function is responsible for
-generating the response to any <code>GET</code> request to
-<code>/hello</code>. The value returned from the function will be used
-as the response to the request (after being run through a serializer to
-e.g. convert the response into JSON). In this case, a <code>GET</code>
-response to <code>/hello</code> would return the content
-<code>["hello world"]</code> with a <code>application/json</code>
-<code>Content-Type</code> (unless the request include any preference for
-another return format).</p>
-<div class="section level3">
-<h3 id="handler-methods">Handler methods<a class="anchor" aria-label="anchor" href="#handler-methods"></a>
+</div>
+<p>This annotation specifies that this function is responsible for generating the response to any <code>GET</code> request to <code>/hello</code>. The value returned from the function will be used as the response to the request (after being run through a serializer to e.g. convert the response into JSON). In this case, a <code>GET</code> response to <code>/hello</code> would return the content <code>["hello world"]</code> with a <code>application/json</code> <code>Content-Type</code> (unless the request include any preference for another return format).</p>
+<section class="level3"><h3 id="handler-methods">Handler methods<a class="anchor" aria-label="anchor" href="#handler-methods"></a>
 </h3>
 <p>The annotations that generate an endpoint include:</p>
 <ul>
@@ -122,21 +101,8 @@ another return format).</p>
 <li><code>@delete</code></li>
 <li><code>@head</code></li>
 </ul>
-<p>These map to the HTTP methods that an API client might send along
-with a request. By default when you open a page in a web browser, that
-sends a <code>GET</code> request to the API. But you can use other API
-clients (or even JavaScript inside of a web browser) to form HTTP
-requests using the other methods listed here. There are conventions
-around when each of these methods should be used which you can read more
-about <a href="http://www.restapitutorial.com/lessons/httpmethods.html" class="external-link">here</a>.
-Note that some of these conventions carry with them security
-implications, so it’s a good idea to follow the recommended uses for
-each method until you fully understand why you might deviate from
-them.</p>
-<p>Note that a single endpoint can support multiple verbs. The following
-function would be used to service any incoming <code>GET</code>,
-<code>POST</code>, or <code>PUT</code> request to
-<code>/cars</code>.</p>
+<p>These map to the HTTP methods that an API client might send along with a request. By default when you open a page in a web browser, that sends a <code>GET</code> request to the API. But you can use other API clients (or even JavaScript inside of a web browser) to form HTTP requests using the other methods listed here. There are conventions around when each of these methods should be used which you can read more about <a href="http://www.restapitutorial.com/lessons/httpmethods.html" class="external-link">here</a>. Note that some of these conventions carry with them security implications, so it’s a good idea to follow the recommended uses for each method until you fully understand why you might deviate from them.</p>
+<p>Note that a single endpoint can support multiple verbs. The following function would be used to service any incoming <code>GET</code>, <code>POST</code>, or <code>PUT</code> request to <code>/cars</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /cars</span></span>
 <span><span class="co">#* @post /cars</span></span>
@@ -144,31 +110,15 @@ function would be used to service any incoming <code>GET</code>,
 <span><span class="kw">function</span><span class="op">(</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>There is also the special method <code>@any</code> which will make
-the handler respond to any method that matches the path. This can be
-useful for e.g. an authentication handler that needs to be called for
-every request that comes in.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="paths">Paths<a class="anchor" aria-label="anchor" href="#paths"></a>
+<p>There is also the special method <code>@any</code> which will make the handler respond to any method that matches the path. This can be useful for e.g. an authentication handler that needs to be called for every request that comes in.</p>
+</section></section><section class="level2"><h2 id="paths">Paths<a class="anchor" aria-label="anchor" href="#paths"></a>
 </h2>
-<p>At the heart of routing is the path a handler gets assigned to. Apart
-from static paths such as <code>/cars</code> as we saw above which will
-be selected when there is an exact match, it is possible to create
-dynamic paths that responds to a set of paths sharing a common
-structure. Dynamic paths allow handlers to define a more flexible set of
-paths against which they should match.</p>
-<div class="section level3">
-<h3 id="path-parameters">Path parameters<a class="anchor" aria-label="anchor" href="#path-parameters"></a>
+<p>At the heart of routing is the path a handler gets assigned to. Apart from static paths such as <code>/cars</code> as we saw above which will be selected when there is an exact match, it is possible to create dynamic paths that responds to a set of paths sharing a common structure. Dynamic paths allow handlers to define a more flexible set of paths against which they should match.</p>
+<section class="level3"><h3 id="path-parameters">Path parameters<a class="anchor" aria-label="anchor" href="#path-parameters"></a>
 </h3>
-<p>A common REST convention is to include the identifier of an object in
-the API paths associated with it. So to lookup information about user
-#13, you might make a <code>GET</code> request to the path
-<code>/users/13</code>. Rather than having to register handlers for
-every user your API might possibly encounter, you can use a dynamic path
-to associate a handler with a variety of paths.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>A common REST convention is to include the identifier of an object in the API paths associated with it. So to lookup information about user #13, you might make a <code>GET</code> request to the path <code>/users/13</code>. Rather than having to register handlers for every user your API might possibly encounter, you can use a dynamic path to associate a handler with a variety of paths.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">users</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  uid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">13</span><span class="op">)</span>,</span>
 <span>  username <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kim"</span>, <span class="st">"john"</span><span class="op">)</span></span>
@@ -179,186 +129,81 @@ to associate a handler with a variety of paths.</p>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">id</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">users</span>, <span class="va">uid</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">id</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>This API uses the dynamic path <code>/users/&lt;id&gt;</code> to
-match any request that is of the form <code>/users/</code> followed by
-some path element like a number or letters. In this case, it will return
-information about the user if a user with the associated ID was found,
-or an empty object if not.</p>
-<p>You can name these dynamic path elements however you’d like, but note
-that the name used in the dynamic path must match the name of the
-argument to the handler (in this case, both <code>id</code>).</p>
+</div>
+<p>This API uses the dynamic path <code>/users/&lt;id&gt;</code> to match any request that is of the form <code>/users/</code> followed by some path element like a number or letters. In this case, it will return information about the user if a user with the associated ID was found, or an empty object if not.</p>
+<p>You can name these dynamic path elements however you’d like, but note that the name used in the dynamic path must match the name of the argument to the handler (in this case, both <code>id</code>).</p>
 <p>You can even do more complex dynamic routes like:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /user/&lt;from&gt;/connect/&lt;to&gt;</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">from</span>, <span class="va">to</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="co"># Do something with the `from` and `to` variables...</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="path-wildcard">Path wildcard<a class="anchor" aria-label="anchor" href="#path-wildcard"></a>
+</section><section class="level3"><h3 id="path-wildcard">Path wildcard<a class="anchor" aria-label="anchor" href="#path-wildcard"></a>
 </h3>
-<p>Often path parameters are all you need as they allow you to provide a
-dynamic but structured path and extract parameters from the input.
-However, plumber2 also support path wildcards which can match to
-<em>anything</em> you pass it to. Conceptually it works like
-<code>*</code> in file globbing or <code>.*</code> in regular
-expressions.</p>
+<p>Often path parameters are all you need as they allow you to provide a dynamic but structured path and extract parameters from the input. However, plumber2 also support path wildcards which can match to <em>anything</em> you pass it to. Conceptually it works like <code>*</code> in file globbing or <code>.*</code> in regular expressions.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /images/*</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># do something</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>In the example above, the handler would match to both
-<code>/images/index.html</code>,
-<code>/images/february/img_03.png</code>, <code>/images/metadata/</code>
-or any other path that starts with <code>/images/</code>. Wildcards
-needs to be on their own, ie. you can’t have a path like
-<code>/imag*</code> that match to anything that starts with
-<code>/imag</code> (like <code>/images/</code> and
-<code>/imaginary</code>). However, they do not need to be on the end, so
-you could have a path like <code>/*/robot.txt</code> that matches to any
-path that ends with <code>robot.txt</code>. The fact that they are so
-“unspecific” as well as doesn’t give rise to argument input to your
-handler means that wildcards are used much less frequently but they can
-be an indispensable tool in your belt in some situations.</p>
-</div>
-<div class="section level3">
-<h3 id="path-priority">Path priority<a class="anchor" aria-label="anchor" href="#path-priority"></a>
+<p>In the example above, the handler would match to both <code>/images/index.html</code>, <code>/images/february/img_03.png</code>, <code>/images/metadata/</code> or any other path that starts with <code>/images/</code>. Wildcards needs to be on their own, ie. you can’t have a path like <code>/imag*</code> that match to anything that starts with <code>/imag</code> (like <code>/images/</code> and <code>/imaginary</code>). However, they do not need to be on the end, so you could have a path like <code>/*/robot.txt</code> that matches to any path that ends with <code>robot.txt</code>. The fact that they are so “unspecific” as well as doesn’t give rise to argument input to your handler means that wildcards are used much less frequently but they can be an indispensable tool in your belt in some situations.</p>
+</section><section class="level3"><h3 id="path-priority">Path priority<a class="anchor" aria-label="anchor" href="#path-priority"></a>
 </h3>
-<p>As discussed above, every route will only select at most one handler
-for the request. However, the existence of path parameters and path
-wildcards means that a route can easily contain multiple handlers that
-can match to a given request. How does a route decide which one
-wins?</p>
-<p>Internally the route will order the handlers based on three metrics:
-The specificity (ie. the number of elements in the path) - the higher
-the better, the number of path parameters - the lower the better, and
-the number of wildcards - the lower the better. Consider the following
-paths</p>
-<ol style="list-style-type: decimal">
+<p>As discussed above, every route will only select at most one handler for the request. However, the existence of path parameters and path wildcards means that a route can easily contain multiple handlers that can match to a given request. How does a route decide which one wins?</p>
+<p>Internally the route will order the handlers based on three metrics: The specificity (ie. the number of elements in the path) - the higher the better, the number of path parameters - the lower the better, and the number of wildcards - the lower the better. Consider the following paths</p>
+<ol type="1">
 <li><code>/path/to/something/specific</code></li>
 <li><code>/path/to/&lt;name&gt;/specific</code></li>
 <li><code>/path/to/&lt;name&gt;/&lt;setting&gt;</code></li>
 <li><code>/path/to/something/*</code></li>
 <li><code>/path/*</code></li>
 </ol>
-<p>They have been ordered as the route would order it, with the highest
-priority on top. This means that a request for
-<code>/path/to/something/specific</code> will get matched to the first
-path, even though it matches all of the given paths.
-<code>/path/to/anything/specific</code> will get matched to the second
-path even though it matches both the second, third and fifth, and so on.
-While it may seem complicated to figure out which handler gets a
-request, the priority ordering has been designed in a way that generally
-matches how you’d rank the specificity of a set of paths.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="input-handling">Handler input<a class="anchor" aria-label="anchor" href="#input-handling"></a>
+<p>They have been ordered as the route would order it, with the highest priority on top. This means that a request for <code>/path/to/something/specific</code> will get matched to the first path, even though it matches all of the given paths. <code>/path/to/anything/specific</code> will get matched to the second path even though it matches both the second, third and fifth, and so on. While it may seem complicated to figure out which handler gets a request, the priority ordering has been designed in a way that generally matches how you’d rank the specificity of a set of paths.</p>
+</section></section><section class="level2"><h2 id="input-handling">Handler input<a class="anchor" aria-label="anchor" href="#input-handling"></a>
 </h2>
-<p>Plumber routes requests based exclusively on the path and method of
-the incoming HTTP request, but requests can contain much more
-information than just this. They might include additional HTTP headers,
-a query string, or a request body. All of these fields may be viewed as
-“inputs” to your Plumber API.</p>
-<div class="section level3">
-<h3 id="handler-arguments">Handler arguments<a class="anchor" aria-label="anchor" href="#handler-arguments"></a>
+<p>Plumber routes requests based exclusively on the path and method of the incoming HTTP request, but requests can contain much more information than just this. They might include additional HTTP headers, a query string, or a request body. All of these fields may be viewed as “inputs” to your Plumber API.</p>
+<section class="level3"><h3 id="handler-arguments">Handler arguments<a class="anchor" aria-label="anchor" href="#handler-arguments"></a>
 </h3>
-<p>In general when you think of inputs to a function in R you think
-about the arguments to that function. In plumber2 there are certain
-rules around the arguments in the handler function that determines what
-kind of input the handler gets access to. Most importantly perhaps, the
-path parameters are being provided directly to your handler as named
-arguments. For example, given the following handler</p>
+<p>In general when you think of inputs to a function in R you think about the arguments to that function. In plumber2 there are certain rules around the arguments in the handler function that determines what kind of input the handler gets access to. Most importantly perhaps, the path parameters are being provided directly to your handler as named arguments. For example, given the following handler</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /user/&lt;id&gt;/setting/&lt;type&gt;</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">user</span>, <span class="va">type</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># ...</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>A request to <code>/user/123/setting/security</code> will call the
-handler function with <code>user = "123"</code> and
-<code>type = "security"</code>.</p>
-<p>Path arguments are documented with the <code>@param</code> tag that
-you may also know from roxygen documentation.</p>
-<p>Path parameters are the only type of variable handler arguments. All
-other are predefined and can be included at your leisure if your handler
-needs access to it. In the following you’ll get an overview of them
-all:</p>
-<div class="section level4">
-<h4 id="query">
+<p>A request to <code>/user/123/setting/security</code> will call the handler function with <code>user = "123"</code> and <code>type = "security"</code>.</p>
+<p>Path arguments are documented with the <code>@param</code> tag that you may also know from roxygen documentation.</p>
+<p>Path parameters are the only type of variable handler arguments. All other are predefined and can be included at your leisure if your handler needs access to it. In the following you’ll get an overview of them all:</p>
+<section class="level4"><h4 id="query">
 <code>query</code><a class="anchor" aria-label="anchor" href="#query"></a>
 </h4>
-<p>A query string may be appended to a URL in order to convey additional
-information beyond just the request route. Query strings allow for the
-encoding of character string keys and values. For example, in the URL
-<code>https://duckduckgo.com/?q=bread&amp;pretty=1</code>, everything
-following the <code>?</code> constitutes the query string. In this case,
-two variables (<code>q</code> and <code>pretty</code>) have been set (to
-<code>bread</code> and <code>1</code>, respectively).</p>
-<p>Plumber will automatically parse the query string and make it
-available as the <code>query</code> argument of the handler function.
-The following example defines a search API that mimics the example from
-<a href="https://duckduckgo.com" class="external-link">DuckDuckGo</a> above but merely prints
-out what it receives.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<p>A query string may be appended to a URL in order to convey additional information beyond just the request route. Query strings allow for the encoding of character string keys and values. For example, in the URL <code>https://duckduckgo.com/?q=bread&amp;pretty=1</code>, everything following the <code>?</code> constitutes the query string. In this case, two variables (<code>q</code> and <code>pretty</code>) have been set (to <code>bread</code> and <code>1</code>, respectively).</p>
+<p>Plumber will automatically parse the query string and make it available as the <code>query</code> argument of the handler function. The following example defines a search API that mimics the example from <a href="https://duckduckgo.com" class="external-link">DuckDuckGo</a> above but merely prints out what it receives.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">query</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"The q parameter is '"</span>, <span class="va">query</span><span class="op">$</span><span class="va">q</span> <span class="op"><a href="https://rdrr.io/r/base/Control.html" class="external-link">%||%</a></span> <span class="st">""</span>, <span class="st">"'. "</span>,</span>
 <span>         <span class="st">"The pretty parameter is '"</span>, <span class="va">query</span><span class="op">$</span><span class="va">pretty</span> <span class="op"><a href="https://rdrr.io/r/base/Control.html" class="external-link">%||%</a></span> <span class="fl">0</span>, <span class="st">"'."</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Visiting <a href="http://localhost:8080/?q=bread&amp;pretty=1" class="external-link uri">http://localhost:8080/?q=bread&amp;pretty=1</a> will
-print:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ot">[</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="st">"The q parameter is 'bread'. The pretty parameter is '1'."</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
-<p>In the handler above we use <code>%||%</code> to provide a fallback
-value in case the query parameter weren’t provided. Later you’ll learn
-how to provide default values or mark parameters as required.</p>
-<p>Since the query string is “open” in the sense that the user can send
-anything along with it the <code>query</code> value can contain a
-multitude of values your handler isn’t expecting. These values may be
-meant for other handlers in other routes or may be included in error.
-Because of this open nature it is a good practice to document all the
-query parameters your handler understand. This is done with the
-<code>@query</code> tag which works much like <code>@param</code>.</p>
-<p>Your API may need array-like input from the query string. plumber2
-understands two forms of providing array data: Either by providing the
-same parameter multiple times,
-e.g. <code>?arg=1&amp;arg=2&amp;arg=3</code>, or by separating values
-with a comma, e.g. <code>?arg=1,2,3</code>. While the latter approach is
-more condensed it too will become quite unwieldy for large amount of
-data. On top of this some web browsers impose limitations on the length
-of a URL. Internet Explorer, in particular, caps the query string at
-2,048 characters. Because of this, larger amount of data is better
-served through a request body.</p>
 </div>
-<div class="section level4">
-<h4 id="body">
+<p>Visiting http://localhost:8080/?q=bread&amp;pretty=1 will print:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"The q parameter is 'bread'. The pretty parameter is '1'."</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+<p>In the handler above we use <code>%||%</code> to provide a fallback value in case the query parameter weren’t provided. Later you’ll learn how to provide default values or mark parameters as required.</p>
+<p>Since the query string is “open” in the sense that the user can send anything along with it the <code>query</code> value can contain a multitude of values your handler isn’t expecting. These values may be meant for other handlers in other routes or may be included in error. Because of this open nature it is a good practice to document all the query parameters your handler understand. This is done with the <code>@query</code> tag which works much like <code>@param</code>.</p>
+<p>Your API may need array-like input from the query string. plumber2 understands two forms of providing array data: Either by providing the same parameter multiple times, e.g. <code>?arg=1&amp;arg=2&amp;arg=3</code>, or by separating values with a comma, e.g. <code>?arg=1,2,3</code>. While the latter approach is more condensed it too will become quite unwieldy for large amount of data. On top of this some web browsers impose limitations on the length of a URL. Internet Explorer, in particular, caps the query string at 2,048 characters. Because of this, larger amount of data is better served through a request body.</p>
+</section><section class="level4"><h4 id="body">
 <code>body</code><a class="anchor" aria-label="anchor" href="#body"></a>
 </h4>
-<p>Another way to provide additional information inside an HTTP request
-is using the message body. Effectively, once a client specifies all the
-metadata about a request (the path it’s trying to reach, some HTTP
-headers, etc.) it can then provide a message body. The maximum size of a
-request body depends largely on the technologies involved (client,
-proxies, etc.) but is typically at least 2MB – much larger than a query
-string. This approach is most commonly seen with <code>PUT</code>,
-<code>POST</code>, and <code>PATCH</code> requests, though you could
-encounter it with other HTTP methods.</p>
-<p>Plumber will attempt to parse the request body using the best
-matching parser provided to the handler through one or more
-<code>@parser</code> tags. If no parsers are provided then plumber2 will
-try all registered parsers. The result of the parsing is then made
-available as the <code>body</code> argument. You can document your
-expectations around the request body using the <code>@body</code> tag
-which works much like <code>@param</code> and <code>@query</code>.</p>
-<p>Plumber2 comes with a selection of parsers for the most common data
-transfer formats:</p>
-<table class="table">
+<p>Another way to provide additional information inside an HTTP request is using the message body. Effectively, once a client specifies all the metadata about a request (the path it’s trying to reach, some HTTP headers, etc.) it can then provide a message body. The maximum size of a request body depends largely on the technologies involved (client, proxies, etc.) but is typically at least 2MB – much larger than a query string. This approach is most commonly seen with <code>PUT</code>, <code>POST</code>, and <code>PATCH</code> requests, though you could encounter it with other HTTP methods.</p>
+<p>Plumber will attempt to parse the request body using the best matching parser provided to the handler through one or more <code>@parser</code> tags. If no parsers are provided then plumber2 will try all registered parsers. The result of the parsing is then made available as the <code>body</code> argument. You can document your expectations around the request body using the <code>@body</code> tag which works much like <code>@param</code> and <code>@query</code>.</p>
+<p>Plumber2 comes with a selection of parsers for the most common data transfer formats:</p>
+<table class="table caption-top">
 <colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead><tr class="header">
 <th>Annotation</th>
@@ -369,8 +214,7 @@ transfer formats:</p>
 <tr class="odd">
 <td><code>@parser csv</code></td>
 <td>
-<code>application/csv</code>, <code>application/x-csv</code>,
-<code>text/csv</code>, <code>text/x-csv</code>
+<code>application/csv</code>, <code>application/x-csv</code>, <code>text/csv</code>, <code>text/x-csv</code>
 </td>
 <td>Body processed with <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_csv()</a></code>
 </td>
@@ -386,8 +230,7 @@ transfer formats:</p>
 <tr class="odd">
 <td><code>@parser multi</code></td>
 <td><code>multipart/*</code></td>
-<td>Body processed with <code><a href="https://jeroen.r-universe.dev/webutils/reference/parse_multipart.html" class="external-link">webutils::parse_multipart()</a></code> and
-each part is then processed by the parsers available</td>
+<td>Body processed with <code><a href="https://jeroen.r-universe.dev/webutils/reference/parse_multipart.html" class="external-link">webutils::parse_multipart()</a></code> and each part is then processed by the parsers available</td>
 </tr>
 <tr class="even">
 <td><code>@parser octet</code></td>
@@ -409,8 +252,7 @@ each part is then processed by the parsers available</td>
 <tr class="odd">
 <td><code>@parser feather</code></td>
 <td>
-<code>application/vnd.apache.arrow.file</code>,
-<code>application/feather</code>
+<code>application/vnd.apache.arrow.file</code>, <code>application/feather</code>
 </td>
 <td>Body processed with <code><a href="https://arrow.apache.org/docs/r/reference/read_feather.html" class="external-link">arrow::read_feather()</a></code>
 </td>
@@ -432,8 +274,7 @@ each part is then processed by the parsers available</td>
 <tr class="even">
 <td><code>@parser tsv</code></td>
 <td>
-<code>application/tab-separated-values</code>,
-<code>text/tab-separated-values</code>
+<code>application/tab-separated-values</code>, <code>text/tab-separated-values</code>
 </td>
 <td>Body processed with <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_tsv()</a></code>
 </td>
@@ -441,9 +282,7 @@ each part is then processed by the parsers available</td>
 <tr class="odd">
 <td><code>@parser yaml</code></td>
 <td>
-<code>text/vnd.yaml</code>, <code>application/yaml</code>,
-<code>application/x-yaml</code>, <code>text/yaml</code>,
-<code>text/x-yaml</code>
+<code>text/vnd.yaml</code>, <code>application/yaml</code>, <code>application/x-yaml</code>, <code>text/yaml</code>, <code>text/x-yaml</code>
 </td>
 <td>Body processed with <code><a href="https://rdrr.io/pkg/yaml/man/yaml.load.html" class="external-link">yaml::yaml.load()</a></code>
 </td>
@@ -465,46 +304,24 @@ each part is then processed by the parsers available</td>
 <tr class="even">
 <td><code>@parser geojson</code></td>
 <td>
-<code>application/geo+json</code>,
-<code>application/vdn.geo+json</code>
+<code>application/geo+json</code>, <code>application/vdn.geo+json</code>
 </td>
 <td>Body processed with <code><a href="https://rdrr.io/pkg/geojsonsf/man/geojson_sf.html" class="external-link">geojsonsf::geojson_sf()</a></code>
 </td>
 </tr>
 </tbody>
 </table>
-<p>You can also provide your own parsers and register them so you can
-reference them by name. There are two special names you can use:
-<code>none</code> and <code>...</code>. If setting
-<code>@parser none</code> then no parsing of the request body will be
-attempted. This can still be done manually through the
-<code>request</code> at a later stage. While it may seem like a good
-idea to set <code>@parser none</code> if you do not intend to use the
-request body in your handler in order to speed up processing, it is not
-necessary since the body is only parsed if your code tries to access it.
-Setting <code>@parser ...</code> selects all the parsers that have not
-yet been referenced in your handler block. This can be useful if you
-have registered an alternative parser for a specific mime type and wish
-to move it to the top of the list so that it is selected over the one
-provided by plumber. An example could be:</p>
+<p>You can also provide your own parsers and register them so you can reference them by name. There are two special names you can use: <code>none</code> and <code>...</code>. If setting <code>@parser none</code> then no parsing of the request body will be attempted. This can still be done manually through the <code>request</code> at a later stage. While it may seem like a good idea to set <code>@parser none</code> if you do not intend to use the request body in your handler in order to speed up processing, it is not necessary since the body is only parsed if your code tries to access it. Setting <code>@parser ...</code> selects all the parsers that have not yet been referenced in your handler block. This can be useful if you have registered an alternative parser for a specific mime type and wish to move it to the top of the list so that it is selected over the one provided by plumber. An example could be:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @parser artisinal_json_parser</span></span>
 <span><span class="co">#* @parser ...</span></span></code></pre></div>
-<p>This would give your handler access to all parsers registered with
-plumber2 but will select <code>artisinal_json_parser</code> over
-<code>json</code> if the content type is <code>application/json</code>.
-You register new parsers using <code><a href="../reference/register_parser.html">register_parser()</a></code>, but can
-also provide them directly in the block annotation like so:</p>
+<p>This would give your handler access to all parsers registered with plumber2 but will select <code>artisinal_json_parser</code> over <code>json</code> if the content type is <code>application/json</code>. You register new parsers using <code><a href="../reference/register_parser.html">register_parser()</a></code>, but can also provide them directly in the block annotation like so:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @parser application/toml function(x, ...) blogdown::read_toml(x = rawToChar(x))</span></span></code></pre></div>
-<p>However, you are probably better off registering the parser rather
-than having to redefine it every time you need it</p>
-<p>Unfortunately, crafting a request with a message body requires a bit
-more work than making a <code>GET</code> request with a query string
-from your web browser, but you can use tools like <code>curl</code> on
-the command line or the <a href="https://httr2.r-lib.org" class="external-link">httr2 R
-package</a>. We’ll use <code>curl</code> for the examples below.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p>However, you are probably better off registering the parser rather than having to redefine it every time you need it</p>
+<p>Unfortunately, crafting a request with a message body requires a bit more work than making a <code>GET</code> request with a query string from your web browser, but you can use tools like <code>curl</code> on the command line or the <a href="https://httr2.r-lib.org" class="external-link">httr2 R package</a>. We’ll use <code>curl</code> for the examples below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @post /user</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">body</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -512,52 +329,30 @@ package</a>. We’ll use <code>curl</code> for the examples below.</p>
 <span>    name <span class="op">=</span> <span class="va">body</span><span class="op">$</span><span class="va">name</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Running
-<code>curl --data "id=123&amp;name=Jennifer" -H "Content-Type: application/x-www-form-urlencoded" "http://localhost:8080/user"</code>
-will return:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>    <span class="st">"123"</span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>    <span class="st">"Jennifer</span><span class="ch">\n</span><span class="st">"</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="ot">]</span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>Alternatively,
-<code>echo {"id":123, "name": "Jennifer"} &gt; call.json &amp; curl --data @call.json "http://localhost:8080/user" -H "content-type: application/json"</code>
-(formatting the body as JSON) will have the same effect.</p>
 </div>
-<div class="section level4">
-<h4 id="request">
+<p>Running <code>curl --data "id=123&amp;name=Jennifer" -H "Content-Type: application/x-www-form-urlencoded" "http://localhost:8080/user"</code> will return:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"123"</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Jennifer</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Alternatively, <code>echo {"id":123, "name": "Jennifer"} &gt; call.json &amp; curl --data @call.json "http://localhost:8080/user" -H "content-type: application/json"</code> (formatting the body as JSON) will have the same effect.</p>
+</section><section class="level4"><h4 id="request">
 <code>request</code><a class="anchor" aria-label="anchor" href="#request"></a>
 </h4>
-<p>The <code>request</code> argument contains the request object. In
-plumber2 this object is provided by the reqres package and the<a href="https://reqres.data-imaginist.com/reference/Request.html" class="external-link">documentation
-there</a> gives a great overview of the information it contains. Of
-special interest is the <code>headers</code>, <code>cookies</code>, and
-<code>session</code> field which gives access to additional input that
-are otherwise not available through handler arguments.</p>
-<div class="section level5">
-<h5 id="read-cookies">Cookies<a class="anchor" aria-label="anchor" href="#read-cookies"></a>
+<p>The <code>request</code> argument contains the request object. In plumber2 this object is provided by the reqres package and the<a href="https://reqres.data-imaginist.com/reference/Request.html" class="external-link">documentation there</a> gives a great overview of the information it contains. Of special interest is the <code>headers</code>, <code>cookies</code>, and <code>session</code> field which gives access to additional input that are otherwise not available through handler arguments.</p>
+<section class="level5"><h5 id="read-cookies">Cookies<a class="anchor" aria-label="anchor" href="#read-cookies"></a>
 </h5>
-<p>If cookies are attached to the incoming request, they’ll be made
-available via <code>request$cookies</code>. This will contain a list of
-all the cookies that were included with the request. The names of the
-list correspond to the names of the cookies and the value for each
-element will be a character string that has been URL-decoded. See the <a href="./rendering-output.html#setting-cookies">Setting Cookies
-section</a> for details on how to set cookies from Plumber.</p>
-<p>If you’ve set encrypted cookies (as discussed in the <a href="./rendering-output.html#encrypted-cookies">Encrypted Cookies
-section</a>), that session will be decrypted and made available at
-<code>request$session</code>.</p>
-</div>
-<div class="section level5">
-<h5 id="headers">Headers<a class="anchor" aria-label="anchor" href="#headers"></a>
+<p>If cookies are attached to the incoming request, they’ll be made available via <code>request$cookies</code>. This will contain a list of all the cookies that were included with the request. The names of the list correspond to the names of the cookies and the value for each element will be a character string that has been URL-decoded. See the <a href="./rendering-output.html#setting-cookies">Setting Cookies section</a> for details on how to set cookies from Plumber.</p>
+<p>If you’ve set encrypted cookies (as discussed in the <a href="./rendering-output.html#encrypted-cookies">Encrypted Cookies section</a>), that session will be decrypted and made available at <code>request$session</code>.</p>
+</section><section class="level5"><h5 id="headers">Headers<a class="anchor" aria-label="anchor" href="#headers"></a>
 </h5>
-<p>HTTP headers attached to the incoming request are available through
-the request object. You can either access it with the
-<code>get_header()</code> method or the <code>headers</code> field from
-the request object</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<p>HTTP headers attached to the incoming request are available through the request object. You can either access it with the <code>get_header()</code> method or the <code>headers</code> field from the request object</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Return the value of a custom header and the total number of headers</span></span>
 <span><span class="co">#* @get /</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">request</span><span class="op">)</span> <span class="op">{</span></span>
@@ -566,64 +361,34 @@ the request object</p>
 <span>    n_headers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">request</span><span class="op">$</span><span class="va">headers</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Running
-<code>curl --header "Custom-Header: abc123" http://localhost:8080</code>
-will return:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="dt">"val"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>    <span class="st">"abc123"</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="dt">"n_headers"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>    <span class="dv">2</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>  <span class="ot">]</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>There is a slight difference in <code>get_header()</code> and
-<code>headers</code> you should be aware of. Because R is not fond of
-<code>-</code> in symbols, the names in the list provided by
-<code>headers</code> has <code>-</code> substituted with <code>_</code>.
-With <code>get_header()</code> you can use the real header name.</p>
 </div>
-</div>
-<div class="section level4">
-<h4 id="response">
+<p>Running <code>curl --header "Custom-Header: abc123" http://localhost:8080</code> will return:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"val"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"abc123"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"n_headers"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>There is a slight difference in <code>get_header()</code> and <code>headers</code> you should be aware of. Because R is not fond of <code>-</code> in symbols, the names in the list provided by <code>headers</code> has <code>-</code> substituted with <code>_</code>. With <code>get_header()</code> you can use the real header name.</p>
+</section></section><section class="level4"><h4 id="response">
 <code>response</code><a class="anchor" aria-label="anchor" href="#response"></a>
 </h4>
-<p>Like the <code>request</code> argument, the <code>response</code>
-argument holds the object that encapsulates the response under
-constructed. This is also provided by reqres and have <a href="https://reqres.data-imaginist.com/reference/Response.html" class="external-link">extensive
-documentation there</a>. See the article on <a href="./rendering-output.html">rendering output</a> for the various way
-you may want to interact with the response.</p>
-</div>
-<div class="section level4">
-<h4 id="server">
+<p>Like the <code>request</code> argument, the <code>response</code> argument holds the object that encapsulates the response under constructed. This is also provided by reqres and have <a href="https://reqres.data-imaginist.com/reference/Response.html" class="external-link">extensive documentation there</a>. See the article on <a href="./rendering-output.html">rendering output</a> for the various way you may want to interact with the response.</p>
+</section><section class="level4"><h4 id="server">
 <code>server</code><a class="anchor" aria-label="anchor" href="#server"></a>
 </h4>
-<p>The <code>server</code> argument in a handler will be populated with
-the Plumber API object. You can use this for logging, accessing the
-server data store, etc. See the documentation on the <a href="https://fiery.data-imaginist.com/reference/Fire.html" class="external-link">fiery
-webpage</a> to get an overview of what is possible</p>
-</div>
-<div class="section level4">
-<h4 id="client_id">
+<p>The <code>server</code> argument in a handler will be populated with the Plumber API object. You can use this for logging, accessing the server data store, etc. See the documentation on the <a href="https://fiery.data-imaginist.com/reference/Fire.html" class="external-link">fiery webpage</a> to get an overview of what is possible</p>
+</section><section class="level4"><h4 id="client_id">
 <code>client_id</code><a class="anchor" aria-label="anchor" href="#client_id"></a>
 </h4>
-<p>Plumber automatically tries to keep track of the clients that tries
-to access it’s API. It does this be setting a cookie the first time a
-request comes in from a new client giving it a unique id. This id is
-then passed on to the handlers through the <code>client_id</code>
-argument.</p>
-</div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="typed-dynamic-routes">Type casting input<a class="anchor" aria-label="anchor" href="#typed-dynamic-routes"></a>
+<p>Plumber automatically tries to keep track of the clients that tries to access it’s API. It does this be setting a cookie the first time a request comes in from a new client giving it a unique id. This id is then passed on to the handlers through the <code>client_id</code> argument.</p>
+</section></section></section><section class="level2"><h2 id="typed-dynamic-routes">Type casting input<a class="anchor" aria-label="anchor" href="#typed-dynamic-routes"></a>
 </h2>
-<p>Path and query paramters comes from a text string, and as such they
-are provided as string to your handler. However, you can provide type
-hints to these and have plumber automatically cast them to the expected
-type before providing them to your handler. Consider the following
-API.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p>Path and query paramters comes from a text string, and as such they are provided as string to your handler. However, you can provide type hints to these and have plumber automatically cast them to the expected type before providing them to your handler. Consider the following API.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /type/&lt;id&gt;</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">id</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -631,18 +396,17 @@ API.</p>
 <span>    type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/typeof.html" class="external-link">typeof</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Visiting <a href="http://localhost:8080/type/14" class="external-link uri">http://localhost:8080/type/14</a> will return:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>    <span class="st">"14"</span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>    <span class="st">"character"</span></span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  <span class="ot">]</span></span>
-<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>If you only intend to support a particular data type for a particular
-parameter in your dynamic route, you can specify the desired type in the
-path itself, or in the <code>@param</code> field.</p>
+</div>
+<p>Visiting http://localhost:8080/type/14 will return:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"14"</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"character"</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>If you only intend to support a particular data type for a particular parameter in your dynamic route, you can specify the desired type in the path itself, or in the <code>@param</code> field.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /user/&lt;id:integer&gt;</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">id</span><span class="op">)</span><span class="op">{</span></span>
@@ -657,12 +421,9 @@ path itself, or in the <code>@param</code> field.</p>
 <span>    <span class="co"># ...</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>The syntax is: Anything following up to the first <code>:</code> is
-the name of the parameter. Anything following it is a type
-specification.</p>
-<p>The following details the mapping of the scalar type names that you
-can use in your dynamic types and how they map to R data types.</p>
-<table class="table">
+<p>The syntax is: Anything following up to the first <code>:</code> is the name of the parameter. Anything following it is a type specification.</p>
+<p>The following details the mapping of the scalar type names that you can use in your dynamic types and how they map to R data types.</p>
+<table class="table caption-top">
 <thead><tr class="header">
 <th>R Type</th>
 <th>Plumber Name</th>
@@ -700,67 +461,130 @@ can use in your dynamic types and how they map to R data types.</p>
 </tr>
 </tbody>
 </table>
-<p>You can also specify any of the above as an array, by enclosing it in
-<code>[...]</code>, (e.g. <code>[integer]</code> for an array of
-integers). Arrays can even be nested (e.g. <code>[[integer]]</code> for
-an array of arrays of integers).</p>
-<p>Lastly, it is possible to specify “object”, which will be cast to
-lists in R. The syntax for this is <code>{name:Type, ...}</code> and
-allows you to provide concise specifications for very complex data
-structures (e.g. the specification for the iris dataset is
-<code>{Sepal.Length:number,Sepal.Width:number,Petal.Length:number,Petal.Width:number,Species:string}</code>.
-It is unlikely that you’ll need objects for path and query parameters,
-but request bodies will often be in the form of an object.</p>
-<div class="section level3">
-<h3 id="defaults">Defaults<a class="anchor" aria-label="anchor" href="#defaults"></a>
+<p>You can also specify any of the above as an array, by enclosing it in <code>[...]</code>, (e.g. <code>[integer]</code> for an array of integers). Arrays can even be nested (e.g. <code>[[integer]]</code> for an array of arrays of integers).</p>
+<p>Lastly, it is possible to specify “object”, which will be cast to lists in R. The syntax for this is <code>{name:Type, ...}</code> and allows you to provide concise specifications for very complex data structures (e.g. the specification for the iris dataset is <code>{Sepal.Length:number,Sepal.Width:number,Petal.Length:number,Petal.Width:number,Species:string}</code>. It is unlikely that you’ll need objects for path and query parameters, but request bodies will often be in the form of an object.</p>
+<section class="level3"><h3 id="defaults">Defaults<a class="anchor" aria-label="anchor" href="#defaults"></a>
 </h3>
-<p>From R you are used to providing default values for function
-arguments. In plumber you can do the same by adding a default value in
-parenthesis after the type specification, e.g. <code>integer(10)</code>.
-The type caster will automatically ensure that the value is inserted if
-missing from the query or body of a request so you can assume it is
-always present in your code.</p>
-</div>
-<div class="section level3">
-<h3 id="required-parameters">Required parameters<a class="anchor" aria-label="anchor" href="#required-parameters"></a>
+<p>From R you are used to providing default values for function arguments. In plumber you can do the same by adding a default value in parenthesis after the type specification, e.g. <code>integer(10)</code>. The type caster will automatically ensure that the value is inserted if missing from the query or body of a request so you can assume it is always present in your code.</p>
+</section><section class="level3"><h3 id="required-parameters">Required parameters<a class="anchor" aria-label="anchor" href="#required-parameters"></a>
 </h3>
-<p>Path parameters are always required. After all, you can’t arrive at
-the handler if a path parameter is missing. For query and body
-parameters they are assumed to be optional, but you can mark them as
-required as well by adding a <code>*</code> after the type, like so
-<code>[number]*</code>. If a required parameter is missing the type
-converter will automatically throw an error and return 400 to the
-client. Be aware that you cannot have a required parameter with a
-default value as that is a logical fallacy.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="static-file-handler">Static File Handler<a class="anchor" aria-label="anchor" href="#static-file-handler"></a>
+<p>Path parameters are always required. After all, you can’t arrive at the handler if a path parameter is missing. For query and body parameters they are assumed to be optional, but you can mark them as required as well by adding a <code>*</code> after the type, like so <code>[number]*</code>. If a required parameter is missing the type converter will automatically throw an error and return 400 to the client. Be aware that you cannot have a required parameter with a default value as that is a logical fallacy.</p>
+</section></section><section class="level2"><h2 id="static-file-handler">Static File Handler<a class="anchor" aria-label="anchor" href="#static-file-handler"></a>
 </h2>
-<p>Plumber includes a static file server which can be used to host
-directories of static assets such as JavaScript, CSS, or HTML files.
-These servers are fairly simple to configure and integrate into your
-plumber application.</p>
+<p>Plumber includes a static file server which can be used to host directories of static assets such as JavaScript, CSS, or HTML files. These servers are fairly simple to configure and integrate into your plumber application.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @assets ./files/static</span></span>
 <span><span class="cn">NULL</span></span></code></pre></div>
-<p>This example would expose the local directory
-<code>./files/static</code> at the root <code>/</code> path on your
-server. So if you had a file <code>./files/static/branding.html</code>,
-it would be available on your Plumber server at
-<code>/branding.html</code>.</p>
-<p>You can optionally provide an additional argument to configure the
-path used for your server. For instance</p>
+<p>This example would expose the local directory <code>./files/static</code> at the root <code>/</code> path on your server. So if you had a file <code>./files/static/branding.html</code>, it would be available on your Plumber server at <code>/branding.html</code>.</p>
+<p>You can optionally provide an additional argument to configure the path used for your server. For instance</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @assets ./files/static /static</span></span>
 <span><span class="cn">NULL</span></span></code></pre></div>
-<p>would expose the local directory <code>files/static</code> not at
-<code>/</code>, but at <code>/static</code>.</p>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+<p>would expose the local directory <code>files/static</code> not at <code>/</code>, but at <code>/static</code>.</p>
+</section><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'light-border',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config);
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
-
 
 
     <footer><div class="pkgdown-footer-left">

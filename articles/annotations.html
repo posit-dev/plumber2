@@ -10,7 +10,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Annotations reference">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="annotations_files/libs/quarto-html/popper.min.js"></script><script src="annotations_files/libs/quarto-html/tippy.umd.min.js"></script><link href="annotations_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="annotations_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Annotations reference">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -55,49 +57,31 @@
 
 
   </div>
-</nav><div class="container template-article">
-
-
-
-
+</nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Annotations reference</h1>
-            
-      
 
-      <div class="d-none name"><code>annotations.Rmd</code></div>
+
+
+
+
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<div class="section level2">
-<h2 id="annotations">Annotations<a class="anchor" aria-label="anchor" href="#annotations"></a>
+
+
+
+
+
+    <section class="level2"><h2 id="annotations">Annotations<a class="anchor" aria-label="anchor" href="#annotations"></a>
 </h2>
-<p>Annotations are specially-structured comments used in your plumber
-file to create an API. A full annotation line starts with
-<code>#*</code>, then the annotation keyword <code>@...</code>, any
-number of space characters followed by the content. If you wish to use
-the annotation to document your API file but don’t want any OpenAPI
-documentation to be generated you can use <code>@noDoc</code> tag which
-works much like roxygens <code>@noRd</code>.</p>
-</div>
-<div class="section level2">
-<h2 id="global-annotations">Global annotations<a class="anchor" aria-label="anchor" href="#global-annotations"></a>
+<p>Annotations are specially-structured comments used in your plumber file to create an API. A full annotation line starts with <code>#*</code>, then the annotation keyword <code>@...</code>, any number of space characters followed by the content. If you wish to use the annotation to document your API file but don’t want any OpenAPI documentation to be generated you can use <code>@noDoc</code> tag which works much like roxygens <code>@noRd</code>.</p>
+</section><section class="level2"><h2 id="global-annotations">Global annotations<a class="anchor" aria-label="anchor" href="#global-annotations"></a>
 </h2>
-<p>Global annotations are not related to any handler and should be
-placed in their own block. The block should be terminated by a
-<code>NULL</code> expression. Instead of <code>@apiTitle</code> and
-<code>@apiDescription</code> you can also use the convention that the
-first line gives the title and any proceeding lines until the first tag
-gives the description.</p>
-<table class="table">
-<colgroup>
-<col width="26%">
-<col width="26%">
-<col width="47%">
-</colgroup>
+<p>Global annotations are not related to any handler and should be placed in their own block. The block should be terminated by a <code>NULL</code> expression. Instead of <code>@apiTitle</code> and <code>@apiDescription</code> you can also use the convention that the first line gives the title and any proceeding lines until the first tag gives the description.</p>
+<table class="table caption-top">
 <thead><tr class="header">
 <th>Annotation</th>
 <th>Argument</th>
@@ -107,53 +91,44 @@ gives the description.</p>
 <tr class="odd">
 <td><code>@apiTitle</code></td>
 <td><code>Title</code></td>
-<td><a href="http://spec.openapis.org/oas/v3.0.3#info-object" class="external-link">Info
-Object</a></td>
+<td><a href="http://spec.openapis.org/oas/v3.0.3#info-object" class="external-link">Info Object</a></td>
 </tr>
 <tr class="even">
 <td><code>@apiDescription</code></td>
 <td><code>Description</code></td>
-<td><a href="http://spec.openapis.org/oas/v3.0.3#info-object" class="external-link">Info
-Object</a></td>
+<td><a href="http://spec.openapis.org/oas/v3.0.3#info-object" class="external-link">Info Object</a></td>
 </tr>
 <tr class="odd">
 <td><code>@apiTOS</code></td>
 <td><code>TOS link</code></td>
-<td><a href="http://spec.openapis.org/oas/v3.0.3#info-object" class="external-link">Info
-Object</a></td>
+<td><a href="http://spec.openapis.org/oas/v3.0.3#info-object" class="external-link">Info Object</a></td>
 </tr>
 <tr class="even">
 <td><code>@apiContact</code></td>
 <td><code>Contact object</code></td>
-<td><a href="http://spec.openapis.org/oas/v3.0.3#contact-object" class="external-link">Contact
-Object</a></td>
+<td><a href="http://spec.openapis.org/oas/v3.0.3#contact-object" class="external-link">Contact Object</a></td>
 </tr>
 <tr class="odd">
 <td><code>@apiLicense</code></td>
 <td><code>License object</code></td>
-<td><a href="http://spec.openapis.org/oas/v3.0.3#license-object" class="external-link">License
-Object</a></td>
+<td><a href="http://spec.openapis.org/oas/v3.0.3#license-object" class="external-link">License Object</a></td>
 </tr>
 <tr class="even">
 <td><code>@apiVersion</code></td>
 <td><code>Version</code></td>
-<td><a href="http://spec.openapis.org/oas/v3.0.3#info-object" class="external-link">Info
-Object</a></td>
+<td><a href="http://spec.openapis.org/oas/v3.0.3#info-object" class="external-link">Info Object</a></td>
 </tr>
 <tr class="odd">
 <td><code>@apiTag</code></td>
 <td>
 <code>Tag</code> <code>Description</code>
 </td>
-<td>Can be repeated to add multiple tags. Quote with ” or ’ to use non
-word character (like spaces) in <code>Tag</code>. <a href="http://spec.openapis.org/oas/v3.0.3#tag-object" class="external-link">Tag
-Object</a>
+<td>Can be repeated to add multiple tags. Quote with ” or ’ to use non word character (like spaces) in <code>Tag</code>. <a href="http://spec.openapis.org/oas/v3.0.3#tag-object" class="external-link">Tag Object</a>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="section level5">
-<h5 id="annotations-example">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example"></a>
+<section class="level5"><h5 id="annotations-example">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example"></a>
 </h5>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Sample Pet Store App</span></span>
@@ -168,11 +143,10 @@ Object</a>
 <span><span class="co">#* @apiTag toy Toys operations</span></span>
 <span><span class="co">#* @apiTag "toy space" Toys operations</span></span>
 <span><span class="cn">NULL</span></span></code></pre></div>
-</div>
-<div class="section level5">
-<h5 id="equivalent-programmatic-usage">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage"></a>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage"></a>
 </h5>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_docs.html">api_doc_add</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    info <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -189,21 +163,11 @@ Object</a>
 <span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"toy space"</span>, description <span class="op">=</span> <span class="st">"Toys operations"</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## ── A plumber server ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">## Serving on http://127.0.0.1:8080</span></span>
-<span><span class="co">## Currently <span style="color: #BB0000;">not running</span></span></span></code></pre>
 </div>
-</div>
-<div class="section level2">
-<h2 id="handler-annotations">Handler annotations<a class="anchor" aria-label="anchor" href="#handler-annotations"></a>
+</section></section><section class="level2"><h2 id="handler-annotations">Handler annotations<a class="anchor" aria-label="anchor" href="#handler-annotations"></a>
 </h2>
-<p>Handler annotation describe all aspects of a request handler and
-always proceeds a function which is considered the handler function. The
-following tags can be used in a handler block. The first line, unless it
-has a tag is considered the title of the handler and any proceeding
-lines until the first tag is considered a long-form description.</p>
-<div class="section level3">
-<h3 id="endpoint-block-annotations">Endpoint<a class="anchor" aria-label="anchor" href="#endpoint-block-annotations"></a>
+<p>Handler annotation describe all aspects of a request handler and always proceeds a function which is considered the handler function. The following tags can be used in a handler block. The first line, unless it has a tag is considered the title of the handler and any proceeding lines until the first tag is considered a long-form description.</p>
+<section class="level3"><h3 id="endpoint-block-annotations">Endpoint<a class="anchor" aria-label="anchor" href="#endpoint-block-annotations"></a>
 </h3>
 <table style="width:92%;" class="table">
 <colgroup>
@@ -232,7 +196,7 @@ Description/References
 <tr class="odd">
 <td>
 <p>
-<code><span class="citation">@get</span></code>, <code><span class="citation">@head</span></code>, <code><span class="citation">@post</span></code>, <code><span class="citation">@put</span></code>, <code><span class="citation">@delete</span></code>, <code><span class="citation">@connect</span></code>, <code><span class="citation">@options</span></code>, <code><span class="citation">@trace</span></code>, <code><span class="citation">@patch</span></code>, <code><span class="citation">@any</span></code>
+<code><span class="citation" data-cites="get">@get</span></code>, <code><span class="citation" data-cites="head">@head</span></code>, <code><span class="citation" data-cites="post">@post</span></code>, <code><span class="citation" data-cites="put">@put</span></code>, <code><span class="citation" data-cites="delete">@delete</span></code>, <code><span class="citation" data-cites="connect">@connect</span></code>, <code><span class="citation" data-cites="options">@options</span></code>, <code><span class="citation" data-cites="trace">@trace</span></code>, <code><span class="citation" data-cites="patch">@patch</span></code>, <code><span class="citation" data-cites="any">@any</span></code>
 </p>
 </td>
 <td>
@@ -242,17 +206,14 @@ Description/References
 </td>
 <td>
 <p>
-<a href="./routing-and-input.html#endpoints">Endpoints</a>,
-<a href="./routing-and-input.html#dynamic-routes">Dynamic Routes</a>,
-<a href="./routing-and-input.html#typed-dynamic-routes">Typed Dynamic
-Routes</a>
+<a href="./routing-and-input.html#endpoints">Endpoints</a>, <a href="./routing-and-input.html#dynamic-routes">Dynamic Routes</a>, <a href="./routing-and-input.html#typed-dynamic-routes">Typed Dynamic Routes</a>
 </p>
 </td>
 </tr>
 <tr class="even">
 <td>
 <p>
-<code><span class="citation">@header</span></code>
+<code><span class="citation" data-cites="header">@header</span></code>
 </p>
 </td>
 <td>
@@ -269,7 +230,7 @@ Should the handler be attached to the header router
 <tr class="odd">
 <td>
 <p>
-<code><span class="citation">@serializer</span></code>
+<code><span class="citation" data-cites="serializer">@serializer</span></code>
 </p>
 </td>
 <td>
@@ -282,20 +243,14 @@ Should the handler be attached to the header router
 </td>
 <td>
 <p>
-Some serializers accept arguments. See
-<a href="./rendering-output.html#serializers">serializers article</a>
-and
-<a href="https://www.rplumber.io/reference/serializers.html" class="external-link">serializers
-reference</a>. Aliases : <code>r paste0(“&lt;code&gt;”,
-registered_serializers(), “&lt;/code&gt;”, collapse = “,”)</code> from
-<a href="https://www.rplumber.io/reference/register_serializer.html" class="external-link"><code>registered_serializers()</code></a>.
+Some serializers accept arguments. See <a href="./rendering-output.html#serializers">serializers article</a> and <a href="https://www.rplumber.io/reference/serializers.html" class="external-link">serializers reference</a>. Aliases : <code>r paste0(“&lt;code&gt;”, registered_serializers(), “&lt;/code&gt;”, collapse = “,”)</code> from <a href="https://www.rplumber.io/reference/register_serializer.html" class="external-link"><code>registered_serializers()</code></a>.
 </p>
 </td>
 </tr>
 <tr class="even">
 <td>
 <p>
-<code><span class="citation">@serializerStrict</span></code>
+<code><span class="citation" data-cites="serializerStrict">@serializerStrict</span></code>
 </p>
 </td>
 <td>
@@ -305,17 +260,14 @@ None
 </td>
 <td>
 <p>
-Turn on strict content negotiation. By default, the first serializer is
-chosen if the client requests a response type that isnt supported. By
-using strict content negotiation a 406 response is sent if the requested
-response type is not available
+Turn on strict content negotiation. By default, the first serializer is chosen if the client requests a response type that isnt supported. By using strict content negotiation a 406 response is sent if the requested response type is not available
 </p>
 </td>
 </tr>
 <tr class="odd">
 <td>
 <p>
-<code><span class="citation">@parser</span></code>
+<code><span class="citation" data-cites="parser">@parser</span></code>
 </p>
 </td>
 <td>
@@ -328,19 +280,14 @@ response type is not available
 </td>
 <td>
 <p>
-Some parsers accept arguments. See
-<a href="https://www.rplumber.io/reference/parsers.html" class="external-link">parsers
-reference</a>. Can be repeated to allow multiple parsers on the same
-endpoint. Aliases : <code>r paste0(“&lt;code&gt;”, registered_parsers(),
-“&lt;/code&gt;”, collapse = “,”)</code> from
-<a href="https://www.rplumber.io/reference/register_parser.html" class="external-link"><code>registered_parsers()</code></a>.
+Some parsers accept arguments. See <a href="https://www.rplumber.io/reference/parsers.html" class="external-link">parsers reference</a>. Can be repeated to allow multiple parsers on the same endpoint. Aliases : <code>r paste0(“&lt;code&gt;”, registered_parsers(), “&lt;/code&gt;”, collapse = “,”)</code> from <a href="https://www.rplumber.io/reference/register_parser.html" class="external-link"><code>registered_parsers()</code></a>.
 </p>
 </td>
 </tr>
 <tr class="even">
 <td>
 <p>
-<code><span class="citation">@param</span></code>, <code><span class="citation">@query</span></code>, <code><span class="citation">@body</span></code>
+<code><span class="citation" data-cites="param">@param</span></code>, <code><span class="citation" data-cites="query">@query</span></code>, <code><span class="citation" data-cites="body">@body</span></code>
 </p>
 </td>
 <td>
@@ -350,17 +297,14 @@ endpoint. Aliases : <code>r paste0(“&lt;code&gt;”, registered_parsers(),
 </td>
 <td>
 <p>
-Adding an asterix indicates that the parameter is required. Can be
-repeated to define different parameters. If a single <code><span class="citation">@body</span></code> tag is used the <code>Name</code>
-can be omitted to indicate that the body is not a named object but
-simply an instance of the given <code>Type</code>
+Adding an asterix indicates that the parameter is required. Can be repeated to define different parameters. If a single <code><span class="citation" data-cites="body">@body</span></code> tag is used the <code>Name</code> can be omitted to indicate that the body is not a named object but simply an instance of the given <code>Type</code>
 </p>
 </td>
 </tr>
 <tr class="odd">
 <td>
 <p>
-<code><span class="citation">@response</span></code>
+<code><span class="citation" data-cites="response">@response</span></code>
 </p>
 </td>
 <td>
@@ -370,16 +314,14 @@ simply an instance of the given <code>Type</code>
 </td>
 <td>
 <p>
-Simple
-<a href="http://spec.openapis.org/oas/v3.0.3#response-object" class="external-link">Response
-object</a>. Can be repeated to define different responses.
+Simple <a href="http://spec.openapis.org/oas/v3.0.3#response-object" class="external-link">Response object</a>. Can be repeated to define different responses.
 </p>
 </td>
 </tr>
 <tr class="even">
 <td>
 <p>
-<code><span class="citation">@download</span></code>
+<code><span class="citation" data-cites="download">@download</span></code>
 </p>
 </td>
 <td>
@@ -389,15 +331,14 @@ object</a>. Can be repeated to define different responses.
 </td>
 <td>
 <p>
-Mark the response as something that should be downloaded, optionally
-setting a default filename for the file
+Mark the response as something that should be downloaded, optionally setting a default filename for the file
 </p>
 </td>
 </tr>
 <tr class="odd">
 <td>
 <p>
-<code><span class="citation">@tag</span></code>
+<code><span class="citation" data-cites="tag">@tag</span></code>
 </p>
 </td>
 <td>
@@ -407,17 +348,14 @@ setting a default filename for the file
 </td>
 <td>
 <p>
-Can be repeated to add multiple tags. Quote with or to use non word
-character (like spaces) in <code>Tag</code>.
-<a href="http://spec.openapis.org/oas/v3.0.3#operation-object" class="external-link">Tag
-field</a>
+Can be repeated to add multiple tags. Quote with or to use non word character (like spaces) in <code>Tag</code>. <a href="http://spec.openapis.org/oas/v3.0.3#operation-object" class="external-link">Tag field</a>
 </p>
 </td>
 </tr>
 <tr class="even">
 <td>
 <p>
-<code><span class="citation">@message</span></code>
+<code><span class="citation" data-cites="message">@message</span></code>
 </p>
 </td>
 <td>
@@ -427,28 +365,21 @@ None
 </td>
 <td>
 <p>
-Marks the handler as a WebSocket message handler. No other tags will
-have an effect if this tag is present
+Marks the handler as a WebSocket message handler. No other tags will have an effect if this tag is present
 </p>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="section level4">
-<h4 id="more-details-on-type">More details on <code>Type</code><a class="anchor" aria-label="anchor" href="#more-details-on-type"></a>
+<section class="level4"><h4 id="more-details-on-type">More details on <code>Type</code>
+<a class="anchor" aria-label="anchor" href="#more-details-on-type"></a>
 </h4>
-<p>Types are used to define API inputs and outputs. For path parameters
-they can be given both in <code>@param</code> and inside the handler
-path. If they are given both places they <strong>must</strong> be in
-agreement. For query and body parameters they are given in their
-respective <code>@query</code> and <code>@body</code> tags.</p>
-<p>Some types can have a nested structure which is also supported, but
-the type spec can quickly become difficult to read the further you
-recurse so use with care</p>
-<table class="table">
+<p>Types are used to define API inputs and outputs. For path parameters they can be given both in <code>@param</code> and inside the handler path. If they are given both places they <strong>must</strong> be in agreement. For query and body parameters they are given in their respective <code>@query</code> and <code>@body</code> tags.</p>
+<p>Some types can have a nested structure which is also supported, but the type spec can quickly become difficult to read the further you recurse so use with care</p>
+<table class="table caption-top">
 <colgroup>
-<col width="44%">
-<col width="55%">
+<col style="width: 44%">
+<col style="width: 55%">
 </colgroup>
 <thead><tr class="header">
 <th>Type</th>
@@ -504,33 +435,18 @@ recurse so use with care</p>
 <tr class="even">
 <td><code>{prop_name: Type, prop_name2: Type2}</code></td>
 <td>
-<code>object</code> <code>properties:prop_name:type:Type</code>
-<code>properties:prop_name2:type:Type2</code>
+<code>object</code> <code>properties:prop_name:type:Type</code> <code>properties:prop_name2:type:Type2</code>
 </td>
 </tr>
 </tbody>
 </table>
-<p>Types can have a default value, which is given in parentheses after
-the type specification, e.g. <code>integer(10)</code>. For objects and
-arrays you should use JSON notation to describe the default value
-(e.g. <code>[integer]([2, 6, 1])</code>).</p>
-<p>parameters can be specified as optional or required in their type
-notation. Path parameters are always required so any setting is ignored
-for this. A parameter can be marked as required by adding a
-<code>*</code> suffix to the type description,
-e.g. <code>arg1:integer*</code> to indicate that <code>arg1</code> is
-required and an integer. A parameter cannot both be required and have a
-default value (for reasons of logic).</p>
-<p>Apart from being used in the documentation of your API, the type
-information you provide for parameters will also be used to cast the
-incoming values to the correct type and add defaults if missing.
-Further, missing required parameters will result in an error. The
-response is not type checked so it is up to you to conform with the
-specification you provide.</p>
-<div class="section level5">
-<h5 id="annotations-example-1">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-1"></a>
+<p>Types can have a default value, which is given in parentheses after the type specification, e.g. <code>integer(10)</code>. For objects and arrays you should use JSON notation to describe the default value (e.g. <code>[integer]([2, 6, 1])</code>).</p>
+<p>For the <code>integer</code> and <code>number</code> types it is also possible to specify the lower and/or upper bounds of the value. This is done by putting these between <code>|</code> like so: <code>integer|3, 7|</code>. Omitting one of these will remove that bound requirement (e.g. <code>integer|,7|</code> only requires the input to be below or equal to 7). If combining this with a default value the range comes first (<code>integer|3,7|(5)</code>).</p>
+<p>parameters can be specified as optional or required in their type notation. Path parameters are always required so any setting is ignored for this. A parameter can be marked as required by adding a <code>*</code> suffix to the type description, e.g. <code>arg1:integer*</code> to indicate that <code>arg1</code> is required and an integer. A parameter cannot both be required and have a default value (for reasons of logic).</p>
+<p>Apart from being used in the documentation of your API, the type information you provide for parameters will also be used to cast the incoming values to the correct type and add defaults if missing. Further, missing required parameters will result in an error. The response is not type checked so it is up to you to conform with the specification you provide.</p>
+<section class="level5"><h5 id="annotations-example-1">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-1"></a>
 </h5>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /query/parameters</span></span>
 <span><span class="co">#* @serializer text</span></span>
 <span><span class="co">#* @query name:string*</span></span>
@@ -565,11 +481,10 @@ specification you provide.</p>
 <span>  <span class="op">}</span></span>
 <span>  <span class="cn">NULL</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-</div>
-<div class="section level5">
-<h5 id="equivalent-programmatic-usage-1">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-1"></a>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage-1">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-1"></a>
 </h5>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">text_handler</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span>, <span class="va">age</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%s is %i years old"</span>, <span class="va">name</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
@@ -649,35 +564,11 @@ specification you provide.</p>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_message.html">api_message</a></span><span class="op">(</span><span class="va">msg_handler</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Creating <span style="color: #00BB00;">default</span> route in request router</span></span></code></pre>
-<pre><code><span><span class="co">## ── A plumber server ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">## Serving on http://127.0.0.1:8080</span></span>
-<span><span class="co">## Currently <span style="color: #BB0000;">not running</span></span></span></code></pre>
 </div>
-</div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="static-block-annotations">Asset annotation<a class="anchor" aria-label="anchor" href="#static-block-annotations"></a>
+</section></section></section></section><section class="level2"><h2 id="static-block-annotations">Asset annotation<a class="anchor" aria-label="anchor" href="#static-block-annotations"></a>
 </h2>
-<p>There are two ways to serve static content in plumber2 and they
-differ in subtle ways. The <code>@assets</code> tag instruct plumber to
-create a regular handler that matches the mount path (defaults to
-<code>/</code>) and will serve files from <code>Path</code>. The
-<code>@statics</code> tag works the same, but rather than create a
-handler it instructs httpuv (which is the low-level package powering
-plumber2) to serve the files before the request even reaches the R
-process. This makes it much faster but also limited in flexibility since
-the request never reaches your code and you are unable to modify it. In
-general, you should use <code>@statics</code> unless you need to provide
-any additional handling of the request, such as authentication or
-logging.</p>
-<table class="table">
-<colgroup>
-<col width="26%">
-<col width="26%">
-<col width="47%">
-</colgroup>
+<p>There are two ways to serve static content in plumber2 and they differ in subtle ways. The <code>@assets</code> tag instruct plumber to create a regular handler that matches the mount path (defaults to <code>/</code>) and will serve files from <code>Path</code>. The <code>@statics</code> tag works the same, but rather than create a handler it instructs httpuv (which is the low-level package powering plumber2) to serve the files before the request even reaches the R process. This makes it much faster but also limited in flexibility since the request never reaches your code and you are unable to modify it. In general, you should use <code>@statics</code> unless you need to provide any additional handling of the request, such as authentication or logging.</p>
+<table class="table caption-top">
 <thead><tr class="header">
 <th>Annotation</th>
 <th>Arguments</th>
@@ -687,32 +578,25 @@ logging.</p>
 <tr class="odd">
 <td><code>@assets</code></td>
 <td>
-<code>Path</code> <span class="math display">$$`Mount
-path`$$</span>
-</td>
-<td><a href="./routing-and-input.html#static-file-handler">Static
-files</a></td>
+<code>Path</code> [<code>Mount path</code>]</td>
+<td><a href="./routing-and-input.html#static-file-handler">Static files</a></td>
 </tr>
 <tr class="even">
 <td><code>@statics</code></td>
 <td>
-<code>Path</code> <span class="math display">$$`Mount
-path`$$</span>
-</td>
+<code>Path</code> [<code>Mount path</code>]</td>
 <td></td>
 </tr>
 <tr class="odd">
 <td><code>@except</code></td>
 <td><code>Path</code></td>
-<td>Can be used together with <code>@statics</code> to exclude subpaths
-of the <code>@statics</code> <code>Path</code> from being served.</td>
+<td>Can be used together with <code>@statics</code> to exclude subpaths of the <code>@statics</code> <code>Path</code> from being served.</td>
 </tr>
 </tbody>
 </table>
-<div class="section level5">
-<h5 id="annotations-example-2">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-2"></a>
+<section class="level5"><h5 id="annotations-example-2">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-2"></a>
 </h5>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @assets ./assets/files</span></span>
 <span><span class="cn">NULL</span></span>
 <span></span>
@@ -722,12 +606,10 @@ of the <code>@statics</code> <code>Path</code> from being served.</td>
 <span><span class="co">#* @statics ./assets/static_files</span></span>
 <span><span class="co">#* @except /secret_files</span></span>
 <span><span class="cn">NULL</span></span></code></pre></div>
-</div>
-<div class="section level5">
-<h5 id="equivalent-programmatic-usage-note-that-argument-order-is-reversed">Equivalent programmatic usage (note that argument order is
-reversed)<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-note-that-argument-order-is-reversed"></a>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage-note-that-argument-order-is-reversed">Equivalent programmatic usage (note that argument order is reversed)<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-note-that-argument-order-is-reversed"></a>
 </h5>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu"><a href="../reference/api_assets.html">api_assets</a></span><span class="op">(</span><span class="st">"/"</span>, <span class="st">"./assets/files"</span><span class="op">)</span></span>
 <span></span>
@@ -737,15 +619,13 @@ reversed)<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-us
 <span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu"><a href="../reference/api_assets.html">api_statics</a></span><span class="op">(</span><span class="st">"/"</span>, <span class="st">"./assets/static_files"</span>, except <span class="op">=</span> <span class="st">"/secret_files"</span><span class="op">)</span></span></code></pre></div>
 </div>
-</div>
-<div class="section level2">
-<h2 id="plumber-block-annotations">Plumber annotation<a class="anchor" aria-label="anchor" href="#plumber-block-annotations"></a>
+</section></section><section class="level2"><h2 id="plumber-block-annotations">Plumber annotation<a class="anchor" aria-label="anchor" href="#plumber-block-annotations"></a>
 </h2>
-<table class="table">
+<table class="table caption-top">
 <colgroup>
-<col width="26%">
-<col width="26%">
-<col width="47%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 47%">
 </colgroup>
 <thead><tr class="header">
 <th>Annotation</th>
@@ -755,17 +635,12 @@ reversed)<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-us
 <tbody><tr class="odd">
 <td><code>@plumber</code></td>
 <td>None</td>
-<td>Modify plumber router from plumber file. The plumber router provided
-to the function <strong>must</strong> be returned. In most cases,
-anonymous functions are used following the <code>#* @plumber</code>
-annotation. However, named functions can also be used. When a named
-function is used, it must be referenced without parentheses.</td>
+<td>Modify plumber router from plumber file. The plumber router provided to the function <strong>must</strong> be returned. In most cases, anonymous functions are used following the <code>#* @plumber</code> annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses.</td>
 </tr></tbody>
 </table>
-<div class="section level5">
-<h5 id="annotations-example-3">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-3"></a>
+<section class="level5"><h5 id="annotations-example-3">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-3"></a>
 </h5>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @plumber</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">api</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">api</span> <span class="op">%&gt;%</span></span>
@@ -780,22 +655,117 @@ function is used, it must be referenced without parentheses.</td>
 <span></span>
 <span><span class="co">#* @plumber</span></span>
 <span><span class="va">use_swagger</span></span></code></pre></div>
-</div>
-<div class="section level5">
-<h5 id="equivalent-programmatic-usage-2">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-2"></a>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage-2">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-2"></a>
 </h5>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_docs.html">api_doc_setting</a></span><span class="op">(</span><span class="st">"swagger"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## ── A plumber server ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">## Serving on http://127.0.0.1:8080</span></span>
-<span><span class="co">## Currently <span style="color: #BB0000;">not running</span></span></span></code></pre>
 </div>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+</section></section><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'light-border',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config);
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
-
 
 
     <footer><div class="pkgdown-footer-left">

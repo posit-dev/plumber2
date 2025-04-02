@@ -10,7 +10,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Rendering Output">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="rendering-output_files/libs/quarto-html/popper.min.js"></script><script src="rendering-output_files/libs/quarto-html/tippy.umd.min.js"></script><link href="rendering-output_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="rendering-output_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Rendering Output">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -55,111 +57,56 @@
 
 
   </div>
-</nav><div class="container template-article">
-
-
-
-
+</nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Rendering Output</h1>
-            
-      
 
-      <div class="d-none name"><code>rendering-output.Rmd</code></div>
+
+
+
+
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<p><img src="files%2Fimages%2Fplumber_output.png" style="float:right;;width:45.0%"></p>
-<div class="section level2">
-<h2 id="response-object">The Response Object<a class="anchor" aria-label="anchor" href="#response-object"></a>
+
+
+
+
+
+    <p><img src="files/images/plumber_output.png" style="float:right;;width:45.0%"></p>
+<section class="level2"><h2 id="response-object">The Response Object<a class="anchor" aria-label="anchor" href="#response-object"></a>
 </h2>
-<p>The plumber2 response object is, like <a href="./routing-and-input.html#the-request-object-1">the request
-object</a>, provided by reqres and implemented as an R6 class object.
-Please consult the <a href="https://reqres.data-imaginist.com/reference/Response.html" class="external-link">reqres
-documentation</a> for an in-depth overview of the class and what it can
-do. The response object is accessible from within a handler if it
-provides a <code>response</code> argument, and since it is based on R6,
-any change happening to it in the handler will persist.</p>
-<p>It is not necessary for a handler to interact directly with a
-response. Returning any “classic” value from a handler function will set
-the response body to that value, often providing everything needed for
-that particular handler. The return values that differ from this
-are:</p>
+<p>The plumber2 response object is, like <a href="./routing-and-input.html#the-request-object-1">the request object</a>, provided by reqres and implemented as an R6 class object. Please consult the <a href="https://reqres.data-imaginist.com/reference/Response.html" class="external-link">reqres documentation</a> for an in-depth overview of the class and what it can do. The response object is accessible from within a handler if it provides a <code>response</code> argument, and since it is based on R6, any change happening to it in the handler will persist.</p>
+<p>It is not necessary for a handler to interact directly with a response. Returning any “classic” value from a handler function will set the response body to that value, often providing everything needed for that particular handler. The return values that differ from this are:</p>
 <ul>
-<li><p>Returning <code>NULL</code> or <code>Next</code>: Returning
-either of these will not modify the response body, but allow the request
-to be handled by the next route in the stack</p></li>
-<li><p>Returning <code>Break</code>: This will not modify the response
-and will short-circuit any further handling, returning the response
-as-is</p></li>
-<li><p>Returning the <code>response</code>: You may return the response
-from the handler and will not alter it’s body further. Like returning
-<code>NULL</code> and <code>Next</code> it will allow handling to
-continue to the next route</p></li>
-<li><p>Using a graphics serializer: If a graphics serializer is in use
-the body will be set to the graphic captured by the serializer and any
-return value from the function is ignored</p></li>
-<li><p>Returning a <code>ggplot</code> object: If a <code>ggplot</code>
-object is returned it will be plotted so that the graphics serializer
-may capture its output</p></li>
+<li><p>Returning <code>NULL</code> or <code>Next</code>: Returning either of these will not modify the response body, but allow the request to be handled by the next route in the stack</p></li>
+<li><p>Returning <code>Break</code>: This will not modify the response and will short-circuit any further handling, returning the response as-is</p></li>
+<li><p>Returning the <code>response</code>: You may return the response from the handler and will not alter it’s body further. Like returning <code>NULL</code> and <code>Next</code> it will allow handling to continue to the next route</p></li>
+<li><p>Using a graphics serializer: If a graphics serializer is in use the body will be set to the graphic captured by the serializer and any return value from the function is ignored</p></li>
+<li><p>Returning a <code>ggplot</code> object: If a <code>ggplot</code> object is returned it will be plotted so that the graphics serializer may capture its output</p></li>
 </ul>
-<p>If you wish to make use of some of the more powerful features from
-reqres you will likely want to interact with the response object
-directly. Some of these features include, accessing and setting session
-cookie data, setting headers, or taking full control over content
-negotiation and serializing.</p>
-</div>
-<div class="section level2">
-<h2 id="serializers">Serializers<a class="anchor" aria-label="anchor" href="#serializers"></a>
+<p>If you wish to make use of some of the more powerful features from reqres you will likely want to interact with the response object directly. Some of these features include, accessing and setting session cookie data, setting headers, or taking full control over content negotiation and serializing.</p>
+</section><section class="level2"><h2 id="serializers">Serializers<a class="anchor" aria-label="anchor" href="#serializers"></a>
 </h2>
-<p>In order to send a response from R to an API client, the object must
-be “serialized” into some format that the client can understand.
-JavaScript Object Notation (JSON) is one standard which is commonly used
-by web APIs. JSON serialization translates R objects like
-<code>list(a=123, b="hi!")</code> to JSON text resembling
-<code>{a: 123, b: "hi!"}</code>.</p>
-<p>JSON is not appropriate for every situation, however. If you want
-your API to render an HTML page that might be viewed in a browser, for
-instance, you will need a different serializer. Likewise, if you want to
-return an image rendered in R, you likely want to use a standard image
-format like PNG or JPEG rather than JSON.</p>
-<p>It is not required to decide on a single serializer up front. A
-server can provide different representations and a client can prefer
-specific representations. If a server can provide the result in
-different ways it will perform something called server-driven content
-negotiation, where it inspects the request to get the client preferences
-and then chooses the best serializer based on that. In order to use
-multiple serializers you provide multiple <code>@serializer</code> tags,
-their order determining the server priority. There are two special
-values: <code>none</code> and <code>...</code>. The former instructs
-plumber2 to not do any serialization at all, leaving it up to the
-handler to prepare the response body and set the Content-Type header.
-The latter will insert all non-selected serializers into the list at
-that position. You could e.g. do this:</p>
+<p>In order to send a response from R to an API client, the object must be “serialized” into some format that the client can understand. JavaScript Object Notation (JSON) is one standard which is commonly used by web APIs. JSON serialization translates R objects like <code>list(a=123, b="hi!")</code> to JSON text resembling <code>{a: 123, b: "hi!"}</code>.</p>
+<p>JSON is not appropriate for every situation, however. If you want your API to render an HTML page that might be viewed in a browser, for instance, you will need a different serializer. Likewise, if you want to return an image rendered in R, you likely want to use a standard image format like PNG or JPEG rather than JSON.</p>
+<p>It is not required to decide on a single serializer up front. A server can provide different representations and a client can prefer specific representations. If a server can provide the result in different ways it will perform something called server-driven content negotiation, where it inspects the request to get the client preferences and then chooses the best serializer based on that. In order to use multiple serializers you provide multiple <code>@serializer</code> tags, their order determining the server priority. There are two special values: <code>none</code> and <code>...</code>. The former instructs plumber2 to not do any serialization at all, leaving it up to the handler to prepare the response body and set the Content-Type header. The latter will insert all non-selected serializers into the list at that position. You could e.g. do this:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @serializer yaml</span></span>
 <span><span class="co">#* @serializer ...</span></span></code></pre></div>
-<p>To make YAML the preferred response format but still have the
-remaining serializers to fall back on if the client do not understand
-yaml.</p>
-<p>By default, plumber2 uses all the registered serializers and performs
-content negotiation based on those so if you want to ensure a single
-output type you have to set this explicitly. Another reason to set them
-explicitly would be to modify their behavior by providing arguments to
-them:</p>
+<p>To make YAML the preferred response format but still have the remaining serializers to fall back on if the client do not understand yaml.</p>
+<p>By default, plumber2 uses all the registered serializers and performs content negotiation based on those so if you want to ensure a single output type you have to set this explicitly. Another reason to set them explicitly would be to modify their behavior by providing arguments to them:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @serializer json{na="string"}</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="standard-serializers">Standard serializers<a class="anchor" aria-label="anchor" href="#standard-serializers"></a>
+<section class="level3"><h3 id="standard-serializers">Standard serializers<a class="anchor" aria-label="anchor" href="#standard-serializers"></a>
 </h3>
-<table class="table">
+<table class="table caption-top">
 <colgroup>
-<col width="26%">
-<col width="27%">
-<col width="45%">
+<col style="width: 26%">
+<col style="width: 27%">
+<col style="width: 45%">
 </colgroup>
 <thead><tr class="header">
 <th>Annotation</th>
@@ -176,17 +123,13 @@ them:</p>
 <tr class="even">
 <td><code>@serializer unboxedJSON</code></td>
 <td><code>application/json</code></td>
-<td>Object processed with
-<code>jsonlite::toJSON(auto_unbox=TRUE)</code>
+<td>Object processed with <code>jsonlite::toJSON(auto_unbox=TRUE)</code>
 </td>
 </tr>
 <tr class="odd">
 <td><code>@serializer html</code></td>
 <td><code>text/html; charset=UTF-8</code></td>
-<td>Character strings passed through directly, Objects of class
-<code>shiny.tag</code> (from htmltools) converted with
-<code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>. Other objects converted to html using
-<code><a href="http://xml2.r-lib.org/reference/as_xml_document.html" class="external-link">xml2::as_xml_document()</a></code>
+<td>Character strings passed through directly, Objects of class <code>shiny.tag</code> (from htmltools) converted with <code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>. Other objects converted to html using <code><a href="http://xml2.r-lib.org/reference/as_xml_document.html" class="external-link">xml2::as_xml_document()</a></code>
 </td>
 </tr>
 <tr class="even">
@@ -263,34 +206,28 @@ them:</p>
 <tr class="even">
 <td><code>@serializer geojson</code></td>
 <td><code>application/geo+json</code></td>
-<td>Objects processed with <code><a href="https://rdrr.io/pkg/geojsonsf/man/sfc_geojson.html" class="external-link">geojsonsf::sfc_geojson()</a></code> or
-<code><a href="https://rdrr.io/pkg/geojsonsf/man/sf_geojson.html" class="external-link">geojsonsf::sf_geojson()</a></code>
+<td>Objects processed with <code><a href="https://rdrr.io/pkg/geojsonsf/man/sfc_geojson.html" class="external-link">geojsonsf::sfc_geojson()</a></code> or <code><a href="https://rdrr.io/pkg/geojsonsf/man/sf_geojson.html" class="external-link">geojsonsf::sf_geojson()</a></code>
 </td>
 </tr>
 </tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="boxed-vs-unboxed-json">Boxed vs Unboxed JSON<a class="anchor" aria-label="anchor" href="#boxed-vs-unboxed-json"></a>
+</table></section><section class="level3"><h3 id="boxed-vs-unboxed-json">Boxed vs Unboxed JSON<a class="anchor" aria-label="anchor" href="#boxed-vs-unboxed-json"></a>
 </h3>
-<p>You may have noticed that JSON API responses generated from Plumber
-render singular values (or “scalars”) as arrays. For instance:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>You may have noticed that JSON API responses generated from Plumber render singular values (or “scalars”) as arrays. For instance:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">toJSON</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a<span class="op">=</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## {"a":[5]}</span></span></code></pre>
-<p>The value of the <code>a</code> element, though it’s singular, is
-still rendered as an array. This may surprise you initially, but this is
-done to keep the output consistent. While JSON differentiates scalar
-from vector objects, R does not. This creates ambiguity when serializing
-an R object to JSON since it is unclear whether a particular element
-should be rendered as an atomic value or a JSON array.</p>
-<p>Consider the following API which returns all the letters
-lexicographically “higher” than the given letter.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="cell-output cell-output-stdout">
+<pre><code><span><span class="co">#&gt; {"a":[5]}</span></span></code></pre>
+</div>
+</div>
+<p>The value of the <code>a</code> element, though it’s singular, is still rendered as an array. This may surprise you initially, but this is done to keep the output consistent. While JSON differentiates scalar from vector objects, R does not. This creates ambiguity when serializing an R object to JSON since it is unclear whether a particular element should be rendered as an atomic value or a JSON array.</p>
+<p>Consider the following API which returns all the letters lexicographically “higher” than the given letter.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Get letters after a given letter</span></span>
 <span><span class="co">#* @serializer json</span></span>
 <span><span class="co">#* @get /boxed</span></span>
-<span><span class="co">#* @query letter:string(A)</span></span>
+<span><span class="co">#* @query letter:string("A")</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">query</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">LETTERS</span><span class="op">[</span><span class="va">LETTERS</span> <span class="op">&gt;</span> <span class="va">query</span><span class="op">$</span><span class="va">letter</span><span class="op">]</span></span>
 <span><span class="op">}</span></span>
@@ -298,64 +235,38 @@ lexicographically “higher” than the given letter.</p>
 <span><span class="co">#* Get letters after a given letter</span></span>
 <span><span class="co">#* @serializer unboxedJSON</span></span>
 <span><span class="co">#* @get /unboxed</span></span>
-<span><span class="co">#* @query letter:string(A)</span></span>
+<span><span class="co">#* @query letter:string("A")</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">query</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">LETTERS</span><span class="op">[</span><span class="va">LETTERS</span> <span class="op">&gt;</span> <span class="va">query</span><span class="op">$</span><span class="va">letter</span><span class="op">]</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>This is an example of an API that, in some instance, produces a
-scalar, and in other instances produces a vector.</p>
-<p>Visiting <a href="http://localhost:8080/boxed?letter=U" class="external-link uri">http://localhost:8080/boxed?letter=U</a> or <a href="http://localhost:8080/unboxed?letter=U" class="external-link uri">http://localhost:8080/unboxed?letter=U</a> will return
-identical responses:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ot">[</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="st">"V"</span><span class="ot">,</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="st">"W"</span><span class="ot">,</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="st">"X"</span><span class="ot">,</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="st">"Y"</span><span class="ot">,</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="st">"Z"</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
-<p>However, <a href="http://localhost:8080/boxed?letter=Y" class="external-link uri">http://localhost:8080/boxed?letter=Y</a> will produce:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ot">[</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="st">"Z"</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
-<p>while <a href="http://localhost:8080/unboxed?letter=Y" class="external-link uri">http://localhost:8080/unboxed?letter=Y</a> will produce:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="er">"Z"</span></span></code></pre></div>
-<p>The <code>/boxed</code> endpoint, as the name implies, produces
-“boxed” JSON output in which length-1 vectors are still rendered as an
-array. Conversely, the <code>/unboxed</code> endpoint sets
-<code>auto_unbox=TRUE</code> in its call to
-<code><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">jsonlite::toJSON</a></code>, causing length-1 R vectors to be rendered
-as JSON scalars.</p>
-<p>While R doesn’t distinguish between scalars and vectors, API clients
-may respond very differently when encountering a JSON array versus an
-atomic value. You may find that your API clients will not respond
-gracefully when an object that they expected to be a vector becomes a
-scalar in one call.</p>
-<p>For this reason, Plumber inherits the <code><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">jsonlite::toJSON</a></code>
-default of setting <code>auto_unbox=FALSE</code> which will result in
-all length-1 vectors still being rendered as JSON arrays. You can
-configure an endpoint to use the <code>unboxedJSON</code> serializer (as
-shown above) if you want to alter this behavior for a particular
-endpoint.</p>
-<p>There are a couple of functions to be aware of around this feature
-set. If using boxed JSON serialization, <code><a href="https://jeroen.r-universe.dev/jsonlite/reference/unbox.html" class="external-link">jsonlite::unbox()</a></code>
-can be used to force a length-1 object in R to be presented in JSON as a
-scalar. If using unboxed JSON serialization, <code><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I()</a></code> will cause
-a length-1 R object to present as a JSON array.</p>
 </div>
-<div class="section level3">
-<h3 id="graphics-serializers">Graphics serializers<a class="anchor" aria-label="anchor" href="#graphics-serializers"></a>
+<p>This is an example of an API that, in some instance, produces a scalar, and in other instances produces a vector.</p>
+<p>Visiting http://localhost:8080/boxed?letter=U or http://localhost:8080/unboxed?letter=U will return identical responses:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V"</span><span class="ot">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"W"</span><span class="ot">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X"</span><span class="ot">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Y"</span><span class="ot">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Z"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+<p>However, http://localhost:8080/boxed?letter=Y will produce:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Z"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+<p>while http://localhost:8080/unboxed?letter=Y will produce:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="er">"Z"</span></span></code></pre></div>
+<p>The <code>/boxed</code> endpoint, as the name implies, produces “boxed” JSON output in which length-1 vectors are still rendered as an array. Conversely, the <code>/unboxed</code> endpoint sets <code>auto_unbox=TRUE</code> in its call to <code><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">jsonlite::toJSON</a></code>, causing length-1 R vectors to be rendered as JSON scalars.</p>
+<p>While R doesn’t distinguish between scalars and vectors, API clients may respond very differently when encountering a JSON array versus an atomic value. You may find that your API clients will not respond gracefully when an object that they expected to be a vector becomes a scalar in one call.</p>
+<p>For this reason, Plumber inherits the <code><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">jsonlite::toJSON</a></code> default of setting <code>auto_unbox=FALSE</code> which will result in all length-1 vectors still being rendered as JSON arrays. You can configure an endpoint to use the <code>unboxedJSON</code> serializer (as shown above) if you want to alter this behavior for a particular endpoint.</p>
+<p>There are a couple of functions to be aware of around this feature set. If using boxed JSON serialization, <code><a href="https://jeroen.r-universe.dev/jsonlite/reference/unbox.html" class="external-link">jsonlite::unbox()</a></code> can be used to force a length-1 object in R to be presented in JSON as a scalar. If using unboxed JSON serialization, <code><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I()</a></code> will cause a length-1 R object to present as a JSON array.</p>
+</section><section class="level3"><h3 id="graphics-serializers">Graphics serializers<a class="anchor" aria-label="anchor" href="#graphics-serializers"></a>
 </h3>
-<p>Graphics serializers are special because they need to do some setup
-and teardown around the handler in order to capture graphics output.
-Because of this they cannot be mixed with the standard serializers. They
-are omitted when using <code>...</code> unless a graphics serializer has
-been selected explicitly in which case <code>...</code> will refer to
-the remaining graphics serializers and omit the standard ones.</p>
-<table class="table">
+<p>Graphics serializers are special because they need to do some setup and teardown around the handler in order to capture graphics output. Because of this they cannot be mixed with the standard serializers. They are omitted when using <code>...</code> unless a graphics serializer has been selected explicitly in which case <code>...</code> will refer to the remaining graphics serializers and omit the standard ones.</p>
+<table class="table caption-top">
 <colgroup>
-<col width="26%">
-<col width="27%">
-<col width="45%">
+<col style="width: 26%">
+<col style="width: 27%">
+<col style="width: 45%">
 </colgroup>
 <tbody>
 <tr class="odd">
@@ -396,49 +307,33 @@ the remaining graphics serializers and omit the standard ones.</p>
 </tr>
 </tbody>
 </table>
-<p>As with the standard serializers the behaviour of these can be
-modified by specifying additional arguments to the serializer. Many of
-these arguments are well-known from using graphics devices in R
-including <code>width</code>, <code>height</code>, and <code>bg</code>
-among others.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>As with the standard serializers the behaviour of these can be modified by specifying additional arguments to the serializer. Many of these arguments are well-known from using graphics devices in R including <code>width</code>, <code>height</code>, and <code>bg</code> among others.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Example of customizing graphical output</span></span>
 <span><span class="co">#* @serializer png{width = 400, height = 500}</span></span>
 <span><span class="co">#* @get /</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Arguments inside the curly braces are evaluated in the same
-environment as the handler so any R expression will be valid. However,
-they are evaluated only once, when parsing the file, so it is not
-possible to provide dynamic serializer settings in this way. If you wish
-to dynamically size images, you will need render and capture the
-graphical output yourself and return the contents with the appropriate
-<code>Content-Type</code> header. See the existing image renderers as a
-model of how to do this.</p>
 </div>
-<div class="section level3">
-<h3 id="bypassing-serialization">Bypassing Serialization<a class="anchor" aria-label="anchor" href="#bypassing-serialization"></a>
+<p>Arguments inside the curly braces are evaluated in the same environment as the handler so any R expression will be valid. However, they are evaluated only once, when parsing the file, so it is not possible to provide dynamic serializer settings in this way. If you wish to dynamically size images, you will need render and capture the graphical output yourself and return the contents with the appropriate <code>Content-Type</code> header. See the existing image renderers as a model of how to do this.</p>
+</section><section class="level3"><h3 id="bypassing-serialization">Bypassing Serialization<a class="anchor" aria-label="anchor" href="#bypassing-serialization"></a>
 </h3>
-<p>In some instances it may be desirable to return a value directly from
-R without serialization. You can do this by settings
-<code>@serializer none</code> which will turn off any automatic
-serialization by plumber. Consider the following handler:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<p>In some instances it may be desirable to return a value directly from R without serialization. You can do this by settings <code>@serializer none</code> which will turn off any automatic serialization by plumber. Consider the following handler:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Endpoint that bypasses serialization</span></span>
 <span><span class="co">#* @get /</span></span>
 <span><span class="co">#* @serializer none</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">response</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">response</span><span class="op">$</span><span class="va">body</span> <span class="op">&lt;-</span> <span class="st">"Literal text here!"</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>The response that is returned from this endpoint would contain the
-body <code>Literal text here!</code> with no <code>Content-Type</code>
-header and without any additional serialization.</p>
-<p>In a similar vein you can set a <code>Content-Type</code> but
-otherwise leave the body unchanged by providing a mime type to
-<code>@serializer</code>. You can use this annotation when you want more
-control over the response that you send.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+</div>
+<p>The response that is returned from this endpoint would contain the body <code>Literal text here!</code> with no <code>Content-Type</code> header and without any additional serialization.</p>
+<p>In a similar vein you can set a <code>Content-Type</code> but otherwise leave the body unchanged by providing a mime type to <code>@serializer</code>. You can use this annotation when you want more control over the response that you send.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @serializer application/pdf</span></span>
 <span><span class="co">#* @get /pdf</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
@@ -451,43 +346,30 @@ control over the response that you send.</p>
 <span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/readBin.html" class="external-link">readBin</a></span><span class="op">(</span><span class="va">tmp</span>, <span class="st">"raw"</span>, n<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.info.html" class="external-link">file.info</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">$</span><span class="va">size</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Running this API and visiting <a href="http://localhost:8080/pdf" class="external-link uri">http://localhost:8080/pdf</a> will download the PDF
-generated from R (or display the PDF natively, if your client supports
-it).</p>
 </div>
-<div class="section level3">
-<h3 id="custom-serializers">Custom serializers<a class="anchor" aria-label="anchor" href="#custom-serializers"></a>
+<p>Running this API and visiting http://localhost:8080/pdf will download the PDF generated from R (or display the PDF natively, if your client supports it).</p>
+</section><section class="level3"><h3 id="custom-serializers">Custom serializers<a class="anchor" aria-label="anchor" href="#custom-serializers"></a>
 </h3>
-<p>While plumber2 comes with serializers that cover most use cases you
-may want to provide your own. You can do so in two ways. Either by
-registering your serializer and refering to it by name as you would with
-any other native serializer, or by specifying it inline. You may want to
-serve toml files but plumber doesn’t (yet) ship with a serializer for
-this. You could quickly create your own using
-<code>blogdown::write_toml()</code>. Serializers in plumber2 are factory
-functions that take a range of arguments and return a unary function
-capable of formatting the response body:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p>While plumber2 comes with serializers that cover most use cases you may want to provide your own. You can do so in two ways. Either by registering your serializer and refering to it by name as you would with any other native serializer, or by specifying it inline. You may want to serve toml files but plumber doesn’t (yet) ship with a serializer for this. You could quickly create your own using <code>blogdown::write_toml()</code>. Serializers in plumber2 are factory functions that take a range of arguments and return a unary function capable of formatting the response body:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">format_toml</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu">blogdown</span><span class="fu">::</span><span class="fu">write_toml</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>You could use this directly in a handler with
-<code>@serializer application/toml format_toml()</code> or you could
-register it:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+</div>
+<p>You could use this directly in a handler with <code>@serializer application/toml format_toml()</code> or you could register it:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/register_serializer.html">register_serializer</a></span><span class="op">(</span><span class="st">"toml"</span>, <span class="va">format_toml</span>, <span class="st">"application/toml"</span><span class="op">)</span></span></code></pre></div>
-<p>and use it like any other serializer:
-<code>@serializer toml</code></p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="error-handling">Error Handling<a class="anchor" aria-label="anchor" href="#error-handling"></a>
+<p>and use it like any other serializer: <code>@serializer toml</code></p>
+</section></section><section class="level2"><h2 id="error-handling">Error Handling<a class="anchor" aria-label="anchor" href="#error-handling"></a>
 </h2>
-<p>Plumber wraps each endpoint invocation so that it can gracefully
-capture errors.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<p>Plumber wraps each endpoint invocation so that it can gracefully capture errors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Example of throwing an error</span></span>
 <span><span class="co">#* @get /simple</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
@@ -501,52 +383,28 @@ capture errors.</p>
 <span>    <span class="st">"Your request could not be parsed"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>If you run this API in interactive mode and visit <a href="http://localhost:8080/simple" class="external-link uri">http://localhost:8080/simple</a>, you’ll notice two
-things:</p>
-<ol style="list-style-type: decimal">
-<li>An HTTP response with a status code of <code>500</code> (“internal
-server error”) is sent to the client. The response does not give any
-clues as to the nature of the error</li>
+</div>
+<p>If you run this API in interactive mode and visit http://localhost:8080/simple, you’ll notice two things:</p>
+<ol type="1">
+<li>An HTTP response with a status code of <code>500</code> (“internal server error”) is sent to the client. The response does not give any clues as to the nature of the error</li>
 <li>The error is printed to the console</li>
 </ol>
-<p>This means that it is possible for you to intentionally use
-<code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> in a handler as a way to communicate a problem to
-your user. However, since most information is stripped away from the
-response, it may be preferable to provide a bit more detail to the user.
-reqres, provides a set of abort calls that works like
-<code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> but also carry on information about the status code
-and message to send to the client. Read more at the <a href="https://reqres.data-imaginist.com/reference/abort_http_problem.html" class="external-link">reqres
-website</a>. Visiting the second handler we can see it in action:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.1"</span><span class="fu">,</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="dt">"title"</span><span class="fu">:</span> <span class="st">"Bad Request"</span><span class="fu">,</span></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="dv">400</span><span class="fu">,</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>  <span class="dt">"detail"</span><span class="fu">:</span> <span class="st">"Your request could not be parsed"</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="setting-cookies">Setting Cookies<a class="anchor" aria-label="anchor" href="#setting-cookies"></a>
+<p>This means that it is possible for you to intentionally use <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> in a handler as a way to communicate a problem to your user. However, since most information is stripped away from the response, it may be preferable to provide a bit more detail to the user. reqres, provides a set of abort calls that works like <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> but also carry on information about the status code and message to send to the client. Read more at the <a href="https://reqres.data-imaginist.com/reference/abort_http_problem.html" class="external-link">reqres website</a>. Visiting the second handler we can see it in action:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.1"</span><span class="fu">,</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"title"</span><span class="fu">:</span> <span class="st">"Bad Request"</span><span class="fu">,</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="dv">400</span><span class="fu">,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"detail"</span><span class="fu">:</span> <span class="st">"Your request could not be parsed"</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+</section><section class="level2"><h2 id="setting-cookies">Setting Cookies<a class="anchor" aria-label="anchor" href="#setting-cookies"></a>
 </h2>
-<p>As part of fulfilling a request, a Plumber API can choose to set HTTP
-cookies on the client. HTTP APIs don’t implicitly contain a notion of a
-“session.” Without some additional information, Plumber has no way of
-ascertaining whether or not two HTTP requests that come in are
-associated with the same user. Cookies offer a way to commission the
-client to store some state on your behalf so that selected data can
-outlive a single HTTP request; the full implications of using cookies to
-track state in your API are discussed <a href="./execution-model.html#state-cookies">here</a>. The two forms of
-Plumber cookies – plain-text and encrypted – are discussed in the
-following sections.</p>
-<p>Before you make cookies an important part of your API’s security
-model, be sure to understand the section on the <a href="./security.html#security-cookies">security considerations when
-working with cookies</a>.</p>
-<div class="section level3">
-<h3 id="setting-unencrypted-cookies">Setting Unencrypted Cookies<a class="anchor" aria-label="anchor" href="#setting-unencrypted-cookies"></a>
+<p>As part of fulfilling a request, a Plumber API can choose to set HTTP cookies on the client. HTTP APIs don’t implicitly contain a notion of a “session.” Without some additional information, Plumber has no way of ascertaining whether or not two HTTP requests that come in are associated with the same user. Cookies offer a way to commission the client to store some state on your behalf so that selected data can outlive a single HTTP request; the full implications of using cookies to track state in your API are discussed <a href="./execution-model.html#state-cookies">here</a>. The two forms of Plumber cookies – plain-text and encrypted – are discussed in the following sections.</p>
+<p>Before you make cookies an important part of your API’s security model, be sure to understand the section on the <a href="./security.html#security-cookies">security considerations when working with cookies</a>.</p>
+<section class="level3"><h3 id="setting-unencrypted-cookies">Setting Unencrypted Cookies<a class="anchor" aria-label="anchor" href="#setting-unencrypted-cookies"></a>
 </h3>
-<p>Plumber can both set and receive plaint-text cookies. The API
-endpoint below will return a random letter, but it remembers your
-preferences on whether you like capitalized or lower-case letters.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<p>Plumber can both set and receive plaint-text cookies. The API endpoint below will return a random letter, but it remembers your preferences on whether you like capitalized or lower-case letters.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @put /preferences</span></span>
 <span><span class="co">#* @body capital:integer*</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">response</span>, <span class="va">body</span><span class="op">)</span> <span class="op">{</span></span>
@@ -569,95 +427,30 @@ preferences on whether you like capitalized or lower-case letters.</p>
 <span>    letter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">alphabet</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Since this API is using a <code>PUT</code> request to test this API,
-we’ll use <code>curl</code> on the command line to test it. (There’s
-nothing about cookies that necessitates <code>PUT</code> requests; you
-could just as easily modify this API to use a <code>GET</code> request.)
-We can start by visiting the <code>/letter</code> endpoint and we’ll see
-that the API defaults to a lower-case alphabet.
-<code>curl http://localhost:8080/letter</code></p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="dt">"letter"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>    <span class="st">"j"</span></span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="ot">]</span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>If we send a <code>PUT</code> request and specify the
-<code>capital</code> parameter, a cookie will be set on the client which
-will allow the server to accommodate our preference in future requests.
-In <code>curl</code>, you need to specify a file in which you want to
-save these cookies using the <code>-c</code> option. This is a good
-reminder that clients handle cookies differently – some won’t support
-them at all – so be sure that the clients you intend to support with
-your API play nicely with cookies if you want to use them.</p>
-<p>To send a <code>PUT</code> request, setting the parameter
-<code>capital</code> to <code>1</code>, we could invoke:
-<code>curl -c cookies.txt -X PUT --data 'capital=1' "http://localhost:8800/preferences"</code>.
-If you print out the <code>cookies.txt</code> file, you should now see
-that it contains a single cookie called <code>capitalize</code> with a
-value of <code>1</code>.</p>
-<p>We can make another <code>GET</code> request to <code>/letter</code>
-to see if it accommodates our preferences. But we’ll need to tell
-<code>curl</code> to use the cookies file we just created when sending
-this request using the <code>-b</code> switch:
-<code>curl -b cookies.txt http://localhost:8080/letter</code>. You
-should now see that the API is returning a random capitalized
-letter.</p>
-<p>The <code>set_cookie</code> method accepts a variety of additional
-options to customize how the cookie should be handled by the client. By
-default, cookies are set with a <code>session</code> lifetime, meaning
-that the cookie will persist in the user’s browser until the client
-closes the tab at which point the cookie will be deleted. You can
-customize this by setting the <code>expires</code> or
-<code>max_age</code> parameter in <code>set_cookie</code> using either a
-date or the number of seconds in the future in which this cookie should
-expire.</p>
-<p>Other options that can be set on the cookie include <code>path</code>
-(the path on your domain at which the cookie should be installed on the
-client); <code>http_only</code> (controls whether or not the cookie
-should be accessible to JavaScript running on this domain – where
-<code>TRUE</code> means that the cookie is HTTP-only, and not accessible
-from JavaScript); and <code>secure</code> (if <code>TRUE</code>,
-instructs the browser to only send the cookie over HTTPS, not insecure
-HTTP.</p>
-<p>If you’re using cookies to infer any security-sensitive properties
-(such as to identify a user, or determine what resources this client
-should have access to), be sure to see the <a href="./security.html">Security article</a> – in particular <a href="./security.html#security-cookies">the section on the security
-implications of cookies</a>.</p>
 </div>
-<div class="section level3">
-<h3 id="encrypted-cookies">Setting Encrypted Cookies<a class="anchor" aria-label="anchor" href="#encrypted-cookies"></a>
+<p>Since this API is using a <code>PUT</code> request to test this API, we’ll use <code>curl</code> on the command line to test it. (There’s nothing about cookies that necessitates <code>PUT</code> requests; you could just as easily modify this API to use a <code>GET</code> request.) We can start by visiting the <code>/letter</code> endpoint and we’ll see that the API defaults to a lower-case alphabet. <code>curl http://localhost:8080/letter</code></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"letter"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"c"</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>If we send a <code>PUT</code> request and specify the <code>capital</code> parameter, a cookie will be set on the client which will allow the server to accommodate our preference in future requests. In <code>curl</code>, you need to specify a file in which you want to save these cookies using the <code>-c</code> option. This is a good reminder that clients handle cookies differently – some won’t support them at all – so be sure that the clients you intend to support with your API play nicely with cookies if you want to use them.</p>
+<p>To send a <code>PUT</code> request, setting the parameter <code>capital</code> to <code>1</code>, we could invoke: <code>curl -c cookies.txt -X PUT --data 'capital=1' "http://localhost:8800/preferences"</code>. If you print out the <code>cookies.txt</code> file, you should now see that it contains a single cookie called <code>capitalize</code> with a value of <code>1</code>.</p>
+<p>We can make another <code>GET</code> request to <code>/letter</code> to see if it accommodates our preferences. But we’ll need to tell <code>curl</code> to use the cookies file we just created when sending this request using the <code>-b</code> switch: <code>curl -b cookies.txt http://localhost:8080/letter</code>. You should now see that the API is returning a random capitalized letter.</p>
+<p>The <code>set_cookie</code> method accepts a variety of additional options to customize how the cookie should be handled by the client. By default, cookies are set with a <code>session</code> lifetime, meaning that the cookie will persist in the user’s browser until the client closes the tab at which point the cookie will be deleted. You can customize this by setting the <code>expires</code> or <code>max_age</code> parameter in <code>set_cookie</code> using either a date or the number of seconds in the future in which this cookie should expire.</p>
+<p>Other options that can be set on the cookie include <code>path</code> (the path on your domain at which the cookie should be installed on the client); <code>http_only</code> (controls whether or not the cookie should be accessible to JavaScript running on this domain – where <code>TRUE</code> means that the cookie is HTTP-only, and not accessible from JavaScript); and <code>secure</code> (if <code>TRUE</code>, instructs the browser to only send the cookie over HTTPS, not insecure HTTP.</p>
+<p>If you’re using cookies to infer any security-sensitive properties (such as to identify a user, or determine what resources this client should have access to), be sure to see the <a href="./security.html">Security article</a> – in particular <a href="./security.html#security-cookies">the section on the security implications of cookies</a>.</p>
+</section><section class="level3"><h3 id="encrypted-cookies">Setting Encrypted Cookies<a class="anchor" aria-label="anchor" href="#encrypted-cookies"></a>
 </h3>
-<p>In addition to storing plain-text cookies, Plumber also supports
-handling cookies that are encrypted. Encrypted cookies prevent your
-users from seeing what is stored inside of them and also sign their
-contents so that users can’t modify what is stored.</p>
-<p>To use this feature, you must explicitly add it to your router after
-constructing it. For example, you could run the following sequence of
-commands to create a router that supports encrypted session cookies.</p>
+<p>In addition to storing plain-text cookies, Plumber also supports handling cookies that are encrypted. Encrypted cookies prevent your users from seeing what is stored inside of them and also sign their contents so that users can’t modify what is stored.</p>
+<p>To use this feature, you must explicitly add it to your router after constructing it. For example, you could run the following sequence of commands to create a router that supports encrypted session cookies.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"myfile.R"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu"><a href="../reference/api_session_cookie.html">api_session_cookie</a></span><span class="op">(</span><span class="st">"my_secret_here"</span>, <span class="st">"cookie_name"</span>, <span class="va">...</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu"><a href="../reference/api_run.html">api_run</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Once you have used <code><a href="../reference/api_session_cookie.html">api_session_cookie()</a></code>, you’ll be able
-to use the <code>request$session</code> and
-<code>response$session</code> object (they point to the same data) to
-read and set data that will be transmitted as an encrypted cookie named
-<code>cookie_name</code>. In this example, the key used to encrypt the
-data is <code>"my_secret_here"</code>, which will not work since a
-32-bit key is required for security reasons. You can construct a
-compliant key with <code><a href="https://reqres.data-imaginist.com/reference/random_key.html" class="external-link">reqres::random_key</a></code> and store it securely
-using the keyring package.</p>
-<p>Unlike <code>response$set_header()</code>, the values attached to the
-<code>session</code> data <em>are</em> serialized via
-<code>jsonlite</code>; so you’re free to use more complex data
-structures like lists in your session. However, the deserializing is
-done “blindly” using <code><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">jsonlite::fromJSON()</a></code> so you should
-always verify that type conversion has been done correctly if you are
-storing ambiguous values (e.g. storing <code>"5"</code> (the string)
-will get deserialized to <code>5</code> (the number) in the next
-request).</p>
-<p>As an example, we’ll store an encrypted cookie that counts how many
-times this client has visited a particular endpoint:</p>
+<p>Once you have used <code><a href="../reference/api_session_cookie.html">api_session_cookie()</a></code>, you’ll be able to use the <code>request$session</code> and <code>response$session</code> object (they point to the same data) to read and set data that will be transmitted as an encrypted cookie named <code>cookie_name</code>. In this example, the key used to encrypt the data is <code>"my_secret_here"</code>, which will not work since a 32-bit key is required for security reasons. You can construct a compliant key with <code><a href="https://reqres.data-imaginist.com/reference/random_key.html" class="external-link">reqres::random_key</a></code> and store it securely using the keyring package.</p>
+<p>Unlike <code>response$set_header()</code>, the values attached to the <code>session</code> data <em>are</em> serialized via <code>jsonlite</code>; so you’re free to use more complex data structures like lists in your session. However, the deserializing is done “blindly” using <code><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">jsonlite::fromJSON()</a></code> so you should always verify that type conversion has been done correctly if you are storing ambiguous values (e.g. storing <code>"5"</code> (the string) will get deserialized to <code>5</code> (the number) in the next request).</p>
+<p>As an example, we’ll store an encrypted cookie that counts how many times this client has visited a particular endpoint:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /sessionCounter</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">request</span><span class="op">)</span><span class="op">{</span></span>
@@ -668,31 +461,116 @@ times this client has visited a particular endpoint:</p>
 <span>  <span class="va">request</span><span class="op">$</span><span class="va">session</span><span class="op">$</span><span class="va">counter</span> <span class="op">&lt;-</span> <span class="va">count</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"This is visit #"</span>, <span class="va">count</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Again, you would need to setup your api using the
-<code><a href="../reference/api_session_cookie.html">api_session_cookie()</a></code> function before this code would
-work.</p>
-<p>If you inspect the cookie being set in your browser, you’ll find that
-its value is encrypted by the time it gets to the client. But by the
-time it arrives in Plumber, your cookie is available as a regular R list
-and can be read or modified.</p>
-<p>While session cookies are a great way to store state without setting
-up any additional facilities for it on your server, you should be aware
-that the session cookie is transmitted with each request/response and
-need to be encrypted and decrypted every time (the last part only
-happens if you try to read from it though). Using it thus adds to the
-server load so weigh the pros and cons of managing session state with
-it.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="documenting-responses">Documenting responses<a class="anchor" aria-label="anchor" href="#documenting-responses"></a>
+<p>Again, you would need to setup your api using the <code><a href="../reference/api_session_cookie.html">api_session_cookie()</a></code> function before this code would work.</p>
+<p>If you inspect the cookie being set in your browser, you’ll find that its value is encrypted by the time it gets to the client. But by the time it arrives in Plumber, your cookie is available as a regular R list and can be read or modified.</p>
+<p>While session cookies are a great way to store state without setting up any additional facilities for it on your server, you should be aware that the session cookie is transmitted with each request/response and need to be encrypted and decrypted every time (the last part only happens if you try to read from it though). Using it thus adds to the server load so weigh the pros and cons of managing session state with it.</p>
+</section></section><section class="level2"><h2 id="documenting-responses">Documenting responses<a class="anchor" aria-label="anchor" href="#documenting-responses"></a>
 </h2>
 <p>TBD</p>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+</section><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'light-border',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config);
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
-
 
 
     <footer><div class="pkgdown-footer-left">
