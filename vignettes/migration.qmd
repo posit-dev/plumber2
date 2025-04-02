@@ -12,7 +12,17 @@ vignette: >
 
 ```{r}
 #| include: false
-source("_helpers.R")
+me <- normalizePath(
+  if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
+    Sys.getenv("QUARTO_DOCUMENT_PATH")
+  } else if (file.exists("benchmarks-funcs.R")) {
+    getwd()
+  } else if (file.exists("articles/benchmarks-funcs.R")) {
+    "articles"
+  } else {
+    "vignettes/articles"
+  })
+source(file.path(me, "_helpers.R"))
 ```
 
 ## Moving from plumber

@@ -12,7 +12,17 @@ vignette: >
 
 ```{r}
 #| include: false
-source("_helpers.R")
+me <- normalizePath(
+  if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
+    Sys.getenv("QUARTO_DOCUMENT_PATH")
+  } else if (file.exists("benchmarks-funcs.R")) {
+    getwd()
+  } else if (file.exists("articles/benchmarks-funcs.R")) {
+    "articles"
+  } else {
+    "vignettes/articles"
+  })
+source(file.path(me, "_helpers.R"))
 ```
 
 Plumber2 allows you to create APIs by merely decorating your existing R code with special annotations. The example below shows a file named `plumber.R` (the conventional name for Plumber APIs) which defines an API.
@@ -98,7 +108,7 @@ While it is neat to be able to provide results in a variety of formats it is unl
 
 This handler would always produce HTML when called.
 
-```{r, echo=FALSE, results='asis'}
+```{r}
 #| echo: false
 #| results: asis
 papi <- api("files/apis/01-02-html.R")

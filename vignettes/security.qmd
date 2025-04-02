@@ -12,7 +12,17 @@ vignette: >
 
 ```{r}
 #| include: false
-source("_helpers.R")
+me <- normalizePath(
+  if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
+    Sys.getenv("QUARTO_DOCUMENT_PATH")
+  } else if (file.exists("benchmarks-funcs.R")) {
+    getwd()
+  } else if (file.exists("articles/benchmarks-funcs.R")) {
+    "articles"
+  } else {
+    "vignettes/articles"
+  })
+source(file.path(me, "_helpers.R"))
 ```
 
 The majority of R programmers have not been trained to give much attention to the security of the code that they write. This is for good reason since running R code on your own machine with no external input gives little opportunity for attackers to leverage your R code to do anything malicious. However, as soon as you expose an API on a network, your concerns and thought process must adapt accordingly.

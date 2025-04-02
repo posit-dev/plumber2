@@ -10,9 +10,19 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r}
 #| include: false
-source("_helpers.R")
+me <- normalizePath(
+  if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
+    Sys.getenv("QUARTO_DOCUMENT_PATH")
+  } else if (file.exists("benchmarks-funcs.R")) {
+    getwd()
+  } else if (file.exists("articles/benchmarks-funcs.R")) {
+    "articles"
+  } else {
+    "vignettes/articles"
+  })
+source(file.path(me, "_helpers.R"))
 ```
 
 ![](files/images/plumber_broken.png){width="45%" style="float:right;"}
