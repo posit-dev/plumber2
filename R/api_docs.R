@@ -35,7 +35,7 @@ api_doc_setting <- function(api, doc_type, doc_path) {
     api$doc_type <- doc_type
   }
   if (!missing(doc_path)) {
-    api_doc_path <- doc_path
+    api$doc_path <- doc_path
   }
   api
 }
