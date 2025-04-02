@@ -1,41 +1,9 @@
-#options_plumber2 <- function(
-#  ...,
-#  port                 = getOption("plumber.port"),
-#  docs                 = getOption("plumber.docs"),
-#  trailingSlash        = getOption("plumber.trailingSlash"),
-#  methodNotAllowed     = getOption("plumber.methodNotAllowed"),
-#  apiPath              = getOption("plumber.apiPath"),
-#  maxRequestSize       = getOption("plumber.maxRequestSize"),
-#  sharedSecret         = getOption("plumber.sharedSecret")
-#) {
-#  rlang::check_dots_empty()
-#
-#  # Make sure all fallback options are disabled
-#  if (!missing(docs.callback) && is.null(docs.callback)) {
-#    options("plumber.swagger.url" = NULL)
-#  }
-#
-#  options(
-#    plumber.port                 =   port,
-#    plumber.docs                 =   docs,
-#    plumber.trailingSlash        =   trailingSlash,
-#    plumber.methodNotAllowed     =   methodNotAllowed,
-#    plumber.apiPath              =   apiPath,
-#    plumber.maxRequestSize       =   maxRequestSize,
-#    plumber.sharedSecret         =   sharedSecret
-#  )
-#}
-
-get_opts <- function(x, default = NULL, prefix = "plumber2") {
+get_opts <- function(x, default = NULL) {
   getOption(paste0(prefix[1], ".", x), default = {
     env_name <- toupper(paste0(prefix[1], "_", x))
     res <- Sys.getenv(env_name)
     if (res == "") {
-      if (length(prefix) == 1) {
-        res <- default
-      } else {
-        res <- get_opts(x, default = default, prefix = prefix[-1])
-      }
+      res <- default
     } else {
       if (is.atomic(default)) {
         mode(res) <- mode(default)
@@ -45,15 +13,16 @@ get_opts <- function(x, default = NULL, prefix = "plumber2") {
   })
 }
 
-all_opts <- function(prefix = "plumber2") {
+all_opts <- function() {
   compact(list(
-    host = get_opts("host", prefix = prefix),
-    port = get_opts("port", prefix = prefix),
-    docType = get_opts("docType", prefix = prefix),
-    docPath = get_opts("docPath", prefix = prefix),
-    rejectMissingMethods = get_opts("rejectMissingMethods", prefix = prefix),
-    ignoreTrailingSlash = get_opts("ignoreTrailingSlash", prefix = prefix),
-    maxRequestSize = get_opts("maxRequestSize", prefix = prefix),
-    compressionLimit = get_opts("compressionLimit", prefix = prefix)
+    host = get_opts("host"),
+    port = get_opts("port"),
+    docType = get_opts("docType"),
+    docPath = get_opts("docPath"),
+    rejectMissingMethods = get_opts("rejectMissingMethods"),
+    ignoreTrailingSlash = get_opts("ignoreTrailingSlash"),
+    maxRequestSize = get_opts("maxRequestSize"),
+    compressionLimit = get_opts("compressionLimit"),
+    async = get_opts("async")
   ))
 }

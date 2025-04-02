@@ -4,13 +4,7 @@
 \alias{create_server_yml}
 \title{Create a _server.yml file to describe your API}
 \usage{
-create_server_yml(
-  ...,
-  path = ".",
-  constructor = NULL,
-  freeze_opt = TRUE,
-  options_prefix = "plumber2"
-)
+create_server_yml(..., path = ".", constructor = NULL, freeze_opt = TRUE)
 }
 \arguments{
 \item{...}{path to files and/or directories that contain annotated plumber
@@ -25,9 +19,6 @@ be omitted in which case an API object will be created for you}
 locally (either as environment variables or R options) should be written to
 the \verb{_server.yml} file. Shared secret will never be written to the file and
 you must find a different way to move that to your deployment server.}
-
-\item{options_prefix}{The prefix to use for the options when looking for
-options to freeze}
 }
 \description{
 While you can manually create a plumber2 API by calling \code{\link[=api]{api()}}, you will
