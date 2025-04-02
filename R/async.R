@@ -93,11 +93,8 @@ NULL
 
 #' @rdname async_evaluaters
 #' @export
-future_async <- function(substitute = FALSE, ...) {
+future_async <- function(...) {
   function(expr, envir) {
-    if (substitute) {
-      expr <- substitute(expr)
-    }
     promises::future_promise(
       expr = expr,
       envir = envir,

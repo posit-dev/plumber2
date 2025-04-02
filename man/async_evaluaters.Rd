@@ -6,7 +6,7 @@
 \alias{mirai_async}
 \title{Async evaluaters provided by plumber}
 \usage{
-future_async(substitute = FALSE, ...)
+future_async(...)
 
 mirai_async(...)
 }

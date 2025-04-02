@@ -9,10 +9,12 @@
 #' be set to the response body and implicitely continue to the next middleware.
 #'
 #' @export
+#' @format NULL
 #'
 Next <- structure(TRUE, class = "plumber_control")
 #' @rdname Next
 #' @export
+#' @format NULL
 #'
 Break <- structure(FALSE, class = "plumber_control")
 
@@ -28,5 +30,6 @@ print.plumber_control <- function(x, ...) {
 }
 
 #' @rdname Next
+#' @param x An object to test
 #' @export
 should_break <- function(x) is_plumber_control(x) && !x
