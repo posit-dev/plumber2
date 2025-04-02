@@ -23,6 +23,7 @@ me <- normalizePath(
     "vignettes/articles"
   })
 source(file.path(me, "_helpers.R"))
+readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
 ![](files/images/plumber_input.png){width="45%" style="float:right;"}
@@ -159,7 +160,7 @@ Visiting http://localhost:8080/?q=bread&pretty=1 will print:
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api("files/apis/03-03-search.R")
+papi <- api(file.path(me, "files/apis/03-03-search.R"))
 
 req <- fiery::fake_request("http://localhost:8080/?q=bread&pretty=1")
 res <- papi$test_request(req)
@@ -225,7 +226,7 @@ Running `curl --data "id=123&name=Jennifer" -H "Content-Type: application/x-www-
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api("files/apis/03-04-body.R")
+papi <- api(file.path(me, "files/apis/03-04-body.R"))
 
 req <- fiery::fake_request(
   "http://localhost:8080/user",
@@ -264,7 +265,7 @@ Running `curl --header "Custom-Header: abc123" http://localhost:8080` will retur
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api("files/apis/03-05-headers.R")
+papi <- api(file.path(me, "files/apis/03-05-headers.R"))
 
 req <- fiery::fake_request(
   "http://localhost:8080",
@@ -303,7 +304,7 @@ Visiting http://localhost:8080/type/14 will return:
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api("files/apis/03-02-types.R")
+papi <- api(file.path(me, "files/apis/03-02-types.R"))
 
 req <- fiery::fake_request("http://localhost:8080/type/14")
 res <- papi$test_request(req)

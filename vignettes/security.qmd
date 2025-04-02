@@ -23,6 +23,7 @@ me <- normalizePath(
     "vignettes/articles"
   })
 source(file.path(me, "_helpers.R"))
+readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
 The majority of R programmers have not been trained to give much attention to the security of the code that they write. This is for good reason since running R code on your own machine with no external input gives little opportunity for attackers to leverage your R code to do anything malicious. However, as soon as you expose an API on a network, your concerns and thought process must adapt accordingly.
@@ -71,7 +72,7 @@ The expected output here is a harmless plot.
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api("files/apis/07-01-plot-unsafe.R")
+papi <- api(file.path(me, "files/apis/07-01-plot-unsafe.R"))
 
 req <- fiery::fake_request("http://localhost:8080")
 res <- papi$test_request(req)

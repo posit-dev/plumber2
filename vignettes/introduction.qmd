@@ -23,6 +23,7 @@ me <- normalizePath(
     "vignettes/articles"
   })
 source(file.path(me, "_helpers.R"))
+readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
 The [R Programming Language](http://www.R-project.org/) is one of the most dominant programming languages for data analysis and visualization. Still, the world is multilingual, and often R is just a piece of the puzzle. Web services are a common way to allow various systems to interact with one another and the plumber2 R package allows users to expose existing R code as a service available to others on the Web. Plumber2 is best illustrated with an example:

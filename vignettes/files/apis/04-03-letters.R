@@ -1,7 +1,7 @@
 #* Get letters after a given letter
 #* @serializer json
 #* @get /boxed
-#* @query letter:string(A)
+#* @query letter:string("A")
 function(query) {
   LETTERS[LETTERS > query$letter]
 }
@@ -9,7 +9,7 @@ function(query) {
 #* Get letters after a given letter
 #* @serializer unboxedJSON
 #* @get /unboxed
-#* @query letter:string(A)
+#* @query letter:string("A")
 function(query) {
   LETTERS[LETTERS > query$letter]
 }

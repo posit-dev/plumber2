@@ -23,6 +23,7 @@ me <- normalizePath(
     "vignettes/articles"
   })
 source(file.path(me, "_helpers.R"))
+readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
 Typically, users define APIs using the "annotations," or special comments in their API source code. It is possible to define a Plumber API programmatically using the same underlying R6 objects that get created automatically when you define your API using annotations. Interacting with Plumber2 at this level can offer more control and specificity about how you want your API to behave. It further opens you up to the full power of [fiery](https://fiery.data-imaginist.com/index.html), upon which plumber2 is build. However, using annotated files will automatically provide you with OpenAPI documentation so in many cases using annotated files will be the obvious starting point.

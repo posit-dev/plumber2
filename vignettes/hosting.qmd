@@ -23,6 +23,7 @@ me <- normalizePath(
     "vignettes/articles"
   })
 source(file.path(me, "_helpers.R"))
+readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
 Once you have developed your Plumber API, the next step is to find a way to host it. If you haven't dealt with hosting an application on a server before, you may be tempted to run the `api_run()` function from an interactive session on your development machine (either your personal desktop or an RStudio Server instance) and direct traffic there. This is a dangerous idea for a number of reasons:
