@@ -53,6 +53,10 @@ reference:
     contents:
       - register_serializer
       - format_csv
+  - title: "Async evaluation"
+    contents:
+      - register_async
+      - async_evaluaters
   - title: "Advanced"
     contents:
       - Plumber
