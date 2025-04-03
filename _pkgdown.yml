@@ -57,11 +57,14 @@ reference:
     contents:
       - register_async
       - async_evaluaters
+  - title: "OpenAPI documentation"
+    contents:
+      - api_doc_add
+      - openapi
   - title: "Advanced"
     contents:
       - Plumber2
       - api_logger
-      - api_doc_add
       - api_on
       - api_session_cookie
       - Next
