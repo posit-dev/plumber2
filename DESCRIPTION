@@ -37,7 +37,10 @@ Suggests:
     mirai,
     nanoparquet,
     quarto,
+    rapidoc,
     readr,
+    redoc,
+    swagger,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto
 URL: https://laughing-spoon-ywk3ewq.pages.github.io/

@@ -390,7 +390,7 @@ Plumber2 <- R6Class(
       check_string(from)
       check_string(to)
       check_bool(permanent)
-      self$header_router(method, from, to, permanent)
+      self$header_router$add_redirect(method, from, to, permanent)
     },
     #' @description Parses a plumber file and updates the app according to it
     #' @param file The path to a file to parse

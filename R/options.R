@@ -1,6 +1,6 @@
 get_opts <- function(x, default = NULL) {
-  getOption(paste0(prefix[1], ".", x), default = {
-    env_name <- toupper(paste0(prefix[1], "_", x))
+  getOption(paste0("plumber2.", x), default = {
+    env_name <- toupper(paste0("PLUMBER2_", x))
     res <- Sys.getenv(env_name)
     if (res == "") {
       res <- default

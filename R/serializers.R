@@ -607,16 +607,16 @@ with_formatter <- function(expr, formatter, info) {
   with_fun(expr, info)
 }
 
-create_graphics_device_promise_domain <- function(which = dev.cur()) {
+create_graphics_device_promise_domain <- function(which = grDevices::dev.cur()) {
   force(which)
 
   promises::new_promise_domain(
     wrapOnFulfilled = function(onFulfilled) {
       force(onFulfilled)
       function(...) {
-        old <- dev.cur()
-        dev.set(which)
-        on.exit(dev.set(old))
+        old <- grDevices::dev.cur()
+        grDevices::dev.set(which)
+        on.exit(grDevices::dev.set(old))
 
         onFulfilled(...)
       }
@@ -624,17 +624,17 @@ create_graphics_device_promise_domain <- function(which = dev.cur()) {
     wrapOnRejected = function(onRejected) {
       force(onRejected)
       function(...) {
-        old <- dev.cur()
-        dev.set(which)
-        on.exit(dev.set(old))
+        old <- grDevices::dev.cur()
+        grDevices::dev.set(which)
+        on.exit(grDevices::dev.set(old))
 
         onRejected(...)
       }
     },
     wrapSync = function(expr) {
-      old <- dev.cur()
-      dev.set(which)
-      on.exit(dev.set(old))
+      old <- grDevices::dev.cur()
+      grDevices::dev.set(which)
+      on.exit(grDevices::dev.set(old))
 
       force(expr)
     }

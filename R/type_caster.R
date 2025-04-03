@@ -61,6 +61,19 @@ caster_constructor <- function(coercer, ...) {
   function(schema, required, name, loc) {
     error_string <- missing_required_error_string(name, loc)
     default <- schema$default
+    enum <- schema$enum
+    if (!is.null(enum)) {
+      fun <- function(val, call = caller_env()) {
+        if (is.null(val)) {
+          if (required) {
+            reqres::abort_bad_request(error_string, call = call)
+          }
+          val <- default
+        }
+        suppressWarnings(factor(val, enum))
+      }
+      return(fun)
+    }
     min <- schema$minimum
     max <- schema$maximum
     range_check <- identity
@@ -174,7 +187,7 @@ create_body_caster <- function(desc) {
   requires_caster <- vapply(desc$content, function(content) {
     !is.null(content$schema$type)
   }, logical(1))
-  
+
   if (!any(requires_caster)) {
     if (desc$required) {
       caster <- required_caster(list(), TRUE, loc = "body")

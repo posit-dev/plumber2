@@ -1,29 +1,26 @@
 parse_global_api <- function(tags, values, env = caller_env()) {
   if (any(tags == "noDoc")) return(NULL)
   values <- set_names(values, tags)
-  api <- list(
-    info = compact(list(
+  openapi(
+    info = openapi_info(
       title = trimws(values$apiTitle %||% values$title),
       description = trimws(
         values$apiDescription %||%
           paste0(values$description, "\n\n", values$details)
       ),
-      termsOfService = trimws(values$apiTOS),
+      terms_of_service = trimws(values$apiTOS),
       contact = eval(parse(text = values$apiContact %||% "NULL"), env),
       license = eval(parse(text = values$apiLicense %||% "NULL"), env),
       version = trimws(values$apiVersion)
-    )),
-    tag = unname(lapply(values[tags == "apiTag"], function(tag) {
+    ),
+    tags = unname(lapply(values[tags == "apiTag"], function(tag) {
       tag <- stringi::stri_match_all_regex(tag, "^((\".+?\")|(\\S+))(.*)")[[1]]
-      tag <- c(name = gsub('^"|"$', "", tag[2]), description = trimws(tag[5]))
-      if (is.na(tag[2])) {
-        tag[1]
-      } else {
-        tag
-      }
+      openapi_tag(
+        name = gsub('^"|"$', "", tag[2]),
+        description = trimws(if (is.na(tag[5])) NULL else tag[5])
+      )
     }))
   )
-  compact(api)
 }
 
 parse_path <- function(path) {
@@ -35,12 +32,18 @@ parse_path <- function(path) {
   params <- list()
   for (arg in args) {
     arg <- split_param_spec(arg)
-    params[[arg$name]] <- list(
-      `in` = "path",
+    params[[arg$name]] <- openapi_parameter(
       name = arg$name,
+      location = "path",
       required = TRUE,
-      style = "simple", # TODO: Should this be user definable
-      schema = parse_openapi_type(arg$type, NULL, min = arg$min, max = arg$max)
+      schema = parse_openapi_type(
+        arg$type,
+        NULL,
+        min = arg$min,
+        max = arg$max,
+        enum = arg$enum
+      ),
+      style = "simple" # TODO: Should this be user definable
     )
   }
   list(
@@ -73,13 +76,20 @@ parse_responses <- function(tags, values, serializers) {
   responses <- lapply(unlist(values[tags == "response"]), function(response) {
     response <- split_param_spec(response)
     list2(
-      !!response$name := compact(list(
+      !!response$name := openapi_response(
         description = response$description,
-        content = rep_named(
-          if (response$name == "200") serializers else "*/*",
-          list(list(schema = parse_openapi_type(response$type)))
+        content = openapi_content(
+          !!!rep_named(
+            if (response$name == "200") serializers else "*/*",
+            list(parse_openapi_type(
+              response$type,
+              min = response$min,
+              max = response$max,
+              enum = response$enum
+            ))
+          )
         )
-      ))
+      )
     )
   })
   responses <- unlist(responses, recursive = FALSE) %||% list()
@@ -98,20 +108,13 @@ parse_block_api <- function(tags, values, parsers, serializers) {
   if (description == "") description <- NULL
   path_params <- parse_params(tags, values, "path")
   query_params <- parse_params(tags, values, "query")
-  body_params <- parse_params(tags, values, "body")
+  body_params <- parse_params(tags, values, "header") # We use `header` because "body" is not allowed in openapi_parameter(). We strip it away in the next call
 
   request_body <- parse_body_params(body_params, parsers)
 
   responses <- parse_responses(tags, values, serializers)
 
   tag <- unlist(values[tags == "tag"])
-
-  endpoint_template <- compact(list(
-    summary = summary,
-    description = description,
-    tags = tag,
-    responses = responses
-  ))
 
   methods <- which(
     tags %in%
@@ -134,24 +137,30 @@ parse_block_api <- function(tags, values, parsers, serializers) {
     path_info <- parse_path(path)
     local_params <- combine_parameters(path_info$params, path_params)
     local_params <- unname(c(local_params, query_params))
-    endpoint <- list()
+    endpoint <- openapi_path()
     for (method in methods[[path]]) {
-      operation_id <- paste0(path_info$path, "-", method)
-      endpoint[[method]] <- endpoint_template
-      endpoint[[method]]$parameters <- lapply(local_params, function(par) {
-        par$operationId <- operation_id
-        par
-      })
-      if (!is.null(request_body) && method %in% c("put", "post", "patch")) {
-        endpoint[[method]]$requestBody <- request_body
-      }
+      endpoint[[method]] <- openapi_operation(
+        summary = summary,
+        description = description,
+        operation_id = paste0(path_info$path, "-", method),
+        parameters = local_params,
+        request_body = request_body,
+        responses = responses,
+        tags = tag
+      )
     }
     api[[path_info$path]] <- endpoint
   }
   list(paths = api)
 }
 
-parse_openapi_type <- function(string, default = NULL, min = NULL, max = NULL) {
+parse_openapi_type <- function(
+  string,
+  default = NULL,
+  min = NULL,
+  max = NULL,
+  enum = NULL
+) {
   check_string(string, allow_na = TRUE, allow_null = TRUE)
   check_number_decimal(min, allow_null = TRUE)
   check_number_decimal(max, allow_null = TRUE)
@@ -165,9 +174,14 @@ parse_openapi_type <- function(string, default = NULL, min = NULL, max = NULL) {
     curly_close <- stringi::stri_locate_all_fixed(content, "}")[[1]][, 1]
     brack_open <- stringi::stri_locate_all_fixed(content, "[")[[1]][, 1]
     brack_close <- stringi::stri_locate_all_fixed(content, "]")[[1]][, 1]
+    paren_open <- stringi::stri_locate_all_fixed(content, "(")[[1]][, 1]
+    paren_close <- stringi::stri_locate_all_fixed(content, ")")[[1]][, 1]
+    pipe <- stringi::stri_locate_all_fixed(content, "|")[[1]][, 1]
     if (
       length(curly_open) != length(curly_close) ||
-        length(brack_open) != length(brack_close)
+        length(brack_open) != length(brack_close) ||
+        length(paren_open) != length(paren_close) ||
+        length(pipe) %% 2 != 0
     ) {
       cli::cli_abort(
         "Syntax error in {.val {content}}. Opening and closing brackets doesn't match"
@@ -182,6 +196,13 @@ parse_openapi_type <- function(string, default = NULL, min = NULL, max = NULL) {
           isFALSE(
             sum(brack_open > last & brack_open < seps[i]) ==
               sum(brack_close > last & brack_close < seps[i])
+          ) ||
+          isFALSE(
+            sum(paren_open > last & paren_open < seps[i]) ==
+              sum(paren_close > last & paren_close < seps[i])
+          ) ||
+          isFALSE(
+            sum(pipe > last & pipe < seps[i]) %% 2 == 0
           )
       ) {
         seps[i] <- NA
@@ -194,18 +215,23 @@ parse_openapi_type <- function(string, default = NULL, min = NULL, max = NULL) {
     to <- c(seps - 1, stringi::stri_length(content))
     content <- trimws(stringi::stri_sub_all(content, from, to)[[1]])
     content_split <- stringi::stri_match_first_regex(content, "^(.+?):(.+?)$")
-
+    required <- stringi::stri_detect_regex(content_split[, 3], "\\*$")
     type <- list(
       type = "object",
       properties = set_names(
-        lapply(content_split[, 3], parse_openapi_type),
+        lapply(content_split[, 3], function(x) {
+          x <- split_type_spec(x)
+          parse_openapi_type(x$type, x$default, x$min, x$max, x$enum)
+        }),
         content_split[, 2] %|% content
-      )
+      ),
+      required = content_split[required, 2]
     )
   } else if (grepl("^\\[", string)) {
+    x <- split_type_spec(gsub("^\\[|\\]$", "", string))
     type <- list(
       type = "array",
-      items = parse_openapi_type(gsub("^\\[|\\]$", "", string))
+      items = parse_openapi_type(x$type, x$default, x$min, x$max, x$enum)
     )
   } else if (string %in% c("date", "date-time", "byte", "binary")) {
     type <- list(
@@ -228,6 +254,12 @@ parse_openapi_type <- function(string, default = NULL, min = NULL, max = NULL) {
       cli::cli_abort("Range boundaries requires integer or number type")
     }
     type$maximum <- max
+  }
+  if (!is.null(enum)) {
+    if (!type$type == "string") {
+      cli::cli_abort("Enum requires string type")
+    }
+    type$enum <- enum
   }
   if (!is.null(default)) {
     caster <- type_caster(type, FALSE, "", "")
@@ -258,18 +290,19 @@ parse_params <- function(tags, values, type = "path") {
   tag_name <- switch(type, path = "param", type)
   params <- lapply(unlist(values[tags == tag_name]), function(param) {
     p <- split_param_spec(param)
-    list(
-      `in` = type, # Will get overwritten if present in path
+    openapi_parameter(
       name = p$name,
+      location = type, # Will get overwritten if present in path
       description = p$description,
       required = type == "path" || p$required,
-      style = "form", # TODO: Should this be user definable
       schema = parse_openapi_type(
         p$type,
         default = if (p$required) NULL else p$default,
         min = p$min,
-        max = p$max
-      )
+        max = p$max,
+        enum = p$enum
+      ),
+      style = "form" # TODO: Should this be user definable
     )
   })
   set_names(params, vapply(params, `[[`, character(1), "name"))
@@ -280,15 +313,18 @@ parse_body_params <- function(params, parsers) {
   if (
     length(params) == 1 && (is.na(params[[1]]$name) || params[[1]]$name == "")
   ) {
-    request_body <- compact(list(
+    request_body <- openapi_request_body(
       description = params[[1]]$description,
       required = params[[1]]$required,
-      content = rep_named(parsers, list(list(schema = params[[1]]$schema)))
-    ))
+      content = openapi_content(!!!rep_named(parsers, list(params[[1]]$schema)))
+    )
   } else if (length(params) > 1) {
-    schema <- list(
-      type = "object",
-      properties = lapply(params, `[[`, "schema"),
+    schema <- openapi_schema(
+      type = I("object"),
+      properties = lapply(
+        params,
+        function(p) c(p$schema, list(description = p$description))
+      ),
       required = names(params)[vapply(
         params,
         `[[`,
@@ -296,17 +332,8 @@ parse_body_params <- function(params, parsers) {
         "required"
       )]
     )
-    body_description <- vapply(params, `[[`, character(1), "description")
-    body_description <- paste0(
-      "*",
-      names(params)[body_description != ""],
-      "*: ",
-      body_description[body_description != ""],
-      collapse = "; "
-    )
-    request_body <- list(
-      description = body_description,
-      content = rep_named(parsers, list(list(schema = schema)))
+    request_body <- openapi_request_body(
+      content = openapi_content(!!!rep_named(parsers, list(schema)))
     )
   } else {
     request_body <- NULL
@@ -329,13 +356,27 @@ split_param_spec <- function(x) {
 split_type_spec <- function(x) {
   x <- stringi::stri_match_first_regex(
     x,
-    "^([^\\|\\(]*)(\\|([^,]*),?\\s?(.*)\\|)?(\\((.*)\\))?(\\*)?$"
+    "^(.*?)(\\|([^,]*),?\\s?(.*)\\|)?(\\((.*)\\))?(\\*)?$"
   )
-  list(
-    type = if (is.na(x[2]) || x[2] == "") NULL else x[2],
-    default = if (is.na(x[7]) || x[7] == "") NULL else jsonlite::fromJSON(x[7]),
-    min = if (is.na(x[4]) || x[4] == "") NULL else as.numeric(x[4]),
-    max = if (is.na(x[5]) || x[5] == "") NULL else as.numeric(x[5]),
-    required = !is.na(x[8])
-  )
+  if (isTRUE(x[2] == "enum")) {
+    list(
+      type = "string",
+      default = if (is.na(x[7]) || x[7] == "") NULL else
+        jsonlite::fromJSON(x[7]),
+      enum = trimws(c(
+        x[4],
+        stringi::stri_split_fixed(x[5], ",", omit_empty = TRUE)[[1]]
+      )),
+      required = !is.na(x[8])
+    )
+  } else {
+    list(
+      type = if (is.na(x[2]) || x[2] == "") NULL else x[2],
+      default = if (is.na(x[7]) || x[7] == "") NULL else
+        jsonlite::fromJSON(x[7]),
+      min = if (is.na(x[4]) || x[4] == "") NULL else as.numeric(x[4]),
+      max = if (is.na(x[5]) || x[5] == "") NULL else as.numeric(x[5]),
+      required = !is.na(x[8])
+    )
+  }
 }

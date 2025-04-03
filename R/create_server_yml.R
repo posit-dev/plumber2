@@ -52,7 +52,7 @@ create_server_yml <- function(
   )
 
   if (freeze_opt) {
-    settings$options <- all_opts(prefix = options_prefix)
+    settings$options <- all_opts()
   }
   yaml::write_yaml(settings, fs::path_join(c(path, "_server.yml")))
 }
