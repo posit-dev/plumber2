@@ -16,7 +16,7 @@ shed the bad decision that you inevitably make over the course of
 development, and start from scratch.
 
 You’ll find that plumber2 is very similar to plumber in a lot of ways,
-but diverts in key areas, resulting in API incompitability between the
+but diverts in key areas, resulting in API incompatibility between the
 two packages. Because of this you may need to update your plumber APIs
 if switching to plumber2.
 
@@ -35,7 +35,7 @@ pak::pak("posit-dev/plumber2")
 
 At this point in the development feedback is crucial. If you do decide
 to try out plumber2, please share your experience, both good and bad,
-and ask question as it informs us about where to spend more time with
+and ask questions as it informs us about where to spend more time with
 documentation.
 
 ## Hello World
@@ -101,7 +101,7 @@ and `body` argument respectively. As can be seen above they also use
 different tags in the documentation.
 
 Speaking of documentation, the parsing of plumber blocks have been
-greatly improved. It is now build upon roxygen2, so it follows that
+greatly improved. It is now built upon roxygen2, so it follows that
 convention, allowing multiline tags and defaulting to the first line as
 title and proceeding untagged lines as description. The ability to
 define input and output types has also been greatly expanded, adding the
@@ -110,7 +110,7 @@ above) define enum (factors) to name a few. All input will get type
 checked and default value imputed if missing.
 
 For the `/plot` handler you can also see that it specifies multiple
-serializers. Doing so will allow the client to request it’s prefered
+serializers. Doing so will allow the client to request its preferred
 response format using the `Accept` header. Plumber2 will then perform
 content negotiation to figure out the best response format based on what
 it supports and what the client prefers.
