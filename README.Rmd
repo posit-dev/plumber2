@@ -20,15 +20,15 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/posit-dev/plumber2/graph/badge.svg)](https://app.codecov.io/gh/posit-dev/plumber2)
 <!-- badges: end -->
 
-This is a complete rewrite of [plumber](https://www.rplumber.io). The purpose of
-the rewrite is to take everything we've learned from plumber, shed the bad
-decision that you inevitably make over the course of development, and start from
-scratch.
+This is a complete rewrite of [plumber](https://www.rplumber.io). The
+purpose of the rewrite is to take everything we’ve learned from plumber,
+shed the bad decision that you inevitably make over the course of
+development, and start from scratch.
 
-You'll find that plumber2 is very similar to plumber in a lot of ways, but
-diverts in key areas, resulting in API incompatibility between the two packages.
-Because of this you may need to update your plumber APIs if switching to
-plumber2.
+You’ll find that plumber2 is very similar to plumber in a lot of ways,
+but diverts in key areas, resulting in API incompatibility between the
+two packages. Because of this you may need to update your plumber APIs
+if switching to plumber2.
 
 ## Installation
 
@@ -109,7 +109,7 @@ parameters are accessible through the `query` and `body` argument respectively.
 As can be seen above they also use different tags in the documentation.
 
 Speaking of documentation, the parsing of plumber blocks have been greatly
-improved. It is now build upon roxygen2, so it follows that convention, allowing
+improved. It is now built upon roxygen2, so it follows that convention, allowing
 multiline tags and defaulting to the first line as title and proceeding untagged
 lines as description. The ability to define input and output types has also been
 greatly expanded, adding the ability to define nested objects, adding default
