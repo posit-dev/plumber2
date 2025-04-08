@@ -117,7 +117,7 @@ values and (as seen above) define enum (factors) to name a few. All input will
 get type checked and default value imputed if missing.
 
 For the `/plot` handler you can also see that it specifies multiple serializers.
-Doing so will allow the client to request it's prefered response format using
+Doing so will allow the client to request its preferred response format using
 the `Accept` header. Plumber2 will then perform content negotiation to figure
 out the best response format based on what it supports and what the client
 prefers.
