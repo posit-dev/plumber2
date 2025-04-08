@@ -65,6 +65,7 @@ NULL
 
 ```{r}
 #| output: false
+#| eval: !expr R.Version()$minor > package_version("4.0")
 api() |>
   api_doc_add(list(
     info = list(
@@ -228,6 +229,7 @@ function(message, client_id, server) {
 
 ```{r}
 #| output: false
+#| eval: !expr R.Version()$minor > package_version("4.0")
 text_handler <- function(name, age) {
   sprintf("%s is %i years old", name, max(age))
 }
@@ -377,6 +379,7 @@ use_swagger
 
 ```{r}
 #| output: false
+#| eval: !expr R.Version()$minor > package_version("4.0")
 api() |>
   api_doc_setting("swagger")
 ```
