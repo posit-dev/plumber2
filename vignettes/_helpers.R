@@ -1,7 +1,7 @@
 library(plumber2)
 
-code_chunk <- function(output, language=""){
-  cat(paste0("```",language,"\n"))
+code_chunk <- function(output, language = "") {
+  cat(paste0("```", language, "\n"))
   output <- switch(
     language,
     json = jsonlite::prettify(output, indent = 2),
@@ -18,6 +18,11 @@ code_chunk <- function(output, language=""){
 
 #* Serialize an object into JSON the same way that plumber would.
 #* This way if the logic changes we consolidate all references to here.
-json_serialize <- function(obj){
+json_serialize <- function(obj) {
   jsonlite::toJSON(obj, auto_unbox = FALSE, pretty = TRUE)
+}
+
+# Define %||% for R < 4.4
+if (!exists("%||%", envir = baseenv())) {
+  `%||%` <- function(x, y) if (is.null(x)) y else x
 }
