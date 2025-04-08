@@ -63,6 +63,7 @@ caster_constructor <- function(coercer, ...) {
     default <- schema$default
     enum <- schema$enum
     if (!is.null(enum)) {
+      enum_error_string <- unmatched_enum_error_string(name, enum)
       fun <- function(val, call = caller_env()) {
         if (is.null(val)) {
           if (required) {
@@ -70,7 +71,11 @@ caster_constructor <- function(coercer, ...) {
           }
           val <- default
         }
-        suppressWarnings(factor(val, enum))
+        val <- suppressWarnings(factor(val, enum))
+        if (anyNA(val)) {
+          reqres::abort_bad_request(enum_error_string, call = call)
+        }
+        val
       }
       return(fun)
     }
@@ -239,4 +244,10 @@ outside_range_error_string <- function(name, min, max) {
       "{.arg name} must be less than or equal to {max}"
     )
   }
+}
+
+unmatched_enum_error_string <- function(name, values) {
+  cli::format_inline(
+    "{.arg name} must be one of {.or {.val {values}}}"
+  )
 }
