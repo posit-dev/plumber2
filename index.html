@@ -67,7 +67,7 @@
 <!-- badges: start -->
 
 <p>This is a complete rewrite of <a href="https://www.rplumber.io" class="external-link">plumber</a>. The purpose of the rewrite is to take everything we’ve learned from plumber, shed the bad decision that you inevitably make over the course of development, and start from scratch.</p>
-<p>You’ll find that plumber2 is very similar to plumber in a lot of ways, but diverts in key areas, resulting in API incompitability between the two packages. Because of this you may need to update your plumber APIs if switching to plumber2.</p>
+<p>You’ll find that plumber2 is very similar to plumber in a lot of ways, but diverts in key areas, resulting in API incompatibility between the two packages. Because of this you may need to update your plumber APIs if switching to plumber2.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -78,7 +78,7 @@
 <div class="section level2">
 <h2 id="feedback">Feedback<a class="anchor" aria-label="anchor" href="#feedback"></a>
 </h2>
-<p>At this point in the development feedback is crucial. If you do decide to try out plumber2, please share your experience, both good and bad, and ask question as it informs us about where to spend more time with documentation.</p>
+<p>At this point in the development feedback is crucial. If you do decide to try out plumber2, please share your experience, both good and bad, and ask questions as it informs us about where to spend more time with documentation.</p>
 </div>
 <div class="section level2">
 <h2 id="hello-world">Hello World<a class="anchor" aria-label="anchor" href="#hello-world"></a>
@@ -132,8 +132,8 @@
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Above you can both see some breaking changes and some new features in action. The biggest breaking change is that parameters coming from the path, the query string, and the body are now clearly separated. Only parameters from the path are provided as direct arguments to the handler function. Query and body parameters are accessible through the <code>query</code> and <code>body</code> argument respectively. As can be seen above they also use different tags in the documentation.</p>
-<p>Speaking of documentation, the parsing of plumber blocks have been greatly improved. It is now build upon roxygen2, so it follows that convention, allowing multiline tags and defaulting to the first line as title and proceeding untagged lines as description. The ability to define input and output types has also been greatly expanded, adding the ability to define nested objects, adding default values and (as seen above) define enum (factors) to name a few. All input will get type checked and default value imputed if missing.</p>
-<p>For the <code>/plot</code> handler you can also see that it specifies multiple serializers. Doing so will allow the client to request it’s prefered response format using the <code>Accept</code> header. Plumber2 will then perform content negotiation to figure out the best response format based on what it supports and what the client prefers.</p>
+<p>Speaking of documentation, the parsing of plumber blocks have been greatly improved. It is now built upon roxygen2, so it follows that convention, allowing multiline tags and defaulting to the first line as title and proceeding untagged lines as description. The ability to define input and output types has also been greatly expanded, adding the ability to define nested objects, adding default values and (as seen above) define enum (factors) to name a few. All input will get type checked and default value imputed if missing.</p>
+<p>For the <code>/plot</code> handler you can also see that it specifies multiple serializers. Doing so will allow the client to request its preferred response format using the <code>Accept</code> header. Plumber2 will then perform content negotiation to figure out the best response format based on what it supports and what the client prefers.</p>
 <p>Lastly, you can see a new tag (one of many) in the <code>/plot</code> handler. <code>@async</code> allows you to convert your handler into an async handler automatically. It is still possible to create an async handler manually by returning a promise, but the new tag significantly simplifies this for the most classic cases. There is still overhead involved in handling requests asynchronously so this is mainly a good idea for longer running handlers, but it is shown here as an example.</p>
 </div>
 </div>
