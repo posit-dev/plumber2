@@ -10,7 +10,7 @@ navbar:
       text: Get Started
       href: articles/plumber.html
     articles:
-      text: Articles
+      text: Learn Plumber2
       menu:
         - text: 1. Introduction
           href: articles/introduction.html
@@ -30,6 +30,8 @@ navbar:
           href: articles/security.html
         - text: 9. Tips & Tricks
           href: articles/tips-and-tricks.html
+        - text: 10. Migration
+          href: articles/migration.html
 
 reference:
   - title: "Create an run an API"
