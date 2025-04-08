@@ -40,7 +40,7 @@ documentation.
 
 ## Hello World
 
-Below is a simply “hello world” API written for plumber2 that
+Below is a simple “hello world” API written for plumber2 that
 illustrates some of the differences from plumber:
 
 ``` r
