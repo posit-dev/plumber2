@@ -4,14 +4,16 @@
 \name{plumber2-package}
 \alias{plumber2}
 \alias{plumber2-package}
-\title{plumber2: What the Package Does (One Line, Title Case)}
+\title{plumber2: Easy and Powerful Webservers in R}
 \description{
-What the package does (one paragraph).
+Automatically create a webserver from annotated R files or by building it up programmatically. Provides automatic OpenAPI documentation, input handling, async support, and middleware support.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://laughing-spoon-ywk3ewq.pages.github.io/}
+  \item \url{https://posit-dev.github.io/plumber2/}
+  \item \url{https://github.com/posit-dev/plumber2}
+  \item Report bugs at \url{https://github.com/posit-dev/plumber2/issues}
 }
 
 }

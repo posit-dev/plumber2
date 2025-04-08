@@ -1,10 +1,12 @@
 Package: plumber2
-Title: What the Package Does (One Line, Title Case)
+Title: Easy and Powerful Webservers in R
 Version: 0.0.0.9000
 Authors@R:
     person("Thomas Lin", "Pedersen", , "thomasp85@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5147-4711"))
-Description: What the package does (one paragraph).
+Description: Automatically create a webserver from annotated R files or by
+    building it up programmatically. Provides automatic OpenAPI documentation,
+    input handling, async support, and middleware support.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -43,5 +45,6 @@ Suggests:
     swagger,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto
-URL: https://laughing-spoon-ywk3ewq.pages.github.io/
+URL: https://posit-dev.github.io/plumber2/, https://github.com/posit-dev/plumber2
+BugReports: https://github.com/posit-dev/plumber2/issues
 Config/testthat/edition: 3
