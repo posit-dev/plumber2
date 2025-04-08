@@ -21,3 +21,5 @@ code_chunk <- function(output, language=""){
 json_serialize <- function(obj){
   jsonlite::toJSON(obj, auto_unbox = FALSE, pretty = TRUE)
 }
+
+`%||%` <- rlang::`%||%`
