@@ -464,7 +464,7 @@
 </tbody>
 </table>
 <p>You can also specify any of the above as an array, by enclosing it in <code>[...]</code>, (e.g. <code>[integer]</code> for an array of integers). Arrays can even be nested (e.g. <code>[[integer]]</code> for an array of arrays of integers).</p>
-<p>Lastly, it is possible to specify “object”, which will be cast to lists in R. The syntax for this is <code>{name:Type, ...}</code> and allows you to provide concise specifications for very complex data structures (e.g. the specification for the iris dataset is <code>{Sepal.Length:number,Sepal.Width:number,Petal.Length:number,Petal.Width:number,Species:string}</code>. It is unlikely that you’ll need objects for path and query parameters, but request bodies will often be in the form of an object.</p>
+<p>Lastly, it is possible to specify “object”, which will be cast to lists in R. The syntax for this is <code>{name:Type, ...}</code> (e.g. <code>{eruptions:[number], waiting:[number]}</code> for the <code>faithful</code> dataset) and allows you to provide concise specifications for very complex data structures. It is unlikely that you’ll need objects for path and query parameters, but request bodies will often be in the form of an object.</p>
 <section class="level3"><h3 id="defaults">Defaults<a class="anchor" aria-label="anchor" href="#defaults"></a>
 </h3>
 <p>From R you are used to providing default values for function arguments. In plumber you can do the same by adding a default value in parenthesis after the type specification, e.g. <code>integer(10)</code>. The type caster will automatically ensure that the value is inserted if missing from the query or body of a request so you can assume it is always present in your code.</p>
