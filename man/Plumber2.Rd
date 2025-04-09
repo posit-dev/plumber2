@@ -167,7 +167,7 @@ use it}
 \item{\code{compression_limit}}{The size threshold in bytes for trying to
 compress the response body (it is still dependant on content negotiation)}
 
-\item{\code{default_async}}{The default evaluater to use for async request
+\item{\code{default_async}}{The default evaluator to use for async request
 handling}
 
 \item{\code{env}}{An environment that will be used as the default execution
@@ -311,9 +311,9 @@ to a string is equivalent to setting it to \code{TRUE} but will in addition
 also set the default filename of the download to the string value}
 
 \item{\code{async}}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the
-default async evaluater to create an async handler. If a string, the
-async evaluater registered to that name is used. If a function is
-provided then this is used as the async evaluater}
+default async evaluator to create an async handler. If a string, the
+async evaluator registered to that name is used. If a function is
+provided then this is used as the async evaluator}
 
 \item{\code{doc}}{OpenAPI documentation for the handler. Will be added to the
 \verb{paths$<handler_path>$<handler_method>} portion of the API.}
@@ -344,9 +344,9 @@ detailed information
 \code{\link[=api_message]{api_message()}}}
 
 \item{\code{async}}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the
-default async evaluater to create an async handler. If a string, the
-async evaluater registered to that name is used. If a function is
-provided then this is used as the async evaluater}
+default async evaluator to create an async handler. If a string, the
+async evaluator registered to that name is used. If a function is
+provided then this is used as the async evaluator}
 }
 \if{html}{\out{</div>}}
 }

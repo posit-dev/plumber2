@@ -68,7 +68,7 @@ Plumber2 <- R6Class(
     #' use it
     #' @param compression_limit The size threshold in bytes for trying to
     #' compress the response body (it is still dependant on content negotiation)
-    #' @param default_async The default evaluater to use for async request
+    #' @param default_async The default evaluator to use for async request
     #' handling
     #' @param env An environment that will be used as the default execution
     #' environment for the API
@@ -225,9 +225,9 @@ Plumber2 <- R6Class(
     #' to a string is equivalent to setting it to `TRUE` but will in addition
     #' also set the default filename of the download to the string value
     #' @param async If `FALSE` create a regular handler. If `TRUE`, use the
-    #' default async evaluater to create an async handler. If a string, the
-    #' async evaluater registered to that name is used. If a function is
-    #' provided then this is used as the async evaluater
+    #' default async evaluator to create an async handler. If a string, the
+    #' async evaluator registered to that name is used. If a function is
+    #' provided then this is used as the async evaluator
     #' @param doc OpenAPI documentation for the handler. Will be added to the
     #' `paths$<handler_path>$<handler_method>` portion of the API.
     #' @param route The route this handler should be added to. Defaults to the
@@ -345,9 +345,9 @@ Plumber2 <- R6Class(
     #' @param handler A function conforming to the specifications laid out in
     #' [api_message()]
     #' @param async If `FALSE` create a regular handler. If `TRUE`, use the
-    #' default async evaluater to create an async handler. If a string, the
-    #' async evaluater registered to that name is used. If a function is
-    #' provided then this is used as the async evaluater
+    #' default async evaluator to create an async handler. If a string, the
+    #' async evaluator registered to that name is used. If a function is
+    #' provided then this is used as the async evaluator
     message_handler = function(handler, async = FALSE) {
       if (isTRUE(async)) {
         async <- private$ASYNC_EVALUATER

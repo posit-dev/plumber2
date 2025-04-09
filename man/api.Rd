@@ -75,7 +75,7 @@ use it}
 \item{compression_limit}{The size threshold in bytes for trying to
 compress the response body (it is still dependant on content negotiation)}
 
-\item{default_async}{The default evaluater to use for async request handling}
+\item{default_async}{The default evaluator to use for async request handling}
 
 \item{env}{The parent environment to the environment the files should be
 evaluated in. Each file will be evaluated in it's own environment so they

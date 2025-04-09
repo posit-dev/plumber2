@@ -12,7 +12,7 @@
 #' not change the request or the path associated with but just ensure that
 #' both `path/to/ressource` and `path/to/ressource/` ends up in the same
 #' handler.
-#' @param default_async The async evaluater to use by default when the `@async`
+#' @param default_async The async evaluator to use by default when the `@async`
 #' tag is used without further argument
 #' @param env The environment to evaluate the code and annotations in
 #'

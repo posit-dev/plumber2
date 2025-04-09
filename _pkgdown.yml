@@ -58,7 +58,7 @@ reference:
   - title: "Async evaluation"
     contents:
       - register_async
-      - async_evaluaters
+      - async_evaluators
   - title: "OpenAPI documentation"
     contents:
       - api_doc_add

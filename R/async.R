@@ -1,18 +1,18 @@
 registry$async <- list()
 
-#' Register an async evaluater
+#' Register an async evaluator
 #'
 #' plumber supports async request handling in two ways. Either manual by
 #' returning a promise from the handler, or automatic through the `@async` tag /
 #' `async` argument in [the handler functions][api_request_handlers]. The
-#' default evaluater is controlled by the `plumber2.async` option or the
+#' default evaluator is controlled by the `plumber2.async` option or the
 #' `PLUMBER2_ASYNC` environment variable.
 #'
-#' @param name The name of the evaluater
-#' @param fun A function that, upon calling it returns an evaluater taking an
-#' `expr` and `envir` argument. See the [async evaluater][async_evaluaters]
+#' @param name The name of the evaluator
+#' @param fun A function that, upon calling it returns an evaluator taking an
+#' `expr` and `envir` argument. See the [async evaluator][async_evaluators]
 #' functions for examples
-#' @param dependency Package dependencies for the evaluater.
+#' @param dependency Package dependencies for the evaluator.
 #'
 #' @export
 #'
@@ -45,7 +45,7 @@ get_async <- function(name = NULL, ...) {
   if (is_string(name)) {
     async <- registry$async[[name]]
     if (is.null(async)) {
-      cli::cli_abort("No async evaluater registered as {.val {name}}")
+      cli::cli_abort("No async evaluator registered as {.val {name}}")
     }
     if (length(async$dependency) > 0) {
       check_installed(async$dependency)
@@ -53,7 +53,7 @@ get_async <- function(name = NULL, ...) {
     fun <- async$fun(...)
     if (!is_function(fun) || !all(c("expr", "envir") %in% fn_fmls_names(fun))) {
       cli::cli_abort(
-        "The async evaluater must be a function with the arguments {.arg expr} and {.arg envir}"
+        "The async evaluator must be a function with the arguments {.arg expr} and {.arg envir}"
       )
     }
   } else if (is_function(name)) {
@@ -65,33 +65,33 @@ get_async <- function(name = NULL, ...) {
   fun
 }
 
-#' Async evaluaters provided by plumber
+#' Async evaluators provided by plumber
 #'
 #' These functions support async request handling. You can register your own as
 #' well using [register_async()].
 #'
-#' # Provided evaluaters
+#' # Provided evaluators
 #' * `future_async()` uses [promises::future_promise()]. It is registered as
-#'   `"future"`. Be aware that for this evaluater to execute asynchronously you
+#'   `"future"`. Be aware that for this evaluator to execute asynchronously you
 #'   need to set a different planner than the default. See [future::plan()].
 #' * `mirai_async()` uses [mirai::mirai()]. It is registered as
-#'   `"mirai"`. Be aware that for this evaluater to be performant you should
+#'   `"mirai"`. Be aware that for this evaluator to be performant you should
 #'   start up multiple persistent background processes. See [mirai::daemons()].
 #'
 #' @param ... Further argument passed on to the internal async function.
 #' See Details for information on which function handles the formatting
-#' internally in each async evaluater
+#' internally in each async evaluator
 #'
 #' @return A function taking `expr` and `envir`. The former is the expression to
 #' evaluate and the latter is an environment with additional variables that
 #' should be made available during evaluation
 #'
-#' @rdname async_evaluaters
-#' @name async_evaluaters
+#' @rdname async_evaluators
+#' @name async_evaluators
 #'
 NULL
 
-#' @rdname async_evaluaters
+#' @rdname async_evaluators
 #' @export
 future_async <- function(...) {
   function(expr, envir) {
@@ -103,7 +103,7 @@ future_async <- function(...) {
     )
   }
 }
-#' @rdname async_evaluaters
+#' @rdname async_evaluators
 #' @export
 mirai_async <- function(...) {
   function(expr, envir) {

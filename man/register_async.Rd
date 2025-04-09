@@ -4,7 +4,7 @@
 \alias{register_async}
 \alias{show_registered_async}
 \alias{get_async}
-\title{Register an async evaluater}
+\title{Register an async evaluator}
 \usage{
 register_async(name, fun, dependency = NULL)
 
@@ -13,13 +13,13 @@ show_registered_async()
 get_async(name = NULL, ...)
 }
 \arguments{
-\item{name}{The name of the evaluater}
+\item{name}{The name of the evaluator}
 
-\item{fun}{A function that, upon calling it returns an evaluater taking an
-\code{expr} and \code{envir} argument. See the \link[=async_evaluaters]{async evaluater}
+\item{fun}{A function that, upon calling it returns an evaluator taking an
+\code{expr} and \code{envir} argument. See the \link[=async_evaluators]{async evaluator}
 functions for examples}
 
-\item{dependency}{Package dependencies for the evaluater.}
+\item{dependency}{Package dependencies for the evaluator.}
 
 \item{...}{Arguments passed on to the async function creator}
 }
@@ -27,6 +27,6 @@ functions for examples}
 plumber supports async request handling in two ways. Either manual by
 returning a promise from the handler, or automatic through the \verb{@async} tag /
 \code{async} argument in \link[=api_request_handlers]{the handler functions}. The
-default evaluater is controlled by the \code{plumber2.async} option or the
+default evaluator is controlled by the \code{plumber2.async} option or the
 \code{PLUMBER2_ASYNC} environment variable.
 }
