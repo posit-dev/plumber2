@@ -10,30 +10,30 @@ function(msg) {
   )
 }
 
-#* Plot out data from the iris dataset
+#* Plot out data from the palmer penguins dataset
 #*
 #* @get /plot
 #*
 #* @query spec:string If provided, filter the data to only this species
-#* (e.g. 'setosa')
+#* (e.g. 'Adelie')
 #*
 #* @serializer png
 #*
 function(query) {
-  myData <- iris
+  myData <- palmerpenguins::penguins
   title <- "All Species"
 
   # Filter if the species was specified
   if (!is.null(query$spec)){
     title <- paste0("Only the '", query$spec, "' Species")
-    myData <- subset(iris, Species == query$spec)
+    myData <- subset(myData, species == query$spec)
   }
 
   plot(
-    myData$Sepal.Length,
-    myData$Petal.Length,
+    myData$flipper_length_mm,
+    myData$bill_length_mm,
     main=title,
-    xlab="Sepal Length",
-    ylab="Petal Length"
+    xlab="Flipper Length (mm)",
+    ylab="Bill Length (mm)"
   )
 }

@@ -66,7 +66,7 @@ res <- papi$test_request(req)
 code_chunk(res$body, "json")
 ```
 
-The `/plot` endpoint will show you a simple plot of some data from the iris dataset.
+The `/plot` endpoint will show you a simple plot of some data from the palmerpenguins dataset.
 
 ```{r}
 #| echo: false
@@ -81,18 +81,18 @@ If you see something like the above: congratulations! You've just created your f
 
 ## Specifying the Inputs
 
-You may have noticed that the functions that define our endpoints accept parameters. These parameters allow us to customize the behavior of our endpoints. In the example above we use two different ways of specifying the outputs. For the `/echo/...` handler we take a variable part of the path and use this as an argument. You can see above that "test" is used in the resulting json object and had we provided a different path, e.g. `/echo/plumber` then "plumber" would have been used instead. In the other handler we rely on the "query string" to pass in an optional argument. If you visit <http://localhost:8080/plot?spec=setosa>, you should see a similar graph to the one you saw before, but now the dataset has been filtered to only include the "setosa" species in the iris dataset.
+You may have noticed that the functions that define our endpoints accept parameters. These parameters allow us to customize the behavior of our endpoints. In the example above we use two different ways of specifying the outputs. For the `/echo/...` handler we take a variable part of the path and use this as an argument. You can see above that "test" is used in the resulting json object and had we provided a different path, e.g. `/echo/plumber` then "plumber" would have been used instead. In the other handler we rely on the "query string" to pass in an optional argument. If you visit <http://localhost:8080/plot?spec=Adelie>, you should see a similar graph to the one you saw before, but now the dataset has been filtered to only include the "Adelie" species in the palmerpenguins dataset.
 
 ```{r}
 #| echo: false
 #| results: asis
-req <- fiery::fake_request("http://localhost:8080/plot?spec=setosa")
+req <- fiery::fake_request("http://localhost:8080/plot?spec=Adelie")
 res <- papi$test_request(req)
 
 cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
 ```
 
-As you might have guessed, the `spec=setosa` portion of the URL sets the `spec` element in `query` to `setosa`. More details on how Plumber processes inputs are available in the [Routing & Input article](./routing-and-input.html).
+As you might have guessed, the `spec=Adelie` portion of the URL sets the `spec` element in `query` to `Adelie`. More details on how Plumber processes inputs are available in the [Routing & Input article](./routing-and-input.html).
 
 ## Customizing The Output
 

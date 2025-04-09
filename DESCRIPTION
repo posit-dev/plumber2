@@ -38,6 +38,7 @@ Suggests:
     htmlwidgets,
     mirai,
     nanoparquet,
+    palmerpenguins,
     quarto,
     rapidoc,
     readr,

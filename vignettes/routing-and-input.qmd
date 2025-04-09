@@ -346,7 +346,7 @@ The following details the mapping of the scalar type names that you can use in y
 
 You can also specify any of the above as an array, by enclosing it in `[...]`, (e.g. `[integer]` for an array of integers). Arrays can even be nested (e.g. `[[integer]]` for an array of arrays of integers).
 
-Lastly, it is possible to specify "object", which will be cast to lists in R. The syntax for this is `{name:Type, ...}` and allows you to provide concise specifications for very complex data structures (e.g. the specification for the iris dataset is `{Sepal.Length:number,Sepal.Width:number,Petal.Length:number,Petal.Width:number,Species:string}`. It is unlikely that you'll need objects for path and query parameters, but request bodies will often be in the form of an object.
+Lastly, it is possible to specify "object", which will be cast to lists in R. The syntax for this is `{name:Type, ...}` (e.g. `{eruptions:[number], waiting:[number]}` for the `faithful` dataset) and allows you to provide concise specifications for very complex data structures. It is unlikely that you'll need objects for path and query parameters, but request bodies will often be in the form of an object.
 
 ### Defaults
 
