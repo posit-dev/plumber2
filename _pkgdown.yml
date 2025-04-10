@@ -1,4 +1,4 @@
-url: https://laughing-spoon-ywk3ewq.pages.github.io/
+url: https://posit-dev.github.io/plumber2/
 template:
   bootstrap: 5
 
@@ -10,7 +10,7 @@ navbar:
       text: Get Started
       href: articles/plumber.html
     articles:
-      text: Learn Plumber2
+      text: Learn plumber2
       menu:
         - text: 1. Introduction
           href: articles/introduction.html
