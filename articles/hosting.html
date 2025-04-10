@@ -34,7 +34,7 @@
 <li class="nav-item"><a class="nav-link" href="../articles/plumber.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-learn-plumber-" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Learn Plumber2</button>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-learn-plumber-" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Learn plumber2</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-learn-plumber-">
 <li><a class="dropdown-item" href="../articles/introduction.html">1. Introduction</a></li>
     <li><a class="dropdown-item" href="../articles/routing-and-input.html">2. Routing &amp; Input</a></li>
@@ -305,7 +305,7 @@ http {
 <p>Unfortunately, pm2 doesn’t understand R scripts natively; however, it is possible to specify a custom interpreter. We can use this feature to launch an R-based wrapper for our plumber file using the <code>Rscript</code> scripting front-end that comes with R. The following script will run the two commands listed above.</p>
 <pre><code><span><span class="co">#!/usr/bin/env Rscript</span></span>
 <span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://posit-dev.github.io/plumber2/" class="external-link">plumber2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://posit-dev.github.io/plumber2/">plumber2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"myfile.R"</span>, host<span class="op">=</span><span class="st">"0.0.0.0"</span>, port<span class="op">=</span><span class="fl">4500</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_run.html">api_run</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Setting the host option on a VM instance ensures the application can be accessed externally.</span></span>
