@@ -78,7 +78,7 @@ create_sequential_request_handler <- function(
   download,
   dl_file
 ) {
-  function(request, response, keys, server, id, ...) {
+  function(request, response, keys, server, id, arg_list = list(), ...) {
     # Default the response to 200 if it is 404 (the default) as we hit an endpoint
     if (response$status == 404L) response$status <- 200L
 
@@ -121,6 +121,7 @@ create_sequential_request_handler <- function(
         client_id = id,
         query = type_casters$query(request$query),
         body = body_parser(request),
+        !!!arg_list,
         ...
       )),
       response$formatter,
@@ -199,7 +200,7 @@ create_async_request_handler <- function(
   has_query <- "query" %in% fn_fmls_names(handler)
   has_body <- "body" %in% fn_fmls_names(handler)
 
-  function(request, response, keys, server, id, ...) {
+  function(request, response, keys, server, id, arg_list = list(), ...) {
     # Default the response to 200 if it is 404 (the default) as we hit an endpoint
     if (response$status == 404L) response$status <- 200L
 
@@ -224,7 +225,7 @@ create_async_request_handler <- function(
     envir$id <- id
     if (has_query) envir$query <- type_casters$query(request$query)
     if (has_body) envir$body <- body_parser(request)
-    envir$dots <- list(...)
+    envir$dots <- list2(!!!arg_list, ...)
 
     result <- async(async_request_call, envir = envir)
 
