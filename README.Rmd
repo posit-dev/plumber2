@@ -118,7 +118,7 @@ get type checked and default value imputed if missing.
 
 For the `/plot` handler you can also see that it specifies multiple serializers.
 Doing so will allow the client to request its preferred response format using
-the `Accept` header. Plumber2 will then perform content negotiation to figure
+the `Accept` header. plumber2 will then perform content negotiation to figure
 out the best response format based on what it supports and what the client
 prefers.
 

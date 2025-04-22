@@ -5,14 +5,14 @@
 \title{The Plumber2 Class}
 \description{
 This class encapsulates all of the logic of a plumber2 api, and is what gets
-passed around in the functional api of plumber2. The Plumber2 class is a
+passed around in the functional api of plumber2. The \code{Plumber2} class is a
 subclass of the \link[fiery:Fire]{fiery::Fire} class. Please consult the documentation for
 this for additional information on what this type of server is capable of.
-Note that the Plumber2 objects are reference objects, meaning that any change
-to it will change all instances of the object.
+Note that the \code{Plumber2} objects are reference objects, meaning that any
+change to it will change all instances of the object.
 \subsection{Initialization}{
 
-A new 'Plumber2'-object is initialized using the \code{new()} method on the
+A new \code{Plumber2}-object is initialized using the \code{new()} method on the
 generator:
 
 \tabular{l}{

@@ -26,20 +26,20 @@ source(file.path(me, "_helpers.R"))
 readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
-Once you have developed your Plumber API, the next step is to find a way to host it. If you haven't dealt with hosting an application on a server before, you may be tempted to run the `api_run()` function from an interactive session on your development machine (either your personal desktop or an RStudio Server instance) and direct traffic there. This is a dangerous idea for a number of reasons:
+Once you have developed your plumber2 API, the next step is to find a way to host it. If you haven't dealt with hosting an application on a server before, you may be tempted to run the `api_run()` function from an interactive session on your development machine (either your personal desktop or an RStudio Server instance) and direct traffic there. This is a dangerous idea for a number of reasons:
 
 1.  Your development machine likely has a dynamic IP address. This means that clients may be able to reach you at that address today, but it will likely break on you in the coming weeks/months.
 2.  Networks may leverage firewalls to block incoming traffic to certain networks and machines. Again, it may appear that everything is working for you locally, but other users elsewhere in the network or external clients may not be able to connect to your development machine.
-3.  If your Plumber process crashes (for instance, due to your server running out of memory), the method of running Plumber will not automatically restart the crashed service for you. This means that your API will be offline until you manually login and restart it. Likewise if your development machine gets rebooted, your API will not automatically be started when the machine comes back online.
+3.  If your plumber2 process crashes (for instance, due to your server running out of memory), the method of running plumber2 will not automatically restart the crashed service for you. This means that your API will be offline until you manually login and restart it. Likewise if your development machine gets rebooted, your API will not automatically be started when the machine comes back online.
 4.  This technique relies on having your clients specify a port number manually. Non-technical users may be tripped up by this; some of the other techniques do not require clients specifying the port for an API.
 5.  This approach will eternally run one R process for your API. Some of the other approaches will allow you to load-balance traffic between multiple R processes to handle more requests. [Posit Connect](#posit-connect) will even dynamically scale the number of running processes for you so that your API isn't consuming more system resources than is necessary.
 6.  Most importantly, serving public requests from your development environment can be a security hazard. Ideally, you should separate your development instances from the servers that are accessible by others.
 
-For these reasons and more, you should consider setting up a separate server on which you can host your Plumber APIs. There are a variety of options that you can consider.
+For these reasons and more, you should consider setting up a separate server on which you can host your plumber2 APIs. There are a variety of options that you can consider.
 
 ## Posit Connect {#posit-connect}
 
-[Posit Connect](https://posit.co/products/enterprise/connect/) is an enterprise publishing platform from Posit. It supports push-button publishing from the RStudio IDE of a variety of R content types including Plumber APIs. Unlike all the other options listed here, Posit Connect automatically manages the dependent packages and files your API has and recreates an environment closely mimicking your local development environment on the server.
+[Posit Connect](https://posit.co/products/enterprise/connect/) is an enterprise publishing platform from Posit. It supports push-button publishing from the RStudio IDE of a variety of R content types including plumber2 APIs. Unlike all the other options listed here, Posit Connect automatically manages the dependent packages and files your API has and recreates an environment closely mimicking your local development environment on the server.
 
 Posit Connect automatically manages the number of R processes necessary to handle the current load and balances incoming traffic across all available processes. It can also shut down idle processes when they're not in use. This allows you to run the appropriate number of R processes to scale your capacity to accommodate the current load.
 
@@ -47,7 +47,7 @@ Posit Connect automatically manages the number of R processes necessary to handl
 
 [DigitalOcean](https://m.do.co/c/add0b50f54c4) is an easy-to-use Cloud Computing provider. They offer a simple way to spin up a Linux virtual machine and access it remotely. You can choose what size machine you want to run -- with options ranging from small machines with 512MB of RAM for a few dollars a month up to large machines with dozens of GB of RAM -- and only pay for it while it's online.
 
-To deploy your Plumber API to DigitalOcean, please check out the `plumber` companion package [`plumberDeploy`](https://github.com/meztez/plumberDeploy).
+To deploy your plumber2 API to DigitalOcean, please check out the `plumber` companion package [`plumberDeploy`](https://github.com/meztez/plumberDeploy).
 
 ## Docker (Basic) {#docker}
 
@@ -61,11 +61,11 @@ In this article, we'll take advantage of the [rstudio/plumber](https://hub.docke
 docker pull rstudio/plumber
 ```
 
-Remember that this will get you the current snapshot of Plumber and will continue to use that image until you run `pull` again.
+Remember that this will get you the current snapshot of plumber2 and will continue to use that image until you run `pull` again.
 
 ### Default Dockerfile
 
-We'll start by just running a single Plumber application in Docker just to see things at work. By default, the `rstudio/plumber` image will take the first argument after the image name as the name of the file that you want to `plumb()` and serve on port `8080`. So right away you can run one of the examples that's included in plumber as it is already installed on the image.
+We'll start by just running a single plumber2 application in Docker just to see things at work. By default, the `rstudio/plumber` image will take the first argument after the image name as the name of the file that you want to `plumb()` and serve on port `8080`. So right away you can run one of the examples that's included in plumber as it is already installed on the image.
 
 ``` bash
 docker run --rm -p 8080:8080 rstudio/plumber
@@ -82,9 +82,9 @@ docker run --rm -p 8080:8080 rstudio/plumber \
 -   `--rm` tells Docker to clean-up after the container when it's done
 -   `-p 8080:8080` says to map port 8080 from the plumber container (which is where we'll run the server) to port 8080 of your local machine
 -   `rstudio/plumber` is the name of the image we want to run
--   `/usr/local/lib/R/site-library/plumber/plumber/03-mean-sum/plumber.R` is the path **inside of the Docker container** to the Plumber file you want to host. You'll note that you do not need plumber installed on your host machine for this to work, nor does the path `/usr/local/...` need to exist on your host machine. This references the path inside of the docker container where the R file you want to `plumb()` can be found. This `mean-sum` path is the default path that the image uses if you don't specify one yourself.
+-   `/usr/local/lib/R/site-library/plumber/plumber/03-mean-sum/plumber.R` is the path **inside of the Docker container** to the plumber2 file you want to host. You'll note that you do not need plumber installed on your host machine for this to work, nor does the path `/usr/local/...` need to exist on your host machine. This references the path inside of the docker container where the R file you want to `plumb()` can be found. This `mean-sum` path is the default path that the image uses if you don't specify one yourself.
 
-This will ask Plumber to `plumb` and `run` the file you specified on port 8080 of that new container. Because you used the `-p` argument, port 8080 of your local machine will be forwarded into your container. You can test this by running this on the machine where Docker is running: `curl localhost:8080/mean`, or if you know the IP address of the machine where Docker is running, you could visit it in a web browser. The `/mean` path is one that's defined in the plumber file we just specified -- you should get an single number in an array back (`[-0.1993]`).
+This will ask plumber2 to `plumb` and `run` the file you specified on port 8080 of that new container. Because you used the `-p` argument, port 8080 of your local machine will be forwarded into your container. You can test this by running this on the machine where Docker is running: `curl localhost:8080/mean`, or if you know the IP address of the machine where Docker is running, you could visit it in a web browser. The `/mean` path is one that's defined in the plumber file we just specified -- you should get an single number in an array back (`[-0.1993]`).
 
 If that works, you can try using one of your own plumber files in this arrangement. Keep in mind that the file you want to run **must** be available inside of the container and you must specify the path to that file as it exists inside of the container. Keep it simple for now -- use a plumber file that doesn't require any additional R packages or depend on any other files outside of the plumber definition.
 
@@ -94,7 +94,7 @@ For instance if you have a plumber file saved in your current directory called `
 docker run --rm -p 8080:8080 -v `pwd`/api.R:/plumber.R rstudio/plumber /plumber.R
 ```
 
-You'll notice that we used the `-v` argument to specify a "volume" that should be mapped from our host machine into the Docker container. We defined that the location of that file should be at `/plumber.R`, so that's the argument we give last to tell the container where to look for the plumber definition. You can use this same technique to share a whole directory instead of just passing in a single R file; this approach is useful if your Plumber API depends on other files.
+You'll notice that we used the `-v` argument to specify a "volume" that should be mapped from our host machine into the Docker container. We defined that the location of that file should be at `/plumber.R`, so that's the argument we give last to tell the container where to look for the plumber definition. You can use this same technique to share a whole directory instead of just passing in a single R file; this approach is useful if your plumber2 API depends on other files.
 
 You can also use the `rstudio/plumber` image just like you use any other. For example, if you want to start a container based on this image and poke around in a bash shell:
 
@@ -125,7 +125,7 @@ RUN R -e "install.packages('broom')"
 CMD ["/app/plumber.R"]
 ```
 
-This Dockerfile would just extend the `rstudio/plumber` image in two ways. First, it `RUN`s one additional command to install the `broom` package. Second, it customizes the default `CMD` argument that will be used when running the image. In this case, you would be expected to mount a Plumber application into the container at `/app/plumber.R`
+This Dockerfile would just extend the `rstudio/plumber` image in two ways. First, it `RUN`s one additional command to install the `broom` package. Second, it customizes the default `CMD` argument that will be used when running the image. In this case, you would be expected to mount a plumber2 application into the container at `/app/plumber.R`
 
 You could then build your custom Docker image from this Dockerfile using the command `docker build -t mycustomdocker .` (where `.` -- the current directory -- is the directory where that Dockerfile is stored).
 
@@ -141,13 +141,13 @@ If you want your container to start automatically when your machine is booted, y
 
 If you already have a [basic Docker instance](#docker) running, you may be interested in more advanced configurations capable of hosting multiple plumber applications on a single server and even load-balancing across multiple plumber processes.
 
-In order to coordinate and run multiple Plumber processes on one server, **you should install `docker-compose` on your system.** This is not included with some installations of Docker, so you will need to [follow these instructions](https://docs.docker.com/compose/install/) if you are not currently able to run `docker-compose` on the command-line. Docker Compose helps orchestrate multiple Docker containers. If you're planning to run more than one Plumber process, you'll want to use Docker Compose to keep them all alive and route traffic between them.
+In order to coordinate and run multiple plumber2 processes on one server, **you should install `docker-compose` on your system.** This is not included with some installations of Docker, so you will need to [follow these instructions](https://docs.docker.com/compose/install/) if you are not currently able to run `docker-compose` on the command-line. Docker Compose helps orchestrate multiple Docker containers. If you're planning to run more than one plumber2 process, you'll want to use Docker Compose to keep them all alive and route traffic between them.
 
-### Multiple Plumber Applications
+### Multiple plumber2 Applications
 
-We'll use Docker Compose to help us organize multiple Plumber processes. We won't go into detail about how to use Docker Compose, so if you're new you should familiarize yourself using the [official docs](https://docs.docker.com/compose).
+We'll use Docker Compose to help us organize multiple plumber2 processes. We won't go into detail about how to use Docker Compose, so if you're new you should familiarize yourself using the [official docs](https://docs.docker.com/compose).
 
-You should define a Docker Compose configuration that defines the behavior of every Plumber application that you want to run. You'll first want to setup a Dockerfile that defines the desired behavior for each of your applications (as [we outlined previously](#custom-dockerfiles). You could use a `docker-compose.yml` configuration like the following:
+You should define a Docker Compose configuration that defines the behavior of every plumber2 application that you want to run. You'll first want to setup a Dockerfile that defines the desired behavior for each of your applications (as [we outlined previously](#custom-dockerfiles). You could use a `docker-compose.yml` configuration like the following:
 
 ``` yaml
 services:
@@ -182,7 +182,7 @@ data
 ├── data.csv
 ```
 
-You can see that app2 is the simpler of the two apps; it just has the plumber definition that should be run through `plumb()`. So we merely use the default plumber Docker image as its `image`, and then customize the `command` to specify where the Plumber API definition can be found in the container. Since we're mapping our host's `./app2` to `/app` inside of the container, the definition would be found in `/app/plumber.R`. We specify that it should `always` restart if anything ever happens to the container, and we export port `8080` from the container to port `7001` on the host.
+You can see that app2 is the simpler of the two apps; it just has the plumber definition that should be run through `plumb()`. So we merely use the default plumber Docker image as its `image`, and then customize the `command` to specify where the plumber2 API definition can be found in the container. Since we're mapping our host's `./app2` to `/app` inside of the container, the definition would be found in `/app/plumber.R`. We specify that it should `always` restart if anything ever happens to the container, and we export port `8080` from the container to port `7001` on the host.
 
 `app1` is our more complicated app. It has some extra data in another directory that needs to be loaded, and it has a custom Dockerfile. This could be because it has additional R packages or system dependencies that it requires.
 
@@ -190,9 +190,9 @@ If you now run `docker-compose up`, Docker Compose will build the referenced ima
 
 ### Multiple Applications on One Port
 
-It may desirable to run all of your Plumber services on a standard port like `80` (for HTTP) or `443` (for HTTPS). In that case, you'd prefer to have a router running on port `80` that can send traffic to the appropriate Plumber API by distinguishing based on a path prefix. Requests for `myserver.com/app1/` could be sent to the `app1` container, and `myserver.org/app2/` could target the `app2` container, but both paths would be available on port 80 on your server.
+It may desirable to run all of your plumber2 services on a standard port like `80` (for HTTP) or `443` (for HTTPS). In that case, you'd prefer to have a router running on port `80` that can send traffic to the appropriate plumber2 API by distinguishing based on a path prefix. Requests for `myserver.com/app1/` could be sent to the `app1` container, and `myserver.org/app2/` could target the `app2` container, but both paths would be available on port 80 on your server.
 
-In order to do this, we can use another Docker container running [nginx](https://www.nginx.com/) which is configured to route traffic between the two Plumber containers. We'd add the following entry to our `docker-compose.yml` below the app containers we already have defined.
+In order to do this, we can use another Docker container running [nginx](https://www.nginx.com/) which is configured to route traffic between the two plumber2 containers. We'd add the following entry to our `docker-compose.yml` below the app containers we already have defined.
 
 ``` yaml
   nginx:
@@ -259,7 +259,7 @@ If you now run `docker compose up` again, you'll see your two application server
 
 ### Load Balancing
 
-If you're expecting a lot of traffic on one application or have an API that's particularly computationally complex, you may want to distribute the load across multiple R processes running the same Plumber application. Thankfully, we can use Docker Compose for this, as well.
+If you're expecting a lot of traffic on one application or have an API that's particularly computationally complex, you may want to distribute the load across multiple R processes running the same plumber2 application. Thankfully, we can use Docker Compose for this, as well.
 
 First, we'll want to create multiple instances of the same application. This is easily accomplished with the `docker-compose scale` command. You simply run `docker-compose scale app1=3` to run three instances of `app1`. Now we just need to load balance traffic across these three instances.
 
@@ -293,17 +293,17 @@ Where `lb` is the name of the HAProxy load balancer that we defined in our Compo
 
 The next time you start/redeploy your Docker Compose cluster, you'll be balancing your incoming requests to `/app1/` across a pool of 1 or more R processes based on whatever you've set the `scale` to be for that application.
 
-Do keep in mind that when using load-balancing that it's not longer guaranteed that subsequent requests for a particular application will land on the same process. This means that if you maintain any state in your Plumber application (like a global counter, or a user's session state), you can't expect that to be shared across the processes that the user might encounter. There are at least three possible solutions to this problem:
+Do keep in mind that when using load-balancing that it's not longer guaranteed that subsequent requests for a particular application will land on the same process. This means that if you maintain any state in your plumber2 application (like a global counter, or a user's session state), you can't expect that to be shared across the processes that the user might encounter. There are at least three possible solutions to this problem:
 
-1.  Use a more robust means of maintaining state. You could put the state in a database, for instance, that lives outside of your R processes and your Plumber processes could get and save their state externally.
+1.  Use a more robust means of maintaining state. You could put the state in a database, for instance, that lives outside of your R processes and your plumber2 processes could get and save their state externally.
 2.  You could serialize the state to the user using [(encrypted) session cookies](./rendering-output.html#encrypted-cookies), assuming it's small enough. In this scenario, your workers would write data back to the user in the form of a cookie, then the user would include that same cookie in its subsequent requests. This works best if the state is going to be set rarely and read often (for instance, the cookie could be set when the user logs in, then read on each request to detect the identity of this user).
 3.  You can enable "sticky sessions" in the HAProxy load balancer. This would ensure that each user's traffic always gets routed to the same worker. The downside of this approach is that it will distribute traffic less evenly. You could end up in a situation in which you have 2 R processes for an application but 90% of your traffic is hitting one of them if it happens the users triggering the majority of the requests are all "stuck" to one particular worker.
 
 ## pm2 {#pm2}
 
-If you don't have the luxury of running your Plumber instance on a designated server (as is discussed in the [DigitalOcean section](#digitalocean)) and you're not comfortable hosting the API in [Docker](#docker), then you'll need to find a way to run and manage your Plumber APIs on your server directly.
+If you don't have the luxury of running your plumber2 instance on a designated server (as is discussed in the [DigitalOcean section](#digitalocean)) and you're not comfortable hosting the API in [Docker](#docker), then you'll need to find a way to run and manage your plumber2 APIs on your server directly.
 
-There are a variety of tools that were built to help manage web hosting in a single-threaded environment like R. Some of the most compelling tools were developed around Ruby (like [Phusion Passenger](https://www.phusionpassenger.com/)) or Node.js (like [Node Supervisor](https://github.com/petruisfan/node-supervisor), [forever](https://github.com/foreverjs/forever) or [pm2](http://pm2.keymetrics.io/)). Thankfully, many of these tools can be adapted to support managing an R process running a Plumber API.
+There are a variety of tools that were built to help manage web hosting in a single-threaded environment like R. Some of the most compelling tools were developed around Ruby (like [Phusion Passenger](https://www.phusionpassenger.com/)) or Node.js (like [Node Supervisor](https://github.com/petruisfan/node-supervisor), [forever](https://github.com/foreverjs/forever) or [pm2](http://pm2.keymetrics.io/)). Thankfully, many of these tools can be adapted to support managing an R process running a plumber2 API.
 
 [pm2](http://pm2.keymetrics.io/) is a process manager initially targeting Node.js. Here we'll show the commands needed to do this in Ubuntu 14.04, but you can use any Operating System or distribution that is supported by pm2. At the end, you'll have a server that automatically starts your plumber services when booted, restarts them if they ever crash, and even centralizes the logs for your plumber services.
 
@@ -346,9 +346,9 @@ This will install pm2 globally (`-g`) on your server, meaning you should now be 
 
 In order to get pm2 to startup your services on boot, you should run `sudo pm2 startup` which will create the necessary files for your system to run pm2 when you boot your machine.
 
-### Wrap Your Plumber File
+### Wrap Your plumber2 File
 
-Once you've deployed your Plumber files onto the server, you'll still need to tell the server *how* to run your server. You're probably used to running commands like
+Once you've deployed your plumber2 files onto the server, you'll still need to tell the server *how* to run your server. You're probably used to running commands like
 
 ``` r
 api("myfile.R", port=4500) |>
@@ -371,7 +371,7 @@ Save this R script on your server as something like `run-myfile.R`. You should a
 
 ### Introduce Our Service to pm2
 
-We'll now need to teach pm2 about our Plumber API so that we can put it to work. You can register and configure any number of services with pm2; let's start with our `myfile` Plumber service.
+We'll now need to teach pm2 about our plumber2 API so that we can put it to work. You can register and configure any number of services with pm2; let's start with our `myfile` plumber2 service.
 
 You can use the `pm2 list` command to see which services pm2 is already running. If you run this command now, you'll see that pm2 doesn't have any services that it's in charge of. Once you have the scripts and code stored in the directory where you want them, use the following command to tell pm2 about your service.
 
@@ -383,7 +383,7 @@ You should see some output about pm2 starting an instance of your service, follo
 
 Once you're happy with the pm2 services you have defined, you can use `pm2 save` to tell pm2 to retain the set of services you have running next time you boot the machine. All of the services you have defined will be automatically restarted for you.
 
-At this point, you have a persistent pm2 service created for your Plumber application. This means that you can reboot your server, or find and kill the underlying R process that your plumber application is using and pm2 will automatically bring a new process in to replace it. This should help guarantee that you always have a Plumber process running on the port number you specified in the shell script. It is a good idea to reboot the server to ensure that everything comes back the way you expected.
+At this point, you have a persistent pm2 service created for your plumber2 application. This means that you can reboot your server, or find and kill the underlying R process that your plumber application is using and pm2 will automatically bring a new process in to replace it. This should help guarantee that you always have a plumber2 process running on the port number you specified in the shell script. It is a good idea to reboot the server to ensure that everything comes back the way you expected.
 
 You can repeat this process with all the plumber applications you want to deploy, as long as you give each a unique port to run on. Remember that you can't have more than one service running on a single port. And be sure to `pm2 save` every time you add services that you want to survive a restart.
 
@@ -403,7 +403,7 @@ If you want a big-picture view of the health of your server and all the pm2 serv
 
 > `systemd` is the service manager used by certain Linux distributions including RedHat/CentOS 7, SUSE 12, and Ubuntu versions 16.04 and later.
 
-If you use a Linux server you can use `systemd` to run Plumber as a service that can be accessed from your local network or even outside your network depending on your firewall rules. This option is similar to using the [Docker method](#docker). One of the main advantages of using `systemd` over using Docker is that `systemd` won't bypass firewall rules (Docker does!) and avoids the overhead of running a container.
+If you use a Linux server you can use `systemd` to run plumber2 as a service that can be accessed from your local network or even outside your network depending on your firewall rules. This option is similar to using the [Docker method](#docker). One of the main advantages of using `systemd` over using Docker is that `systemd` won't bypass firewall rules (Docker does!) and avoids the overhead of running a container.
 
 To implement this option you'll complete the following three steps from the terminal:
 
@@ -437,4 +437,4 @@ sudo systemctl enable plumber-api  # automatically start the service when the se
 sudo systemctl start plumber-api   # start the service right now
 ```
 
-To check if your API is running, type `systemctl | grep running` in the terminal and should display `plumber-api.service \ loaded active running Plumber API`.
+To check if your API is running, type `systemctl | grep running` in the terminal and should display `plumber-api.service \ loaded active running plumber2 API`.

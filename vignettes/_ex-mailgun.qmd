@@ -24,7 +24,7 @@ Once you have a domain setup, you just add a route that tells mailgun what to do
 
 ![](files/images/mailgun-routes.png)
 
-## Plumber API
+## Plumber2 API
 
 This example will auto-refresh every 3 seconds with the latest emails the API has received. Try sending an email to <a href="mailto:mailgun@plumber.tres.tl">mailgun@plumber.tres.tl</a> to see the API at work.
 

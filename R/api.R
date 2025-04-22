@@ -1,6 +1,6 @@
 #' Create a new plumber API, optionally based on one or more plumber files
 #'
-#' This is the main way to create a new Plumber2 object that encapsulates your
+#' This is the main way to create a new [Plumber2] object that encapsulates your
 #' full api. It is also possible to add files to the API after creation using
 #' `api_parse()`
 #'

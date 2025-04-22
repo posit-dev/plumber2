@@ -350,7 +350,7 @@ api() %>%
   api_statics("/", "./assets/static_files", except = "/secret_files")
 ```
 
-## Plumber annotation {#plumber-block-annotations}
+## plumber2 annotation {#plumber-block-annotations}
 
 | Annotation | Arguments | Description/References |
 |-------------------|-------------------|----------------------------------|

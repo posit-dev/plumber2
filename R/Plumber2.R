@@ -2,14 +2,14 @@
 #'
 #' @description
 #' This class encapsulates all of the logic of a plumber2 api, and is what gets
-#' passed around in the functional api of plumber2. The Plumber2 class is a
+#' passed around in the functional api of plumber2. The `Plumber2` class is a
 #' subclass of the [fiery::Fire] class. Please consult the documentation for
 #' this for additional information on what this type of server is capable of.
-#' Note that the Plumber2 objects are reference objects, meaning that any change
-#' to it will change all instances of the object.
+#' Note that the `Plumber2` objects are reference objects, meaning that any
+#' change to it will change all instances of the object.
 #'
 #' ## Initialization
-#' A new 'Plumber2'-object is initialized using the `new()` method on the
+#' A new `Plumber2`-object is initialized using the `new()` method on the
 #' generator:
 #'
 #' \tabular{l}{
@@ -176,7 +176,7 @@ Plumber2 <- R6Class(
 
       if (!silent)
         cli::cli_text(
-          "Plumber2 server started at http://{self$host}:{self$port}"
+          "plumber2 server started at http://{self$host}:{self$port}"
         )
       super$ignite(block = block, showcase = showcase, ..., silent = TRUE)
     },
