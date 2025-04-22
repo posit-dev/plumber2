@@ -21,21 +21,22 @@ me <- normalizePath(
     "articles"
   } else {
     "vignettes/articles"
-  })
+  }
+)
 source(file.path(me, "_helpers.R"))
 readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
-Plumber2 allows you to create APIs by merely decorating your existing R code with special annotations. The example below shows a file named `plumber.R` (the conventional name for Plumber APIs) which defines an API.
+`{plumber2}` allows you to create APIs by merely decorating your existing R code with special annotations. The example below shows a file named `plumber.R` (the conventional name for Plumber APIs) which defines an API.
 
 ```{r}
 #| eval: false
 #| code: !expr readLines("files/apis/01-01-quickstart.R")
 ```
 
-This file defines two Plumber handlers. One is hosted at the path `/echo/{msg}` and simply echoes the message passed in as the second part of the path; the other is hosted at the path `/plot` and returns an image showing a simple R plot.
+This file defines two `Plumber` handlers. One is hosted at the path `/echo/{msg}` and simply echoes the message passed in as the second part of the path; the other is hosted at the path `/plot` and returns an image showing a simple R plot.
 
-If you haven't installed `plumber2` yet, see the [installation section](./index.html#installation). Once you have `plumber2` installed, you can use the `api()` function to translate this R file into a Plumber API:
+If you haven't installed `{plumber2}` yet, see the [installation section](./index.html#installation). Once you have `{plumber2}` installed, you can use the `api()` function to translate this R file into a Plumber API:
 
 ``` r
 papi <- api("plumber.R")
@@ -96,7 +97,7 @@ As you might have guessed, the `spec=Adelie` portion of the URL sets the `spec` 
 
 ## Customizing The Output
 
-In the previous example, you saw one endpoint that rendered into JSON and one that produced an image. However, if you visited the the `/echo/test` path from a web browser you probably saw the result rendered as HTML. Plumber2 comes with many different serializers that can convert the result of your R code into a variety of formats. It is possible for the client (e.g. the web browser) to request a specific format, and if the server knows the format it will generally oblige. A browser usually prefers HTML, so that request wins over the default JSON representation that plumber2 uses. If you wish to ensure that JSON is always returned you can make that explicit using `@serializer json` which sets JSON as the only known output format.
+In the previous example, you saw one endpoint that rendered into JSON and one that produced an image. However, if you visited the the `/echo/test` path from a web browser you probably saw the result rendered as HTML. `{plumber2}` comes with many different serializers that can convert the result of your R code into a variety of formats. It is possible for the client (e.g. the web browser) to request a specific format, and if the server knows the format it will generally oblige. A browser usually prefers HTML, so that request wins over the default JSON representation that `{plumber2}` uses. If you wish to ensure that JSON is always returned you can make that explicit using `@serializer json` which sets JSON as the only known output format.
 
 For graphical output you have to always be explicit so that plumber knows to set up a graphic device and capture the output. In the example above we use `@serializer png` but other graphic serializers are available as well, e.g. `@serializer jpeg`.
 

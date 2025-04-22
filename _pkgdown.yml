@@ -8,7 +8,7 @@ navbar:
   components:
     get_started:
       text: Get Started
-      href: articles/plumber.html
+      href: articles/plumber2.html
     articles:
       text: Learn plumber2
       menu:
