@@ -21,14 +21,15 @@ me <- normalizePath(
     "articles"
   } else {
     "vignettes/articles"
-  })
+  }
+)
 source(file.path(me, "_helpers.R"))
 readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
 ## Execution Model {#execution-model}
 
-When you `plumb()` a file, plumber2 calls `source()` on that file which will evaluate any top-level code that you have defined.
+When you call `api()` a file, `{plumber2}` calls `source()` on that file which will evaluate any top-level code that you have defined.
 
 ```{r}
 #| eval: false

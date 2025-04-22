@@ -21,7 +21,8 @@ me <- normalizePath(
     "articles"
   } else {
     "vignettes/articles"
-  })
+  }
+)
 source(file.path(me, "_helpers.R"))
 readLines <- function(x) base::readLines(file.path(me, x))
 ```
@@ -65,7 +66,7 @@ Remember that this will get you the current snapshot of plumber2 and will contin
 
 ### Default Dockerfile
 
-We'll start by just running a single plumber2 application in Docker just to see things at work. By default, the `rstudio/plumber` image will take the first argument after the image name as the name of the file that you want to `plumb()` and serve on port `8080`. So right away you can run one of the examples that's included in plumber as it is already installed on the image.
+We'll start by just running a single plumber2 application in Docker just to see things at work. By default, the `rstudio/plumber` image will take the first argument after the image name as the name of the file that you want to process and serve on port `8080`. So right away you can run one of the examples that's included in plumber as it is already installed on the image.
 
 ``` bash
 docker run --rm -p 8080:8080 rstudio/plumber
@@ -82,7 +83,7 @@ docker run --rm -p 8080:8080 rstudio/plumber \
 -   `--rm` tells Docker to clean-up after the container when it's done
 -   `-p 8080:8080` says to map port 8080 from the plumber container (which is where we'll run the server) to port 8080 of your local machine
 -   `rstudio/plumber` is the name of the image we want to run
--   `/usr/local/lib/R/site-library/plumber/plumber/03-mean-sum/plumber.R` is the path **inside of the Docker container** to the plumber2 file you want to host. You'll note that you do not need plumber installed on your host machine for this to work, nor does the path `/usr/local/...` need to exist on your host machine. This references the path inside of the docker container where the R file you want to `plumb()` can be found. This `mean-sum` path is the default path that the image uses if you don't specify one yourself.
+-   `/usr/local/lib/R/site-library/plumber/plumber/03-mean-sum/plumber.R` is the path **inside of the Docker container** to the plumber2 file you want to host. You'll note that you do not need plumber installed on your host machine for this to work, nor does the path `/usr/local/...` need to exist on your host machine. This references the path inside of the docker container where the R file you want to call `api()` on can be found. This `mean-sum` path is the default path that the image uses if you don't specify one yourself.
 
 This will ask plumber2 to `plumb` and `run` the file you specified on port 8080 of that new container. Because you used the `-p` argument, port 8080 of your local machine will be forwarded into your container. You can test this by running this on the machine where Docker is running: `curl localhost:8080/mean`, or if you know the IP address of the machine where Docker is running, you could visit it in a web browser. The `/mean` path is one that's defined in the plumber file we just specified -- you should get an single number in an array back (`[-0.1993]`).
 
@@ -111,8 +112,8 @@ You can build upon the `rstudio/plumber` image and build your own Docker image b
 A couple of commands that are relevant here:
 
 -   `RUN` runs a command and persists the side-effects in the Docker image you're building. So if you want to build a new image that has the `broom` package, you could add a line in your Dockerfile that says `RUN R -e "install.packages('broom')"` which would make the `broom` package available in your new Docker image.
--   `ENTRYPOINT` is the command to run when starting the image. `rstudio/plumber` specifies an entrypoint that starts R, `plumb()`s a file, then `run()`s the router. If you want to change how plumber starts, or run some extra commands (like add a global processor) before you run the router, you'll need to provide a custom `ENTRYPOINT`.
--   `CMD` these are the default arguments to provide to `ENTRYPOINT`. `rstudio/plumber` uses only the first argument as the name of the file that you want to `plumb()`.
+-   `ENTRYPOINT` is the command to run when starting the image. `rstudio/plumber` specifies an entrypoint that starts R, calls `api()` on a file, then `run()`s the router. If you want to change how plumber starts, or run some extra commands (like add a global processor) before you run the router, you'll need to provide a custom `ENTRYPOINT`.
+-   `CMD` these are the default arguments to provide to `ENTRYPOINT`. `rstudio/plumber` uses only the first argument as the name of the file that you want to process.
 
 So your custom Dockerfile could be as simple as:
 
@@ -182,7 +183,7 @@ data
 ├── data.csv
 ```
 
-You can see that app2 is the simpler of the two apps; it just has the plumber definition that should be run through `plumb()`. So we merely use the default plumber Docker image as its `image`, and then customize the `command` to specify where the plumber2 API definition can be found in the container. Since we're mapping our host's `./app2` to `/app` inside of the container, the definition would be found in `/app/plumber.R`. We specify that it should `always` restart if anything ever happens to the container, and we export port `8080` from the container to port `7001` on the host.
+You can see that app2 is the simpler of the two apps; it just has the plumber definition that should be run through `api()`. So we merely use the default plumber Docker image as its `image`, and then customize the `command` to specify where the plumber2 API definition can be found in the container. Since we're mapping our host's `./app2` to `/app` inside of the container, the definition would be found in `/app/plumber.R`. We specify that it should `always` restart if anything ever happens to the container, and we export port `8080` from the container to port `7001` on the host.
 
 `app1` is our more complicated app. It has some extra data in another directory that needs to be loaded, and it has a custom Dockerfile. This could be because it has additional R packages or system dependencies that it requires.
 
