@@ -1,4 +1,4 @@
-# Global code; gets executed at plumb() time.
+# Global code; gets executed at `api()` time.
 counter <- 0
 
 #* @get /
