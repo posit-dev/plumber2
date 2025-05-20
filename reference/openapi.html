@@ -108,7 +108,7 @@ documenting the structure. Read more about the spec at
 <span>  parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  request_body <span class="op">=</span> <span class="fu">openapi_request_body</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  responses <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  tags <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  tags <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">openapi_parameter</span><span class="op">(</span></span>
@@ -162,8 +162,8 @@ are lists as constructed by <code>openapi_path()</code></p></dd>
 
 <dt id="arg-tags">tags<a class="anchor" aria-label="anchor" href="#arg-tags"></a></dt>
 <dd><p>For <code>openapi()</code> a list with elements corresponding to the value
-constructed by <code>openapi_tag()</code>. For <code>openapi_operation()</code> this argument is a
-list, too.</p></dd>
+constructed by <code>openapi_tag()</code>. For <code>openapi_operation()</code> a character vector
+or a list of strings</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
