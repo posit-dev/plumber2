@@ -6,7 +6,7 @@
 \alias{get_serializers}
 \title{Register or fetch a serializer}
 \usage{
-register_serializer(name, fun, mime_type)
+register_serializer(name, fun, mime_type, default = TRUE)
 
 show_registered_serializers()
 
@@ -21,6 +21,9 @@ serialize a response body to the mime type defined in \code{mime_type}}
 
 \item{mime_type}{The format this serializer creates. You should take care to
 ensure that the value provided is a standard mime type for the format}
+
+\item{default}{Should this serializer be part of the default set of
+serializers}
 
 \item{serializers}{Serializers to collect. This can either be a character
 vector of names of registered serializers or a list. If it is a list then the

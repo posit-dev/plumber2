@@ -6,7 +6,7 @@
 \alias{get_parsers}
 \title{Register or fetch a parser}
 \usage{
-register_parser(name, fun, mime_types)
+register_parser(name, fun, mime_types, default = TRUE)
 
 show_registered_parsers()
 

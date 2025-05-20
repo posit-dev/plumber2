@@ -21,6 +21,7 @@ Imports:
     R6,
     ragg,
     rapidoc,
+    readr,
     reqres (>= 0.2.5.9000),
     rlang (>= 1.1.0),
     routr (>= 0.4.1.9000),
@@ -40,8 +41,6 @@ Suggests:
     mirai,
     nanoparquet,
     quarto,
-    rapidoc,
-    readr,
     redoc,
     swagger,
     testthat (>= 3.0.0)
