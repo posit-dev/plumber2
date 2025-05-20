@@ -7,7 +7,7 @@ registry$serializers <- list()
 #' function facilitates.
 #'
 #' If you want to register your own serializer, then the function you register
-#' must be a factory function, ie. a function returning a function. The returned
+#' must be a factory function, i.e. a function returning a function. The returned
 #' function must accept a single argument which is the response body. All
 #' arguments to the factory function should be optional.
 #'
@@ -302,7 +302,7 @@ get_serializers_internal <- function(
 #' # Provided graphics serializers
 #' Serializing graphic output is special because it requires operations before
 #' and after the handler is executed. Further, handlers creating graphics are
-#' expected to do so through side-effects (ie. call to graphics rendering) or
+#' expected to do so through side-effects (i.e. call to graphics rendering) or
 #' by returning a ggplot2 object. If you want to create your own graphics
 #' serializer you should use [device_formatter()] for constructing it.
 #' * `format_png()` uses [ragg::agg_png()] for rendering. It is registered
