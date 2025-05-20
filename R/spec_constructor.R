@@ -157,7 +157,7 @@ openapi_operation <- function(
   parameters = list(),
   request_body = openapi_request_body(),
   responses = list(),
-  tags = character()
+  tags = list()
 ) {
   if (!(is_list(responses) && is_named2(responses))) {
     cli::cli_abort("{.arg responses} must be a named list")
