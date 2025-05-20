@@ -321,7 +321,7 @@ routes (\code{Break})
 
 \subsection{Returning \code{NULL} or the \code{response} object}{
 
-This is the same as returning \code{Next}, ie. it signals that handling can
+This is the same as returning \code{Next}, i.e. it signals that handling can
 proceed
 }
 

@@ -167,7 +167,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' routes (`Break`)
 #'
 #' ### Returning `NULL` or the `response` object
-#' This is the same as returning `Next`, ie. it signals that handling can
+#' This is the same as returning `Next`, i.e. it signals that handling can
 #' proceed
 #'
 #' ### Returning a ggplot2 object
