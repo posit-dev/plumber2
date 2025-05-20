@@ -58,7 +58,7 @@ function facilitates.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">register_serializer</span><span class="op">(</span><span class="va">name</span>, <span class="va">fun</span>, <span class="va">mime_type</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">register_serializer</span><span class="op">(</span><span class="va">name</span>, <span class="va">fun</span>, <span class="va">mime_type</span>, default <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">show_registered_serializers</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -82,6 +82,11 @@ serialize a response body to the mime type defined in <code>mime_type</code></p>
 <dt id="arg-mime-type">mime_type<a class="anchor" aria-label="anchor" href="#arg-mime-type"></a></dt>
 <dd><p>The format this serializer creates. You should take care to
 ensure that the value provided is a standard mime type for the format</p></dd>
+
+
+<dt id="arg-default">default<a class="anchor" aria-label="anchor" href="#arg-default"></a></dt>
+<dd><p>Should this serializer be part of the default set of
+serializers</p></dd>
 
 
 <dt id="arg-serializers">serializers<a class="anchor" aria-label="anchor" href="#arg-serializers"></a></dt>
@@ -133,7 +138,7 @@ of graphics and non-graphics serializers are requested.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

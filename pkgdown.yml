@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   annotations: annotations.html
@@ -13,7 +13,7 @@ articles:
   routing-and-input: routing-and-input.html
   security: security.html
   tips-and-tricks: tips-and-tricks.html
-last_built: 2025-04-22T15:59Z
+last_built: 2025-05-20T12:12Z
 urls:
   reference: https://posit-dev.github.io/plumber2/reference
   article: https://posit-dev.github.io/plumber2/articles
