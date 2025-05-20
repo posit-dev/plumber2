@@ -24,6 +24,8 @@ directives given by the requests \code{Content-Type} header}
 \item{mime_types}{One or more mime types that this parser can handle. The
 mime types are allowed to contain wildcards, e.g. \code{"text/*"}}
 
+\item{default}{Should this parser be part of the default set of parsers}
+
 \item{parsers}{Parsers to collect. This can either be a character vector of
 names of registered parsers or a list. If it is a list then the following
 expectations apply:
