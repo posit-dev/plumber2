@@ -57,7 +57,7 @@ setting anly affects handlers on the request router.}
 \item{ignore_trailing_slash}{Logical. Should the trailing slash of a path
 be ignored when adding handlers and handling requests. Setting this will
 not change the request or the path associated with but just ensure that
-both \code{path/to/ressource} and \verb{path/to/ressource/} ends up in the same
+both \code{path/to/resource} and \verb{path/to/resource/} ends up in the same
 handler.}
 
 \item{max_request_size}{Sets a maximum size of request bodies. Setting this

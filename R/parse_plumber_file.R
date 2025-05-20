@@ -10,7 +10,7 @@
 #' @param ignore_trailing_slash Logical. Should the trailing slash of a path
 #' be ignored when adding handlers and handling requests. Setting this will
 #' not change the request or the path associated with but just ensure that
-#' both `path/to/ressource` and `path/to/ressource/` ends up in the same
+#' both `path/to/resource` and `path/to/resource/` ends up in the same
 #' handler.
 #' @param default_async The async evaluator to use by default when the `@async`
 #' tag is used without further argument
