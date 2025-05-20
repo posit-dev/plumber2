@@ -20,7 +20,7 @@ function(msg) {
 #* @serializer png
 #*
 function(query) {
-  myData <- palmerpenguins::penguins
+  myData <- penguins
   title <- "All Species"
 
   # Filter if the species was specified
@@ -30,8 +30,8 @@ function(query) {
   }
 
   plot(
-    myData$flipper_length_mm,
-    myData$bill_length_mm,
+    myData$flipper_len,
+    myData$bill_len,
     main=title,
     xlab="Flipper Length (mm)",
     ylab="Bill Length (mm)"
