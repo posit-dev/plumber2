@@ -169,7 +169,8 @@ openapi_operation <- function(
     operation_id = operation_id,
     parameters = parameters,
     request_body = request_body,
-    responses = responses
+    responses = responses,
+    tags = tags
   ))
   if (length(op) != 0 && is.null(op$response)) {
     op$response <- list()
