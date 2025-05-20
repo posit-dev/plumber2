@@ -335,7 +335,7 @@ continues
 \subsection{Returning any other value}{
 
 Any kind of value returned that is not captured by the above description will
-be set to the response body (overwritting what was already there) and
+be set to the response body (overwriting what was already there) and
 handling is then allowed to continue
 }
 
