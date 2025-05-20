@@ -14,7 +14,7 @@
 #' are lists as constructed by `openapi_path()`
 #' @param tags For `openapi()` a list with elements corresponding to the value
 #' constructed by `openapi_tag()`. For `openapi_operation()` this argument is a
-#' simple character vector
+#' list, too.
 #'
 #' @return A list
 #'
