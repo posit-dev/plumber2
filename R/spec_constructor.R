@@ -13,8 +13,8 @@
 #' @param paths A named list. The names correspond to endpoints and the elements
 #' are lists as constructed by `openapi_path()`
 #' @param tags For `openapi()` a list with elements corresponding to the value
-#' constructed by `openapi_tag()`. For `openapi_operation()` this argument is a
-#' list, too.
+#' constructed by `openapi_tag()`. For `openapi_operation()` a character vector
+#' or a list of strings
 #'
 #' @return A list
 #'
@@ -157,7 +157,7 @@ openapi_operation <- function(
   parameters = list(),
   request_body = openapi_request_body(),
   responses = list(),
-  tags = list()
+  tags = character()
 ) {
   if (!(is_list(responses) && is_named2(responses))) {
     cli::cli_abort("{.arg responses} must be a named list")
@@ -170,7 +170,7 @@ openapi_operation <- function(
     parameters = parameters,
     request_body = request_body,
     responses = responses,
-    tags = tags
+    tags = as.list(tags)
   ))
   if (length(op) != 0 && is.null(op$response)) {
     op$response <- list()
