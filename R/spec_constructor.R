@@ -14,7 +14,7 @@
 #' are lists as constructed by `openapi_path()`
 #' @param tags For `openapi()` a list with elements corresponding to the value
 #' constructed by `openapi_tag()`. For `openapi_operation()` this argument is a
-#' simple character vector
+#' list, too.
 #'
 #' @return A list
 #'
@@ -157,7 +157,7 @@ openapi_operation <- function(
   parameters = list(),
   request_body = openapi_request_body(),
   responses = list(),
-  tags = character()
+  tags = list()
 ) {
   if (!(is_list(responses) && is_named2(responses))) {
     cli::cli_abort("{.arg responses} must be a named list")

@@ -57,7 +57,7 @@ openapi_operation(
   parameters = list(),
   request_body = openapi_request_body(),
   responses = list(),
-  tags = character()
+  tags = list()
 )
 
 openapi_parameter(
@@ -101,7 +101,7 @@ are lists as constructed by \code{openapi_path()}}
 
 \item{tags}{For \code{openapi()} a list with elements corresponding to the value
 constructed by \code{openapi_tag()}. For \code{openapi_operation()} this argument is a
-simple character vector}
+list, too.}
 
 \item{title}{A string giving the title of the API}
 
