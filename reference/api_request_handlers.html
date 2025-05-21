@@ -250,16 +250,16 @@ most ubiquitous method in use. <code>GET</code> requests should only retrieve da
 should not contain any body content</p></li>
 <li><p><code>HEAD</code>: This method is identical to <code>GET</code>, except the response should only
 contain headers, no body. Apart from this it is expected that a <code>HEAD</code>
-request is identical to a <code>GET</code> request for the same ressource</p></li>
+request is identical to a <code>GET</code> request for the same resource</p></li>
 <li><p><code>POST</code>: This method delivers content, in the form of a request body, to the
 server, potentially causing a change in the server. In the context of
 plumber2 it is often used to call functions that require input larger than
 what can be put in the URL</p></li>
-<li><p><code>PUT</code>: This method is used to update a specific ressource on the server. In
+<li><p><code>PUT</code>: This method is used to update a specific resource on the server. In
 the context of a standard plumber2 server this is rarely relevant, though
 usage can come up. <code>PUT</code> is considered by clients to be indemptotent meaning
 that sending the same <code>PUT</code> request multiple times have no effect</p></li>
-<li><p><code>DELETE</code>: This method deletes a ressource and is the opposite to <code>PUT</code>. As
+<li><p><code>DELETE</code>: This method deletes a resource and is the opposite to <code>PUT</code>. As
 with <code>PUT</code> this method has limited use in most standard plumber2 servers</p></li>
 <li><p><code>CONNECT</code>: This method request the establishment of a proxy tunnel. It is
 considered advanced use and is very unlikely to have a usecase for your
@@ -270,7 +270,7 @@ methods and other settings are supported on a server</p></li>
 containing the request (stripped of any sensitive information). Many
 servers disallow this method due to security concerns</p></li>
 <li><p><code>PATCH</code>: This method is like <code>PUT</code> but allows partial modification of a
-ressource</p></li>
+resource</p></li>
 </ul><p>Apart from the above, plumber2 also understands the <code>ANY</code> method which
 responds to requests to any of the above methods, assuming that a specific
 handler for the method is not found. As the semantics of the various methods
@@ -382,7 +382,7 @@ routes (<code>Break</code>)</p>
 <h4 id="returning-null-or-the-response-object">Returning <code>NULL</code> or the <code>response</code> object<a class="anchor" aria-label="anchor" href="#returning-null-or-the-response-object"></a></h4>
 
 
-<p>This is the same as returning <code>Next</code>, ie. it signals that handling can
+<p>This is the same as returning <code>Next</code>, i.e. it signals that handling can
 proceed</p>
 </div>
 
@@ -400,7 +400,7 @@ continues</p>
 
 
 <p>Any kind of value returned that is not captured by the above description will
-be set to the response body (overwritting what was already there) and
+be set to the response body (overwriting what was already there) and
 handling is then allowed to continue</p>
 </div>
 
