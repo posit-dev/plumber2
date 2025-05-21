@@ -160,7 +160,7 @@ are:
 \item \code{integer}: Will signal \code{type: integer}
 \item \code{numeric}: Will signal \code{type: number}
 \item \code{character}: Will signal \code{type: string}
-\item \code{faactor}: Will signal \code{type: string} and \code{enum} set the factor levels
+\item \code{factor}: Will signal \code{type: string} and \code{enum} set the factor levels
 \item \code{raw}: Will signal \verb{type:string; format: binary}
 \item \code{Date}: Will signal \verb{type:string; format: date}
 \item \code{POSIXt}: Will signal \verb{type:string; format: date-time}

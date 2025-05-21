@@ -54,7 +54,7 @@ Plumber2 <- R6Class(
     #' @param ignore_trailing_slash Logical. Should the trailing slash of a path
     #' be ignored when adding handlers and handling requests. Setting this will
     #' not change the request or the path associated with but just ensure that
-    #' both `path/to/ressource` and `path/to/ressource/` ends up in the same
+    #' both `path/to/resource` and `path/to/resource/` ends up in the same
     #' handler. This setting will only affect routes that are created automatically.
     #' @param max_request_size Sets a maximum size of request bodies. Setting this
     #' will add a handler to the header router that automatically rejects requests

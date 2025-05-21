@@ -52,16 +52,16 @@ handle_constructor <- function(method, header = FALSE) {
 #'   should not contain any body content
 #' * `HEAD`: This method is identical to `GET`, except the response should only
 #'   contain headers, no body. Apart from this it is expected that a `HEAD`
-#'   request is identical to a `GET` request for the same ressource
+#'   request is identical to a `GET` request for the same resource
 #' * `POST`: This method delivers content, in the form of a request body, to the
 #'   server, potentially causing a change in the server. In the context of
 #'   plumber2 it is often used to call functions that require input larger than
 #'   what can be put in the URL
-#' * `PUT`: This method is used to update a specific ressource on the server. In
+#' * `PUT`: This method is used to update a specific resource on the server. In
 #'   the context of a standard plumber2 server this is rarely relevant, though
 #'   usage can come up. `PUT` is considered by clients to be indemptotent meaning
 #'   that sending the same `PUT` request multiple times have no effect
-#' * `DELETE`: This method deletes a ressource and is the opposite to `PUT`. As
+#' * `DELETE`: This method deletes a resource and is the opposite to `PUT`. As
 #'   with `PUT` this method has limited use in most standard plumber2 servers
 #' * `CONNECT`: This method request the establishment of a proxy tunnel. It is
 #'   considered advanced use and is very unlikely to have a usecase for your
@@ -72,7 +72,7 @@ handle_constructor <- function(method, header = FALSE) {
 #'   containing the request (stripped of any sensitive information). Many
 #'   servers disallow this method due to security concerns
 #' * `PATCH`: This method is like `PUT` but allows partial modification of a
-#'   ressource
+#'   resource
 #'
 #' Apart from the above, plumber2 also understands the `ANY` method which
 #' responds to requests to any of the above methods, assuming that a specific
@@ -167,7 +167,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' routes (`Break`)
 #'
 #' ### Returning `NULL` or the `response` object
-#' This is the same as returning `Next`, ie. it signals that handling can
+#' This is the same as returning `Next`, i.e. it signals that handling can
 #' proceed
 #'
 #' ### Returning a ggplot2 object
@@ -177,7 +177,7 @@ handle_constructor <- function(method, header = FALSE) {
 #'
 #' ### Returning any other value
 #' Any kind of value returned that is not captured by the above description will
-#' be set to the response body (overwritting what was already there) and
+#' be set to the response body (overwriting what was already there) and
 #' handling is then allowed to continue
 #'
 #' ## Handler conditions

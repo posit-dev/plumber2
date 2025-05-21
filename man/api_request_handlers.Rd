@@ -191,16 +191,16 @@ most ubiquitous method in use. \code{GET} requests should only retrieve data and
 should not contain any body content
 \item \code{HEAD}: This method is identical to \code{GET}, except the response should only
 contain headers, no body. Apart from this it is expected that a \code{HEAD}
-request is identical to a \code{GET} request for the same ressource
+request is identical to a \code{GET} request for the same resource
 \item \code{POST}: This method delivers content, in the form of a request body, to the
 server, potentially causing a change in the server. In the context of
 plumber2 it is often used to call functions that require input larger than
 what can be put in the URL
-\item \code{PUT}: This method is used to update a specific ressource on the server. In
+\item \code{PUT}: This method is used to update a specific resource on the server. In
 the context of a standard plumber2 server this is rarely relevant, though
 usage can come up. \code{PUT} is considered by clients to be indemptotent meaning
 that sending the same \code{PUT} request multiple times have no effect
-\item \code{DELETE}: This method deletes a ressource and is the opposite to \code{PUT}. As
+\item \code{DELETE}: This method deletes a resource and is the opposite to \code{PUT}. As
 with \code{PUT} this method has limited use in most standard plumber2 servers
 \item \code{CONNECT}: This method request the establishment of a proxy tunnel. It is
 considered advanced use and is very unlikely to have a usecase for your
@@ -211,7 +211,7 @@ methods and other settings are supported on a server
 containing the request (stripped of any sensitive information). Many
 servers disallow this method due to security concerns
 \item \code{PATCH}: This method is like \code{PUT} but allows partial modification of a
-ressource
+resource
 }
 
 Apart from the above, plumber2 also understands the \code{ANY} method which
@@ -321,7 +321,7 @@ routes (\code{Break})
 
 \subsection{Returning \code{NULL} or the \code{response} object}{
 
-This is the same as returning \code{Next}, ie. it signals that handling can
+This is the same as returning \code{Next}, i.e. it signals that handling can
 proceed
 }
 
@@ -335,7 +335,7 @@ continues
 \subsection{Returning any other value}{
 
 Any kind of value returned that is not captured by the above description will
-be set to the response body (overwritting what was already there) and
+be set to the response body (overwriting what was already there) and
 handling is then allowed to continue
 }
 

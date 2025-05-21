@@ -128,7 +128,7 @@ type \code{text/html}
 \section{Provided graphics serializers}{
 Serializing graphic output is special because it requires operations before
 and after the handler is executed. Further, handlers creating graphics are
-expected to do so through side-effects (ie. call to graphics rendering) or
+expected to do so through side-effects (i.e. call to graphics rendering) or
 by returning a ggplot2 object. If you want to create your own graphics
 serializer you should use \code{\link[=device_formatter]{device_formatter()}} for constructing it.
 \itemize{

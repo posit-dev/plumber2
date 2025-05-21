@@ -52,7 +52,7 @@ function facilitates.
 }
 \details{
 If you want to register your own parser, then the function you register must
-be a factory function, ie. a function returning a function. The returned
+be a factory function, i.e. a function returning a function. The returned
 function must accept two arguments, the first being a raw vector
 corresponding to the request body, the second being the parsed directives
 from the request \code{Content-Type} header. All arguments to the factory function

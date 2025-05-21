@@ -51,7 +51,7 @@ function facilitates.
 }
 \details{
 If you want to register your own serializer, then the function you register
-must be a factory function, ie. a function returning a function. The returned
+must be a factory function, i.e. a function returning a function. The returned
 function must accept a single argument which is the response body. All
 arguments to the factory function should be optional.
 }

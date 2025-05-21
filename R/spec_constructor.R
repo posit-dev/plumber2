@@ -244,7 +244,7 @@ openapi_header <- function(
 #' * `integer`: Will signal `type: integer`
 #' * `numeric`: Will signal `type: number`
 #' * `character`: Will signal `type: string`
-#' * `faactor`: Will signal `type: string` and `enum` set the factor levels
+#' * `factor`: Will signal `type: string` and `enum` set the factor levels
 #' * `raw`: Will signal `type:string; format: binary`
 #' * `Date`: Will signal `type:string; format: date`
 #' * `POSIXt`: Will signal `type:string; format: date-time`
