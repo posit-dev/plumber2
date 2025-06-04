@@ -184,7 +184,7 @@ dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
 }
 
 # For use by connect etc
-launch_server <- function(settings, host = NULL, port = NULL) {
+launch_server <- function(settings, host = NULL, port = NULL, ...) {
   papi <- api(settings)
   if (!is.null(host)) {
     papi$host <- host
