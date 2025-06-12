@@ -15,6 +15,7 @@ Imports:
     base64enc,
     cli,
     fiery (>= 1.2.1.9000),
+    firestorm (>= 0.0.0.9000),
     fs,
     jsonlite,
     promises,
@@ -30,18 +31,21 @@ Imports:
     svglite,
     webutils,
     yaml
-Remotes:
+Remotes: 
     thomasp85/fiery,
     thomasp85/reqres,
-    thomasp85/routr
+    thomasp85/routr,
+    thomasp85/firestorm
 Suggests:
     arrow,
+    callr,
     geojsonsf,
     htmlwidgets,
     mirai,
     nanoparquet,
     quarto,
     redoc,
+    shiny,
     swagger,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto

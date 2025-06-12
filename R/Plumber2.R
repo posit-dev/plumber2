@@ -174,10 +174,11 @@ Plumber2 <- R6Class(
         }
       }
 
-      if (!silent)
+      if (!silent) {
         cli::cli_text(
           "plumber2 server started at http://{self$host}:{self$port}"
         )
+      }
       super$ignite(block = block, showcase = showcase, ..., silent = TRUE)
     },
     #' @description Add a new route to either the request or header router
@@ -264,7 +265,9 @@ Plumber2 <- R6Class(
           "all"
         )
       )
-      if (method == "any") method <- "all"
+      if (method == "any") {
+        method <- "all"
+      }
       check_bool(header)
       check_string(path)
       check_string(route, allow_null = TRUE)
@@ -386,7 +389,9 @@ Plumber2 <- R6Class(
           "all"
         )
       )
-      if (method == "any") method <- "all"
+      if (method == "any") {
+        method <- "all"
+      }
       check_string(from)
       check_string(to)
       check_bool(permanent)
@@ -440,6 +445,15 @@ Plumber2 <- R6Class(
           redirect$permanent
         )
       }
+      for (proxy in parsed$proxies) {
+        if (!is.null(proxy$shiny_app)) {
+          self$add_shiny(proxy$path, proxy$shiny_app)
+        } else if (!is.null(proxy$url)) {
+          for (i in seq_along(proxy$path)) {
+            self$add_proxy(proxy$path[i], proxy$url[i])
+          }
+        }
+      }
       self$add_api_doc(parsed$api)
       parsed$modifier(self)
     },
@@ -464,6 +478,56 @@ Plumber2 <- R6Class(
         }
       }
       private$OPENAPI <- utils::modifyList(private$OPENAPI, doc)
+    },
+    #' @description Add a shiny app to an api. See [api_shiny()] for detailed
+    #' information
+    #' @param path The path to serve the app from
+    #' @param app A shiny app object
+    #'
+    add_shiny = function(path, app) {
+      check_installed("callr")
+      check_installed("shiny")
+      if (!shiny::is.shiny.appobj(app)) {
+        stop_input_type(app, "a shiny app object")
+      }
+      port <- self$get_data("shiny_port") %||% 53000L
+      self$set_data("shiny_port", port + 1L)
+      proc_name <- paste0("shiny_reverse_proxy_", port)
+
+      shiny_proxy <- firestorm::ReverseProxy$new(
+        paste0("http://127.0.0.1:", port),
+        path
+      )
+      self$attach(shiny_proxy)
+
+      self$on("start", function(...) {
+        proc <- callr::r_bg(function(app, port) {
+          shiny::runApp(
+            app,
+            port = port,
+            launch.browser = FALSE,
+            host = "127.0.0.1",
+            workerId = "",
+            quiet = TRUE,
+            display.mode = "normal",
+            test.mode = FALSE
+          )
+        }, args = list(app = app, port = port))
+        self$set_data(proc_name, proc)
+      })
+      self$on("end", function(...) {
+        proc <- self$get_data(proc_name)
+        if (inherits(proc, "r_process")) proc$kill()
+      })
+    },
+    #' @description Add a reverse proxy from a path to a given URL. See
+    #' [api_proxy()] for more details
+    #' @param path The root to forward from
+    #' @param url The url to proxy
+    #'
+    add_proxy = function(path, url) {
+      revprox <- firestorm::ReverseProxy$new(url, path)
+      self$attach(revprox)
     }
   ),
   active = list(
@@ -490,7 +554,9 @@ Plumber2 <- R6Class(
     #' `"rapidoc"` (the default), `"redoc"`, `"swagger"`, or `NULL` (equating to
     #' not generating API docs)
     doc_type = function(value) {
-      if (missing(value)) return(private$DOC_TYPE)
+      if (missing(value)) {
+        return(private$DOC_TYPE)
+      }
       if (!is.null(value)) {
         value <- arg_match0(value, c("rapidoc", "redoc", "swagger"))
       }
@@ -498,7 +564,9 @@ Plumber2 <- R6Class(
     },
     #' @field doc_path The URL path to serve the api documentation from
     doc_path = function(value) {
-      if (missing(value)) return(private$DOC_PATH)
+      if (missing(value)) {
+        return(private$DOC_PATH)
+      }
       check_string(value)
       private$DOC_PATH <- value
     }
@@ -530,8 +598,12 @@ subset_to_list <- function(x, end_value = list()) {
   }
 }
 list_has_subset <- function(x, subset) {
-  if (length(subset) == 0) return(TRUE)
+  if (length(subset) == 0) {
+    return(TRUE)
+  }
   x <- x[[subset[1]]]
-  if (is.null(x)) return(FALSE)
+  if (is.null(x)) {
+    return(FALSE)
+  }
   list_has_subset(x, subset[-1])
 }

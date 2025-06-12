@@ -90,7 +90,7 @@ parse_plumber_file <- function(
   paths <- Reduce(utils::modifyList, apis[!globals])
   globals <- Reduce(utils::modifyList, apis[globals])
 
-  modifiers <- blocks[vapply(blocks, inherits, logical(1), "plumber_call")]
+  modifiers <- blocks[vapply(blocks, inherits, logical(1), "plumber2_call")]
   modifier <- function(api) {
     for (mod in modifiers) {
       api <- mod(api)
@@ -100,8 +100,11 @@ parse_plumber_file <- function(
     }
   }
 
-  redirects <- blocks[vapply(blocks, inherits, logical(1), "plumber_redirect")]
+  redirects <- blocks[vapply(blocks, inherits, logical(1), "plumber2_redirect")]
   redirects <- unlist(redirects, recursive = FALSE)
+
+  proxies <- blocks[vapply(blocks, inherits, logical(1), "plumber2_proxy")]
+  proxies <- unlist(redirects, recursive = FALSE)
 
   list(
     route = route,
@@ -114,6 +117,7 @@ parse_plumber_file <- function(
       "message_call"
     )],
     redirects = redirects,
+    proxies = proxies,
     api = c(globals, paths),
     modifiers = modifier
   )
@@ -137,6 +141,8 @@ parse_block <- function(
     parse_message_block(call, block, tags, values, default_async)
   } else if (any(tags == "redirect")) {
     parse_redirect_block(call, block, tags, values)
+  } else if (any(tags == "shiny")) {
+    parse_shiny_block(call, block, tags, values)
   } else if (any(tags == "plumber")) {
     parse_plumber_block(call, tags)
   } else if (
@@ -177,7 +183,7 @@ parse_plumber_block <- function(call, tags) {
   if (length(fn_fmls(call)) != 1) {
     cli::cli_abort("plumber modifiers must be unary functions")
   }
-  structure(call, class = "plumber_call")
+  structure(call, class = "plumber2_call")
 }
 
 parse_handler_block <- function(
@@ -353,5 +359,47 @@ parse_redirect_block <- function(call, block, tags, values) {
       permanent = is_permanent
     )
   })
-  class(res) <- "plumber2_redirect"
+  structure(
+    res,
+    class = "plumber2_redirect"
+  )
+}
+
+parse_shiny_block <- function(call, block, tags, values) {
+  if (sum(tags == "shiny") != 1) {
+    cli::cli_abort("Only one {.field @shiny} tag allowed per block")
+  }
+  check_installed("shiny")
+  if (!shiny::is.shiny.appobj(call)) {
+    stop_input_type(call, "a shiny app object")
+  }
+  structure(
+    list(shiny_app = call, path = values[[tags == "shiny"]]),
+    class = "plumber2_proxy"
+  )
+}
+
+parse_proxy_block <- function(call, block, tags, values) {
+  res <- lapply(values[tags == "proxy"], function(x) {
+    x <- stringi::stri_split_fixed(x, " ", n = 2)[[1]]
+    if (length(x) != 2) {
+      cli::cli_warn(c(
+        "Malformed {.field @proxy} tag",
+        i = "The format must conform to: <from path> <to url>"
+      ))
+      return(NULL)
+    }
+    list(
+      path = x[1],
+      url = x[2]
+    )
+  })
+  res <- res[lengths(res) != 0]
+  structure(
+    list(
+      path = vapply(res, `[[`, character(1), "path"),
+      url = vapply(res, `[[`, character(1), "url"),
+    ),
+    class = "plumber2_proxy"
+  )
 }

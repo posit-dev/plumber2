@@ -61,6 +61,8 @@ not generating API docs)}
 \item \href{#method-Plumber2-redirect}{\code{Plumber2$redirect()}}
 \item \href{#method-Plumber2-parse_file}{\code{Plumber2$parse_file()}}
 \item \href{#method-Plumber2-add_api_doc}{\code{Plumber2$add_api_doc()}}
+\item \href{#method-Plumber2-add_shiny}{\code{Plumber2$add_shiny()}}
+\item \href{#method-Plumber2-add_proxy}{\code{Plumber2$add_proxy()}}
 \item \href{#method-Plumber2-clone}{\code{Plumber2$clone()}}
 }
 }
@@ -421,6 +423,46 @@ removed or should it be merged together with \code{doc}}
 
 \item{\code{subset}}{A character vector giving the path to the subset of the
 docs to assign \code{doc} to}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_shiny"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_shiny}{}}}
+\subsection{Method \code{add_shiny()}}{
+Add a shiny app to an api. See \code{\link[=api_shiny]{api_shiny()}} for detailed
+information
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_shiny(path, app)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{The path to serve the app from}
+
+\item{\code{app}}{A shiny app object}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_proxy"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_proxy}{}}}
+\subsection{Method \code{add_proxy()}}{
+Add a reverse proxy from a path to a given URL. See
+\code{\link[=api_proxy]{api_proxy()}} for more details
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_proxy(path, url)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{The root to forward from}
+
+\item{\code{url}}{The url to proxy}
 }
 \if{html}{\out{</div>}}
 }

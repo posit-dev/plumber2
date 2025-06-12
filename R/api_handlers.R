@@ -445,3 +445,55 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
   api$redirect(method, from, to, permanent)
   api
 }
+
+#' Serve a Shiny app from a plumber2 api
+#'
+#' You can serve one or more shiny apps as part of a plumber2 api. The shiny app
+#' launches in a background process and the api will work as a reverse proxy to
+#' forward requests to `path` to the process and relay the response to the
+#' client. The shiny app is started along with the api and shut down once the
+#' api is stopped. This functionality requires the shiny and callr packages to
+#' be installed. Be aware that all requests to subpaths of `path` will be
+#' forwarded to the shiny process, and thus not end up in your normal route
+#'
+#' @param api A plumber2 api to add the shiny app to
+#' @param path The path to serve the shiny app from
+#' @param app A shiny app object
+#'
+#' @return This functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+api_shiny <- function(api, path, app) {
+  api$add_shiny(path, app)
+  api
+}
+
+#' Set up a plumber2 api to act as a reverse proxy
+#'
+#' You can set up your plumber2 api to act as reverse proxy and forward all
+#' requests to a specific path (and it's subpaths) to a different URL. In
+#' contrast to [api_shiny()], `api_proxy()` is not responsible for launching
+#' whatever service is being proxied so this should be handled elsewhere. The
+#' `path` will be stripped from the request before being forwarded to the url,
+#' meaning that if you set up a proxy on `my/proxy/` to `http://example.com`,
+#' then a request for `my/proxy/user/thomas` will end at
+#' `http://example.com/user/thomas`. Proxying is most useful when forwarding to
+#' internal servers though you are free to forward to public URLs as well.
+#' However, for the later you'd usually use a redirect instead (via
+#' [api_redirect()])
+#'
+#' @param api A plumber2 api to add the shiny app to
+#' @param path The path to serve the shiny app from
+#' @param url The url to forward to
+#'
+#' @return This functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+api_proxy <- function(api, path, url) {
+  api$add_shiny(path, app)
+  api
+}

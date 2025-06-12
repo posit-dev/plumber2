@@ -181,6 +181,16 @@ roxy_tag_parse.roxy_tag_plumber <- function(x) {
 roxy_tag_parse.roxy_tag_async <- function(x) {
   x
 }
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_shiny <- function(x) {
+  x
+}
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_proxy <- function(x) {
+  x
+}
 
 ## TODO: Unimplemented
 
