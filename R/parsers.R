@@ -218,10 +218,10 @@ get_parsers_internal <- function(
 #'   `"octet"` for the mime type `application/octet-stream`
 #' * `parse_rds()` uses [unserialize()] for parsing. It is registered as
 #'   `"rds"` for the mime type `application/rds`
-#' * `parse_feather()` uses [arrow::read_feather()] for parsing. It is
+#' * `parse_feather()` uses `arrow::read_feather()` for parsing. It is
 #'   registered as `"feather"` for the mime types
 #'   `application/vnd.apache.arrow.file` and `application/feather`
-#' * `parse_parquet()` uses [arrow::read_parquet()] for parsing. It is
+#' * `parse_parquet()` uses `arrow::read_parquet()` for parsing. It is
 #'   registered as `"parquet"` for the mime type `application/vnd.apache.parquet`
 #' * `parse_text()` uses [rawToChar()] for parsing. It is registered as
 #'   `"text"` for the mime types `text/plain` and `text/*`
@@ -231,7 +231,7 @@ get_parsers_internal <- function(
 #' * `parse_yaml()` uses [yaml::yaml.load()] for parsing. It is registered as
 #'   `"yaml"` for the mime types `text/vnd.yaml`, `application/yaml`,
 #'   `application/x-yaml`, `text/yaml`, and `text/x-yaml`
-#' * `parse_geojson()` uses [geojsonsf::geojson_sf()] for parsing. It is
+#' * `parse_geojson()` uses `geojsonsf::geojson_sf()` for parsing. It is
 #'   registered as `"geojson"` for the mime types `application/geo+json` and
 #'   `application/vdn.geo+json`
 #'

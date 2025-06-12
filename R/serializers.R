@@ -267,17 +267,17 @@ get_serializers_internal <- function(
 #'   as `"tsv"` to the mime type `text/tsv`
 #' * `format_rds()` uses [serialize()] for formatting. It is registered as
 #'   `"rds"` to the mime type `application/rds`
-#' * `format_geojson()` uses [geojsonsf::sfc_geojson()] or [geojsonsf::sf_geojson()]
+#' * `format_geojson()` uses `geojsonsf::sfc_geojson()` or `geojsonsf::sf_geojson()`
 #'   for formatting depending on the class of the response body. It is
 #'   registered as `"geojson"` to the mime type `application/geo+json`
-#' * `format_feather()` uses [arrow::write_feather()] for formatting. It is
+#' * `format_feather()` uses `arrow::write_feather()` for formatting. It is
 #'   registered as `"feather"` to the mime type
 #'   `application/vnd.apache.arrow.file`
-#' * `format_parquet()` uses [nanoparquet::write_parquet()] for formatting. It is
+#' * `format_parquet()` uses `nanoparquet::write_parquet()` for formatting. It is
 #'   registered as `"parquet"` to the mime type `application/vnd.apache.parquet`
 #' * `format_yaml()` uses [yaml::as.yaml()] for formatting. It is registered
 #'   as `"yaml"` to the mime type `text/yaml`
-#' * `format_htmlwidget()` uses [htmlwidgets::saveWidget()] for formatting. It is
+#' * `format_htmlwidget()` uses `htmlwidgets::saveWidget()` for formatting. It is
 #'   registered as `"htmlwidget"` to the mime type `text/html`
 #' * `format_format()` uses [format()] for formatting. It is registered
 #'   as `"format"` to the mime type `text/plain`

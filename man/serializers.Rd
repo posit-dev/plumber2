@@ -89,17 +89,17 @@ as \code{"csv"} to the mime type \code{text/csv}
 as \code{"tsv"} to the mime type \code{text/tsv}
 \item \code{format_rds()} uses \code{\link[=serialize]{serialize()}} for formatting. It is registered as
 \code{"rds"} to the mime type \code{application/rds}
-\item \code{format_geojson()} uses \code{\link[geojsonsf:sfc_geojson]{geojsonsf::sfc_geojson()}} or \code{\link[geojsonsf:sf_geojson]{geojsonsf::sf_geojson()}}
+\item \code{format_geojson()} uses \code{geojsonsf::sfc_geojson()} or \code{geojsonsf::sf_geojson()}
 for formatting depending on the class of the response body. It is
 registered as \code{"geojson"} to the mime type \code{application/geo+json}
-\item \code{format_feather()} uses \code{\link[arrow:write_feather]{arrow::write_feather()}} for formatting. It is
+\item \code{format_feather()} uses \code{arrow::write_feather()} for formatting. It is
 registered as \code{"feather"} to the mime type
 \code{application/vnd.apache.arrow.file}
-\item \code{format_parquet()} uses \code{\link[nanoparquet:write_parquet]{nanoparquet::write_parquet()}} for formatting. It is
+\item \code{format_parquet()} uses \code{nanoparquet::write_parquet()} for formatting. It is
 registered as \code{"parquet"} to the mime type \code{application/vnd.apache.parquet}
 \item \code{format_yaml()} uses \code{\link[yaml:as.yaml]{yaml::as.yaml()}} for formatting. It is registered
 as \code{"yaml"} to the mime type \code{text/yaml}
-\item \code{format_htmlwidget()} uses \code{\link[htmlwidgets:saveWidget]{htmlwidgets::saveWidget()}} for formatting. It is
+\item \code{format_htmlwidget()} uses \code{htmlwidgets::saveWidget()} for formatting. It is
 registered as \code{"htmlwidget"} to the mime type \code{text/html}
 \item \code{format_format()} uses \code{\link[=format]{format()}} for formatting. It is registered
 as \code{"format"} to the mime type \code{text/plain}

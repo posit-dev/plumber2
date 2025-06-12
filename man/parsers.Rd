@@ -67,10 +67,10 @@ vector. It is registered as "\code{multi}" for the mime type \verb{multipart/*}
 \code{"octet"} for the mime type \code{application/octet-stream}
 \item \code{parse_rds()} uses \code{\link[=unserialize]{unserialize()}} for parsing. It is registered as
 \code{"rds"} for the mime type \code{application/rds}
-\item \code{parse_feather()} uses \code{\link[arrow:read_feather]{arrow::read_feather()}} for parsing. It is
+\item \code{parse_feather()} uses \code{arrow::read_feather()} for parsing. It is
 registered as \code{"feather"} for the mime types
 \code{application/vnd.apache.arrow.file} and \code{application/feather}
-\item \code{parse_parquet()} uses \code{\link[arrow:read_parquet]{arrow::read_parquet()}} for parsing. It is
+\item \code{parse_parquet()} uses \code{arrow::read_parquet()} for parsing. It is
 registered as \code{"parquet"} for the mime type \code{application/vnd.apache.parquet}
 \item \code{parse_text()} uses \code{\link[=rawToChar]{rawToChar()}} for parsing. It is registered as
 \code{"text"} for the mime types \code{text/plain} and \verb{text/*}
@@ -80,7 +80,7 @@ registered as \code{"parquet"} for the mime type \code{application/vnd.apache.pa
 \item \code{parse_yaml()} uses \code{\link[yaml:yaml.load]{yaml::yaml.load()}} for parsing. It is registered as
 \code{"yaml"} for the mime types \code{text/vnd.yaml}, \code{application/yaml},
 \code{application/x-yaml}, \code{text/yaml}, and \code{text/x-yaml}
-\item \code{parse_geojson()} uses \code{\link[geojsonsf:geojson_sf]{geojsonsf::geojson_sf()}} for parsing. It is
+\item \code{parse_geojson()} uses \code{geojsonsf::geojson_sf()} for parsing. It is
 registered as \code{"geojson"} for the mime types \code{application/geo+json} and
 \code{application/vdn.geo+json}
 }
