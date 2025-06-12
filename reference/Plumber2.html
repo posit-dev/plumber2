@@ -172,6 +172,8 @@ not generating API docs)</p></dd>
 <li><p><a href="#method-Plumber2-redirect"><code>Plumber2$redirect()</code></a></p></li>
 <li><p><a href="#method-Plumber2-parse_file"><code>Plumber2$parse_file()</code></a></p></li>
 <li><p><a href="#method-Plumber2-add_api_doc"><code>Plumber2$add_api_doc()</code></a></p></li>
+<li><p><a href="#method-Plumber2-add_shiny"><code>Plumber2$add_shiny()</code></a></p></li>
+<li><p><a href="#method-Plumber2-add_proxy"><code>Plumber2$add_proxy()</code></a></p></li>
 <li><p><a href="#method-Plumber2-clone"><code>Plumber2$clone()</code></a></p></li>
 </ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="fiery" data-topic="Fire" data-id="async"><a href="https://fiery.data-imaginist.com/reference/Fire.html#method-async"><code>fiery::Fire$async()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="fiery" data-topic="Fire" data-id="attach"><a href="https://fiery.data-imaginist.com/reference/Fire.html#method-attach"><code>fiery::Fire$attach()</code></a></span></li>
@@ -587,15 +589,57 @@ docs to assign <code>doc</code> to</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-Plumber2-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
+</div><p></p><hr><a id="method-Plumber2-add_shiny"></a><div class="section">
+<h3 id="method-add-shiny-">Method <code>add_shiny()</code><a class="anchor" aria-label="anchor" href="#method-add-shiny-"></a></h3>
+<p>Add a shiny app to an api. See <code><a href="api_shiny.html">api_shiny()</a></code> for detailed
+information</p><div class="section">
 <h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">add_shiny</span><span class="op">(</span><span class="va">path</span>, <span class="va">app</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>path</code></dt>
+<dd><p>The path to serve the app from</p></dd>
+
+
+<dt><code>app</code></dt>
+<dd><p>A shiny app object</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-Plumber2-add_proxy"></a><div class="section">
+<h3 id="method-add-proxy-">Method <code>add_proxy()</code><a class="anchor" aria-label="anchor" href="#method-add-proxy-"></a></h3>
+<p>Add a reverse proxy from a path to a given URL. See
+<code><a href="api_proxy.html">api_proxy()</a></code> for more details</p><div class="section">
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">add_proxy</span><span class="op">(</span><span class="va">path</span>, <span class="va">url</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>path</code></dt>
+<dd><p>The root to forward from</p></dd>
+
+
+<dt><code>url</code></dt>
+<dd><p>The url to proxy</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-Plumber2-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
