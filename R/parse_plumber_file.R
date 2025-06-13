@@ -104,7 +104,6 @@ parse_plumber_file <- function(
   redirects <- unlist(redirects, recursive = FALSE)
 
   proxies <- blocks[vapply(blocks, inherits, logical(1), "plumber2_proxy")]
-  proxies <- unlist(redirects, recursive = FALSE)
 
   list(
     route = route,
@@ -374,7 +373,7 @@ parse_shiny_block <- function(call, block, tags, values) {
     stop_input_type(call, "a shiny app object")
   }
   structure(
-    list(shiny_app = call, path = values[[tags == "shiny"]]),
+    list(shiny_app = call, path = values[[which(tags == "shiny")]]),
     class = "plumber2_proxy"
   )
 }

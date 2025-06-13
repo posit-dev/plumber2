@@ -454,7 +454,9 @@ Plumber2 <- R6Class(
           }
         }
       }
-      self$add_api_doc(parsed$api)
+      if (!is.null(parsed$api)) {
+        self$add_api_doc(parsed$api)
+      }
       parsed$modifier(self)
     },
     #' @description Add a (partial) OpenAPI spec to the api docs
@@ -501,18 +503,21 @@ Plumber2 <- R6Class(
       self$attach(shiny_proxy)
 
       self$on("start", function(...) {
-        proc <- callr::r_bg(function(app, port) {
-          shiny::runApp(
-            app,
-            port = port,
-            launch.browser = FALSE,
-            host = "127.0.0.1",
-            workerId = "",
-            quiet = TRUE,
-            display.mode = "normal",
-            test.mode = FALSE
-          )
-        }, args = list(app = app, port = port))
+        proc <- callr::r_bg(
+          function(app, port) {
+            shiny::runApp(
+              app,
+              port = port,
+              launch.browser = FALSE,
+              host = "127.0.0.1",
+              workerId = "",
+              quiet = TRUE,
+              display.mode = "normal",
+              test.mode = FALSE
+            )
+          },
+          args = list(app = app, port = port)
+        )
         self$set_data(proc_name, proc)
       })
       self$on("end", function(...) {
