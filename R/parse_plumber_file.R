@@ -86,10 +86,10 @@ parse_block <- function(
     parse_redirect_block(call, tags, values, env)
   } else if (block_has_tags(block, "shiny")) {
     parse_shiny_block(call, tags, values, env)
-  } else if (block_has_tags(block, "proxy")) {
-    parse_proxy_block(call, tags, values, env)
+  } else if (block_has_tags(block, "forward")) {
+    parse_forward_block(call, tags, values, env)
   } else if (block_has_tags(block, "report")) {
-    #    parse_report_block(call, block, tags, values, env)
+    parse_report_block(call, tags, values, env)
   } else if (block_has_tags(block, "plumber")) {
     parse_plumber_block(call, tags, values, env)
   } else if (
@@ -366,6 +366,29 @@ parse_forward_block <- function(call, tags, values, env) {
   )
 }
 
+parse_report_block <- function(call, tags, values, env) {
+  if (sum(tags == "report") != 1) {
+    cli::cli_abort("Only one {.field @report} tag allowed per block")
+  }
+  x <- values[[which(tags == "report")]]
+  route <- routr::report_route(x, call)
+
+  info <- routr::report_info(call)
+
+  for (query in info$query_params) {
+    if (!any(grepl(paste0("^", query), unlist(values[tags == "query"])))) {
+      values <- c(values, query)
+      tags <- c(tags, "query")
+    }
+  }
+
+  doc <- list(paths = parse_block_api(tags, values, character(0), info$mime_types))
+  structure(
+    list(route = route, doc = doc),
+    class = "plumber2_route_block"
+  )
+}
+
 # ---- Methods for applying block info -----------------------------------------
 
 #' Generic for applying information from a plumber2 block to an api
@@ -450,6 +473,9 @@ apply_plumber2_block.plumber2_route_block <- function(
   ...
 ) {
   api$add_route(route_name, block$route, block$header)
+  if (!is.null(block$doc)) {
+    api$add_api_doc(block$doc)
+  }
   api
 }
 #' @export
