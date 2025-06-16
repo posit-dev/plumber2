@@ -59,7 +59,8 @@ parse_plumber_file <- function(
   blocks <- lapply(
     blocks,
     parse_block,
-    env = env
+    env = env,
+    file_dir = wd
   )
 
   list(
@@ -71,7 +72,8 @@ parse_plumber_file <- function(
 #' @importFrom roxygen2 block_has_tags
 parse_block <- function(
   block,
-  env = caller_env()
+  env = caller_env(),
+  file_dir = "."
 ) {
   call <- eval_bare(block$call, env = env)
   tags <- vapply(block$tags, `[[`, character(1), "tag")
@@ -89,6 +91,8 @@ parse_block <- function(
   } else if (block_has_tags(block, "forward")) {
     parse_forward_block(call, tags, values, env)
   } else if (block_has_tags(block, "report")) {
+    # We do the computation here so the parser doesn't need knowledge of the path of the root file
+    call <- fs::path_abs(call, file_dir)
     parse_report_block(call, tags, values, env)
   } else if (block_has_tags(block, "plumber")) {
     parse_plumber_block(call, tags, values, env)
