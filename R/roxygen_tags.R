@@ -1,37 +1,22 @@
 ## Global annotations ----------------------------------------------------------
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_apiTitle <- function(x) {
+roxy_tag_parse.roxy_tag_tos <- function(x) {
   x
 }
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_apiDescription <- function(x) {
+roxy_tag_parse.roxy_tag_contact <- function(x) {
   x
 }
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_apiTOS <- function(x) {
+roxy_tag_parse.roxy_tag_license <- function(x) {
   x
 }
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_apiContact <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_apiLicense <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_apiVersion <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_apiTag <- function(x) {
+roxy_tag_parse.roxy_tag_version <- function(x) {
   x
 }
 
@@ -191,8 +176,11 @@ roxy_tag_parse.roxy_tag_shiny <- function(x) {
 roxy_tag_parse.roxy_tag_proxy <- function(x) {
   x
 }
-
-## TODO: Unimplemented
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_report <- function(x) {
+  x
+}
 
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse

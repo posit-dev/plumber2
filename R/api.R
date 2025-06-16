@@ -134,7 +134,7 @@ is_plumber_api <- function(x) inherits(x, "Plumber2")
 api_parse <- function(api, ...) {
   locations <- dots_to_plumber_files(..., prefer_yml = FALSE)
   for (loc in locations) {
-    api$parse_file(loc)
+    api <- api$parse_file(loc)
   }
   api
 }

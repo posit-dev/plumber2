@@ -494,6 +494,6 @@ api_shiny <- function(api, path, app) {
 #' @export
 #'
 api_proxy <- function(api, path, url) {
-  api$add_shiny(path, app)
+  api$add_shiny(path, url)
   api
 }

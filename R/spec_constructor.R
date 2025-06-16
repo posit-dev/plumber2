@@ -30,13 +30,16 @@ openapi <- function(
   if (!(is_list(paths) && is_named2(paths))) {
     cli::cli_abort("{.arg paths} must be a named list")
   }
-  c(
-    compact(list(
-      openapi = openapi,
-      info = info,
-      tags = tags
-    )),
-    list(paths = paths)
+  structure(
+    c(
+      compact(list(
+        openapi = openapi,
+        info = info,
+        tags = tags
+      )),
+      list(paths = paths)
+    ),
+    class = "plumber2_openapi"
   )
 }
 
@@ -96,7 +99,9 @@ openapi_license <- function(
   name = character(),
   url = character()
 ) {
-  if (length(url) != 0) require_input(name = name)
+  if (length(url) != 0) {
+    require_input(name = name)
+  }
   compact(list(
     name = name,
     url = url
@@ -257,7 +262,14 @@ openapi_header <- function(
 #' @param default A default value for the parameter. Must be reconsilable with
 #' the type of `x`
 #' @param min,max Bounds for the value of the parameter
-openapi_schema <- function(x, default = NULL, min = NULL, max = NULL, ..., required = NULL) {
+openapi_schema <- function(
+  x,
+  default = NULL,
+  min = NULL,
+  max = NULL,
+  ...,
+  required = NULL
+) {
   UseMethod("openapi_schema")
 }
 #' @export
@@ -352,7 +364,9 @@ openapi_schema.list <- function(x, default = NULL, ..., required = NULL) {
 #'
 openapi_content <- function(...) {
   content <- list2(...)
-  if (length(content) == 0) return(content)
+  if (length(content) == 0) {
+    return(content)
+  }
   if (
     !is_named(content) ||
       !all(stringi::stri_detect_regex(names(content), "^.*/.*$"))

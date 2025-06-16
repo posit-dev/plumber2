@@ -1,19 +1,18 @@
 parse_global_api <- function(tags, values, env = caller_env()) {
-  if (any(tags == "noDoc")) return(NULL)
+  if (any(tags == "noDoc")) {
+    return(NULL)
+  }
   values <- set_names(values, tags)
   openapi(
     info = openapi_info(
-      title = trimws(values$apiTitle %||% values$title),
-      description = trimws(
-        values$apiDescription %||%
-          paste0(values$description, "\n\n", values$details)
-      ),
-      terms_of_service = trimws(values$apiTOS),
-      contact = eval(parse(text = values$apiContact %||% "NULL"), env),
-      license = eval(parse(text = values$apiLicense %||% "NULL"), env),
-      version = trimws(values$apiVersion)
+      title = trimws(values$title),
+      description = trimws(paste0(values$description, "\n\n", values$details)),
+      terms_of_service = trimws(values$tos),
+      contact = eval(parse(text = values$contact %||% "NULL"), env),
+      license = eval(parse(text = values$license %||% "NULL"), env),
+      version = trimws(values$version)
     ),
-    tags = unname(lapply(values[tags == "apiTag"], function(tag) {
+    tags = unname(lapply(values[tags == "tag"], function(tag) {
       tag <- stringi::stri_match_all_regex(tag, "^((\".+?\")|(\\S+))(.*)")[[1]]
       openapi_tag(
         name = gsub('^"|"$', "", tag[2]),
@@ -98,14 +97,18 @@ parse_responses <- function(tags, values, serializers) {
 }
 
 parse_block_api <- function(tags, values, parsers, serializers) {
-  if (any(tags == "noDoc")) return(NULL)
+  if (any(tags == "noDoc")) {
+    return(NULL)
+  }
   api <- list()
   summary <- if ("title" %in% tags) values[[which(tags == "title")]]
   description <- paste0(
     unlist(values[tags %in% c("description", "details")]),
     collapse = "\n\n"
   )
-  if (description == "") description <- NULL
+  if (description == "") {
+    description <- NULL
+  }
   path_params <- parse_params(tags, values, "path")
   query_params <- parse_params(tags, values, "query")
   body_params <- parse_params(tags, values, "header") # We use `header` because "body" is not allowed in openapi_parameter(). We strip it away in the next call
@@ -127,7 +130,8 @@ parse_block_api <- function(tags, values, parsers, serializers) {
         "connect",
         "options",
         "trace",
-        "patch"
+        "patch",
+        "report"
       )
   )
   paths <- trimws(unlist(values[methods]))
@@ -139,6 +143,9 @@ parse_block_api <- function(tags, values, parsers, serializers) {
     local_params <- unname(c(local_params, query_params))
     endpoint <- openapi_path()
     for (method in methods[[path]]) {
+      if (method == "report") {
+        method <- "get"
+      }
       endpoint[[method]] <- openapi_operation(
         summary = summary,
         description = description,
@@ -151,7 +158,7 @@ parse_block_api <- function(tags, values, parsers, serializers) {
     }
     api[[path_info$path]] <- endpoint
   }
-  list(paths = api)
+  api
 }
 
 parse_openapi_type <- function(
@@ -164,7 +171,9 @@ parse_openapi_type <- function(
   check_string(string, allow_na = TRUE, allow_null = TRUE)
   check_number_decimal(min, allow_null = TRUE)
   check_number_decimal(max, allow_null = TRUE)
-  if (is.na(string) || is.null(string) || string == "any") return(list())
+  if (is.na(string) || is.null(string) || string == "any") {
+    return(list())
+  }
   string <- trimws(string)
   if (grepl("^\\{", string)) {
     content <- gsub("^\\{|\\}$", "", string)
@@ -361,8 +370,11 @@ split_type_spec <- function(x) {
   if (isTRUE(x[2] == "enum")) {
     list(
       type = "string",
-      default = if (is.na(x[7]) || x[7] == "") NULL else
-        jsonlite::fromJSON(x[7]),
+      default = if (is.na(x[7]) || x[7] == "") {
+        NULL
+      } else {
+        jsonlite::fromJSON(x[7])
+      },
       enum = trimws(c(
         x[4],
         stringi::stri_split_fixed(x[5], ",", omit_empty = TRUE)[[1]]
@@ -372,8 +384,11 @@ split_type_spec <- function(x) {
   } else {
     list(
       type = if (is.na(x[2]) || x[2] == "") NULL else x[2],
-      default = if (is.na(x[7]) || x[7] == "") NULL else
-        jsonlite::fromJSON(x[7]),
+      default = if (is.na(x[7]) || x[7] == "") {
+        NULL
+      } else {
+        jsonlite::fromJSON(x[7])
+      },
       min = if (is.na(x[4]) || x[4] == "") NULL else as.numeric(x[4]),
       max = if (is.na(x[5]) || x[5] == "") NULL else as.numeric(x[5]),
       required = !is.na(x[8])

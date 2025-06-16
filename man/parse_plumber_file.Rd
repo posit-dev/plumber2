@@ -4,24 +4,10 @@
 \alias{parse_plumber_file}
 \title{Parse a plumber file}
 \usage{
-parse_plumber_file(
-  path,
-  ignore_trailing_slash,
-  default_async,
-  env = caller_env()
-)
+parse_plumber_file(path, env = caller_env())
 }
 \arguments{
 \item{path}{The path to the file to parse}
-
-\item{ignore_trailing_slash}{Logical. Should the trailing slash of a path
-be ignored when adding handlers and handling requests. Setting this will
-not change the request or the path associated with but just ensure that
-both \code{path/to/resource} and \verb{path/to/resource/} ends up in the same
-handler.}
-
-\item{default_async}{The async evaluator to use by default when the \verb{@async}
-tag is used without further argument}
 
 \item{env}{The environment to evaluate the code and annotations in}
 }

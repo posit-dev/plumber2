@@ -72,3 +72,5 @@ reference:
       - api_on
       - api_session_cookie
       - Next
+      - add_plumber2_tag
+      - apply_plumber2_block

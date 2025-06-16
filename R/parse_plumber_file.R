@@ -7,13 +7,6 @@
 #' directly.
 #'
 #' @param path The path to the file to parse
-#' @param ignore_trailing_slash Logical. Should the trailing slash of a path
-#' be ignored when adding handlers and handling requests. Setting this will
-#' not change the request or the path associated with but just ensure that
-#' both `path/to/resource` and `path/to/resource/` ends up in the same
-#' handler.
-#' @param default_async The async evaluator to use by default when the `@async`
-#' tag is used without further argument
 #' @param env The environment to evaluate the code and annotations in
 #'
 #' @return A list containing:
@@ -32,12 +25,11 @@
 #'   blocks together
 #'
 #' @export
+#' @importFrom roxygen2 parse_file block_has_tags block_get_tag_value
 #' @keywords internal
 #'
 parse_plumber_file <- function(
   path,
-  ignore_trailing_slash,
-  default_async,
   env = caller_env()
 ) {
   check_string(path)
@@ -47,6 +39,7 @@ parse_plumber_file <- function(
   }
 
   source(path, local = env, verbose = FALSE)
+  wd <- fs::path_dir(path)
 
   file <- readLines(path)
   file <- sub("^#([^\\*])", "##\\1", file)
@@ -54,147 +47,100 @@ parse_plumber_file <- function(
   tmp_file <- tempfile()
   on.exit(unlink(tmp_file), add = TRUE)
   writeLines(file, tmp_file)
-  blocks <- roxygen2::parse_file(tmp_file, srcref_path = path)
-  route <- routr::Route$new(ignore_trailing_slash = ignore_trailing_slash)
-  header_route <- routr::Route$new(
-    ignore_trailing_slash = ignore_trailing_slash
-  )
+  # We use parse_file instead of parse_text so we can add srcref
+  blocks <- parse_file(tmp_file, srcref_path = path)
+
+  route_name <- if (block_has_tags(blocks[[1]], "routeName")) {
+    block_get_tag_value(blocks[[1]], "routeName")
+  } else {
+    fs::path_file(fs::path_ext_remove(path))
+  }
+
   blocks <- lapply(
     blocks,
     parse_block,
-    route = route,
-    header_route = header_route,
-    default_async = default_async,
     env = env
   )
 
-  # TODO: Use routeName tag if present
-  route_name <- fs::path_file(fs::path_ext_remove(path))
-
-  route <- set_names(list(route), route_name)
-  header_route <- set_names(list(header_route), route_name)
-  # Find the asset routes from the file
-  asset_routes <- blocks[vapply(
-    blocks,
-    function(x) inherits(x, "AssetRoute"),
-    logical(1)
-  )]
-  if (length(asset_routes) != 0) {
-    asset_routes <- set_names(
-      asset_routes,
-      vapply(asset_routes, function(s) s$at, character(1))
-    )
-  }
-  apis <- blocks[vapply(blocks, is_bare_list, logical(1))]
-  globals <- vapply(apis, function(x) !is.null(x$openapi), logical(1))
-  paths <- Reduce(utils::modifyList, apis[!globals])
-  globals <- Reduce(utils::modifyList, apis[globals])
-
-  modifiers <- blocks[vapply(blocks, inherits, logical(1), "plumber2_call")]
-  modifier <- function(api) {
-    for (mod in modifiers) {
-      api <- mod(api)
-      if (!is_plumber_api(api)) {
-        cli::cli_abort("All modifiers must return the plumber api")
-      }
-    }
-  }
-
-  redirects <- blocks[vapply(blocks, inherits, logical(1), "plumber2_redirect")]
-  redirects <- unlist(redirects, recursive = FALSE)
-
-  proxies <- blocks[vapply(blocks, inherits, logical(1), "plumber2_proxy")]
-
   list(
-    route = route,
-    header_route = header_route,
-    asset_routes = asset_routes,
-    message_handlers = blocks[vapply(
-      blocks,
-      inherits,
-      logical(1),
-      "message_call"
-    )],
-    redirects = redirects,
-    proxies = proxies,
-    api = c(globals, paths),
-    modifiers = modifier
+    blocks = blocks,
+    route = route_name
   )
 }
 
+#' @importFrom roxygen2 block_has_tags
 parse_block <- function(
   block,
-  route,
-  header_route,
-  default_async,
   env = caller_env()
 ) {
   call <- eval_bare(block$call, env = env)
   tags <- vapply(block$tags, `[[`, character(1), "tag")
   values <- lapply(block$tags, `[[`, "raw")
-  if (any(tags == "assets")) {
-    parse_asset_block(call, block, tags, values, route, env)
-  } else if (any(tags == "statics")) {
-    parse_static_block(call, block, tags, values, env)
-  } else if (any(tags == "message")) {
-    parse_message_block(call, block, tags, values, default_async)
-  } else if (any(tags == "redirect")) {
-    parse_redirect_block(call, block, tags, values)
-  } else if (any(tags == "shiny")) {
-    parse_shiny_block(call, block, tags, values)
-  } else if (any(tags == "plumber")) {
-    parse_plumber_block(call, tags)
+  block <- if (block_has_tags(block, "assets")) {
+    parse_asset_block(call, tags, values, env)
+  } else if (block_has_tags(block, "statics")) {
+    parse_static_block(call, tags, values, env)
+  } else if (block_has_tags(block, "message")) {
+    parse_message_block(call, tags, values, env)
+  } else if (block_has_tags(block, "redirect")) {
+    parse_redirect_block(call, tags, values, env)
+  } else if (block_has_tags(block, "shiny")) {
+    parse_shiny_block(call, tags, values, env)
+  } else if (block_has_tags(block, "proxy")) {
+    parse_proxy_block(call, tags, values, env)
+  } else if (block_has_tags(block, "report")) {
+    #    parse_report_block(call, block, tags, values, env)
+  } else if (block_has_tags(block, "plumber")) {
+    parse_plumber_block(call, tags, values, env)
   } else if (
-    any(
-      tags %in%
-        c(
-          "get",
-          "head",
-          "post",
-          "put",
-          "delete",
-          "connect",
-          "options",
-          "trace",
-          "patch"
-        )
+    block_has_tags(
+      block,
+      c(
+        "get",
+        "head",
+        "post",
+        "put",
+        "delete",
+        "connect",
+        "options",
+        "trace",
+        "patch",
+        "any"
+      )
     )
   ) {
-    parse_handler_block(
-      call,
-      block,
-      tags,
-      values,
-      route,
-      header_route,
-      default_async,
-      env
-    )
+    parse_handler_block(call, tags, values, env)
+  } else if (identical(call, "_API")) {
+    parse_api_block(call, tags, values, env)
   } else {
-    parse_global_api(tags, values, env)
+    structure(list(), "plumber2_empty_block")
   }
+  for (tag in tags) {
+    if (is_extension_tag(tag)) {
+      block <- parse_extension(tag, block, call, tags, values, env)
+    }
+  }
+  block
 }
 
 # ---- Helpers for specific block types ----------------------------------------
 
-parse_plumber_block <- function(call, tags) {
+parse_api_block <- function(call, tags, values, env) {
+  structure(
+    list(doc = parse_global_api(tags, values, env)),
+    class = "plumber2_api_block"
+  )
+}
+
+parse_plumber_block <- function(call, tags, values, env) {
   check_function(call)
   if (length(fn_fmls(call)) != 1) {
     cli::cli_abort("plumber modifiers must be unary functions")
   }
-  structure(call, class = "plumber2_call")
+  structure(list(call = call), class = "plumber2_call_block")
 }
 
-parse_handler_block <- function(
-  handler,
-  block,
-  tags,
-  values,
-  route,
-  header_route,
-  default_async,
-  env
-) {
+parse_handler_block <- function(call, tags, values, env) {
   methods <- which(
     tags %in%
       c(
@@ -236,41 +182,44 @@ parse_handler_block <- function(
 
   if ("async" %in% tags) {
     async <- trimws(values[[which(tags == "async")[1]]])
-    if (async == "") async <- default_async
+    if (async == "") async <- TRUE
   } else {
-    async <- NULL
+    async <- FALSE
   }
 
   strict_serializer <- any(tags == "serializerStrict")
-  if (any(tags == "header")) route <- header_route
 
   doc <- parse_block_api(tags, values, names(parsers), names(serializers))
 
-  for (i in methods) {
+  endpoints <- lapply(methods, function(i) {
     method <- tags[i]
-    if (method == "any") method <- "all"
-    path <- as_routr_path(trimws(values[[i]]))
-    oapi_path <- as_openapi_path(trimws(values[[i]]))
+    if (method == "any") {
+      method <- "all"
+    }
 
-    route$add_handler(
-      method,
-      path,
-      create_request_handler(
-        handler,
-        serializers = serializers,
-        parsers = parsers,
-        use_strict_serializer = strict_serializer,
-        download = download,
-        doc = doc$paths[[oapi_path]][[method]],
-        async = get_async(async)
-      )
+    list(
+      method = method,
+      path = trimws(values[[i]])
     )
-  }
+  })
 
-  doc
+  structure(
+    list(
+      endpoints = endpoints,
+      handler = call,
+      serializers = serializers,
+      parsers = parsers,
+      use_strict_serializer = strict_serializer,
+      download = download,
+      doc = doc,
+      async = async,
+      header = any(tags == "header")
+    ),
+    class = "plumber2_handler_block"
+  )
 }
 
-parse_static_block <- function(call, block, tags, values, env) {
+parse_static_block <- function(call, tags, values, env) {
   if (sum(tags == "statics") != 1) {
     cli::cli_abort("Only one {.field @statics} tag allowed per block")
   }
@@ -292,10 +241,19 @@ parse_static_block <- function(call, block, tags, values, env) {
     mapping <- c(mapping, "/")
   }
   except <- which(tags == "except")
-  routr::asset_route(mapping[2], mapping[1], except = unlist(values[except]))
+  structure(
+    list(
+      asset = routr::asset_route(
+        mapping[2],
+        mapping[1],
+        except = unlist(values[except])
+      )
+    ),
+    class = "plumber2_static_block"
+  )
 }
 
-parse_asset_block <- function(call, block, tags, values, route, env) {
+parse_asset_block <- function(call, tags, values, env) {
   if (sum(tags == "assets") != 1) {
     cli::cli_abort("Only one {.field @assets} tag allowed per block")
   }
@@ -316,30 +274,35 @@ parse_asset_block <- function(call, block, tags, values, route, env) {
   if (length(mapping) == 1) {
     mapping <- c(mapping, "/")
   }
-  route$merge_route(
-    routr::ressource_route(!!mapping[2] := mapping[1])
+  structure(
+    list(
+      route = routr::ressource_route(!!mapping[2] := mapping[1])
+    ),
+    class = "plumber2_route_block"
   )
-  NULL
 }
 
-parse_message_block <- function(call, block, tags, values, default_async) {
+parse_message_block <- function(call, tags, values, env) {
   check_function(call)
   if (!"..." %in% fn_fmls_names(call)) {
     fn_fmls(call) <- c(fn_fmls(call), "..." = missing_arg())
   }
   if ("async" %in% tags) {
     async <- trimws(values[[which(tags == "async")[1]]])
-    if (async == "") async <- default_async
+    if (async == "") async <- TRUE
   } else {
-    async <- NULL
+    async <- FALSE
   }
   structure(
-    create_message_handler(call, async = get_async(async)),
-    class = "message_call"
+    list(
+      handler = call,
+      async = async
+    ),
+    class = "plumber2_message_block"
   )
 }
 
-parse_redirect_block <- function(call, block, tags, values) {
+parse_redirect_block <- function(call, tags, values, env) {
   res <- lapply(values[tags == "redirect"], function(x) {
     x <- stringi::stri_split_fixed(x, " ", n = 3)[[1]]
     if (length(x) != 3) {
@@ -359,12 +322,12 @@ parse_redirect_block <- function(call, block, tags, values) {
     )
   })
   structure(
-    res,
-    class = "plumber2_redirect"
+    list(redirects = res),
+    class = "plumber2_redirect_block"
   )
 }
 
-parse_shiny_block <- function(call, block, tags, values) {
+parse_shiny_block <- function(call, tags, values, env) {
   if (sum(tags == "shiny") != 1) {
     cli::cli_abort("Only one {.field @shiny} tag allowed per block")
   }
@@ -374,11 +337,11 @@ parse_shiny_block <- function(call, block, tags, values) {
   }
   structure(
     list(shiny_app = call, path = values[[which(tags == "shiny")]]),
-    class = "plumber2_proxy"
+    class = "plumber2_proxy_block"
   )
 }
 
-parse_proxy_block <- function(call, block, tags, values) {
+parse_proxy_block <- function(call, tags, values, env) {
   res <- lapply(values[tags == "proxy"], function(x) {
     x <- stringi::stri_split_fixed(x, " ", n = 2)[[1]]
     if (length(x) != 2) {
@@ -397,8 +360,161 @@ parse_proxy_block <- function(call, block, tags, values) {
   structure(
     list(
       path = vapply(res, `[[`, character(1), "path"),
-      url = vapply(res, `[[`, character(1), "url"),
+      url = vapply(res, `[[`, character(1), "url")
     ),
-    class = "plumber2_proxy"
+    class = "plumber2_proxy_block"
   )
+}
+
+# ---- Methods for applying block info -----------------------------------------
+
+#' Generic for applying information from a plumber2 block to an api
+#'
+#' In order to facilitate extensibility of the plumber2 file syntax you can
+#' provide your own methods for how to apply information from a plumber2 block
+#' to an api.
+#'
+#' @param block The block that was parsed
+#' @param api The [Plumber2] api object to apply it to
+#' @param route_name The name of the route the plumber2 file is associated with.
+#' Either the name of the file or the value of the `@routeName` tag
+#' @param ... ignored
+#'
+#' @return `api`, modified
+#'
+#' @export
+#' @keywords internal
+#'
+apply_plumber2_block <- function(block, api, route_name, ...) {
+  UseMethod("apply_plumber2_block")
+}
+
+#' @export
+apply_plumber2_block.plumber2_proxy_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  if (!is.null(block$shiny_app)) {
+    api$add_shiny(block$path, block$shiny_app)
+  } else if (!is.null(block$url)) {
+    for (i in seq_along(block$path)) {
+      api$add_proxy(block$path[i], block$url[i])
+    }
+  }
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_redirect_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  for (redirect in block$redirects) {
+    api$redirect(
+      redirect$method,
+      redirect$from,
+      redirect$to,
+      redirect$permanent
+    )
+  }
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_message_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  api$message_handler(block$handler, block$async)
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_call_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  block$call(api)
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_route_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  api$add_route(route_name, block$route, block$header)
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_assets_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  api$serve_static(
+    at = block$asset$at,
+    path = block$asset$path,
+    use_index = block$asset$use_index,
+    fallthrough = block$asset$fallthrough,
+    html_charset = block$asset$html_charset,
+    headers = block$asset$headers,
+    validation = block$asset$validation
+  )
+  for (ex in block$asset$except) {
+    api$exclude_static(paste0(block$asset$at, ex))
+  }
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_handler_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  for (endpoint in block$endpoints) {
+    oapi_path <- as_openapi_path(endpoint$path)
+    endpoint_doc <- block$doc[[oapi_path]][[endpoint$method]]
+    api$request_handler(
+      method = endpoint$method,
+      path = endpoint$path,
+      handler = block$handler,
+      serializers = block$serializers,
+      parsers = block$parsers,
+      use_strict_serialize = block$use_strict_serializer,
+      download = block$download,
+      async = block$async,
+      doc = endpoint_doc,
+      route = route_name,
+      header = block$header
+    )
+  }
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_api_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  api$add_api_doc(block$doc)
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_empty_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  api
 }

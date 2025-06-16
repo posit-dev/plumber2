@@ -203,6 +203,8 @@ Plumber2 <- R6Class(
       } else if (!route$empty) {
         router$get_route(name)$merge(route)
       }
+
+      invisible(self)
     },
     #' @description Add a handler to a request. See [api_request_handlers] for
     #' detailed information
@@ -342,6 +344,8 @@ Plumber2 <- R6Class(
         doc$parameters <- doc$parameters %||% list()
         self$add_api_doc(doc, subset = c("paths", path_info$path, method))
       }
+
+      invisible(self)
     },
     #' @description Add a handler to a WebSocket message. See [api_message] for
     #' detailed information
@@ -359,6 +363,8 @@ Plumber2 <- R6Class(
       }
       handler <- create_message_handler(handler, get_async(async))
       self$on("message", handler)
+
+      invisible(self)
     },
     #' @description Add a redirect to the header router. Depending on the value
     #' of `permanent` it will respond with a 307 Temporary Redirect or 308
@@ -396,6 +402,8 @@ Plumber2 <- R6Class(
       check_string(to)
       check_bool(permanent)
       self$header_router$add_redirect(method, from, to, permanent)
+
+      invisible(self)
     },
     #' @description Parses a plumber file and updates the app according to it
     #' @param file The path to a file to parse
@@ -404,60 +412,15 @@ Plumber2 <- R6Class(
     #' used
     parse_file = function(file, env = NULL) {
       eval_env <- new.env(parent = env %||% private$PARENT_ENV)
-      parsed <- parse_plumber_file(
-        file,
-        ignore_trailing_slash = private$IGNORE_TRAILING_SLASH,
-        default_async = private$ASYNC_EVALUATER,
-        env = eval_env
-      )
-      if (!parsed$route[[1]]$empty) {
-        self$add_route(names(parsed$route), parsed$route[[1]], header = FALSE)
+      parsed <- parse_plumber_file(file, env = eval_env)
+
+      api <- self
+
+      for (block in parsed$blocks) {
+        api <- apply_plumber2_block(block, api, parsed$route)
       }
-      if (!parsed$header_route[[1]]$empty) {
-        self$add_route(
-          names(parsed$header_route),
-          parsed$header_route[[1]],
-          header = TRUE
-        )
-      }
-      for (asset in parsed$asset_routes) {
-        self$serve_static(
-          at = asset$at,
-          path = asset$path,
-          use_index = asset$use_index,
-          fallthrough = asset$fallthrough,
-          html_charset = asset$html_charset,
-          headers = asset$headers,
-          validation = asset$validation
-        )
-        for (ex in asset$except) {
-          self$exclude_static(paste0(asset$at, ex))
-        }
-      }
-      for (handler in parsed$message_handlers) {
-        self$on("message", handler)
-      }
-      for (redirect in parsed$redirects) {
-        self$redirect(
-          redirect$method,
-          redirect$from,
-          redirect$to,
-          redirect$permanent
-        )
-      }
-      for (proxy in parsed$proxies) {
-        if (!is.null(proxy$shiny_app)) {
-          self$add_shiny(proxy$path, proxy$shiny_app)
-        } else if (!is.null(proxy$url)) {
-          for (i in seq_along(proxy$path)) {
-            self$add_proxy(proxy$path[i], proxy$url[i])
-          }
-        }
-      }
-      if (!is.null(parsed$api)) {
-        self$add_api_doc(parsed$api)
-      }
-      parsed$modifier(self)
+
+      invisible(api)
     },
     #' @description Add a (partial) OpenAPI spec to the api docs
     #' @param doc A list with the OpenAPI documentation
@@ -480,6 +443,8 @@ Plumber2 <- R6Class(
         }
       }
       private$OPENAPI <- utils::modifyList(private$OPENAPI, doc)
+
+      invisible(self)
     },
     #' @description Add a shiny app to an api. See [api_shiny()] for detailed
     #' information
@@ -524,6 +489,8 @@ Plumber2 <- R6Class(
         proc <- self$get_data(proc_name)
         if (inherits(proc, "r_process")) proc$kill()
       })
+
+      invisible(self)
     },
     #' @description Add a reverse proxy from a path to a given URL. See
     #' [api_proxy()] for more details
@@ -533,6 +500,8 @@ Plumber2 <- R6Class(
     add_proxy = function(path, url) {
       revprox <- firestorm::ReverseProxy$new(url, path)
       self$attach(revprox)
+
+      invisible(self)
     }
   ),
   active = list(
