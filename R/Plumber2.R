@@ -493,11 +493,13 @@ Plumber2 <- R6Class(
       invisible(self)
     },
     #' @description Add a reverse proxy from a path to a given URL. See
-    #' [api_proxy()] for more details
+    #' [api_forward()] for more details
     #' @param path The root to forward from
-    #' @param url The url to proxy
+    #' @param url The url to forward to
+    #' @param continue Should the response be passed through the standard route
+    #' before being send to the client
     #'
-    add_proxy = function(path, url) {
+    forward = function(path, url, continue = FALSE) {
       revprox <- firestorm::ReverseProxy$new(url, path)
       self$attach(revprox)
 

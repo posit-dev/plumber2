@@ -341,12 +341,12 @@ parse_shiny_block <- function(call, tags, values, env) {
   )
 }
 
-parse_proxy_block <- function(call, tags, values, env) {
-  res <- lapply(values[tags == "proxy"], function(x) {
+parse_forward_block <- function(call, tags, values, env) {
+  res <- lapply(values[tags == "forward"], function(x) {
     x <- stringi::stri_split_fixed(x, " ", n = 2)[[1]]
     if (length(x) != 2) {
       cli::cli_warn(c(
-        "Malformed {.field @proxy} tag",
+        "Malformed {.field @forward} tag",
         i = "The format must conform to: <from path> <to url>"
       ))
       return(NULL)
@@ -400,7 +400,7 @@ apply_plumber2_block.plumber2_proxy_block <- function(
     api$add_shiny(block$path, block$shiny_app)
   } else if (!is.null(block$url)) {
     for (i in seq_along(block$path)) {
-      api$add_proxy(block$path[i], block$url[i])
+      api$forward(block$path[i], block$url[i])
     }
   }
   api

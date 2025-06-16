@@ -122,6 +122,11 @@ roxy_tag_parse.roxy_tag_header <- function(x) {
 roxy_tag_parse.roxy_tag_message <- function(x) {
   x
 }
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_async <- function(x) {
+  x
+}
 
 ## Asset annotations -----------------------------------------------------------
 
@@ -141,11 +146,29 @@ roxy_tag_parse.roxy_tag_except <- function(x) {
   x
 }
 
-## Redirect annotations --------------------------------------------------------
+## Redirect/forward annotations ------------------------------------------------
 
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_redirect <- function(x) {
+  x
+}
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_shiny <- function(x) {
+  x
+}
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_forward <- function(x) {
+  x
+}
+
+## Report annotations ----------------------------------------------------------
+
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_report <- function(x) {
   x
 }
 
@@ -161,27 +184,6 @@ roxy_tag_parse.roxy_tag_noDoc <- function(x) {
 roxy_tag_parse.roxy_tag_plumber <- function(x) {
   x
 }
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_async <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_shiny <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_proxy <- function(x) {
-  x
-}
-#' @export
-#' @importFrom roxygen2 roxy_tag_parse
-roxy_tag_parse.roxy_tag_report <- function(x) {
-  x
-}
-
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_routeName <- function(x) {

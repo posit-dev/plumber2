@@ -474,7 +474,7 @@ api_shiny <- function(api, path, app) {
 #'
 #' You can set up your plumber2 api to act as reverse proxy and forward all
 #' requests to a specific path (and it's subpaths) to a different URL. In
-#' contrast to [api_shiny()], `api_proxy()` is not responsible for launching
+#' contrast to [api_shiny()], `api_forward()` is not responsible for launching
 #' whatever service is being proxied so this should be handled elsewhere. The
 #' `path` will be stripped from the request before being forwarded to the url,
 #' meaning that if you set up a proxy on `my/proxy/` to `http://example.com`,
@@ -493,7 +493,7 @@ api_shiny <- function(api, path, app) {
 #'
 #' @export
 #'
-api_proxy <- function(api, path, url) {
-  api$add_shiny(path, url)
+api_forward <- function(api, path, url) {
+  api$forward(path, url)
   api
 }

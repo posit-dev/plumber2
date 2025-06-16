@@ -48,7 +48,7 @@ reference:
       - api_add_route
       - api_redirect
       - api_shiny
-      - api_proxy
+      - api_forward
   - title: "Parsers"
     contents:
       - register_parser
