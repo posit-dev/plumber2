@@ -390,7 +390,7 @@ parse_report_block <- function(call, tags, values, env) {
 
   doc <- list(paths = parse_block_api(tags, values, character(0), info$mime_types))
   structure(
-    list(route = route, doc = doc),
+    list(route = route, doc = doc, header = FALSE),
     class = "plumber2_route_block"
   )
 }
