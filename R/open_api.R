@@ -92,6 +92,12 @@ parse_responses <- function(tags, values, serializers) {
     )
   })
   responses <- unlist(responses, recursive = FALSE) %||% list()
+  default_responses[["200"]]$content <- openapi_content(
+    !!!rep_named(
+      serializers,
+      list(parse_openapi_type(NULL))
+    )
+  )
 
   utils::modifyList(default_responses, responses)
 }
