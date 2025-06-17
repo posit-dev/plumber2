@@ -80,7 +80,7 @@ Global annotations are not related to any handler and should be placed in their 
 #* @tag pet Pets operations
 #* @tag toy Toys operations
 #* @tag "toy space" Toys operations
-NULL
+"_API"
 ```
 
 ##### Equivalent programmatic usage
@@ -467,7 +467,7 @@ api() |>
 
 ## Reports
 
-plumber2 can automatically serve Rmarkdown and Quarto reports. The report will be rendered upon request but cached for the future. Different output formats can be selected through the `Content-Type` request header as long as a matching format is specified in the reports yaml header. Query parameters are automatically passed in as parameters to the report to support parameterized reports natively. Reports can be annotated just like standard request handlers to have OpenAPI documentation generated for it.
+plumber2 can automatically serve Rmarkdown and Quarto reports. The report will be rendered upon request but cached for the future. Different output formats can be selected through the `Content-Type` request header as long as a matching format is specified in the reports yaml header. Query parameters are automatically passed in as parameters to the report to support parameterized reports natively. Reports can be annotated just like standard request handlers to have OpenAPI documentation generated for it. Rendering is performed asynchronously so the api is not blocked by someone requesting a report that takes a while to render
 
 | Annotation | Arguments | Description/References |
 |-------------------|-------------------|----------------------------------|
