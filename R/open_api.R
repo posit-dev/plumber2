@@ -123,7 +123,7 @@ parse_block_api <- function(tags, values, parsers, serializers) {
 
   responses <- parse_responses(tags, values, serializers)
 
-  tag <- unlist(values[tags == "tag"])
+  tag <- trimws(unlist(values[tags == "tag"]))
 
   methods <- which(
     tags %in%
