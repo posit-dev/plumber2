@@ -217,7 +217,7 @@ openapi_parameter <- function(
   if (length(schema) != 0 && length(content) != 0) {
     cli::cli_abort("Only one of {.arg schema} and {.arg content} must be used")
   }
-  compact(list(
+  res <- compact(list(
     name = name,
     `in` = location,
     description = description,
@@ -226,6 +226,10 @@ openapi_parameter <- function(
     content = content,
     ...
   ))
+  if (is.null(res$schema) && is.null(res$content)) {
+    res$schema <- list()
+  }
+  res
 }
 
 #' @rdname openapi
