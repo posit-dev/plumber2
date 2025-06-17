@@ -44,6 +44,8 @@ parse_plumber_file <- function(
   file <- readLines(path)
   file <- sub("^#([^\\*])", "##\\1", file)
   file <- sub("^#\\*", "#'", file)
+  is_string <- grepl("^\".*\"$", file)
+  file[is_string] <- paste0("{", file[is_string], "}")
   tmp_file <- tempfile()
   on.exit(unlink(tmp_file), add = TRUE)
   writeLines(file, tmp_file)
