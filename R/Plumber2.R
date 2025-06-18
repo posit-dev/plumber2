@@ -201,7 +201,7 @@ Plumber2 <- R6Class(
       if (!router$has_route(name)) {
         router$add_route(route, name, after)
       } else if (!route$empty) {
-        router$get_route(name)$merge(route)
+        router$get_route(name)$merge_route(route)
       }
 
       invisible(self)

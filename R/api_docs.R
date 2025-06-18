@@ -53,7 +53,7 @@
 #' @examples
 #' # Serve the docs from a different path
 #' api() |>
-#'   api_doc_settings(doc_path = "__man__")
+#'   api_doc_setting(doc_path = "__man__")
 #'
 #' # Add documentation to the api programmatically
 #' api() |>
