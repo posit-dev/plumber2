@@ -111,6 +111,14 @@ temporary? Determines the type of redirct status code to use</p></dd>
     <p>This functions return the <code>api</code> object allowing for easy chaining
 with the pipe</p>
     </div>
+    <div class="section level2">
+    <h2 id="using-annotation">Using annotation<a class="anchor" aria-label="anchor" href="#using-annotation"></a></h2>
+    <p>You can specify redirects in an annotated plumber file using the <code>@redirect</code>
+tag. Preceed the method with a <code>!</code> to mark the redirect as permanent</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#* @redirect !get /old/data/* /new/data/*</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#* @redirect any /unstable/endpoint /stable/endpoint</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="cn">NULL</span></span></code></pre><p></p></div>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

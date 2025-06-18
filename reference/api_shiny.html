@@ -94,6 +94,13 @@ forwarded to the shiny process, and thus not end up in your normal route</p>
     <p>This functions return the <code>api</code> object allowing for easy chaining
 with the pipe</p>
     </div>
+    <div class="section level2">
+    <h2 id="using-annotation">Using annotation<a class="anchor" aria-label="anchor" href="#using-annotation"></a></h2>
+    <p>A shiny app can be served using an annotated route file by using the <code>@shiny</code>
+tag and proceeding the annotation block with the shiny app object</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#* @shiny /my_app/</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">shinyAppDir</span>(<span class="st">"./shiny"</span>)</span></code></pre><p></p></div>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

@@ -103,7 +103,8 @@ generating API docs)</p></dd>
 
 
 <dt id="arg-doc">doc<a class="anchor" aria-label="anchor" href="#arg-doc"></a></dt>
-<dd><p>A list with the OpenAPI documentation</p></dd>
+<dd><p>A list with the OpenAPI documentation, usually constrcuted
+with <a href="openapi.html">one of the helper functions</a></p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
@@ -121,7 +122,70 @@ docs to assign <code>doc</code> to</p></dd>
     <p>These functions return the <code>api</code> object allowing for easy chaining
 with the pipe</p>
     </div>
+    <div class="section level2">
+    <h2 id="using-annotation">Using annotation<a class="anchor" aria-label="anchor" href="#using-annotation"></a></h2>
+    <p>When using annotated route files documentation is automatically generated
+based on the annotation. The following tags will contribute to documentation:</p><ul><li><p><code>@title</code></p></li>
+<li><p><code>@description</code></p></li>
+<li><p><code>@details</code></p></li>
+<li><p><code>@tos</code></p></li>
+<li><p><code>@license</code></p></li>
+<li><p><code>@contact</code></p></li>
+<li><p><code>@tag</code></p></li>
+<li><p><code>@param</code></p></li>
+<li><p><code>@query</code></p></li>
+<li><p><code>@body</code></p></li>
+<li><p><code>@response</code></p></li>
+<li><p><code>@parsers</code></p></li>
+<li><p><code>@serializers</code></p></li>
+</ul><p>Documentation is only generated for annotations related to global
+documentation (a block followed by the <code>"_API"</code> sentinel), request handlers
+(a block including one of <code>@get</code>, <code>@head</code>, <code>@post</code>, <code>@put</code>, <code>@delete</code>,
+<code>@connect</code>, <code>@options</code>, <code>@trace</code>, <code>@patch</code>, or <code>@any</code>), or report generation
+(a block including <code>@report</code>)</p>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Serve the docs from a different path</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">api_doc_settings</span><span class="op">(</span>doc_path <span class="op">=</span> <span class="st">"__man__"</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in api_doc_settings(api(), doc_path = "__man__"):</span> could not find function "api_doc_settings"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Add documentation to the api programmatically</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">api_doc_add</span><span class="op">(</span><span class="fu"><a href="openapi.html">openapi</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    info <span class="op">=</span> <span class="fu"><a href="openapi.html">openapi_info</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      title <span class="op">=</span> <span class="st">"My awesome api"</span>,</span></span>
+<span class="r-in"><span>      version <span class="op">=</span> <span class="st">"1.0.0"</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── A plumber server ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Serving on http://127.0.0.1:8080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Currently <span style="color: #BB0000;">not running</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Add documentation to a subset of the docs</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">api_doc_add</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="openapi.html">openapi_operation</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      summary <span class="op">=</span> <span class="st">"Get the current date"</span>,</span></span>
+<span class="r-in"><span>      responses <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="st">"200"</span> <span class="op">=</span> <span class="fu"><a href="openapi.html">openapi_response</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>          description <span class="op">=</span> <span class="st">"Current Date"</span>,</span></span>
+<span class="r-in"><span>          content <span class="op">=</span> <span class="fu"><a href="openapi.html">openapi_content</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>            <span class="st">"text/plain"</span> <span class="op">=</span> <span class="fu"><a href="openapi.html">openapi_schema</a></span><span class="op">(</span><span class="st">"character()"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>          <span class="op">)</span></span></span>
+<span class="r-in"><span>        <span class="op">)</span></span></span>
+<span class="r-in"><span>      <span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    subset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"paths"</span>, <span class="st">"/date"</span>, <span class="st">"get"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── A plumber server ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Serving on http://127.0.0.1:8080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Currently <span style="color: #BB0000;">not running</span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
