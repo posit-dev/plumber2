@@ -10,6 +10,7 @@ handle_constructor <- function(method, header = FALSE) {
     parsers = NULL,
     use_strict_serializer = FALSE,
     download = FALSE,
+    async = FALSE,
     doc = NULL,
     route = NULL
   ) {
@@ -21,6 +22,7 @@ handle_constructor <- function(method, header = FALSE) {
       parsers = parsers,
       use_strict_serializer = use_strict_serializer,
       download = download,
+      async = async,
       doc = doc,
       route = route,
       header = header
@@ -37,6 +39,29 @@ handle_constructor <- function(method, header = FALSE) {
 #'
 #' This family of functions facilitates adding a request handler for a specific
 #' HTTP method and path.
+#'
+#' # Using annotation
+#' Handlers can be specified in an annotated route file using one of the method
+#' tags followed by the path it pertains to. You can use various tags to
+#' descripe the handler and these will automatically be converted to OpenAPI
+#' documentation. Further, additional tags allow you to modify the behaviour of
+#' the handler, reflecting the arguments available in the functional approach.
+#'
+#' ```
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' #* @async
+#' function(username) {
+#'   find_user_in_db(username)
+#' }
+#' ```
 #'
 #' # HTTP Methods
 #' The HTTP specs provide a selection of specific methods that clients can send
@@ -222,6 +247,10 @@ handle_constructor <- function(method, header = FALSE) {
 #' header in the response to `attachment`. Setting it to a string is equivalent
 #' to setting it to `TRUE` but will in addition also set the default filename of
 #' the download to the string value
+#' @param async If `FALSE` create a regular handler. If `TRUE`, use the default
+#' async evaluator to create an async handler. If a string, the async evaluator
+#' registered to that name is used. If a function is provided then this is used
+#' as the async evaluator
 #' @param doc A list with the OpenAPI spec for the endpoint
 #' @param route The route this handler should be added to. Defaults to the last
 #' route in the stack. If the route does not exist it will be created as the
@@ -234,6 +263,15 @@ handle_constructor <- function(method, header = FALSE) {
 #' @name api_request_handlers
 #'
 #' @family Request Handlers
+#'
+#' @examples
+#' # Standard use
+#' api() |>
+#'   api_get("/hello/<name:string>", function(name) {
+#'     list(
+#'       msg = paste0("Hello ", name, "!")
+#'     )
+#'   })
 #'
 NULL
 
@@ -280,11 +318,36 @@ api_any <- handle_constructor("any")
 
 #' Add a handler for a request header
 #'
-#' These handlers are called before the request body has been recieved and lets y
-#' ou preemptively reject requests before recieving their full content. Most of
-#' your logic, however, will be in the main handlers and you are asked to
+#' These handlers are called before the request body has been recieved and lets
+#' you preemptively reject requests before recieving their full content. If the
+#' handler does not return [Next] then the request will be returned at once.
+#' Most of your logic, however, will be in the main handlers and you are asked to
 #' consult the [api_request_handlers] docs for in-depth details on how to use
 #' request handlers in general.
+#'
+#' # Using annotation
+#' Adding request header handler is done in the same way as for [standard
+#' request handlers][api_request_handlers]. The only difference is that you
+#' include a `@header` tag as well. It is not normal to document header requests
+#' as they usually exist as internal controls. You can add `@noDoc` to avoid
+#' generating OpenAPI docs for the handler
+#'
+#' ```
+#' #* A header handler authorizing users
+#' #*
+#' #* @get /*
+#' #*
+#' #* @header
+#' #* @noDoc
+#' function(client_id, response) {
+#'   if (user_is_allowed(username)) {
+#'     Next
+#'   } else {
+#'     response$status <- 404L
+#'     Break
+#'   }
+#' }
+#' ```
 #'
 #' @inheritParams api_request_handlers
 #'
@@ -347,6 +410,20 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #' that way will always add new routes to the end of the stack, whereas using
 #' `api_add_route()` allows you full control of the placement.
 #'
+#' # Using annotation
+#' There is no direct equivalent to this when using annotated route files.
+#' However you can name your route in a file by adding `@routeName <name>` to
+#' the first block of the file like so.
+#'
+#' ```
+#' #* @routeName my_route
+#' NULL
+#' ```
+#'
+#' All relevant blocks in the file will then be added to this route, even if the
+#' route already exist. In that way you can split the definition of a single
+#' route out among multiple files if needed.
+#'
 #' @param api A plumber2 api object to add the route to
 #' @param name The name of the route to add. If a route is already present
 #' with this name then the provided route (if any) is merged into it
@@ -401,6 +478,19 @@ api_add_route <- function(
 #' returns either a raw vector or a single string it is taken as a signal to
 #' send this back to the client. Any other return value is silently ignored.
 #'
+#' # Using annotation
+#' A websocket message handler can be added to an API in an annotated route file
+#' by using the `@message` tag
+#'
+#' ```
+#' #* @message
+#' function(message) {
+#'   if (message == "Hello") {
+#'     return("Hello, you...")
+#'   }
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to add the handler to
 #' @param handler A function conforming to the specifications laid out in
 #' Details
@@ -426,6 +516,16 @@ api_message <- function(api, handler) {
 #' wildcards which will be matched between the two to construct the correct
 #' redirect path. Further, `to` can either be a path to the same server or a
 #' fully qualified URL to redirect requests to another server alltogether.
+#'
+#' # Using annotation
+#' You can specify redirects in an annotated plumber file using the `@redirect`
+#' tag. Preceed the method with a `!` to mark the redirect as permanent
+#'
+#' ```
+#' #* @redirect !get /old/data/* /new/data/*
+#' #* @redirect any /unstable/endpoint /stable/endpoint
+#' NULL
+#' ```
 #'
 #' @param api A plumber2 api object to add the redirect to
 #' @param method The HTTP method the redirect should respond to
@@ -456,6 +556,15 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' be installed. Be aware that all requests to subpaths of `path` will be
 #' forwarded to the shiny process, and thus not end up in your normal route
 #'
+#' # Using annotation
+#' A shiny app can be served using an annotated route file by using the `@shiny`
+#' tag and proceeding the annotation block with the shiny app object
+#'
+#' ```
+#' #* @shiny /my_app/
+#' shiny::shinyAppDir("./shiny")
+#' ```
+#'
 #' @param api A plumber2 api to add the shiny app to
 #' @param path The path to serve the shiny app from
 #' @param app A shiny app object
@@ -483,6 +592,15 @@ api_shiny <- function(api, path, app) {
 #' internal servers though you are free to forward to public URLs as well.
 #' However, for the later you'd usually use a redirect instead (via
 #' [api_redirect()])
+#'
+#' # Using annotation
+#' You can set up a reverse proxy in your annotated route file using the
+#' `@forward` tag
+#'
+#' ```
+#' #* @forward /proxy http://127.0.0.1:56789
+#' NULL
+#' ```
 #'
 #' @param api A plumber2 api to add the shiny app to
 #' @param path The path to serve the shiny app from

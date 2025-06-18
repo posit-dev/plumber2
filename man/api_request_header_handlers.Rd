@@ -22,6 +22,7 @@ api_get_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -33,6 +34,7 @@ api_head_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -44,6 +46,7 @@ api_post_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -55,6 +58,7 @@ api_put_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -66,6 +70,7 @@ api_delete_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -77,6 +82,7 @@ api_connect_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -88,6 +94,7 @@ api_options_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -99,6 +106,7 @@ api_trace_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -110,6 +118,7 @@ api_patch_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 
@@ -121,6 +130,7 @@ api_any_header(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   route = NULL
 )
 }
@@ -153,6 +163,11 @@ header in the response to \code{attachment}. Setting it to a string is equivalen
 to setting it to \code{TRUE} but will in addition also set the default filename of
 the download to the string value}
 
+\item{async}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the default
+async evaluator to create an async handler. If a string, the async evaluator
+registered to that name is used. If a function is provided then this is used
+as the async evaluator}
+
 \item{route}{The route this handler should be added to. Defaults to the last
 route in the stack. If the route does not exist it will be created as the
 last route in the stack}
@@ -162,12 +177,36 @@ These functions return the \code{api} object allowing for easy chaining
 with the pipe
 }
 \description{
-These handlers are called before the request body has been recieved and lets y
-ou preemptively reject requests before recieving their full content. Most of
-your logic, however, will be in the main handlers and you are asked to
+These handlers are called before the request body has been recieved and lets
+you preemptively reject requests before recieving their full content. If the
+handler does not return \link{Next} then the request will be returned at once.
+Most of your logic, however, will be in the main handlers and you are asked to
 consult the \link{api_request_handlers} docs for in-depth details on how to use
 request handlers in general.
 }
+\section{Using annotation}{
+Adding request header handler is done in the same way as for \link[=api_request_handlers]{standard request handlers}. The only difference is that you
+include a \verb{@header} tag as well. It is not normal to document header requests
+as they usually exist as internal controls. You can add \verb{@noDoc} to avoid
+generating OpenAPI docs for the handler
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A header handler authorizing users
+#*
+#* @get /*
+#*
+#* @header
+#* @noDoc
+function(client_id, response) \{
+  if (user_is_allowed(username)) \{
+    Next
+  \} else \{
+    response$status <- 404L
+    Break
+  \}
+\}
+}\if{html}{\out{</div>}}
+}
+
 \seealso{
 Other Request Handlers: 
 \code{\link{api_request_handlers}}

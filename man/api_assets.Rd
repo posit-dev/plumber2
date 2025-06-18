@@ -90,3 +90,30 @@ the R process and as a result is blazing fast. However this comes with the
 price of very limited freedom to modify the response or even do basic
 authentication. Each has their place.
 }
+\section{Using annotation}{
+When using annotated route files the functionality of \code{api_assets()} can be
+achieved like this:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @assets my_wd/ ./
+NULL
+}\if{html}{\out{</div>}}
+
+When using annotated route files the functionality of \code{api_statics()} can be
+achieved like this:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @statics my_docs/ ~/
+#* @except my_secret_folder/
+NULL
+}\if{html}{\out{</div>}}
+}
+
+\examples{
+# Add asset serving through routr route
+api() |>
+  api_assets("my_wd/", "./")
+
+# Add asset serving directly
+api() |>
+  api_statics("my_docs", "~/", except = "my_secret_folder/")
+
+}

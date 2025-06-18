@@ -32,3 +32,17 @@ created with the \code{route} argument when \link[=api_get]{adding a handler}. H
 that way will always add new routes to the end of the stack, whereas using
 \code{api_add_route()} allows you full control of the placement.
 }
+\section{Using annotation}{
+There is no direct equivalent to this when using annotated route files.
+However you can name your route in a file by adding \verb{@routeName <name>} to
+the first block of the file like so.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @routeName my_route
+NULL
+}\if{html}{\out{</div>}}
+
+All relevant blocks in the file will then be added to this route, even if the
+route already exist. In that way you can split the definition of a single
+route out among multiple files if needed.
+}
+

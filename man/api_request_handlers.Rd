@@ -22,6 +22,7 @@ api_get(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -34,6 +35,7 @@ api_head(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -46,6 +48,7 @@ api_post(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -58,6 +61,7 @@ api_put(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -70,6 +74,7 @@ api_delete(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -82,6 +87,7 @@ api_connect(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -94,6 +100,7 @@ api_options(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -106,6 +113,7 @@ api_trace(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -118,6 +126,7 @@ api_patch(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -130,6 +139,7 @@ api_any(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
   doc = NULL,
   route = NULL
 )
@@ -163,6 +173,11 @@ header in the response to \code{attachment}. Setting it to a string is equivalen
 to setting it to \code{TRUE} but will in addition also set the default filename of
 the download to the string value}
 
+\item{async}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the default
+async evaluator to create an async handler. If a string, the async evaluator
+registered to that name is used. If a function is provided then this is used
+as the async evaluator}
+
 \item{doc}{A list with the OpenAPI spec for the endpoint}
 
 \item{route}{The route this handler should be added to. Defaults to the last
@@ -177,6 +192,29 @@ with the pipe
 This family of functions facilitates adding a request handler for a specific
 HTTP method and path.
 }
+\section{Using annotation}{
+Handlers can be specified in an annotated route file using one of the method
+tags followed by the path it pertains to. You can use various tags to
+descripe the handler and these will automatically be converted to OpenAPI
+documentation. Further, additional tags allow you to modify the behaviour of
+the handler, reflecting the arguments available in the functional approach.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+#* @async
+function(username) \{
+  find_user_in_db(username)
+\}
+}\if{html}{\out{</div>}}
+}
+
 \section{HTTP Methods}{
 The HTTP specs provide a selection of specific methods that clients can send
 to the server (your plumber api). While there is no enforcement that the
@@ -365,6 +403,16 @@ help inform the client about how the server has been implemented.
 }
 }
 
+\examples{
+# Standard use
+api() |>
+  api_get("/hello/<name:string>", function(name) {
+    list(
+      msg = paste0("Hello ", name, "!")
+    )
+  })
+
+}
 \seealso{
 Other Request Handlers: 
 \code{\link{api_request_header_handlers}}

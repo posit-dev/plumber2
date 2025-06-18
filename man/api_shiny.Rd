@@ -26,3 +26,12 @@ api is stopped. This functionality requires the shiny and callr packages to
 be installed. Be aware that all requests to subpaths of \code{path} will be
 forwarded to the shiny process, and thus not end up in your normal route
 }
+\section{Using annotation}{
+A shiny app can be served using an annotated route file by using the \verb{@shiny}
+tag and proceeding the annotation block with the shiny app object
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @shiny /my_app/
+shiny::shinyAppDir("./shiny")
+}\if{html}{\out{</div>}}
+}
+

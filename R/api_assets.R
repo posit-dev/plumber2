@@ -7,6 +7,24 @@
 #' price of very limited freedom to modify the response or even do basic
 #' authentication. Each has their place.
 #'
+#' # Using annotation
+#' When using annotated route files the functionality of `api_assets()` can be
+#' achieved like this:
+#'
+#' ```
+#' #* @assets my_wd/ ./
+#' NULL
+#' ```
+#'
+#' When using annotated route files the functionality of `api_statics()` can be
+#' achieved like this:
+#'
+#' ```
+#' #* @statics my_docs/ ~/
+#' #* @except my_secret_folder/
+#' NULL
+#' ```
+#'
 #' @param api A plumber2 api object to add the rossource serving to
 #' @param at The path to serve the ressources from
 #' @param path The location on the file system to map `at` to
@@ -20,6 +38,15 @@
 #' with the pipe
 #'
 #' @export
+#'
+#' @examples
+#' # Add asset serving through routr route
+#' api() |>
+#'   api_assets("my_wd/", "./")
+#'
+#' # Add asset serving directly
+#' api() |>
+#'   api_statics("my_docs", "~/", except = "my_secret_folder/")
 #'
 api_assets <- function(
   api,

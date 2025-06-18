@@ -30,3 +30,12 @@ internal servers though you are free to forward to public URLs as well.
 However, for the later you'd usually use a redirect instead (via
 \code{\link[=api_redirect]{api_redirect()}})
 }
+\section{Using annotation}{
+You can set up a reverse proxy in your annotated route file using the
+\verb{@forward} tag
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @forward /proxy http://127.0.0.1:56789
+NULL
+}\if{html}{\out{</div>}}
+}
+

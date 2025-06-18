@@ -11,9 +11,34 @@
 #' docs you can add docs manually, either when adding a handler (using the `doc`
 #' argument), or with the `api_doc_add()` function
 #'
+#' # Using annotation
+#' When using annotated route files documentation is automatically generated
+#' based on the annotation. The following tags will contribute to documentation:
+#'
+#' * `@title`
+#' * `@description`
+#' * `@details`
+#' * `@tos`
+#' * `@license`
+#' * `@contact`
+#' * `@tag`
+#' * `@param`
+#' * `@query`
+#' * `@body`
+#' * `@response`
+#' * `@parsers`
+#' * `@serializers`
+#'
+#' Documentation is only generated for annotations related to global
+#' documentation (a block followed by the `"_API"` sentinel), request handlers
+#' (a block including one of `@get`, `@head`, `@post`, `@put`, `@delete`,
+#' `@connect`, `@options`, `@trace`, `@patch`, or `@any`), or report generation
+#' (a block including `@report`)
+#'
 #' @param api A plumber2 api object to add docs or doc settings to
 #' @inheritParams api
-#' @param doc A list with the OpenAPI documentation
+#' @param doc A list with the OpenAPI documentation, usually constrcuted
+#' with [one of the helper functions][openapi]
 #' @param overwrite Logical. Should already existing documentation be
 #' removed or should it be merged together with `doc`
 #' @param subset A character vector giving the path to the subset of the
@@ -24,6 +49,37 @@
 #'
 #' @rdname api_docs
 #' @name api_docs
+#'
+#' @examples
+#' # Serve the docs from a different path
+#' api() |>
+#'   api_doc_settings(doc_path = "__man__")
+#'
+#' # Add documentation to the api programmatically
+#' api() |>
+#'   api_doc_add(openapi(
+#'     info = openapi_info(
+#'       title = "My awesome api",
+#'       version = "1.0.0"
+#'     )
+#'   ))
+#'
+#' # Add documentation to a subset of the docs
+#' api() |>
+#'   api_doc_add(
+#'     openapi_operation(
+#'       summary = "Get the current date",
+#'       responses = list(
+#'         "200" = openapi_response(
+#'           description = "Current Date",
+#'           content = openapi_content(
+#'             "text/plain" = openapi_schema("character()")
+#'           )
+#'         )
+#'       )
+#'     ),
+#'     subset = c("paths", "/date", "get")
+#'   )
 #'
 NULL
 

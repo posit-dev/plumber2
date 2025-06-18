@@ -49,3 +49,16 @@ returns either a raw vector or a single string it is taken as a signal to
 send this back to the client. Any other return value is silently ignored.
 }
 }
+\section{Using annotation}{
+A websocket message handler can be added to an API in an annotated route file
+by using the \verb{@message} tag
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @message
+function(message) \{
+  if (message == "Hello") \{
+    return("Hello, you...")
+  \}
+\}
+}\if{html}{\out{</div>}}
+}
+

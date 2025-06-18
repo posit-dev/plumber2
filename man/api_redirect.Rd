@@ -35,3 +35,13 @@ wildcards which will be matched between the two to construct the correct
 redirect path. Further, \code{to} can either be a path to the same server or a
 fully qualified URL to redirect requests to another server alltogether.
 }
+\section{Using annotation}{
+You can specify redirects in an annotated plumber file using the \verb{@redirect}
+tag. Preceed the method with a \code{!} to mark the redirect as permanent
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @redirect !get /old/data/* /new/data/*
+#* @redirect any /unstable/endpoint /stable/endpoint
+NULL
+}\if{html}{\out{</div>}}
+}
+
