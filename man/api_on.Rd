@@ -30,3 +30,15 @@ for a full overview. \code{api_on()} allows you to add handlers that are called
 when specific events fire. \code{api_off()} can be used to remove the handler if
 necessary
 }
+\examples{
+# Add a small console log to show the api is alive
+papi <- api() |>
+  api_on("cycle-end", function(server) {
+    server$log("message", "tick-tock")
+  }, id = "lifesign")
+
+# Remove it again
+papi |>
+  api_off("lifesign")
+
+}

@@ -39,3 +39,19 @@ with the pipe, even though they will often be the last part of the chain
 \description{
 This function starts the api with the settings it has defined.
 }
+\examples{
+papi <- api() |>
+  api_get("/", function() {
+    list(msg = "Hello World")
+  }) |>
+  api_on("start", function(...) {
+    cat("I'm alive")
+  })
+
+# Start the server
+papi |> api_run(block = FALSE)
+
+# Stop it again
+papi |> api_stop()
+
+}

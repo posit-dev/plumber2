@@ -19,6 +19,21 @@
 #'
 #' @export
 #'
+#' @examples
+#' papi <- api() |>
+#'   api_get("/", function() {
+#'     list(msg = "Hello World")
+#'   }) |>
+#'   api_on("start", function(...) {
+#'     cat("I'm alive")
+#'   })
+#'
+#' # Start the server
+#' papi |> api_run(block = FALSE)
+#'
+#' # Stop it again
+#' papi |> api_stop()
+#'
 api_run <- function(
   api,
   block = !is_interactive(),
