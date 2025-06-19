@@ -60,4 +60,15 @@ read more about the logging infrastructure in the
 \link[fiery:loggers]{fiery documentation}. plumber2 reexports the loggers
 provided by fiery so they are immediately available to the user.
 }
+\examples{
+# Use a different access log format
+api() |>
+  api_logger(access_log_format = combined_log_format)
+
+# Turn off logging
+api() |>
+  api_logger(logger_null)
+
+
+}
 \keyword{datasets}

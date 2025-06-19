@@ -18,6 +18,16 @@
 #'
 #' @export
 #'
+#' @examples
+#' # Use a different access log format
+#' api() |>
+#'   api_logger(access_log_format = combined_log_format)
+#'
+#' # Turn off logging
+#' api() |>
+#'   api_logger(logger_null())
+#'
+#'
 api_logger <- function(api, logger = NULL, access_log_format = NULL) {
   if (!is.null(logger)) {
     check_function(logger)
