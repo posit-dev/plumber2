@@ -13,7 +13,7 @@ articles:
   routing-and-input: routing-and-input.html
   security: security.html
   tips-and-tricks: tips-and-tricks.html
-last_built: 2025-06-19T09:46Z
+last_built: 2025-06-19T10:21Z
 urls:
   reference: https://posit-dev.github.io/plumber2/reference
   article: https://posit-dev.github.io/plumber2/articles

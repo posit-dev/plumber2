@@ -489,6 +489,38 @@ help inform the client about how the server has been implemented.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Serving on http://127.0.0.1:8080</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Currently <span style="color: #BB0000;">not running</span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Specify serializers</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">api_get</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"/hello/&lt;name:string&gt;"</span>,</span></span>
+<span class="r-in"><span>    <span class="kw">function</span><span class="op">(</span><span class="va">name</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        msg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Hello "</span>, <span class="va">name</span>, <span class="st">"!"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>      <span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">}</span>,</span></span>
+<span class="r-in"><span>    serializers <span class="op">=</span> <span class="fu"><a href="register_serializer.html">get_serializers</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"json"</span>, <span class="st">"xml"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating <span style="color: #00BB00;">default</span> route in request router</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── A plumber server ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Serving on http://127.0.0.1:8080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Currently <span style="color: #BB0000;">not running</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Request a download and make it async</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">api_get</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"/the_plot"</span>,</span></span>
+<span class="r-in"><span>    <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">}</span>,</span></span>
+<span class="r-in"><span>    serializers <span class="op">=</span> <span class="fu"><a href="register_serializer.html">get_serializers</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"png"</span>, <span class="st">"jpeg"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    download <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>    async <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating <span style="color: #00BB00;">default</span> route in request router</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── A plumber server ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Serving on http://127.0.0.1:8080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Currently <span style="color: #BB0000;">not running</span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

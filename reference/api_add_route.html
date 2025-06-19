@@ -111,6 +111,25 @@ route already exist. In that way you can split the definition of a single
 route out among multiple files if needed.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Add a new route and use it for a handler</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">api_add_route</span><span class="op">(</span><span class="st">"logger_route"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="api_request_handlers.html">api_any</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"/*"</span>,</span></span>
+<span class="r-in"><span>    <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"I just handled a request!"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">}</span>,</span></span>
+<span class="r-in"><span>    route <span class="op">=</span> <span class="st">"logger_route"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── A plumber server ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Serving on http://127.0.0.1:8080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Currently <span style="color: #BB0000;">not running</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -278,6 +278,29 @@ generating OpenAPI docs for the handler</p>
 <code><a href="api_request_handlers.html">api_request_handlers</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Simple size limit (better to use build-in functionality)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">api_post_header</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"/*"</span>,</span></span>
+<span class="r-in"><span>    <span class="kw">function</span><span class="op">(</span><span class="va">request</span>, <span class="va">response</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>      <span class="kw">if</span> <span class="op">(</span><span class="va">request</span><span class="op">$</span><span class="fu">get_header</span><span class="op">(</span><span class="st">"content-type"</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1024</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>        <span class="va">response</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="fl">413L</span></span></span>
+<span class="r-in"><span>        <span class="va">Break</span></span></span>
+<span class="r-in"><span>      <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>        <span class="va">Next</span></span></span>
+<span class="r-in"><span>      <span class="op">}</span></span></span>
+<span class="r-in"><span>    <span class="op">}</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating <span style="color: #00BB00;">default</span> route in header router</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── A plumber server ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Serving on http://127.0.0.1:8080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Currently <span style="color: #BB0000;">not running</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
