@@ -67,7 +67,7 @@ api() |>
 
 # Turn off logging
 api() |>
-  api_logger(logger_null)
+  api_logger(logger_null())
 
 
 }
