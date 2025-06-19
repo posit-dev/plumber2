@@ -207,6 +207,23 @@ function(client_id, response) \{
 }\if{html}{\out{</div>}}
 }
 
+\examples{
+# Simple size limit (better to use build-in functionality)
+api() |>
+  api_post_header(
+    "/*",
+    function(request, response) {
+      if (request$get_header("content-type") > 1024) {
+        response$status <- 413L
+        Break
+      } else {
+        Next
+      }
+    }
+  )
+
+
+}
 \seealso{
 Other Request Handlers: 
 \code{\link{api_request_handlers}}

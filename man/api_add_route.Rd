@@ -46,3 +46,17 @@ route already exist. In that way you can split the definition of a single
 route out among multiple files if needed.
 }
 
+\examples{
+# Add a new route and use it for a handler
+api() |>
+  api_add_route("logger_route") |>
+  api_any(
+    "/*",
+    function() {
+      cat("I just handled a request!")
+    },
+    route = "logger_route"
+  )
+
+
+}

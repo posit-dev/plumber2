@@ -62,3 +62,14 @@ function(message) \{
 }\if{html}{\out{</div>}}
 }
 
+\examples{
+api() |>
+  api_message(
+    function(message) {
+      if (message == "Hello") {
+        return("Hello, you...")
+      }
+    }
+  )
+
+}

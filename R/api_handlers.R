@@ -273,6 +273,30 @@ handle_constructor <- function(method, header = FALSE) {
 #'     )
 #'   })
 #'
+#' # Specify serializers
+#' api() |>
+#'   api_get(
+#'     "/hello/<name:string>",
+#'     function(name) {
+#'       list(
+#'         msg = paste0("Hello ", name, "!")
+#'       )
+#'     },
+#'     serializers = get_serializers(c("json", "xml"))
+#'   )
+#'
+#' # Request a download and make it async
+#' api() |>
+#'   api_get(
+#'     "/the_plot",
+#'     function() {
+#'       plot(1:10, 1:10)
+#'     },
+#'     serializers = get_serializers(c("png", "jpeg")),
+#'     download = TRUE,
+#'     async = TRUE
+#'   )
+#'
 NULL
 
 #' @rdname api_request_handlers
@@ -359,6 +383,22 @@ api_any <- handle_constructor("any")
 #'
 #' @family Request Handlers
 #'
+#' @examples
+#' # Simple size limit (better to use build-in functionality)
+#' api() |>
+#'   api_post_header(
+#'     "/*",
+#'     function(request, response) {
+#'       if (request$get_header("content-type") > 1024) {
+#'         response$status <- 413L
+#'         Break
+#'       } else {
+#'         Next
+#'       }
+#'     }
+#'   )
+#'
+#'
 NULL
 
 #' @rdname api_request_header_handlers
@@ -439,6 +479,19 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #'
 #' @export
 #'
+#' @examples
+#' # Add a new route and use it for a handler
+#' api() |>
+#'   api_add_route("logger_route") |>
+#'   api_any(
+#'     "/*",
+#'     function() {
+#'       cat("I just handled a request!")
+#'     },
+#'     route = "logger_route"
+#'   )
+#'
+#'
 api_add_route <- function(
   api,
   name,
@@ -500,6 +553,16 @@ api_add_route <- function(
 #'
 #' @export
 #'
+#' @examples
+#' api() |>
+#'   api_message(
+#'     function(message) {
+#'       if (message == "Hello") {
+#'         return("Hello, you...")
+#'       }
+#'     }
+#'   )
+#'
 api_message <- function(api, handler) {
   api$message_handler(handler)
   api
@@ -541,6 +604,10 @@ api_message <- function(api, handler) {
 #'
 #' @export
 #'
+#' @examples
+#' api() |>
+#'   api_redirect("get", "/old/data/*", "/new/data/*")
+#'
 api_redirect <- function(api, method, from, to, permanent = TRUE) {
   api$redirect(method, from, to, permanent)
   api
@@ -573,6 +640,15 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' with the pipe
 #'
 #' @export
+#'
+#' @examplesIf requireNamespace("shiny", quietly = TRUE)
+#' blank_shiny <- shiny::shinyApp(
+#'   ui = shiny::fluidPage(),
+#'   server = shiny::shinyServer(function(...) {})
+#' )
+#'
+#' api() |>
+#'   api_shiny("my_app/", blank_shiny)
 #'
 api_shiny <- function(api, path, app) {
   api$add_shiny(path, app)
@@ -610,6 +686,11 @@ api_shiny <- function(api, path, app) {
 #' with the pipe
 #'
 #' @export
+#'
+#' @examples
+#' # Serve wikipedia directly from your app
+#' api() |>
+#'   api_forward("my_wiki/", "https://www.wikipedia.org")
 #'
 api_forward <- function(api, path, url) {
   api$forward(path, url)

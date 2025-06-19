@@ -39,3 +39,9 @@ NULL
 }\if{html}{\out{</div>}}
 }
 
+\examples{
+# Serve wikipedia directly from your app
+api() |>
+  api_forward("my_wiki/", "https://www.wikipedia.org")
+
+}

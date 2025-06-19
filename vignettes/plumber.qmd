@@ -73,10 +73,15 @@ The `/plot` endpoint will show you a simple plot of some data from the palmerpen
 ```{r}
 #| echo: false
 #| results: asis
-req <- fiery::fake_request("http://localhost:8080/plot")
-res <- papi$test_request(req)
+if (packageVersion("base") < "4.5.0") {
+  cat("| R < 4.5.0 has problems encoding the plot to base64 and embedding it")
+} else {
+  req <- fiery::fake_request("http://localhost:8080/plot")
+  res <- papi$test_request(req)
 
-cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
+  cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
+}
+
 ```
 
 If you see something like the above: congratulations! You've just created your first Plumber API! You've already exercised your API from a web browser, but there's nothing stopping you from leveraging this API from third-party tools or a client developed in R or any other programming language.

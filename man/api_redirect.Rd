@@ -45,3 +45,8 @@ NULL
 }\if{html}{\out{</div>}}
 }
 
+\examples{
+api() |>
+  api_redirect("get", "/old/data/*", "/new/data/*")
+
+}

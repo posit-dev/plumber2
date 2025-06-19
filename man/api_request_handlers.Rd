@@ -412,6 +412,30 @@ api() |>
     )
   })
 
+# Specify serializers
+api() |>
+  api_get(
+    "/hello/<name:string>",
+    function(name) {
+      list(
+        msg = paste0("Hello ", name, "!")
+      )
+    },
+    serializers = get_serializers(c("json", "xml"))
+  )
+
+# Request a download and make it async
+api() |>
+  api_get(
+    "/the_plot",
+    function() {
+      plot(1:10, 1:10)
+    },
+    serializers = get_serializers(c("png", "jpeg")),
+    download = TRUE,
+    async = TRUE
+  )
+
 }
 \seealso{
 Other Request Handlers: 
