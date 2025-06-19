@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# plumber2
+# plumber2 <a href="https://posit-dev.github.io/plumber2/"><img src="man/figures/logo.svg" align="right" height="139" alt="plumber2 website" /></a>
 
 <!-- badges: start -->
 
