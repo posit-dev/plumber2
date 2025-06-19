@@ -74,7 +74,7 @@ The `/plot` endpoint will show you a simple plot of some data from the palmerpen
 #| echo: false
 #| results: asis
 if (packageVersion("base") < "4.5.0") {
-  cat("| R < 4.5.0 has problems encoding the plot to base64 and embedding it")
+  cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
 } else {
   req <- fiery::fake_request("http://localhost:8080/plot")
   res <- papi$test_request(req)
@@ -93,10 +93,14 @@ You may have noticed that the functions that define our endpoints accept paramet
 ```{r}
 #| echo: false
 #| results: asis
-req <- fiery::fake_request("http://localhost:8080/plot?spec=Adelie")
-res <- papi$test_request(req)
+if (packageVersion("base") < "4.5.0") {
+  cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
+} else {
+  req <- fiery::fake_request("http://localhost:8080/plot?spec=Adelie")
+  res <- papi$test_request(req)
 
-cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
+  cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
+}
 ```
 
 As you might have guessed, the `spec=Adelie` portion of the URL sets the `spec` element in `query` to `Adelie`. More details on how Plumber processes inputs are available in the [Routing & Input article](./routing-and-input.html).
