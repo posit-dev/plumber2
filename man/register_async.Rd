@@ -30,3 +30,20 @@ returning a promise from the handler, or automatic through the \verb{@async} tag
 default evaluator is controlled by the \code{plumber2.async} option or the
 \code{PLUMBER2_ASYNC} environment variable.
 }
+\examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# Register an async evaluator based on future (the provided mirai backend is
+# superior in every way so this is for illustrative purpose)
+future_async <- function(...) {
+  function(expr, envir) {
+    promises::future_promise(
+      expr = expr,
+      envir = envir,
+      substitute = FALSE,
+      ...
+    )
+  }
+}
+register_async("future", future_async, c("promises", "future"))
+\dontshow{\}) # examplesIf}
+}

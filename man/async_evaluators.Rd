@@ -2,12 +2,9 @@
 % Please edit documentation in R/async.R
 \name{async_evaluators}
 \alias{async_evaluators}
-\alias{future_async}
 \alias{mirai_async}
 \title{Async evaluators provided by plumber}
 \usage{
-future_async(...)
-
 mirai_async(...)
 }
 \arguments{
@@ -26,9 +23,6 @@ well using \code{\link[=register_async]{register_async()}}.
 }
 \section{Provided evaluators}{
 \itemize{
-\item \code{future_async()} uses \code{\link[promises:future_promise]{promises::future_promise()}}. It is registered as
-\code{"future"}. Be aware that for this evaluator to execute asynchronously you
-need to set a different planner than the default. See \code{\link[future:plan]{future::plan()}}.
 \item \code{mirai_async()} uses \code{\link[mirai:mirai]{mirai::mirai()}}. It is registered as
 \code{"mirai"}. Be aware that for this evaluator to be performant you should
 start up multiple persistent background processes. See \code{\link[mirai:daemons]{mirai::daemons()}}.

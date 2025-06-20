@@ -83,7 +83,7 @@ Plumber2 <- R6Class(
       max_request_size = get_opts("maxRequestSize"),
       shared_secret = get_opts("sharedSecret"),
       compression_limit = get_opts("compressionLimit", 1e3),
-      default_async = get_opts("async", "future"),
+      default_async = get_opts("async", "mirai"),
       env = caller_env()
     ) {
       super$initialize(host, port)

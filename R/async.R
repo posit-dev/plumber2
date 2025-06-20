@@ -16,6 +16,21 @@ registry$async <- list()
 #'
 #' @export
 #'
+#' @examplesIf FALSE
+#' # Register an async evaluator based on future (the provided mirai backend is
+#' # superior in every way so this is for illustrative purpose)
+#' future_async <- function(...) {
+#'   function(expr, envir) {
+#'     promises::future_promise(
+#'       expr = expr,
+#'       envir = envir,
+#'       substitute = FALSE,
+#'       ...
+#'     )
+#'   }
+#' }
+#' register_async("future", future_async, c("promises", "future"))
+#'
 register_async <- function(name, fun, dependency = NULL) {
   check_string(name)
   check_character(dependency, allow_null = TRUE)
@@ -71,9 +86,6 @@ get_async <- function(name = NULL, ...) {
 #' well using [register_async()].
 #'
 #' # Provided evaluators
-#' * `future_async()` uses [promises::future_promise()]. It is registered as
-#'   `"future"`. Be aware that for this evaluator to execute asynchronously you
-#'   need to set a different planner than the default. See [future::plan()].
 #' * `mirai_async()` uses [mirai::mirai()]. It is registered as
 #'   `"mirai"`. Be aware that for this evaluator to be performant you should
 #'   start up multiple persistent background processes. See [mirai::daemons()].
@@ -93,18 +105,6 @@ NULL
 
 #' @rdname async_evaluators
 #' @export
-future_async <- function(...) {
-  function(expr, envir) {
-    promises::future_promise(
-      expr = expr,
-      envir = envir,
-      substitute = FALSE,
-      ...
-    )
-  }
-}
-#' @rdname async_evaluators
-#' @export
 mirai_async <- function(...) {
   function(expr, envir) {
     mirai::mirai(.expr = expr, envir, ...)
@@ -112,6 +112,5 @@ mirai_async <- function(...) {
 }
 
 on_load({
-  register_async("future", future_async, "future")
   register_async("mirai", mirai_async, "mirai")
 })
