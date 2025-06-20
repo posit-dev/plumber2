@@ -42,7 +42,7 @@ get_opts <- function(x, default = NULL) {
     if (res == "") {
       res <- default
     } else {
-      if (is.atomic(default)) {
+      if (!is.null(default) && is.atomic(default)) {
         mode(res) <- mode(default)
       }
     }
