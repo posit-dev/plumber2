@@ -293,6 +293,49 @@ as constructed by <code>openapi_header()</code></p></dd>
     <p>A list</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create docs for an API with a single endpoint</span></span></span>
+<span class="r-in"><span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="fu">openapi</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  info <span class="op">=</span> <span class="fu">openapi_info</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    title <span class="op">=</span> <span class="st">"My awesome api"</span>,</span></span>
+<span class="r-in"><span>    version <span class="op">=</span> <span class="st">"1.0.0"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  paths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"/hello/{name}"</span> <span class="op">=</span> <span class="fu">openapi_path</span><span class="op">(</span></span></span>
+<span class="r-in"><span>      get <span class="op">=</span> <span class="fu">openapi_operation</span><span class="op">(</span></span></span>
+<span class="r-in"><span>        summary <span class="op">=</span> <span class="st">"Get a greeting"</span>,</span></span>
+<span class="r-in"><span>        parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>          <span class="fu">openapi_parameter</span><span class="op">(</span></span></span>
+<span class="r-in"><span>            name <span class="op">=</span> <span class="st">"name"</span>,</span></span>
+<span class="r-in"><span>            location <span class="op">=</span> <span class="st">"path"</span>,</span></span>
+<span class="r-in"><span>            description <span class="op">=</span> <span class="st">"Your name"</span>,</span></span>
+<span class="r-in"><span>            schema <span class="op">=</span> <span class="fu">openapi_schema</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>          <span class="op">)</span></span></span>
+<span class="r-in"><span>        <span class="op">)</span>,</span></span>
+<span class="r-in"><span>        responses <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>          <span class="st">"200"</span> <span class="op">=</span> <span class="fu">openapi_response</span><span class="op">(</span></span></span>
+<span class="r-in"><span>            description <span class="op">=</span> <span class="st">"a kind message"</span>,</span></span>
+<span class="r-in"><span>            content <span class="op">=</span> <span class="fu">openapi_content</span><span class="op">(</span></span></span>
+<span class="r-in"><span>              <span class="st">"text/plain"</span> <span class="op">=</span> <span class="fu">openapi_schema</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>            <span class="op">)</span></span></span>
+<span class="r-in"><span>          <span class="op">)</span></span></span>
+<span class="r-in"><span>        <span class="op">)</span></span></span>
+<span class="r-in"><span>      <span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Add it to an api</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="api_docs.html">api_doc_add</a></span><span class="op">(</span><span class="va">doc</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── A plumber server ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Serving on http://127.0.0.1:8080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Currently <span style="color: #BB0000;">not running</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
