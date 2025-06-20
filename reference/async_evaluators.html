@@ -54,9 +54,7 @@ well using <code><a href="register_async.html">register_async()</a></code>.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">future_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">mirai_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">mirai_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -78,10 +76,7 @@ should be made available during evaluation</p>
     <div class="section level2">
     <h2 id="provided-evaluators">Provided evaluators<a class="anchor" aria-label="anchor" href="#provided-evaluators"></a></h2>
 
-<ul><li><p><code>future_async()</code> uses <code><a href="https://rstudio.github.io/promises/reference/future_promise.html" class="external-link">promises::future_promise()</a></code>. It is registered as
-<code>"future"</code>. Be aware that for this evaluator to execute asynchronously you
-need to set a different planner than the default. See <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>.</p></li>
-<li><p><code>mirai_async()</code> uses <code><a href="https://mirai.r-lib.org/reference/mirai.html" class="external-link">mirai::mirai()</a></code>. It is registered as
+<ul><li><p><code>mirai_async()</code> uses <code><a href="https://mirai.r-lib.org/reference/mirai.html" class="external-link">mirai::mirai()</a></code>. It is registered as
 <code>"mirai"</code>. Be aware that for this evaluator to be performant you should
 start up multiple persistent background processes. See <code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code>.</p></li>
 </ul></div>

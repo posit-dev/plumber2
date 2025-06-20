@@ -53,6 +53,8 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">api_run</span><span class="op">(</span></span>
 <span>  <span class="va">api</span>,</span>
+<span>  host <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  port <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  block <span class="op">=</span> <span class="op">!</span><span class="fu">is_interactive</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  showcase <span class="op">=</span> <span class="fu">is_interactive</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span>,</span>
@@ -68,6 +70,11 @@
 
 <dl><dt id="arg-api">api<a class="anchor" aria-label="anchor" href="#arg-api"></a></dt>
 <dd><p>A plumber2 api object to launch or stop</p></dd>
+
+
+<dt id="arg-host-port">host, port<a class="anchor" aria-label="anchor" href="#arg-host-port"></a></dt>
+<dd><p>Host and port to run the api on. If not provided the host
+and port used during the creation of the Plumber2 api will be used</p></dd>
 
 
 <dt id="arg-block">block<a class="anchor" aria-label="anchor" href="#arg-block"></a></dt>

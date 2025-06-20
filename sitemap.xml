@@ -28,6 +28,7 @@
 <url><loc>https://posit-dev.github.io/plumber2/reference/api_logger.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/api_message.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/api_on.html</loc></url>
+<url><loc>https://posit-dev.github.io/plumber2/reference/api_package.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/api_redirect.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/api_request_handlers.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/api_request_header_handlers.html</loc></url>
@@ -38,6 +39,7 @@
 <url><loc>https://posit-dev.github.io/plumber2/reference/async_evaluators.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/create_server_yml.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/device_formatter.html</loc></url>
+<url><loc>https://posit-dev.github.io/plumber2/reference/get_opts.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/index.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/init_formatter.html</loc></url>
 <url><loc>https://posit-dev.github.io/plumber2/reference/openapi.html</loc></url>
