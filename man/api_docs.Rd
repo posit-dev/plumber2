@@ -93,7 +93,7 @@ api() |>
         "200" = openapi_response(
           description = "Current Date",
           content = openapi_content(
-            "text/plain" = openapi_schema("character()")
+            "text/plain" = openapi_schema(character())
           )
         )
       )

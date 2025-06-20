@@ -53,7 +53,7 @@ list_apis <- function(package = NULL, name = NULL) {
       api = list.dirs(path, full.names = FALSE, recursive = FALSE)
     )
     if (!is.null(name)) {
-      apis <- apis[apis$api == NAME, ]
+      apis <- apis[apis$api == name, ]
     }
     apis
   }

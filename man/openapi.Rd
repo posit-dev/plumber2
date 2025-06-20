@@ -191,3 +191,41 @@ file). The purpose of these helpers is mainly in basic input checking and for
 documenting the structure. Read more about the spec at
 \url{https://spec.openapis.org/oas/v3.0.0.html}
 }
+\examples{
+# Create docs for an API with a single endpoint
+doc <- openapi(
+  info = openapi_info(
+    title = "My awesome api",
+    version = "1.0.0"
+  ),
+  paths = list(
+    "/hello/{name}" = openapi_path(
+      get = openapi_operation(
+        summary = "Get a greeting",
+        parameters = list(
+          openapi_parameter(
+            name = "name",
+            location = "path",
+            description = "Your name",
+            schema = openapi_schema(character())
+          )
+        ),
+        responses = list(
+          "200" = openapi_response(
+            description = "a kind message",
+            content = openapi_content(
+              "text/plain" = openapi_schema(character())
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+# Add it to an api
+api() |>
+  api_doc_add(doc)
+
+
+}
