@@ -37,6 +37,7 @@ reference:
   - title: "Create an run an API"
     contents:
       - api
+      - api_package
       - api_run
       - create_server_yml
   - title: "Adding handlers and routes"
