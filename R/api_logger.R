@@ -8,6 +8,18 @@
 #' [fiery documentation][fiery::loggers]. plumber2 reexports the loggers
 #' provided by fiery so they are immediately available to the user.
 #'
+#' # Using annotation
+#' Logger setup doesn't have a dedicated annotation tag, but you can set it up
+#' in a `@plumber` block
+#'
+#' ```
+#' #* @plumber
+#' function(api) {
+#'   api |>
+#'     api_logger(logger = logger_null())
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to set the logger on
 #' @param logger A logger function. If `NULL` then the current logger is kept
 #' @param access_log_format A glue string giving the format for the access logs.

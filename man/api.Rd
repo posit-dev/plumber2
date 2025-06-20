@@ -93,3 +93,23 @@ This is the main way to create a new \link{Plumber2} object that encapsulates yo
 full api. It is also possible to add files to the API after creation using
 \code{api_parse()}
 }
+\examples{
+# When creating an API programmatically you'll usually initialise the object
+# without pointing to any route files or a _server.yml file
+papi <- api()
+
+# You can pass it a directory and it will load up all recognised files it
+# contains
+example_dir <- system.file("plumber2", "quickstart", package = "plumber2")
+papi <- api(example_dir)
+
+# Or you can pass files directly
+papi <- api(list.files(example_dir, full.names = TRUE)[1])
+
+}
+\seealso{
+\code{\link[=api_package]{api_package()}} for creating an api based on files distributed with
+a package
+
+\code{\link[=get_opts]{get_opts()}} for how to set default options
+}

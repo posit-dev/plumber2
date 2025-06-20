@@ -7,6 +7,8 @@
 \usage{
 api_run(
   api,
+  host = NULL,
+  port = NULL,
   block = !is_interactive(),
   showcase = is_interactive(),
   ...,
@@ -17,6 +19,9 @@ api_stop(api)
 }
 \arguments{
 \item{api}{A plumber2 api object to launch or stop}
+
+\item{host, port}{Host and port to run the api on. If not provided the host
+and port used during the creation of the Plumber2 api will be used}
 
 \item{block}{Should the console be blocked while running (alternative is
 to run in the background). Defaults to \code{FALSE} in interactive sessions and

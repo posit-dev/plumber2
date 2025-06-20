@@ -60,6 +60,18 @@ read more about the logging infrastructure in the
 \link[fiery:loggers]{fiery documentation}. plumber2 reexports the loggers
 provided by fiery so they are immediately available to the user.
 }
+\section{Using annotation}{
+Logger setup doesn't have a dedicated annotation tag, but you can set it up
+in a \verb{@plumber} block
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @plumber
+function(api) \{
+  api |>
+    api_logger(logger = logger_null())
+\}
+}\if{html}{\out{</div>}}
+}
+
 \examples{
 # Use a different access log format
 api() |>

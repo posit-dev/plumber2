@@ -30,6 +30,20 @@ for a full overview. \code{api_on()} allows you to add handlers that are called
 when specific events fire. \code{api_off()} can be used to remove the handler if
 necessary
 }
+\section{Using annotation}{
+Event handler setup doesn't have a dedicated annotation tag, but you can set
+it up in a \verb{@plumber} block
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @plumber
+function(api) \{
+  api |>
+    api_on("cycle-end", function(server) \{
+      server$log("message", "tick-tock")
+    \})
+\}
+}\if{html}{\out{</div>}}
+}
+
 \examples{
 # Add a small console log to show the api is alive
 papi <- api() |>

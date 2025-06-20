@@ -12,7 +12,7 @@
 #'
 #' @return If `package` or `name` is `NULL` then a data frame providing
 #' available apis filtered on either package or name (if any is provided) is
-#' returned. Otherwise a [Plubmer2] object representing the api is returned
+#' returned. Otherwise a [Plumber2] object representing the api is returned
 #'
 #' @export
 #'
@@ -39,7 +39,10 @@ api_package <- function(package = NULL, name = NULL, ...) {
 
 list_apis <- function(package = NULL, name = NULL) {
   if (is.null(package)) {
-    do.call(rbind, lapply(unname(installed.packages()[, "Package"]), list_apis))
+    do.call(
+      rbind,
+      lapply(unname(utils::installed.packages()[, "Package"]), list_apis)
+    )
   } else {
     path <- system.file("plumber2", package = package)
     if (path == "") {

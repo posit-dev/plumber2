@@ -29,6 +29,7 @@ Imports:
     roxygen2,
     stringi,
     svglite,
+    utils,
     webutils,
     yaml
 Remotes: 

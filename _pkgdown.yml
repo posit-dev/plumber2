@@ -75,3 +75,4 @@ reference:
       - Next
       - add_plumber2_tag
       - apply_plumber2_block
+      - get_opts

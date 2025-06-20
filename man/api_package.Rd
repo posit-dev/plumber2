@@ -59,7 +59,7 @@ don't interfere with each other}
 \value{
 If \code{package} or \code{name} is \code{NULL} then a data frame providing
 available apis filtered on either package or name (if any is provided) is
-returned. Otherwise a \link{Plubmer2} object representing the api is returned
+returned. Otherwise a \link{Plumber2} object representing the api is returned
 }
 \description{
 Packages can included one or more api specification(s) by storing the

@@ -7,10 +7,22 @@
 #' aware that session data is send back and forth with all requests and should
 #' thus be kept minimal to avoid congestion on your server.
 #'
+#' # Using annotation
+#' Session cookie setup doesn't have a dedicated annotation tag, but you can set
+#' it up in a `@plumber` block
+#'
+#' ```
+#' #* @plumber
+#' function(api) {
+#'   api |>
+#'     api_session_cookie(keyring::key_get("my_secret_plumber_key"))
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to add the session cookie setup to
 #' @param key A 32-bit secret key as a hex encoded string or a raw vector to
 #' use for encrypting the session cookie. A valid key can be generated using
-#' [reqres::random_key()]. NEVER STORE THE KEY IN PLAIN TEXT. Optimalle use the
+#' [reqres::random_key()]. NEVER STORE THE KEY IN PLAIN TEXT. Optimally use the
 #' keyring package to store it
 #' @inheritParams reqres::session_cookie
 #'
@@ -18,6 +30,23 @@
 #' with the pipe
 #'
 #' @export
+#'
+#' @examples
+#' key <- reqres::random_key()
+#'
+#' api() |>
+#'   api_session_cookie(key, secure = TRUE) |>
+#'   api_get("/", function(request) {
+#'     if (isTRUE(request$session$foo)) {
+#'       msg <- "You've been here before"
+#'     } else {
+#'       msg <- "You must be new here"
+#'       request$session$foo <- TRUE
+#'     }
+#'     list(
+#'       msg = msg
+#'     )
+#'   })
 #'
 api_session_cookie <- function(
   api,

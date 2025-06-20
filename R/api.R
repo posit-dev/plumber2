@@ -52,6 +52,23 @@
 #'
 #' @export
 #'
+#' @seealso [api_package()] for creating an api based on files distributed with
+#' a package
+#' @seealso [get_opts()] for how to set default options
+#'
+#' @examples
+#' # When creating an API programmatically you'll usually initialise the object
+#' # without pointing to any route files or a _server.yml file
+#' papi <- api()
+#'
+#' # You can pass it a directory and it will load up all recognised files it
+#' # contains
+#' example_dir <- system.file("plumber2", "quickstart", package = "plumber2")
+#' papi <- api(example_dir)
+#'
+#' # Or you can pass files directly
+#' papi <- api(list.files(example_dir, full.names = TRUE)[1])
+#'
 api <- function(
   ...,
   host = get_opts("host", "127.0.0.1"),
@@ -141,7 +158,9 @@ api_parse <- function(api, ...) {
 
 dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
   locations <- unlist(lapply(list2(...), function(loc) {
-    if (length(loc) == 0) return(NULL)
+    if (length(loc) == 0) {
+      return(NULL)
+    }
     if (fs::is_dir(loc)) {
       loc <- fs::dir_ls(loc, all = TRUE, recurse = TRUE)
       server_yml <- is_plumber2_server_yml(loc)
@@ -153,7 +172,9 @@ dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
     }
     loc
   }))
-  if (length(locations) == 0) return(character())
+  if (length(locations) == 0) {
+    return(character())
+  }
   if (!all(fs::file_exists(locations))) {
     cli::cli_abort("{.arg ...} must point to existing files", call = call)
   }

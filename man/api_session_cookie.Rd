@@ -20,7 +20,7 @@ api_session_cookie(
 
 \item{key}{A 32-bit secret key as a hex encoded string or a raw vector to
 use for encrypting the session cookie. A valid key can be generated using
-\code{\link[reqres:random_key]{reqres::random_key()}}. NEVER STORE THE KEY IN PLAIN TEXT. Optimalle use the
+\code{\link[reqres:random_key]{reqres::random_key()}}. NEVER STORE THE KEY IN PLAIN TEXT. Optimally use the
 keyring package to store it}
 
 \item{name}{The name of the cookie}
@@ -48,4 +48,34 @@ cookie. This function sets it up on your api and after it's use you can now
 access and set session data in the request and response \verb{$session} field. Be
 aware that session data is send back and forth with all requests and should
 thus be kept minimal to avoid congestion on your server.
+}
+\section{Using annotation}{
+Session cookie setup doesn't have a dedicated annotation tag, but you can set
+it up in a \verb{@plumber} block
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @plumber
+function(api) \{
+  api |>
+    api_session_cookie(keyring::key_get("my_secret_plumber_key"))
+\}
+}\if{html}{\out{</div>}}
+}
+
+\examples{
+key <- reqres::random_key()
+
+api() |>
+  api_session_cookie(key, secure = TRUE) |>
+  api_get("/", function(request) {
+    if (isTRUE(request$session$foo)) {
+      msg <- "You've been here before"
+    } else {
+      msg <- "You must be new here"
+      request$session$foo <- TRUE
+    }
+    list(
+      msg = msg
+    )
+  })
+
 }

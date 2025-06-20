@@ -3,6 +3,8 @@
 #' This function starts the api with the settings it has defined.
 #'
 #' @param api A plumber2 api object to launch or stop
+#' @param host,port Host and port to run the api on. If not provided the host
+#' and port used during the creation of the Plumber2 api will be used
 #' @param block Should the console be blocked while running (alternative is
 #' to run in the background). Defaults to `FALSE` in interactive sessions and
 #' `TRUE` otherwise.
@@ -36,11 +38,26 @@
 #'
 api_run <- function(
   api,
+  host = NULL,
+  port = NULL,
   block = !is_interactive(),
   showcase = is_interactive(),
   ...,
   silent = FALSE
 ) {
+  if (!is.null(host) || !is.null(port)) {
+    old_host <- api$host
+    old_port <- api$port
+    api$host <- host
+    api$port <- port
+    on.exit(
+      {
+        api$host <- old_host
+        api$port <- old_port
+      },
+      add = TRUE
+    )
+  }
   api$ignite(block = block, showcase = showcase, ..., silent = silent)
   invisible(api)
 }
