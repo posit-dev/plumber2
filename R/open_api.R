@@ -3,13 +3,37 @@ parse_global_api <- function(tags, values, env = caller_env()) {
     return(NULL)
   }
   values <- set_names(values, tags)
+  if (!is.null(values$contact)) {
+    contact <- strsplit(trimws(values$contact), " ")[[1]]
+    def_names <- seq_len(max(length(contact) - 2, 1))
+    contact_email <- grepl("@", contact[-def_names], fixed = TRUE)
+    contact_url <- grepl("/|:|^www\\.", contact[-def_names]) & !contact_email
+    email <- if (any(contact_email)) contact[length(def_names) + which(contact_email)]
+    url <- if (any(contact_url)) contact[length(def_names) + which(contact_url)]
+    not_name <- which(c(rep_along(def_names, FALSE), contact_email | contact_url))[1]
+    name <- if (is.na(not_name)) contact else contact[seq_len(not_name - 1)]
+    name <- paste0(name, collapse = " ")
+    values$contact <- openapi_contact(name, url, email)
+  }
+  if (!is.null(values$license)) {
+    license <- strsplit(trimws(values$license), " ")[[1]]
+    if (grepl("/|:|^www\\.", license[length(license)])) {
+      url <- license[length(license)]
+      name <- license[-length(license)]
+    } else {
+      url <- NULL
+      name <- license
+    }
+    name <- paste0(name, collapse = " ")
+    values$license <- openapi_license(name, url)
+  }
   openapi(
     info = openapi_info(
       title = trimws(values$title),
       description = trimws(paste0(values$description, "\n\n", values$details)),
       terms_of_service = trimws(values$tos),
-      contact = eval(parse(text = values$contact %||% "NULL"), env),
-      license = eval(parse(text = values$license %||% "NULL"), env),
+      contact = values$contact,
+      license = values$license,
       version = trimws(values$version)
     ),
     tags = unname(lapply(values[tags == "tag"], function(tag) {
