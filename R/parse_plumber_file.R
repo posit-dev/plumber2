@@ -181,7 +181,7 @@ parse_handler_block <- function(call, tags, values, env) {
 
   download <- which(tags == "download")
   if (length(download) != 0) {
-    download <- values[[download[1]]] %||% TRUE
+    download <- trimws(values[[download[1]]]) %||% TRUE
   } else {
     download <- FALSE
   }
