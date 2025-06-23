@@ -336,7 +336,7 @@ Plumber2 <- R6Class(
         ),
         reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
-      if (!header) {
+      if (!(header || is.null(doc) || inherits(doc, "plumber_noDoc"))) {
         doc$parameters <- doc$parameters %||% list()
         self$add_api_doc(doc, subset = c("paths", path_info$path, method))
       }

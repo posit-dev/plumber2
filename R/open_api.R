@@ -134,9 +134,6 @@ parse_responses <- function(tags, values, serializers) {
 }
 
 parse_block_api <- function(tags, values, parsers, serializers) {
-  if (any(tags == "noDoc")) {
-    return(NULL)
-  }
   api <- list()
   summary <- if ("title" %in% tags) values[[which(tags == "title")]]
   description <- paste0(
@@ -192,6 +189,12 @@ parse_block_api <- function(tags, values, parsers, serializers) {
         responses = responses,
         tags = tag
       )
+      if (any(tags == "noDoc")) {
+        class(endpoint[[method]]) <- c(
+          "plumber_noDoc",
+          class(endpoint[[method]])
+        )
+      }
     }
     api[[path_info$path]] <- endpoint
   }
