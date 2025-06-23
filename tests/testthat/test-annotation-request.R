@@ -230,7 +230,7 @@ test_that("handlers gets constructed correctly", {
   expect_equal(res$headers$`content-type`, "application/problem+json")
   expect_equal(
     jsonlite::fromJSON(res$body)$detail,
-    "`name` must match the type {\"type\":\"integer\",\"description\":\"an integer\"}"
+    "`test` must match the type {\"type\":\"integer\",\"description\":\"an integer\"}"
   )
 
   req <- fiery::fake_request("http://127.0.0.1:8080/plot/")
