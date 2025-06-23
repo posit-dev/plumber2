@@ -508,12 +508,18 @@ Dont generate OpenAPI documentation from this block
 </td>
 </tr>
 <tr class="even">
+<td><code>pattern</code></td>
+<td>
+<code>string</code> <code>pattern:|...|</code>
+</td>
+</tr>
+<tr class="odd">
 <td><code>[Type]</code></td>
 <td>
 <code>array</code> <code>items:type:Type</code>
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>{prop_name: Type, prop_name2: Type2}</code></td>
 <td>
 <code>object</code> <code>properties:prop_name:type:Type</code> <code>properties:prop_name2:type:Type2</code>
@@ -523,7 +529,8 @@ Dont generate OpenAPI documentation from this block
 </table>
 <p>Types can have a default value, which is given in parentheses after the type specification, e.g. <code>integer(10)</code>. For objects and arrays you should use JSON notation to describe the default value (e.g. <code>[integer]([2, 6, 1])</code>).</p>
 <p>For the <code>integer</code> and <code>number</code> types it is also possible to specify the lower and/or upper bounds of the value. This is done by putting these between <code>|</code> like so: <code>integer|3, 7|</code>. Omitting one of these will remove that bound requirement (e.g. <code>integer|,7|</code> only requires the input to be below or equal to 7). If combining this with a default value the range comes first (<code>integer|3,7|(5)</code>).</p>
-<p>The <code>enum</code> type is a factor type and you must provide the valid values of the type in between <code>|</code>, separated by comma and an optional whitespace.</p>
+<p>The <code>enum</code> type is a factor type and you must provide the valid values of the type in between <code>|</code>, separated by comma and an optional whitespace. The <code>pattern</code> type is a string type that must match the regular expression given between <code>|</code>.</p>
+<p>The <code>date</code> and <code>date-time</code> types require the use of a specific format for the date or time described in <a href="https://tools.ietf.org/html/rfc3339#section-5.6" class="external-link">RFC 3339, section 5.6</a>. The date must be given in full-date notation, e.g. <em>2017-07-21</em> while the date-time must be given in the date-time notation, e.g. <em>2017-07-21T17:32:28Z</em></p>
 <p>parameters can be specified as optional or required in their type notation. Path parameters are always required so any setting is ignored for this. A parameter can be marked as required by adding a <code>*</code> suffix to the type description, e.g. <code>arg1:integer*</code> to indicate that <code>arg1</code> is required and an integer. A parameter cannot both be required and have a default value (for reasons of logic).</p>
 <p>Apart from being used in the documentation of your API, the type information you provide for parameters will also be used to cast the incoming values to the correct type and add defaults if missing. Further, missing required parameters will result in an error. The response is not type checked so it is up to you to conform with the specification you provide.</p>
 <section class="level5"><h5 id="annotations-example-2">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-2"></a>
