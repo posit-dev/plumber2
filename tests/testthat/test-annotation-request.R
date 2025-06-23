@@ -178,3 +178,100 @@ test_that("docs get generated correctly", {
     )
   )
 })
+
+test_that("handlers gets constructed correctly", {
+  papi <- api("annotations/request_handlers.R")
+  papi |> api_logger(function(event, message, request, ...) NULL)
+
+  req <- fiery::fake_request("http://127.0.0.1:8080/hello/you")
+  res <- papi$test_request(req)
+
+  expect_equal(res$status, 200L)
+  expect_equal(
+    res$headers$`content-disposition`,
+    "attachment; filename=\"testfile\""
+  )
+  expect_equal(res$headers$`content-type`, "text/csv")
+  expect_equal(res$body, readr::format_csv(mtcars[, 1:3], col_names = FALSE))
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/hello/you",
+    headers = list("Accept" = "application/dart")
+  )
+  res <- papi$test_request(req)
+  expect_equal(res$status, 406L)
+  expect_equal(res$headers$`content-type`, "application/problem+json")
+  expect_equal(
+    jsonlite::fromJSON(res$body)$detail,
+    "Only text/csv, application/json, text/html, application/rds, text/tab-separated-values, text/xml, text/plain, or text/yaml content types supported."
+  )
+
+  good_body <- list(test = 2, test2 = letters[1:4])
+  bad_body <- list(test = "fail", test2 = letters[1:4])
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/hello/",
+    "post",
+    content = jsonlite::toJSON(good_body),
+    headers = list("Content_Type" = "application/json")
+  )
+  res <- papi$test_request(req)
+  expect_equal(res$headers$`content-type`, "application/json")
+  expect_equal(res$body, unclass(jsonlite::toJSON(good_body)))
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/hello/",
+    "post",
+    content = jsonlite::toJSON(bad_body),
+    headers = list("Content_Type" = "application/json")
+  )
+  res <- papi$test_request(req)
+  expect_equal(res$status, 400L)
+  expect_equal(res$headers$`content-type`, "application/problem+json")
+  expect_equal(
+    jsonlite::fromJSON(res$body)$detail,
+    "`name` must match the type {\"type\":\"integer\",\"description\":\"an integer\"}"
+  )
+
+  req <- fiery::fake_request("http://127.0.0.1:8080/plot/")
+  res <- papi$test_request(req)
+  expect_true(promises::is.promise(res))
+  res <- extract(res)
+  expect_equal(res$status, 200L)
+  expect_equal(res$headers$`content-type`, "image/svg+xml")
+  svg_file <- tempfile(fileext = ".svg")
+  writeLines(rawToChar(res$body), svg_file, sep = "\n")
+  expect_snapshot_file(svg_file, "async_svg")
+
+  req <- fiery::fake_request("http://127.0.0.1:8080/header/")
+  res <- papi$test_header(req)
+  expect_equal(res$status, 406L)
+
+  req <- fiery::fake_request("http://127.0.0.1:8080/type/a/", "post")
+  res <- papi$test_request(req)
+  expect_equal(
+    jsonlite::fromJSON(res$body)$detail,
+    "`required` is a required query parameter but is missing"
+  )
+
+  req <- fiery::fake_request("http://127.0.0.1:8080/type/d/", "post")
+  res <- papi$test_request(req)
+  expect_equal(
+    jsonlite::fromJSON(res$body)$detail,
+    "`param` must be one of \"a\", \"b\", or \"c\""
+  )
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test",
+    "post"
+  )
+  res <- papi$test_request(req)
+  expect_equal(
+    unserialize(res$body),
+    list(
+      param = factor("a", levels = c("a", "b", "c")),
+      query = list(required = "test", default = "test"),
+      body = NULL
+    )
+  )
+})
