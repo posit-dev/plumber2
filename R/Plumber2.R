@@ -290,11 +290,7 @@ Plumber2 <- R6Class(
         ),
         doc$parameters[!doc_path_param]
       )
-      operation_id <- paste0(path_info$path, "-", method)
-      doc$parameters <- lapply(doc$parameters, function(par) {
-        par$operationId <- par$operationId %||% operation_id
-        par
-      })
+      doc$operationId <- doc$operationId %||% paste0(path_info$path, "-", method)
 
       # Substitute the plumber style path arg for a routr style
       path <- as_routr_path(path)

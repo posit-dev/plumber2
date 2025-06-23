@@ -208,9 +208,9 @@ openapi_operation <- function(
   op <- compact(list(
     summary = summary,
     description = description,
-    operation_id = operation_id,
+    operationId = operation_id,
     parameters = parameters,
-    request_body = request_body,
+    requestBody = request_body,
     responses = responses,
     tags = as.list(tags)
   ))
