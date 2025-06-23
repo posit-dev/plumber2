@@ -145,7 +145,7 @@ parse_block_api <- function(tags, values, parsers, serializers) {
   }
   path_params <- parse_params(tags, values, "path")
   query_params <- parse_params(tags, values, "query")
-  body_params <- parse_params(tags, values, "header") # We use `header` because "body" is not allowed in openapi_parameter(). We strip it away in the next call
+  body_params <- parse_params(tags, values, "body")
 
   request_body <- parse_body_params(body_params, parsers)
 
@@ -351,6 +351,9 @@ default_responses <- list(
 
 parse_params <- function(tags, values, type = "path") {
   tag_name <- switch(type, path = "param", type)
+  if (type == "body") {
+    type <- "header"
+  } # We use `header` because "body" is not allowed in openapi_parameter(). It will be stripped away in the next call
   params <- lapply(unlist(values[tags == tag_name]), function(param) {
     p <- split_param_spec(param)
     openapi_parameter(
@@ -384,7 +387,7 @@ parse_body_params <- function(params, parsers) {
     )
   } else if (length(params) > 1) {
     schema <- openapi_schema(
-      type = I("object"),
+      x = I("object"),
       properties = lapply(
         params,
         function(p) c(p$schema, list(description = p$description))
