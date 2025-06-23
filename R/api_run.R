@@ -48,8 +48,8 @@ api_run <- function(
   if (!is.null(host) || !is.null(port)) {
     old_host <- api$host
     old_port <- api$port
-    api$host <- host
-    api$port <- port
+    api$host <- ifelse(!is.null(host), host, old_host)
+    api$port <- ifelse(!is.null(port), port, old_port)
     on.exit(
       {
         api$host <- old_host
