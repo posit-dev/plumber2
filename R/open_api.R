@@ -8,9 +8,14 @@ parse_global_api <- function(tags, values, env = caller_env()) {
     def_names <- seq_len(max(length(contact) - 2, 1))
     contact_email <- grepl("@", contact[-def_names], fixed = TRUE)
     contact_url <- grepl("/|:|^www\\.", contact[-def_names]) & !contact_email
-    email <- if (any(contact_email)) contact[length(def_names) + which(contact_email)]
+    email <- if (any(contact_email)) {
+      contact[length(def_names) + which(contact_email)]
+    }
     url <- if (any(contact_url)) contact[length(def_names) + which(contact_url)]
-    not_name <- which(c(rep_along(def_names, FALSE), contact_email | contact_url))[1]
+    not_name <- which(c(
+      rep_along(def_names, FALSE),
+      contact_email | contact_url
+    ))[1]
     name <- if (is.na(not_name)) contact else contact[seq_len(not_name - 1)]
     name <- paste0(name, collapse = " ")
     values$contact <- openapi_contact(name, url, email)
@@ -64,7 +69,8 @@ parse_path <- function(path) {
         NULL,
         min = arg$min,
         max = arg$max,
-        enum = arg$enum
+        enum = arg$enum,
+        pattern = arg$pattern
       ),
       style = "simple" # TODO: Should this be user definable
     )
@@ -108,7 +114,8 @@ parse_responses <- function(tags, values, serializers) {
               response$type,
               min = response$min,
               max = response$max,
-              enum = response$enum
+              enum = response$enum,
+              pattern = response$pattern
             ))
           )
         )
@@ -196,7 +203,8 @@ parse_openapi_type <- function(
   default = NULL,
   min = NULL,
   max = NULL,
-  enum = NULL
+  enum = NULL,
+  pattern = NULL
 ) {
   check_string(string, allow_na = TRUE, allow_null = TRUE)
   check_number_decimal(min, allow_null = TRUE)
@@ -220,7 +228,7 @@ parse_openapi_type <- function(
       length(curly_open) != length(curly_close) ||
         length(brack_open) != length(brack_close) ||
         length(paren_open) != length(paren_close) ||
-        length(pipe) %% 2 != 0
+        (!is.na(pipe) && length(pipe) %% 2 != 0)
     ) {
       cli::cli_abort(
         "Syntax error in {.val {content}}. Opening and closing brackets doesn't match"
@@ -260,7 +268,7 @@ parse_openapi_type <- function(
       properties = set_names(
         lapply(content_split[, 3], function(x) {
           x <- split_type_spec(x)
-          parse_openapi_type(x$type, x$default, x$min, x$max, x$enum)
+          parse_openapi_type(x$type, x$default, x$min, x$max, x$enum, x$pattern)
         }),
         content_split[, 2] %|% content
       ),
@@ -270,7 +278,14 @@ parse_openapi_type <- function(
     x <- split_type_spec(gsub("^\\[|\\]$", "", string))
     type <- list(
       type = "array",
-      items = parse_openapi_type(x$type, x$default, x$min, x$max, x$enum)
+      items = parse_openapi_type(
+        x$type,
+        x$default,
+        x$min,
+        x$max,
+        x$enum,
+        x$pattern
+      )
     )
   } else if (string %in% c("date", "date-time", "byte", "binary")) {
     type <- list(
@@ -299,6 +314,12 @@ parse_openapi_type <- function(
       cli::cli_abort("Enum requires string type")
     }
     type$enum <- enum
+  }
+  if (!is.null(pattern)) {
+    if (!type$type == "string") {
+      cli::cli_abort("Pattern requires string type")
+    }
+    type$pattern <- pattern
   }
   if (!is.null(default)) {
     caster <- type_caster(type, FALSE, "", "")
@@ -339,7 +360,8 @@ parse_params <- function(tags, values, type = "path") {
         default = if (p$required) NULL else p$default,
         min = p$min,
         max = p$max,
-        enum = p$enum
+        enum = p$enum,
+        pattern = p$pattern
       ),
       style = "form" # TODO: Should this be user definable
     )
@@ -409,6 +431,22 @@ split_type_spec <- function(x) {
         x[4],
         stringi::stri_split_fixed(x[5], ",", omit_empty = TRUE)[[1]]
       )),
+      required = !is.na(x[8])
+    )
+  } else if (isTRUE(x[2] == "pattern")) {
+    if (is.na(x[3])) {
+      cli::cli_abort(
+        "The pattern type must specify a regex using the |<regex>| syntax"
+      )
+    }
+    list(
+      type = "string",
+      default = if (is.na(x[7]) || x[7] == "") {
+        NULL
+      } else {
+        jsonlite::fromJSON(x[7])
+      },
+      pattern = gsub("^\\||\\|$", "", x[3]),
       required = !is.na(x[8])
     )
   } else {

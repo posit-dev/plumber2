@@ -79,6 +79,23 @@ caster_constructor <- function(coercer, ...) {
       }
       return(fun)
     }
+    pattern <- schema$pattern
+    if (!is.null(pattern)) {
+      pattern_error_string <- unmatched_pattern_error_string(name, pattern)
+      fun <- function(val, call = caller_env()) {
+        if (is.null(val)) {
+          if (required) {
+            reqres::abort_bad_request(error_string, call = call)
+          }
+          val <- default
+        }
+        if (!grepl(pattern, val, perl = TRUE)) {
+          reqres::abort_bad_request(pattern_error_string, call = call)
+        }
+        val
+      }
+      return(fun)
+    }
     min <- schema$minimum
     max <- schema$maximum
     range_check <- identity
@@ -249,5 +266,11 @@ outside_range_error_string <- function(name, min, max) {
 unmatched_enum_error_string <- function(name, values) {
   cli::format_inline(
     "{.arg name} must be one of {.or {.val {values}}}"
+  )
+}
+
+unmatched_pattern_error_string <- function(name, pattern) {
+  cli::format_inline(
+    "{.arg name} must match the pattern {.val {pattern}}"
   )
 }

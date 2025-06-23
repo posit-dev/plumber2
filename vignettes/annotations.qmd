@@ -209,6 +209,7 @@ Some types can have a nested structure which is also supported, but the type spe
 | `byte` | `string` `format:byte` |
 | `binary` | `string` `format:binary` |
 | `enum` | `string` `enum:|...|` |
+| `pattern` | `string` `pattern:|...|` |
 | `[Type]` | `array` `items:type:Type` |
 | `{prop_name: Type, prop_name2: Type2}` | `object` `properties:prop_name:type:Type` `properties:prop_name2:type:Type2` |
 
@@ -216,7 +217,9 @@ Types can have a default value, which is given in parentheses after the type spe
 
 For the `integer` and `number` types it is also possible to specify the lower and/or upper bounds of the value. This is done by putting these between `|` like so: `integer|3, 7|`. Omitting one of these will remove that bound requirement (e.g. `integer|,7|` only requires the input to be below or equal to 7). If combining this with a default value the range comes first (`integer|3,7|(5)`).
 
-The `enum` type is a factor type and you must provide the valid values of the type in between `|`, separated by comma and an optional whitespace.
+The `enum` type is a factor type and you must provide the valid values of the type in between `|`, separated by comma and an optional whitespace. The `pattern` type is a string type that must match the regular expression given between `|`.
+
+The `date` and `date-time` types require the use of a specific format for the date or time described in [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). The date must be given in full-date notation, e.g. *2017-07-21* while the date-time must be given in the date-time notation, e.g. *2017-07-21T17:32:28Z*
 
 parameters can be specified as optional or required in their type notation. Path parameters are always required so any setting is ignored for this. A parameter can be marked as required by adding a `*` suffix to the type description, e.g. `arg1:integer*` to indicate that `arg1` is required and an integer. A parameter cannot both be required and have a default value (for reasons of logic).
 
