@@ -4,7 +4,9 @@ create_type_casters <- function(doc) {
     query = identity,
     body = function(x, ...) x
   )
-  if (is.null(doc)) return(casters)
+  if (is.null(doc)) {
+    return(casters)
+  }
   path_or_query <- vapply(doc$parameters, `[[`, character(1), "in")
   path_par <- doc$parameters[path_or_query == "path"]
   if (length(path_par) != 0) {
@@ -60,6 +62,7 @@ caster_constructor <- function(coercer, ...) {
   args <- list2(...)
   function(schema, required, name, loc) {
     error_string <- missing_required_error_string(name, loc)
+    format_error_string <- bad_format_error_string(name, schema)
     default <- schema$default
     enum <- schema$enum
     if (!is.null(enum)) {
@@ -89,7 +92,7 @@ caster_constructor <- function(coercer, ...) {
           }
           val <- default
         }
-        if (!grepl(pattern, val, perl = TRUE)) {
+        if (!all(grepl(pattern, val, perl = TRUE))) {
           reqres::abort_bad_request(pattern_error_string, call = call)
         }
         val
@@ -102,7 +105,9 @@ caster_constructor <- function(coercer, ...) {
     if (!is.null(min) || !is.null(max)) {
       range_error_string <- outside_range_error_string(name, min, max)
       range_check <- function(val, call = caller_env()) {
-        if ((!is.null(min) && val < min) || (!is.null(max) && val > max)) {
+        if (
+          (!is.null(min) && any(val < min)) || (!is.null(max) && any(val > max))
+        ) {
           reqres::abort_bad_request(range_error_string, call = call)
         }
         val
@@ -116,6 +121,9 @@ caster_constructor <- function(coercer, ...) {
         default
       } else {
         val <- suppressWarnings(inject(coercer(val, !!!args)))
+        if (anyNA(val)) {
+          reqres::abort_bad_request(I(format_error_string), call = call)
+        }
         range_check(val)
       }
     }
@@ -183,9 +191,9 @@ object_caster <- function(schema, required, name, loc) {
     default <- jsonlite::fromJSON(default)
   }
   name <- names(schema$properties)
-  required <- name %in% (schema$required %||% "")
+  required_prop <- name %in% (schema$required %||% "")
   casters <- lapply(seq_along(schema$properties), function(i) {
-    type_caster(schema$properties[[i]], required[[i]], name[[i]], loc)
+    type_caster(schema$properties[[i]], required_prop[[i]], name[[i]], loc)
   })
   names(casters) <- name
   function(val) {
@@ -206,9 +214,13 @@ object_caster <- function(schema, required, name, loc) {
 }
 
 create_body_caster <- function(desc) {
-  requires_caster <- vapply(desc$content, function(content) {
-    !is.null(content$schema$type)
-  }, logical(1))
+  requires_caster <- vapply(
+    desc$content,
+    function(content) {
+      !is.null(content$schema$type)
+    },
+    logical(1)
+  )
 
   if (!any(requires_caster)) {
     if (desc$required) {
@@ -226,11 +238,17 @@ create_body_caster <- function(desc) {
   })
   names(casters) <- stringi::stri_replace_all_fixed(names(casters), "*", ".+?")
   function(val, type) {
-    type <- stringi::stri_split_fixed(type, ";", 2)[[1]][1]
+    if (is.null(type)) {
+      type <- 1L
+    } else {
+      type <- stringi::stri_split_fixed(type, ";", 2)[[1]][1]
+    }
     caster <- casters[[type]]
     if (is.null(caster)) {
       type <- which(stringi::stri_detect_regex(type, names(casters)))
-      if (length(type) == 0) return(val)
+      if (length(type) == 0) {
+        return(val)
+      }
       caster <- casters[[type[1]]]
     }
     caster(val)
@@ -242,35 +260,41 @@ missing_required_error_string <- function(name, loc) {
     cli::format_inline("A request body is a required but missing")
   } else {
     cli::format_inline(
-      "{.arg name} is a required {loc} parameter but is missing"
+      "{.arg {name}} is a required {loc} parameter but is missing"
     )
   }
+}
+
+bad_format_error_string <- function(name, schema) {
+  cli::format_inline(
+    "{.arg {name}} must match the type {.val {jsonlite::toJSON(schema, auto_unbox = TRUE)}}"
+  )
 }
 
 outside_range_error_string <- function(name, min, max) {
   if (!is.null(min) && !is.null(max)) {
     cli::format_inline(
-      "{.arg name} must be between {min} and {max}"
+      "{.arg {name}} must be between {min} and {max}"
     )
   } else if (is.null(max)) {
     cli::format_inline(
-      "{.arg name} must be greater than or equal to {min}"
+      "{.arg {name}} must be greater than or equal to {min}"
     )
   } else {
     cli::format_inline(
-      "{.arg name} must be less than or equal to {max}"
+      "{.arg {name}} must be less than or equal to {max}"
     )
   }
 }
 
 unmatched_enum_error_string <- function(name, values) {
   cli::format_inline(
-    "{.arg name} must be one of {.or {.val {values}}}"
+    "{.arg {name}} must be one of {.or {.val {values}}}"
   )
 }
 
 unmatched_pattern_error_string <- function(name, pattern) {
   cli::format_inline(
-    "{.arg name} must match the pattern {.val {pattern}}"
+    "{.arg {name}} must match the pattern {.val {pattern}}"
   )
 }
