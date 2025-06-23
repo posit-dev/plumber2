@@ -42,7 +42,7 @@ create_request_handler <- function(
     if (!is.null(parsers)) {
       request$parse(!!!parsers)
     }
-    type_casters$body(request$body, request$headers$Content_Type)
+    type_casters$body(request$body, request$headers$content_type)
   }
 
   if (is.null(async)) {
