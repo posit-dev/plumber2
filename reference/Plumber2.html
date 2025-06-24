@@ -407,6 +407,7 @@ detailed information</p><div class="section">
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  doc <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  header <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -462,6 +463,10 @@ async evaluator registered to that name is used. If a function is
 provided then this is used as the async evaluator</p></dd>
 
 
+<dt><code>then</code></dt>
+<dd><p>A function to call at the completion of an async handler</p></dd>
+
+
 <dt><code>doc</code></dt>
 <dd><p>OpenAPI documentation for the handler. Will be added to the
 <code>paths$&lt;handler_path&gt;$&lt;handler_method&gt;</code> portion of the API.</p></dd>
@@ -485,7 +490,7 @@ as the last route in the stack.</p></dd>
 <p>Add a handler to a WebSocket message. See <a href="api_message.html">api_message</a> for
 detailed information</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">message_handler</span><span class="op">(</span><span class="va">handler</span>, async <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">message_handler</span><span class="op">(</span><span class="va">handler</span>, async <span class="op">=</span> <span class="cn">FALSE</span>, then <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -500,6 +505,10 @@ detailed information</p><div class="section">
 default async evaluator to create an async handler. If a string, the
 async evaluator registered to that name is used. If a function is
 provided then this is used as the async evaluator</p></dd>
+
+
+<dt><code>then</code></dt>
+<dd><p>A function to call at the completion of an async handler</p></dd>
 
 
 </dl><p></p></div>

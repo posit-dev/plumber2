@@ -75,6 +75,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -87,6 +88,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -99,6 +101,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -111,6 +114,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -123,6 +127,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -135,6 +140,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -147,6 +153,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -159,6 +166,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -171,6 +179,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -183,6 +192,7 @@ request handlers in general.</p>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -237,7 +247,13 @@ the download to the string value</p></dd>
 <dd><p>If <code>FALSE</code> create a regular handler. If <code>TRUE</code>, use the default
 async evaluator to create an async handler. If a string, the async evaluator
 registered to that name is used. If a function is provided then this is used
-as the async evaluator</p></dd>
+as the async evaluator. See the <em>Async</em> section for more detail</p></dd>
+
+
+<dt id="arg-then">then<a class="anchor" aria-label="anchor" href="#arg-then"></a></dt>
+<dd><p>A list of function to be called once the async handler is done.
+The functions will be chained using <code><a href="https://rstudio.github.io/promises/reference/then.html" class="external-link">promises::then()</a></code>. See the <em>Async</em>
+section for more detail</p></dd>
 
 
 <dt id="arg-route">route<a class="anchor" aria-label="anchor" href="#arg-route"></a></dt>
