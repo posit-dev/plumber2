@@ -177,7 +177,7 @@ Handler annotation describe all aspects of a request handler and always proceeds
 <tr>
 <td><p><code>@message</code></p></td>
 <td><p>None</p></td>
-<td><p>Marks the handler as a WebSocket message handler. No other tags will have an effect if this tag is present</p></td>
+<td><p>Marks the handler as a WebSocket message handler. No other tags will have an effect if this tag is present (except <code>@async</code>)</p></td>
 </tr>
 <tr>
 <td><p><code>@async</code></p></td>
