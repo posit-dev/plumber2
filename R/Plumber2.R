@@ -87,6 +87,7 @@ Plumber2 <- R6Class(
       env = caller_env()
     ) {
       super$initialize(host, port)
+      self$query_delim <- ","
 
       if (!is.null(doc_type)) {
         private$DOC_TYPE <- arg_match0(

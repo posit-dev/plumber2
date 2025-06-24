@@ -176,9 +176,6 @@ array_caster <- function(schema, required, name, loc) {
       }
       NULL
     } else {
-      if (is_string(val)) {
-        val <- stringi::stri_split_fixed(val, ",")
-      }
       caster(val)
     }
   }
