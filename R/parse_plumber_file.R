@@ -301,7 +301,8 @@ parse_asset_block <- function(call, tags, values, env, file_dir) {
   mapping[1] <- fs::path_abs(mapping[1], file_dir)
   structure(
     list(
-      route = routr::ressource_route(!!mapping[2] := mapping[1])
+      route = routr::ressource_route(!!mapping[2] := mapping[1]),
+      header = FALSE
     ),
     class = "plumber2_route_block"
   )
@@ -518,7 +519,7 @@ apply_plumber2_block.plumber2_route_block <- function(
   api
 }
 #' @export
-apply_plumber2_block.plumber2_assets_block <- function(
+apply_plumber2_block.plumber2_static_block <- function(
   block,
   api,
   route_name,
