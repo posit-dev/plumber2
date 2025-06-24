@@ -84,11 +84,11 @@ function() {
 #* @query default:string("test")
 #* @query array:[string]
 #* @query regex:pattern|\d-\d{2}|
-#* @body str:string
 #* @body upper:number|,10|(5)
 #* @body today:date
 #* @body now:date-time
 #* @body data:byte
+#* @body bin:binary
 #* @body flag:boolean
 #*
 #* @post /type/<param>/

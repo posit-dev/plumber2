@@ -274,4 +274,89 @@ test_that("handlers gets constructed correctly", {
       body = NULL
     )
   )
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test&range=1",
+    "post"
+  )
+  res <- papi$test_request(req)
+  expect_equal(
+    jsonlite::fromJSON(res$body)$detail,
+    "`range` must be between 2 and 9"
+  )
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test&range=3",
+    "post"
+  )
+  res <- papi$test_request(req)
+  expect_equal(unserialize(res$body)$query$range, 3L)
+  expect_type(unserialize(res$body)$query$range, "integer")
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test&array=1&array=2&array=3",
+    "post"
+  )
+  res <- papi$test_request(req)
+  expect_equal(unserialize(res$body)$query$array, c("1", "2", "3"))
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test&array=1,2,3",
+    "post"
+  )
+  res <- papi$test_request(req)
+  expect_equal(unserialize(res$body)$query$array, c("1", "2", "3"))
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test&required=1",
+    "post"
+  )
+  res <- papi$test_request(req)
+  expect_equal(
+    jsonlite::fromJSON(res$body)$detail,
+    "`required` must be a scalar value"
+  )
+
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test&regex=1",
+    "post"
+  )
+  res <- papi$test_request(req)
+  expect_equal(
+    jsonlite::fromJSON(res$body)$detail,
+    "`regex` must match the pattern \"\\\\d-\\\\d2\""
+  )
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test&regex=1-23",
+    "post"
+  )
+  res <- papi$test_request(req)
+  expect_equal(unserialize(res$body)$query$regex, "1-23")
+
+  expect_equal(unserialize(res$body)$body$upper, 5)
+  body <- list(
+    upper = -7,
+    today = "2017-07-21",
+    now = "2017-07-21T17:32:28Z",
+    data = base64enc::base64encode(serialize(letters, NULL)),
+    bin = serialize(LETTERS, NULL),
+    flag = TRUE
+  )
+  req <- fiery::fake_request(
+    "http://127.0.0.1:8080/type/a/?required=test",
+    "post",
+    content = serialize(body, NULL),
+    headers = list("Content_Type" = "application/rds")
+  )
+  res <- papi$test_request(req)
+  expect_equal(unserialize(res$body)$body$upper, -7)
+  expect_type(unserialize(res$body)$body$upper, "double")
+  expect_equal(unserialize(res$body)$body$today, as.Date("2017-07-21"))
+  expect_equal(
+    unserialize(res$body)$body$now,
+    as.POSIXlt("2017-07-21T17:32:28+0000", format = "%FT%T%z")
+  )
+  expect_equal(unserialize(unserialize(res$body)$body$data), letters)
+  expect_equal(unserialize(unserialize(res$body)$body$bin), LETTERS)
+  expect_true(unserialize(res$body)$body$flag)
 })
