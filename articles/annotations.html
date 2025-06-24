@@ -731,7 +731,7 @@ Dont generate OpenAPI documentation from this block
 <tbody><tr class="odd">
 <td><code>@plumber</code></td>
 <td>None</td>
-<td>Modify plumber router from plumber file. The plumber router provided to the function <strong>must</strong> be returned. In most cases, anonymous functions are used following the <code>#* @plumber</code> annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses.</td>
+<td>Modify plumber router from plumber file. If the function returns a plumber2 api object then this object will be used going forward, otherwise the return value is ignored. In most cases, anonymous functions are used following the <code>#* @plumber</code> annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses.</td>
 </tr></tbody>
 </table>
 <section class="level5"><h5 id="annotations-example-4">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-4"></a>
