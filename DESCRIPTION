@@ -42,6 +42,7 @@ Suggests:
     callr,
     geojsonsf,
     htmlwidgets,
+    later,
     mirai,
     nanoparquet,
     quarto,

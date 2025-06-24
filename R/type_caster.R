@@ -97,7 +97,7 @@ caster_constructor <- function(coercer, ...) {
     if (!is.null(pattern)) {
       if (!is.null(default)) {
         if (
-          !all(grepl(default, val, perl = TRUE)) ||
+          !all(grepl(pattern, default, perl = TRUE)) ||
             (scalar && length(default) != 1)
         ) {
           cli::cli_abort("{.arg default} does not fit the provided type")
