@@ -293,7 +293,8 @@ Plumber2 <- R6Class(
         ),
         doc$parameters[!doc_path_param]
       )
-      doc$operationId <- doc$operationId %||% paste0(path_info$path, "-", method)
+      doc$operationId <- doc$operationId %||%
+        paste0(path_info$path, "-", method)
 
       # Substitute the plumber style path arg for a routr style
       path <- as_routr_path(path)
@@ -402,7 +403,12 @@ Plumber2 <- R6Class(
       check_string(from)
       check_string(to)
       check_bool(permanent)
-      self$header_router$add_redirect(method, from, to, permanent)
+      self$header_router$add_redirect(
+        method,
+        as_routr_path(from),
+        as_routr_path(to),
+        permanent
+      )
 
       invisible(self)
     },
