@@ -105,7 +105,7 @@ api_statics <- function(
     validation = validation
   )
   for (ex in except) {
-    api$exclude_static(paste0(at, ex))
+    api$exclude_static(fs::path(at, ex))
   }
   api
 }
