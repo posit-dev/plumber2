@@ -98,9 +98,9 @@ parse_block <- function(
   tags <- vapply(block$tags, `[[`, character(1), "tag")
   values <- lapply(block$tags, `[[`, "raw")
   block <- if (block_has_tags(block, "assets")) {
-    parse_asset_block(call, tags, values, env)
+    parse_asset_block(call, tags, values, env, file_dir)
   } else if (block_has_tags(block, "statics")) {
-    parse_static_block(call, tags, values, env)
+    parse_static_block(call, tags, values, env, file_dir)
   } else if (block_has_tags(block, "message")) {
     parse_message_block(call, tags, values, env)
   } else if (block_has_tags(block, "then")) {
@@ -112,9 +112,7 @@ parse_block <- function(
   } else if (block_has_tags(block, "forward")) {
     parse_forward_block(call, tags, values, env)
   } else if (block_has_tags(block, "report")) {
-    # We do the computation here so the parser doesn't need knowledge of the path of the root file
-    call <- fs::path_abs(call, file_dir)
-    parse_report_block(call, tags, values, env)
+    parse_report_block(call, tags, values, env, file_dir)
   } else if (block_has_tags(block, "plumber")) {
     parse_plumber_block(call, tags, values, env)
   } else if (
@@ -244,7 +242,7 @@ parse_handler_block <- function(call, tags, values, env) {
   )
 }
 
-parse_static_block <- function(call, tags, values, env) {
+parse_static_block <- function(call, tags, values, env, file_dir) {
   if (sum(tags == "statics") != 1) {
     cli::cli_abort("Only one {.field @statics} tag allowed per block")
   }
@@ -265,6 +263,7 @@ parse_static_block <- function(call, tags, values, env) {
   if (length(mapping) == 1) {
     mapping <- c(mapping, "/")
   }
+  mapping[1] <- fs::path_abs(mapping[1], file_dir)
   except <- which(tags == "except")
   structure(
     list(
@@ -278,7 +277,7 @@ parse_static_block <- function(call, tags, values, env) {
   )
 }
 
-parse_asset_block <- function(call, tags, values, env) {
+parse_asset_block <- function(call, tags, values, env, file_dir) {
   if (sum(tags == "assets") != 1) {
     cli::cli_abort("Only one {.field @assets} tag allowed per block")
   }
@@ -299,6 +298,7 @@ parse_asset_block <- function(call, tags, values, env) {
   if (length(mapping) == 1) {
     mapping <- c(mapping, "/")
   }
+  mapping[1] <- fs::path_abs(mapping[1], file_dir)
   structure(
     list(
       route = routr::ressource_route(!!mapping[2] := mapping[1])
@@ -402,11 +402,12 @@ parse_forward_block <- function(call, tags, values, env) {
   )
 }
 
-parse_report_block <- function(call, tags, values, env) {
+parse_report_block <- function(call, tags, values, env, file_dir) {
   if (sum(tags == "report") != 1) {
     cli::cli_abort("Only one {.field @report} tag allowed per block")
   }
   x <- values[[which(tags == "report")]]
+  call <- fs::path_abs(call, file_dir)
   route <- routr::report_route(x, call)
 
   info <- routr::report_info(call)
