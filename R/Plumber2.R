@@ -232,6 +232,7 @@ Plumber2 <- R6Class(
     #' default async evaluator to create an async handler. If a string, the
     #' async evaluator registered to that name is used. If a function is
     #' provided then this is used as the async evaluator
+    #' @param then A function to call at the completion of an async handler
     #' @param doc OpenAPI documentation for the handler. Will be added to the
     #' `paths$<handler_path>$<handler_method>` portion of the API.
     #' @param route The route this handler should be added to. Defaults to the
@@ -248,6 +249,7 @@ Plumber2 <- R6Class(
       use_strict_serializer = FALSE,
       download = FALSE,
       async = FALSE,
+      then = NULL,
       doc = NULL,
       route = NULL,
       header = FALSE
@@ -333,7 +335,8 @@ Plumber2 <- R6Class(
           use_strict_serializer,
           download,
           doc,
-          get_async(async)
+          get_async(async),
+          then
         ),
         reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
@@ -352,13 +355,14 @@ Plumber2 <- R6Class(
     #' default async evaluator to create an async handler. If a string, the
     #' async evaluator registered to that name is used. If a function is
     #' provided then this is used as the async evaluator
-    message_handler = function(handler, async = FALSE) {
+    #' @param then A function to call at the completion of an async handler
+    message_handler = function(handler, async = FALSE, then = NULL) {
       if (isTRUE(async)) {
         async <- private$ASYNC_EVALUATER
       } else if (isFALSE(async)) {
         async <- NULL
       }
-      handler <- create_message_handler(handler, get_async(async))
+      handler <- create_message_handler(handler, get_async(async), then)
       self$on("message", handler)
 
       invisible(self)

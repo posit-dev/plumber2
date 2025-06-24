@@ -11,6 +11,7 @@ handle_constructor <- function(method, header = FALSE) {
     use_strict_serializer = FALSE,
     download = FALSE,
     async = FALSE,
+    then = NULL,
     doc = NULL,
     route = NULL
   ) {
@@ -23,6 +24,7 @@ handle_constructor <- function(method, header = FALSE) {
       use_strict_serializer = use_strict_serializer,
       download = download,
       async = async,
+      then = then,
       doc = doc,
       route = route,
       header = header
@@ -57,7 +59,6 @@ handle_constructor <- function(method, header = FALSE) {
 #' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
 #' #* information about the user such as their name, age, and hobbies
 #' #*
-#' #* @async
 #' function(username) {
 #'   find_user_in_db(username)
 #' }
@@ -226,6 +227,85 @@ handle_constructor <- function(method, header = FALSE) {
 #' details can be a security risk and forwarding internal errors to a client can
 #' help inform the client about how the server has been implemented.
 #'
+#' # Async handling
+#' plumber2 supports async handling of requests in one of two ways:
+#'
+#' 1. The handler you provide returns a promise object
+#' 2. You set `async = TRUE` (or the name of a registered async evaluator) when
+#'    adding the handler
+#'
+#' For 1), there is no more to do. You have full custody over the created
+#' promise and any `then()`-chaining that might be added to it. For 2) it is a
+#' bit different. In that case you provide a regular function and plumber2 takes
+#' care of converting it to a promise. Due to the nature of promises a handler
+#' being converted to a promise can't take `request`, `response`, and `server`
+#' arguments, so if you need to manipulate these you need to use `then` (more on
+#' this shortly). The async handler should yield the value that the response
+#' should ultimately get assigned to the body or have plotting side effects (in
+#' which case the plot will get added to the response).
+#'
+#' ## Async chaining
+#' Because you can't manipulate `request` `response`, or `server` in the async
+#' handler it may be needed to add operations to perform once the async handler
+#' has finished. This can be done through the `then` argument (or using the
+#' `@then` tag in annotated route files). This takes a list of functions to
+#' chain to the promise using [promises::then()]. Before the `then` chain is
+#' executed the response will get the return value of the main handler asigned
+#' to the body. Each `then` call will receive the same arguments as a standard
+#' request handler as well as `result` which will hold the return value of the
+#' previous handler in the chain. For the first `then` call `result` will be a
+#' boolean signalling if the async handler wants request handling to proceed to
+#' the next route or terminate early. The last call in the chain must return
+#' `Next` or `Break` to signal if processing should be allowed to continue to
+#' the next route.
+#'
+#' # Using annotation
+#' Handlers can be specified in an annotated route file using one of the method
+#' tags followed by the path it pertains to. You can use various tags to
+#' descripe the handler and these will automatically be converted to OpenAPI
+#' documentation. Further, additional tags allow you to modify the behaviour of
+#' the handler, reflecting the arguments available in the functional approach.
+#'
+#' ```
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' function(username) {
+#'   find_user_in_db(username)
+#' }
+#' ```
+#'
+#' You can create async handlers with `then` chaining using annotation, through
+#' the `@async` and `@then` tags
+#'
+#' ```
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' #* @async
+#' function(username) {
+#'   find_user_in_db(username)
+#' }
+#' #* @then
+#' function(server, response) {
+#'   server$log("message", "async operation completed")
+#'   response$set_header("etag", "abcdef")
+#'   Next
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to add the handler to
 #' @param path A string giving the path the handler responds to. See Details
 #' @param handler A handler function to call when a request is matched to the
@@ -250,7 +330,10 @@ handle_constructor <- function(method, header = FALSE) {
 #' @param async If `FALSE` create a regular handler. If `TRUE`, use the default
 #' async evaluator to create an async handler. If a string, the async evaluator
 #' registered to that name is used. If a function is provided then this is used
-#' as the async evaluator
+#' as the async evaluator. See the *Async* section for more detail
+#' @param then A list of function to be called once the async handler is done.
+#' The functions will be chained using [promises::then()]. See the *Async*
+#' section for more detail
 #' @param doc A list with the OpenAPI spec for the endpoint
 #' @param route The route this handler should be added to. Defaults to the last
 #' route in the stack. If the route does not exist it will be created as the
@@ -531,6 +614,28 @@ api_add_route <- function(
 #' returns either a raw vector or a single string it is taken as a signal to
 #' send this back to the client. Any other return value is silently ignored.
 #'
+#' # Async
+#' You can handle websocket messages asynchronously if needed. Like with
+#' [request handlers][api_get] you can either do it manually by creating and
+#' returning a promise inside the handler, or by letting plumber2 convert your
+#' handler to an async handler using the `async` argument. Due to the nature of
+#' promises a handler being converted to a promise can't take `request` and
+#' `server` arguments, so if you need to manipulate these you need to use `then`
+#' (more on this shortly). The same conventions about return value holds for
+#' async message handlers as for regular ones.
+#'
+#' ## Async chaining
+#' Because you can't manipulate `request` or `server` in the async handler it
+#' may be needed to add operations to perform once the async handler has
+#' finished. This can be done through the `then` argument. This takes a list of
+#' functions to chain to the promise using [promises::then()]. Before the `then`
+#' chain is executed the return value of the async handler will be send back to
+#' the client if it is a string or a raw vector. Each `then` call will receive
+#' the same arguments as a standard message handler as well as `result` which
+#' will hold the return value of the previous handler in the chain. For the
+#' first `then` call `result` will be whatever the main async handler returned.
+#' The return value of the last call in the chain will be silently ignored.
+#'
 #' # Using annotation
 #' A websocket message handler can be added to an API in an annotated route file
 #' by using the `@message` tag
@@ -544,9 +649,33 @@ api_add_route <- function(
 #' }
 #' ```
 #'
+#' You can create async handlers with `then` chaining using annotation, through
+#' the `@async` and `@then` tags
+#'
+#' ```
+#' #* @message
+#' #* @async
+#' function(message) {
+#'   if (message == "Hello") {
+#'     return("Hello, you...")
+#'   }
+#' }
+#' #* @then
+#' function(server) {
+#'   server$log("message", "websocket message received")
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to add the handler to
 #' @param handler A function conforming to the specifications laid out in
 #' Details
+#' @param async If `FALSE` create a regular handler. If `TRUE`, use the default
+#' async evaluator to create an async handler. If a string, the async evaluator
+#' registered to that name is used. If a function is provided then this is used
+#' as the async evaluator. See the *Async* section for more detail
+#' @param then A list of function to be called once the async handler is done.
+#' The functions will be chained using [promises::then()]. See the *Async*
+#' section for more detail
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -563,8 +692,8 @@ api_add_route <- function(
 #'     }
 #'   )
 #'
-api_message <- function(api, handler) {
-  api$message_handler(handler)
+api_message <- function(api, handler, async = NULL, then = NULL) {
+  api$message_handler(handler, async, then)
   api
 }
 

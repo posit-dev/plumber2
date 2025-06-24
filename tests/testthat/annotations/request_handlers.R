@@ -53,6 +53,11 @@ function() {
   plot.new()
   points(seq(0, 1, by = 0.1), seq(0, 1, by = 0.1))
 }
+#* @then
+function(result, server) {
+  server$set_data("async_then", TRUE)
+  result
+}
 
 #* A header endpoint
 #*

@@ -65,8 +65,25 @@ parse_plumber_file <- function(
     file_dir = wd
   )
 
+  then_blocks <- vapply(blocks, inherits, logical(1), "plumber2_then_block")
+  index <- rle(then_blocks)
+  prior <- cumsum(index$lengths)[which(index$values) - 1]
+  then_calls <- split(
+    blocks[then_blocks],
+    rep(prior, index$lengths[index$values])
+  )
+  for (i in seq_along(prior)) {
+    pr <- prior[i]
+    if (pr == 0 || is.null(blocks[[pr]]$async) || isFALSE(blocks[[pr]]$async)) {
+      cli::cli_abort(
+        "A {.field @then} block must follow an {.field @async} block or another {.field @then} block"
+      )
+    }
+    blocks[[pr]]$then <- then_calls[[i]]
+  }
+
   list(
-    blocks = blocks,
+    blocks = blocks[!then_blocks],
     route = route_name
   )
 }
@@ -86,6 +103,8 @@ parse_block <- function(
     parse_static_block(call, tags, values, env)
   } else if (block_has_tags(block, "message")) {
     parse_message_block(call, tags, values, env)
+  } else if (block_has_tags(block, "then")) {
+    parse_then_block(call, tags, values, env)
   } else if (block_has_tags(block, "redirect")) {
     parse_redirect_block(call, tags, values, env)
   } else if (block_has_tags(block, "shiny")) {
@@ -308,6 +327,17 @@ parse_message_block <- function(call, tags, values, env) {
   )
 }
 
+parse_then_block <- function(call, tags, values, env) {
+  check_function(call)
+  if (!"..." %in% fn_fmls_names(call)) {
+    fn_fmls(call) <- c(fn_fmls(call), "..." = missing_arg())
+  }
+  structure(
+    call,
+    class = "plumber2_then_block"
+  )
+}
+
 parse_redirect_block <- function(call, tags, values, env) {
   res <- lapply(values[tags == "redirect"], function(x) {
     x <- stringi::stri_split_fixed(x, " ", n = 3)[[1]]
@@ -460,7 +490,7 @@ apply_plumber2_block.plumber2_message_block <- function(
   route_name,
   ...
 ) {
-  api$message_handler(block$handler, block$async)
+  api$message_handler(block$handler, block$async, block$then)
   api
 }
 #' @export
@@ -526,6 +556,7 @@ apply_plumber2_block.plumber2_handler_block <- function(
       use_strict_serialize = block$use_strict_serializer,
       download = block$download,
       async = block$async,
+      then = block$then,
       doc = endpoint_doc,
       route = route_name,
       header = block$header

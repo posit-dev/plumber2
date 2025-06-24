@@ -6,6 +6,7 @@ create_request_handler <- function(
   download = FALSE,
   doc = NULL,
   async = NULL,
+  then = NULL,
   call = caller_env()
 ) {
   # Input checks
@@ -13,6 +14,12 @@ create_request_handler <- function(
   ## Add ... to formals so we never error on unknown arguments
   if (!"..." %in% fn_fmls_names(handler)) {
     fn_fmls(handler) <- c(fn_fmls(handler), "..." = missing_arg())
+  }
+  for (i in seq_along(then)) {
+    check_function(then[[i]], arg = paste0("then[[", i, "]]"))
+    if (!"..." %in% fn_fmls_names(then[[i]])) {
+      fn_fmls(then[[i]]) <- c(fn_fmls(then[[i]]), "..." = missing_arg())
+    }
   }
   if (
     !is.null(serializers) && !(is_list(serializers) && is_named2(serializers))
@@ -50,6 +57,12 @@ create_request_handler <- function(
   }
 
   if (is.null(async)) {
+    if (!is.null(then)) {
+      cli::cli_abort(
+        "{.arg then} can only be used with async handlers",
+        call = call
+      )
+    }
     create_sequential_request_handler(
       handler,
       serializers,
@@ -68,7 +81,8 @@ create_request_handler <- function(
       type_casters,
       body_parser,
       download,
-      dl_file
+      dl_file,
+      then
     )
   }
 }
@@ -190,7 +204,8 @@ create_async_request_handler <- function(
   type_casters,
   body_parser,
   download,
-  dl_file
+  dl_file,
+  then
 ) {
   envir <- list2env(list(
     handler = handler,
@@ -241,13 +256,32 @@ create_async_request_handler <- function(
 
     result <- async(async_request_call, envir = envir)
 
-    promises::then(
+    result <- promises::then(
       result,
       function(result) {
         response$body <- result$result
         result$continue
       }
     )
+    for (handler in then) {
+      result <- promises::then(
+        result,
+        function(result) {
+          inject(handler(
+            result = result,
+            !!!envir$keys,
+            request = request,
+            response = response,
+            server = server,
+            client_id = id,
+            query = envir$query,
+            body = envir$body,
+            !!!envir$dots
+          ))
+        }
+      )
+    }
+    result
   }
 }
 

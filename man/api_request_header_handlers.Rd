@@ -23,6 +23,7 @@ api_get_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -35,6 +36,7 @@ api_head_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -47,6 +49,7 @@ api_post_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -59,6 +62,7 @@ api_put_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -71,6 +75,7 @@ api_delete_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -83,6 +88,7 @@ api_connect_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -95,6 +101,7 @@ api_options_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -107,6 +114,7 @@ api_trace_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -119,6 +127,7 @@ api_patch_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 
@@ -131,6 +140,7 @@ api_any_header(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   route = NULL
 )
 }
@@ -166,7 +176,11 @@ the download to the string value}
 \item{async}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the default
 async evaluator to create an async handler. If a string, the async evaluator
 registered to that name is used. If a function is provided then this is used
-as the async evaluator}
+as the async evaluator. See the \emph{Async} section for more detail}
+
+\item{then}{A list of function to be called once the async handler is done.
+The functions will be chained using \code{\link[promises:then]{promises::then()}}. See the \emph{Async}
+section for more detail}
 
 \item{route}{The route this handler should be added to. Defaults to the last
 route in the stack. If the route does not exist it will be created as the

@@ -127,6 +127,11 @@ roxy_tag_parse.roxy_tag_message <- function(x) {
 roxy_tag_parse.roxy_tag_async <- function(x) {
   x
 }
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_then <- function(x) {
+  x
+}
 
 ## Asset annotations -----------------------------------------------------------
 

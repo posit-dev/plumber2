@@ -237,6 +237,7 @@ test_that("handlers gets constructed correctly", {
   res <- papi$test_request(req)
   expect_true(promises::is.promise(res))
   res <- extract(res)
+  expect_true(papi$get_data("async_then"))
   expect_equal(res$status, 200L)
   expect_equal(res$headers$`content-type`, "image/svg+xml")
   svg_file <- tempfile(fileext = ".svg")

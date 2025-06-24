@@ -23,6 +23,7 @@ api_get(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -36,6 +37,7 @@ api_head(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -49,6 +51,7 @@ api_post(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -62,6 +65,7 @@ api_put(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -75,6 +79,7 @@ api_delete(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -88,6 +93,7 @@ api_connect(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -101,6 +107,7 @@ api_options(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -114,6 +121,7 @@ api_trace(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -127,6 +135,7 @@ api_patch(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -140,6 +149,7 @@ api_any(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -176,7 +186,11 @@ the download to the string value}
 \item{async}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the default
 async evaluator to create an async handler. If a string, the async evaluator
 registered to that name is used. If a function is provided then this is used
-as the async evaluator}
+as the async evaluator. See the \emph{Async} section for more detail}
+
+\item{then}{A list of function to be called once the async handler is done.
+The functions will be chained using \code{\link[promises:then]{promises::then()}}. See the \emph{Async}
+section for more detail}
 
 \item{doc}{A list with the OpenAPI spec for the endpoint}
 
@@ -208,9 +222,52 @@ the handler, reflecting the arguments available in the functional approach.
 #* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
 #* information about the user such as their name, age, and hobbies
 #*
+function(username) \{
+  find_user_in_db(username)
+\}
+}\if{html}{\out{</div>}}
+
+Handlers can be specified in an annotated route file using one of the method
+tags followed by the path it pertains to. You can use various tags to
+descripe the handler and these will automatically be converted to OpenAPI
+documentation. Further, additional tags allow you to modify the behaviour of
+the handler, reflecting the arguments available in the functional approach.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+function(username) \{
+  find_user_in_db(username)
+\}
+}\if{html}{\out{</div>}}
+
+You can create async handlers with \code{then} chaining using annotation, through
+the \verb{@async} and \verb{@then} tags
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
 #* @async
 function(username) \{
   find_user_in_db(username)
+\}
+#* @then
+function(server, response) \{
+  server$log("message", "async operation completed")
+  response$set_header("etag", "abcdef")
+  Next
 \}
 }\if{html}{\out{</div>}}
 }
@@ -400,6 +457,41 @@ the client it is often better to only inform the client of what they need to
 change to solve the issue. Too much information about internal implementation
 details can be a security risk and forwarding internal errors to a client can
 help inform the client about how the server has been implemented.
+}
+}
+
+\section{Async handling}{
+plumber2 supports async handling of requests in one of two ways:
+\enumerate{
+\item The handler you provide returns a promise object
+\item You set \code{async = TRUE} (or the name of a registered async evaluator) when
+adding the handler
+}
+
+For 1), there is no more to do. You have full custody over the created
+promise and any \code{then()}-chaining that might be added to it. For 2) it is a
+bit different. In that case you provide a regular function and plumber2 takes
+care of converting it to a promise. Due to the nature of promises a handler
+being converted to a promise can't take \code{request}, \code{response}, and \code{server}
+arguments, so if you need to manipulate these you need to use \code{then} (more on
+this shortly). The async handler should yield the value that the response
+should ultimately get assigned to the body or have plotting side effects (in
+which case the plot will get added to the response).
+\subsection{Async chaining}{
+
+Because you can't manipulate \code{request} \code{response}, or \code{server} in the async
+handler it may be needed to add operations to perform once the async handler
+has finished. This can be done through the \code{then} argument (or using the
+\verb{@then} tag in annotated route files). This takes a list of functions to
+chain to the promise using \code{\link[promises:then]{promises::then()}}. Before the \code{then} chain is
+executed the response will get the return value of the main handler asigned
+to the body. Each \code{then} call will receive the same arguments as a standard
+request handler as well as \code{result} which will hold the return value of the
+previous handler in the chain. For the first \code{then} call \code{result} will be a
+boolean signalling if the async handler wants request handling to proceed to
+the next route or terminate early. The last call in the chain must return
+\code{Next} or \code{Break} to signal if processing should be allowed to continue to
+the next route.
 }
 }
 

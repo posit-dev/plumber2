@@ -277,6 +277,7 @@ detailed information
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL,
   header = FALSE
@@ -317,6 +318,8 @@ default async evaluator to create an async handler. If a string, the
 async evaluator registered to that name is used. If a function is
 provided then this is used as the async evaluator}
 
+\item{\code{then}}{A function to call at the completion of an async handler}
+
 \item{\code{doc}}{OpenAPI documentation for the handler. Will be added to the
 \verb{paths$<handler_path>$<handler_method>} portion of the API.}
 
@@ -336,7 +339,7 @@ as the last route in the stack.}
 Add a handler to a WebSocket message. See \link{api_message} for
 detailed information
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$message_handler(handler, async = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$message_handler(handler, async = FALSE, then = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -349,6 +352,8 @@ detailed information
 default async evaluator to create an async handler. If a string, the
 async evaluator registered to that name is used. If a function is
 provided then this is used as the async evaluator}
+
+\item{\code{then}}{A function to call at the completion of an async handler}
 }
 \if{html}{\out{</div>}}
 }
