@@ -388,7 +388,7 @@ api() %>%
 
 | Annotation | Arguments | Description/References |
 |-------------------|-------------------|----------------------------------|
-| `@plumber` | None | Modify plumber router from plumber file. The plumber router provided to the function **must** be returned. In most cases, anonymous functions are used following the `#* @plumber` annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses. |
+| `@plumber` | None | Modify plumber router from plumber file. If the function returns a plumber2 api object then this object will be used going forward, otherwise the return value is ignored. In most cases, anonymous functions are used following the `#* @plumber` annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses. |
 
 ##### Annotations example
 

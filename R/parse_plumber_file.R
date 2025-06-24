@@ -502,8 +502,8 @@ apply_plumber2_block.plumber2_call_block <- function(
   route_name,
   ...
 ) {
-  block$call(api)
-  api
+  maybe_new <- block$call(api)
+  if (is_plumber_api(maybe_new)) maybe_new else api
 }
 #' @export
 apply_plumber2_block.plumber2_route_block <- function(
