@@ -163,7 +163,6 @@ test_that("docs get generated correctly", {
     list(
       type = structure("object", class = "AsIs"),
       properties = list(
-        str = list(type = "string", description = ""),
         upper = list(
           type = "number",
           maximum = 10,
@@ -173,6 +172,7 @@ test_that("docs get generated correctly", {
         today = list(type = "string", format = "date", description = ""),
         now = list(type = "string", format = "date-time", description = ""),
         data = list(type = "string", format = "byte", description = ""),
+        bin = list(type = "string", format = "binary", description = ""),
         flag = list(type = "boolean", description = "")
       )
     )
@@ -271,7 +271,7 @@ test_that("handlers gets constructed correctly", {
     list(
       param = factor("a", levels = c("a", "b", "c")),
       query = list(required = "test", default = "test"),
-      body = NULL
+      body = list(upper = 5)
     )
   )
 
