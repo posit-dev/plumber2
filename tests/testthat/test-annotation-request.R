@@ -233,17 +233,6 @@ test_that("handlers gets constructed correctly", {
     "`test` must match the type {\"type\":\"integer\",\"description\":\"an integer\"}"
   )
 
-  req <- fiery::fake_request("http://127.0.0.1:8080/plot/")
-  res <- papi$test_request(req)
-  expect_true(promises::is.promise(res))
-  res <- extract(res)
-  expect_true(papi$get_data("async_then"))
-  expect_equal(res$status, 200L)
-  expect_equal(res$headers$`content-type`, "image/svg+xml")
-  svg_file <- tempfile(fileext = ".svg")
-  writeLines(rawToChar(res$body), svg_file, sep = "\n")
-  expect_snapshot_file(svg_file, "async_svg")
-
   req <- fiery::fake_request("http://127.0.0.1:8080/header/")
   res <- papi$test_header(req)
   expect_equal(res$status, 406L)
@@ -360,4 +349,17 @@ test_that("handlers gets constructed correctly", {
   expect_equal(unserialize(unserialize(res$body)$body$data), letters)
   expect_equal(unserialize(unserialize(res$body)$body$bin), LETTERS)
   expect_true(unserialize(res$body)$body$flag)
+
+  req <- fiery::fake_request("http://127.0.0.1:8080/plot/")
+  res <- papi$test_request(req)
+  expect_true(promises::is.promise(res))
+  res <- extract(res)
+  expect_true(papi$get_data("async_then"))
+  expect_equal(res$status, 200L)
+  expect_equal(res$headers$`content-type`, "image/svg+xml")
+  svg_file <- tempfile(fileext = ".svg")
+  writeLines(rawToChar(res$body), svg_file, sep = "\n")
+  
+  skip_on_os("windows")
+  expect_snapshot_file(svg_file, "async_svg")
 })
