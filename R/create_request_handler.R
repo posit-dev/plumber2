@@ -19,11 +19,15 @@ create_request_handler <- function(
   ) {
     stop_input_type(serializers, "a named list", allow_null = TRUE, call = call)
   }
-  if (length(serializers) == 0) serializers <- NULL
+  if (length(serializers) == 0) {
+    serializers <- NULL
+  }
   if (!is.null(parsers) && !(is_list(parsers) && is_named2(parsers))) {
     stop_input_type(parsers, "a named list", allow_null = TRUE, call = call)
   }
-  if (length(parsers) == 0) parsers <- NULL
+  if (length(parsers) == 0) {
+    parsers <- NULL
+  }
   check_bool(use_strict_serializer, call = call)
   if (is_bool(download)) {
     dl_file <- NULL
@@ -80,7 +84,9 @@ create_sequential_request_handler <- function(
 ) {
   function(request, response, keys, server, id, arg_list = list(), ...) {
     # Default the response to 200 if it is 404 (the default) as we hit an endpoint
-    if (response$status == 404L) response$status <- 200L
+    if (response$status == 404L) {
+      response$status <- 200L
+    }
 
     # Add serializers for the finalizing route
     success <- response$set_formatter(
@@ -202,7 +208,9 @@ create_async_request_handler <- function(
 
   function(request, response, keys, server, id, arg_list = list(), ...) {
     # Default the response to 200 if it is 404 (the default) as we hit an endpoint
-    if (response$status == 404L) response$status <- 200L
+    if (response$status == 404L) {
+      response$status <- 200L
+    }
 
     # Add serializers for the finalizing route
     success <- response$set_formatter(
@@ -223,8 +231,12 @@ create_async_request_handler <- function(
     envir$formatter <- response$formatter
     envir$keys <- type_casters$path(keys)
     envir$id <- id
-    if (has_query) envir$query <- type_casters$query(request$query)
-    if (has_body) envir$body <- body_parser(request)
+    if (has_query) {
+      envir$query <- type_casters$query(request$query)
+    }
+    if (has_body) {
+      envir$body <- body_parser(request)
+    }
     envir$dots <- list2(!!!arg_list, ...)
 
     result <- async(async_request_call, envir = envir)
@@ -275,7 +287,9 @@ async_request_call <- quote({
   # Overwrite result with closing value if any (equivalent to %||%)
   result2 <- plumber2::close_formatter(formatter, info)
   is_clean <- TRUE
-  if (!is.null(result2)) result <- result2
+  if (!is.null(result2)) {
+    result <- result2
+  }
 
   # Return the result and continue signal so it can be used in the then()
   list(
