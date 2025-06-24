@@ -45,57 +45,80 @@ create_par_caster <- function(parameters, loc) {
   }
 }
 
-type_caster <- function(schema, required, name, loc) {
+type_caster <- function(schema, required, name, loc, scalar = TRUE) {
   switch(
     schema$type %||% "none",
-    string = string_caster(schema, required, name, loc),
-    number = number_caster(schema, required, name, loc),
-    integer = integer_caster(schema, required, name, loc),
-    boolean = bool_caster(schema, required, name, loc),
-    array = array_caster(schema, required, name, loc),
-    object = object_caster(schema, required, name, loc),
-    required_caster(schema, required, name, loc)
+    string = string_caster(schema, required, name, loc, scalar = scalar),
+    number = number_caster(schema, required, name, loc, scalar = scalar),
+    integer = integer_caster(schema, required, name, loc, scalar = scalar),
+    boolean = bool_caster(schema, required, name, loc, scalar = scalar),
+    array = array_caster(schema, required, name, loc, scalar = scalar),
+    object = object_caster(schema, required, name, loc, scalar = scalar),
+    required_caster(schema, required, name, loc, scalar = scalar)
   )
 }
 
 caster_constructor <- function(coercer, ...) {
   args <- list2(...)
-  function(schema, required, name, loc) {
+  function(schema, required, name, loc, scalar) {
     error_string <- missing_required_error_string(name, loc)
     format_error_string <- bad_format_error_string(name, schema)
+    scalar_error_string <- not_scalar_error_string(name, schema)
     default <- schema$default
     enum <- schema$enum
     if (!is.null(enum)) {
+      if (!is.null(default)) {
+        default <- suppressWarnings(factor(default, enum))
+        if (anyNA(default) || (scalar && length(default) != 1)) {
+          cli::cli_abort("{.arg default} does not fit the provided type")
+        }
+      }
       enum_error_string <- unmatched_enum_error_string(name, enum)
       fun <- function(val, call = caller_env()) {
         if (is.null(val)) {
           if (required) {
             reqres::abort_bad_request(error_string, call = call)
           }
-          val <- default
+          default
+        } else {
+          if (scalar && length(val) > 1) {
+            reqres::abort_bad_request(scalar_error_string, call = call)
+          }
+          val <- suppressWarnings(factor(val, enum))
+          if (anyNA(val)) {
+            reqres::abort_bad_request(enum_error_string, call = call)
+          }
+          val
         }
-        val <- suppressWarnings(factor(val, enum))
-        if (anyNA(val)) {
-          reqres::abort_bad_request(enum_error_string, call = call)
-        }
-        val
       }
       return(fun)
     }
     pattern <- schema$pattern
     if (!is.null(pattern)) {
+      if (!is.null(default)) {
+        if (
+          !all(grepl(default, val, perl = TRUE)) ||
+            (scalar && length(default) != 1)
+        ) {
+          cli::cli_abort("{.arg default} does not fit the provided type")
+        }
+      }
       pattern_error_string <- unmatched_pattern_error_string(name, pattern)
       fun <- function(val, call = caller_env()) {
         if (is.null(val)) {
           if (required) {
             reqres::abort_bad_request(error_string, call = call)
           }
-          val <- default
+          default
+        } else {
+          if (scalar && length(val) > 1) {
+            reqres::abort_bad_request(scalar_error_string, call = call)
+          }
+          if (!all(grepl(pattern, val, perl = TRUE))) {
+            reqres::abort_bad_request(pattern_error_string, call = call)
+          }
+          val
         }
-        if (!all(grepl(pattern, val, perl = TRUE))) {
-          reqres::abort_bad_request(pattern_error_string, call = call)
-        }
-        val
       }
       return(fun)
     }
@@ -113,6 +136,17 @@ caster_constructor <- function(coercer, ...) {
         val
       }
     }
+    if (!is.null(default)) {
+      default <- suppressWarnings(inject(coercer(default, !!!args)))
+      if (
+        anyNA(default) ||
+          (scalar && length(default) != 1) ||
+          (!is.null(min) && any(default < min)) ||
+          (!is.null(max) && any(default > max))
+      ) {
+        cli::cli_abort("{.arg default} does not fit the provided type")
+      }
+    }
     function(val, call = caller_env()) {
       if (is.null(val)) {
         if (required) {
@@ -120,6 +154,9 @@ caster_constructor <- function(coercer, ...) {
         }
         default
       } else {
+        if (scalar && length(val) > 1) {
+          reqres::abort_bad_request(scalar_error_string, call = call)
+        }
         val <- suppressWarnings(inject(coercer(val, !!!args)))
         if (anyNA(val)) {
           reqres::abort_bad_request(I(format_error_string), call = call)
@@ -136,71 +173,94 @@ bool_caster <- caster_constructor(as.logical)
 date_caster <- caster_constructor(as.Date, format = "%Y-%m-%d")
 datetime_caster <- caster_constructor(function(x, ...) {
   as.POSIXlt(
-    sub(":(\\d\\d)$", "\\1", sub("Z$", "+0000", x)),
+    sub(":(\\d\\d)$", "\\1", sub("Z$", "+0000", sub(" ", "T", toupper(x)))),
     format = "%FT%T%z"
   )
 })
 #' @importFrom base64enc base64decode
 byte_caster <- caster_constructor(base64decode)
+binary_caster <- caster_constructor(function(x, ...) if (!is.raw(x)) NA else x)
 required_caster <- caster_constructor(function(x, ...) x)
 
-string_caster <- function(schema, required, name, loc) {
+string_caster <- function(schema, required, name, loc, scalar) {
   switch(
     schema$format %||% "none",
-    date = date_caster(schema, required, name, loc),
-    "date-time" = datetime_caster(schema, required, name, loc),
-    byte = byte_caster(schema, required, name, loc),
-    none = string_caster0(schema, required, name, loc),
-    required_caster(schema, required, name, loc)
+    date = date_caster(schema, required, name, loc, scalar = scalar),
+    "date-time" = datetime_caster(schema, required, name, loc, scalar = scalar),
+    byte = byte_caster(schema, required, name, loc, scalar = scalar),
+    binary = binary_caster(schema, required, name, loc, scalar = FALSE),
+    none = string_caster0(schema, required, name, loc, scalar = scalar),
+    required_caster(schema, required, name, loc, scalar = scalar)
   )
 }
 
-array_caster <- function(schema, required, name, loc) {
+array_caster <- function(schema, required, name, loc, scalar) {
   error_string <- missing_required_error_string(name, loc)
-  default <- schema$default
-  if (is_string(default)) {
-    default <- jsonlite::fromJSON(default)
-  }
-  caster <- type_caster(schema$items, required, name, loc)
-  if (schema$items$type %in% c("array", "object")) {
+  caster <- type_caster(schema$items, required, name, loc, FALSE)
+  if (
+    schema$items$type %in%
+      c("array", "object") ||
+      (isTRUE(schema$items$type == "string") &&
+        isTRUE(schema$items$format == "binary"))
+  ) {
     caster <- function(val) {
       lapply(val, caster)
     }
   }
-  function(val) {
-    val <- val %||% default
+  default <- schema$default
+  if (is_string(default)) {
+    default <- jsonlite::fromJSON(default)
+  }
+  if (!is.null(default)) {
+    default <- try_fetch(caster(default), error = function(err) {
+      cli::cli_abort("{.arg default} does not fit the provided type")
+    })
+  }
+  function(val, call = caller_env()) {
     if (is.null(val)) {
       if (required) {
-        call <- caller_env()
         reqres::abort_bad_request(error_string, call = call)
       }
-      NULL
+      default
     } else {
       caster(val)
     }
   }
 }
 
-object_caster <- function(schema, required, name, loc) {
+object_caster <- function(schema, required, name, loc, scalar) {
   error_string <- missing_required_error_string(name, loc)
-  default <- schema$default
-  if (is_string(default)) {
-    default <- jsonlite::fromJSON(default)
-  }
   name <- names(schema$properties)
   required_prop <- name %in% (schema$required %||% "")
   casters <- lapply(seq_along(schema$properties), function(i) {
     type_caster(schema$properties[[i]], required_prop[[i]], name[[i]], loc)
   })
   names(casters) <- name
-  function(val) {
-    val <- val %||% default
+  default <- schema$default
+  if (is_string(default)) {
+    default <- jsonlite::fromJSON(default)
+  }
+  no_default <- is.null(default)
+  default <- default %||% list()
+  try_fetch(
+    {
+      for (par in names(casters)) {
+        default[[par]] <- casters[[par]](default[[par]])
+      }
+    },
+    error = function(err) {
+      cli::cli_abort("{.arg default} does not fit the provided type")
+    }
+  )
+  if (no_default && all(lengths(default) == 0)) {
+    default <- NULL
+  }
+  function(val, call = caller_env()) {
     if (is.null(val)) {
       if (required) {
-        call <- caller_env()
         reqres::abort_bad_request(error_string, call = call)
       }
-      NULL
+      default
     } else {
       for (par in names(casters)) {
         val[[par]] <- casters[[par]](val[[par]])
@@ -265,6 +325,12 @@ missing_required_error_string <- function(name, loc) {
 bad_format_error_string <- function(name, schema) {
   cli::format_inline(
     "{.arg {name}} must match the type {.val {jsonlite::toJSON(schema, auto_unbox = TRUE)}}"
+  )
+}
+
+not_scalar_error_string <- function(name, schema) {
+  cli::format_inline(
+    "{.arg {name}} must be a scalar value"
   )
 }
 
