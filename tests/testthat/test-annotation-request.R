@@ -359,7 +359,8 @@ test_that("handlers gets constructed correctly", {
   expect_equal(res$headers$`content-type`, "image/svg+xml")
   svg_file <- tempfile(fileext = ".svg")
   writeLines(rawToChar(res$body), svg_file, sep = "\n")
-  
+
+  skip_on_cran()
   skip_on_os("windows")
   expect_snapshot_file(svg_file, "async_svg")
 })
