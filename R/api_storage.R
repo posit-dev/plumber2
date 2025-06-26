@@ -93,7 +93,7 @@ api_session_cookie <- function(
 #' session specific data is purged once a certain amount of time has passed
 #' since the last request from that session.
 #'
-#' #' # Using annotation
+#' # Using annotation
 #' Session cookie setup doesn't have a dedicated annotation tag, but you can set
 #' it up in a `@plumber` block
 #'

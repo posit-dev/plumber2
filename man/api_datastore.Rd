@@ -53,8 +53,8 @@ element access a store shared by all sessions whereas the \code{session} element
 is scoped to the current session. Depending on the value of \code{max_age} the
 session specific data is purged once a certain amount of time has passed
 since the last request from that session.
-
-#' # Using annotation
+}
+\section{Using annotation}{
 Session cookie setup doesn't have a dedicated annotation tag, but you can set
 it up in a \verb{@plumber} block
 
@@ -65,6 +65,7 @@ function(api) \{
 \}
 }\if{html}{\out{</div>}}
 }
+
 \examples{
 api() |>
   api_datastore(storr::driver_environment()) |>
