@@ -131,8 +131,10 @@ element access a store shared by all sessions whereas the <code>session</code> e
 is scoped to the current session. Depending on the value of <code>max_age</code> the
 session specific data is purged once a certain amount of time has passed
 since the last request from that session.</p>
-<p>#' # Using annotation
-Session cookie setup doesn't have a dedicated annotation tag, but you can set
+    </div>
+    <div class="section level2">
+    <h2 id="using-annotation">Using annotation<a class="anchor" aria-label="anchor" href="#using-annotation"></a></h2>
+    <p>Session cookie setup doesn't have a dedicated annotation tag, but you can set
 it up in a <code>@plumber</code> block</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#* @plumber</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="cf">function</span>(api) {</span>
