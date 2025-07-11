@@ -476,7 +476,7 @@ Plumber2 <- R6Class(
 
       self$on("start", function(...) {
         proc <- callr::r_bg(
-          function(app, port) {
+          function(app, port, .__fiery_id_fun__) {
             shiny::runApp(
               app,
               port = port,
@@ -488,7 +488,11 @@ Plumber2 <- R6Class(
               test.mode = FALSE
             )
           },
-          args = list(app = app, port = port)
+          args = list(
+            app = app,
+            port = port,
+            .__fiery_id_fun__ = private$client_id
+          )
         )
         self$set_data(proc_name, proc)
       })
