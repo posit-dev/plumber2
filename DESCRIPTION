@@ -15,6 +15,7 @@ Imports:
     base64enc,
     cli,
     fiery (>= 1.2.1.9000),
+    firesafety (>= 0.0.0.9000),
     firesale (>= 0.0.0.9000),
     firestorm (>= 0.0.0.9000),
     fs,
@@ -33,12 +34,13 @@ Imports:
     utils,
     webutils,
     yaml
-Remotes:
+Remotes: 
     thomasp85/fiery,
     thomasp85/reqres,
     thomasp85/routr,
     thomasp85/firestorm,
-    thomasp85/firesale
+    thomasp85/firesale,
+    thomasp85/firesafety
 Suggests:
     arrow,
     callr,
@@ -50,6 +52,7 @@ Suggests:
     quarto,
     redoc,
     shiny,
+    storr,
     swagger,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto
