@@ -420,8 +420,6 @@ Plumber2 <- R6Class(
     parse_file = function(file, env = NULL) {
       eval_env <- new.env(parent = env %||% private$PARENT_ENV)
       parsed <- parse_plumber_file(file, env = eval_env)
-      priority <- vapply(parsed, `[[`, numeric(1), "order")
-      parsed <- parsed[order(priority)]
 
       api <- self
 

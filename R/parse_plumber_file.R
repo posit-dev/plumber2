@@ -62,15 +62,6 @@ parse_plumber_file <- function(
   } else {
     fs::path_file(fs::path_ext_remove(path))
   }
-  route_order <- if (block_has_tags(blocks[[1]], "routeOrder")) {
-    utils::type.convert(
-      block_get_tag_value(blocks[[1]], "routeOrder"),
-      as.is = TRUE
-    )
-  } else {
-    NA
-  }
-  check_number_whole(route_order, allow_na = TRUE, arg = "@routeOrder")
 
   blocks <- lapply(
     blocks,
@@ -98,8 +89,7 @@ parse_plumber_file <- function(
 
   list(
     blocks = blocks[!then_blocks],
-    route = route_name,
-    order = route_order
+    route = route_name
   )
 }
 
@@ -615,7 +605,6 @@ apply_plumber2_block.plumber2_cors_block <- function(
   route_name,
   ...
 ) {
-  browser()
   NextMethod()
   for (i in seq_along(block$endpoints)) {
     for (path in block$endpoints[[i]]$path) {
@@ -637,7 +626,6 @@ apply_plumber2_block.plumber2_rip_block <- function(
   route_name,
   ...
 ) {
-  browser()
   NextMethod()
   for (i in seq_along(block$endpoints)) {
     if (block$endpoints[[i]]$method == "get") {

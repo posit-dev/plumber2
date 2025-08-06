@@ -150,6 +150,28 @@ is_plumber_api <- function(x) inherits(x, "Plumber2")
 #' @export
 api_parse <- function(api, ...) {
   locations <- dots_to_plumber_files(..., prefer_yml = FALSE)
+  priority <- vapply(
+    locations,
+    function(path) {
+      lines <- readLines(path)
+      lines <- lines[seq_len(
+        which(grepl("^(?!#('|\\*))", lines, perl = T))[1] - 1
+      )]
+      order <- which(grepl("^#('|\\*) @routeOrder", lines))
+      if (length(order) == 0) {
+        order <- NA
+      } else {
+        order <- utils::type.convert(
+          trimws(sub("^#('|\\*) @routeOrder", "", lines[order[1]])),
+          as.is = TRUE
+        )
+      }
+      check_number_whole(order, allow_na = TRUE, arg = "@routeOrder")
+      order
+    },
+    numeric(1)
+  )
+  locations <- locations[order(priority)]
   for (loc in locations) {
     api <- api$parse_file(loc)
   }
