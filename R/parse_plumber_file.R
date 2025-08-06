@@ -271,7 +271,8 @@ parse_static_block <- function(call, tags, values, env, file_dir) {
         mapping[2],
         mapping[1],
         except = unlist(values[except])
-      )
+      ),
+      endpoints = list(list(method = "get", path = mapping[2]))
     ),
     class = "plumber2_static_block"
   )
@@ -302,7 +303,8 @@ parse_asset_block <- function(call, tags, values, env, file_dir) {
   structure(
     list(
       route = routr::ressource_route(!!mapping[2] := mapping[1]),
-      header = FALSE
+      header = FALSE,
+      endpoints = list(list(method = "get", path = mapping[2]))
     ),
     class = "plumber2_route_block"
   )
@@ -424,7 +426,12 @@ parse_report_block <- function(call, tags, values, env, file_dir) {
     paths = parse_block_api(tags, values, character(0), info$mime_types)
   )
   structure(
-    list(route = route, doc = doc, header = FALSE),
+    list(
+      route = route,
+      doc = doc,
+      header = FALSE,
+      endpoints = list(list(method = "get", path = x))
+    ),
     class = "plumber2_route_block"
   )
 }
@@ -583,5 +590,46 @@ apply_plumber2_block.plumber2_empty_block <- function(
   route_name,
   ...
 ) {
+  api
+}
+
+#' @export
+apply_plumber2_block.plumber2_cors_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  browser()
+  NextMethod()
+  for (i in seq_along(block$endpoints)) {
+    for (path in block$endpoints[[i]]$path) {
+      api <- api_security_cors(
+        api,
+        path,
+        block$cors,
+        methods = block$endpoints[[i]]$method
+      )
+    }
+  }
+  api
+}
+
+#' @export
+apply_plumber2_block.plumber2_rip_block <- function(
+  block,
+  api,
+  route_name,
+  ...
+) {
+  browser()
+  NextMethod()
+  for (i in seq_along(block$endpoints)) {
+    if (block$endpoints[[i]]$method == "get") {
+      for (path in block$endpoints[[i]]$path) {
+        api <- api_security_resource_isolation(api, path, block$rip)
+      }
+    }
+  }
   api
 }

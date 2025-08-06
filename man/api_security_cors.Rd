@@ -70,13 +70,26 @@ specification and more can be read about it at the \link[firesafety:CORS]{CORS}
 plugin documentation.
 }
 \section{Using annotation}{
-CORS doesn't have a dedicated annotation tag, but you can set
-it up in a \verb{@plumber} block
+To add CORS to a path you can add \verb{@cors <origin>} to a
+handler annotation. \verb{<origin>} must be one or more URLs or \code{*}, separated by
+comma (meaning it is not possible to provide a function using the annotation).
+This will add CORS to all endpoints described in the block. The annotation
+doesn't allow setting \code{allowed_headers}, \code{exposed_headers},
+\code{allow_credentials} or \code{max_age} and the default values will be used.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @plumber
-function(api) \{
-  api |>
-    api_security_cors()
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+#* @cors https://example.com, https://another-site.com
+#*
+function(username) \{
+  find_user_in_db(username)
 \}
 }\if{html}{\out{</div>}}
 }

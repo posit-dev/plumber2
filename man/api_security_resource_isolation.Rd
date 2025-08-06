@@ -40,13 +40,24 @@ depth about resource isolation at the
 \link[firesafety:ResourceIsolation]{ResourceIsolation} plugin documentation.
 }
 \section{Using annotation}{
-Resource isolation doesn't have a dedicated annotation tag, but you can set
-it up in a \verb{@plumber} block
+To add resource isolation to a path you can add \verb{@rip <allowed_site>} to a
+handler annotation. This will add resource isolation to all endpoints
+described in the block. The annotation doesn't allow setting
+\code{forbidden_navigation} or \code{allow_cors} and the default values will be used.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @plumber
-function(api) \{
-  api |>
-    api_security_resource_isolation()
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+#* @rip same-origin
+#*
+function(username) \{
+  find_user_in_db(username)
 \}
 }\if{html}{\out{</div>}}
 }

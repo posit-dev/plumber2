@@ -78,3 +78,18 @@ parse_extension <- function(tag, block, call, tags, values, env) {
   }
   block
 }
+
+on_load({
+  add_plumber2_tag("cors", function(block, call, tags, values, env) {
+    class(block) <- c("plumber2_cors_block", class(block))
+    block$cors <- trimws(strsplit(values[[which(tags == "cors")[1]]], ",")[[1]])
+    if (block$cors == "") block$cors <- "*"
+    block
+  })
+  add_plumber2_tag("rip", function(block, call, tags, values, env) {
+    class(block) <- c("plumber2_rip_block", class(block))
+    block$rip <- trimws(values[[which(tags == "rip")[1]]])
+    if (block$rip == "") block$rip <- "same-site"
+    block
+  })
+})

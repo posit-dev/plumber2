@@ -2,11 +2,13 @@
 
 S3method(apply_plumber2_block,plumber2_api_block)
 S3method(apply_plumber2_block,plumber2_call_block)
+S3method(apply_plumber2_block,plumber2_cors_block)
 S3method(apply_plumber2_block,plumber2_empty_block)
 S3method(apply_plumber2_block,plumber2_handler_block)
 S3method(apply_plumber2_block,plumber2_message_block)
 S3method(apply_plumber2_block,plumber2_proxy_block)
 S3method(apply_plumber2_block,plumber2_redirect_block)
+S3method(apply_plumber2_block,plumber2_rip_block)
 S3method(apply_plumber2_block,plumber2_route_block)
 S3method(apply_plumber2_block,plumber2_static_block)
 S3method(openapi_schema,AsIs)

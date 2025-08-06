@@ -190,6 +190,16 @@ Handler annotation describe all aspects of a request handler and always proceeds
 <td><p>Chains the handler to the preceeding message or request handler if that handler is asynchronous</p></td>
 </tr>
 <tr>
+<td><p><code>@cors</code></p></td>
+<td><p>[<code>Origin</code>]</p></td>
+<td><p>Add CORS to the endpoints in the handler. <code>Origin</code> can be a comma separated list of allowed origins</p></td>
+</tr>
+<tr>
+<td><p><code>@rip</code></p></td>
+<td><p>[<code>Allowed Site</code>]</p></td>
+<td><p>Adds a resource isolation policy to the `get` endpoints in the handler. <code>Allowed Site</code> can be used to change the allowance level</p></td>
+</tr>
+<tr>
 <td><p><code>@noDoc</code></p></td>
 <td><p>None</p></td>
 <td><p>Dont generate OpenAPI documentation from this block</p></td>

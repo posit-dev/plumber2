@@ -136,14 +136,27 @@ firesafety::sts
 #' plugin documentation.
 #'
 #' # Using annotation
-#' CORS doesn't have a dedicated annotation tag, but you can set
-#' it up in a `@plumber` block
+#' To add CORS to a path you can add `@cors <origin>` to a
+#' handler annotation. `<origin>` must be one or more URLs or `*`, separated by
+#' comma (meaning it is not possible to provide a function using the annotation).
+#' This will add CORS to all endpoints described in the block. The annotation
+#' doesn't allow setting `allowed_headers`, `exposed_headers`,
+#' `allow_credentials` or `max_age` and the default values will be used.
 #'
 #' ```
-#' #* @plumber
-#' function(api) {
-#'   api |>
-#'     api_security_cors()
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' #* @cors https://example.com, https://another-site.com
+#' #*
+#' function(username) {
+#'   find_user_in_db(username)
 #' }
 #' ```
 #'
@@ -240,14 +253,25 @@ api_security_cors <- function(
 #' [ResourceIsolation][firesafety::ResourceIsolation] plugin documentation.
 #'
 #' # Using annotation
-#' Resource isolation doesn't have a dedicated annotation tag, but you can set
-#' it up in a `@plumber` block
+#' To add resource isolation to a path you can add `@rip <allowed_site>` to a
+#' handler annotation. This will add resource isolation to all endpoints
+#' described in the block. The annotation doesn't allow setting
+#' `forbidden_navigation` or `allow_cors` and the default values will be used.
 #'
 #' ```
-#' #* @plumber
-#' function(api) {
-#'   api |>
-#'     api_security_resource_isolation()
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' #* @rip same-origin
+#' #*
+#' function(username) {
+#'   find_user_in_db(username)
 #' }
 #' ```
 #'
