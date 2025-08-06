@@ -64,7 +64,7 @@ reference:
       - async_evaluators
   - title: "Security"
     contents:
-      - starts_with(api_security)
+      - starts_with("api_security")
   - title: "OpenAPI documentation"
     contents:
       - api_doc_add
