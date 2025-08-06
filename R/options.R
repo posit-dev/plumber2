@@ -62,6 +62,7 @@ all_opts <- function() {
     ignoreTrailingSlash = get_opts("ignoreTrailingSlash"),
     maxRequestSize = get_opts("maxRequestSize"),
     compressionLimit = get_opts("compressionLimit"),
-    async = get_opts("async")
+    async = get_opts("async"),
+    roxygenPrefix = get_opts("roxygenPrefix")
   ))
 }

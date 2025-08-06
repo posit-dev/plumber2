@@ -42,7 +42,12 @@ parse_plumber_file <- function(
   wd <- fs::path_dir(path)
 
   file <- readLines(path)
-  file <- sub("^#([^\\*])", "##\\1", file)
+  if (
+    !(trimws(file[[1]]) == "#' @roxygenPrefix" ||
+      isTRUE(get_opts("roxygenPrefix")))
+  ) {
+    file <- sub("^#([^\\*])", "##\\1", file)
+  }
   file <- sub("^#\\*", "#'", file)
   is_string <- grepl("^\".*\"$", file)
   file[is_string] <- paste0("{", file[is_string], "}")
@@ -57,6 +62,15 @@ parse_plumber_file <- function(
   } else {
     fs::path_file(fs::path_ext_remove(path))
   }
+  route_order <- if (block_has_tags(blocks[[1]], "routeOrder")) {
+    utils::type.convert(
+      block_get_tag_value(blocks[[1]], "routeOrder"),
+      as.is = TRUE
+    )
+  } else {
+    NA
+  }
+  check_number_whole(route_order, allow_na = TRUE, arg = "@routeOrder")
 
   blocks <- lapply(
     blocks,
@@ -84,7 +98,8 @@ parse_plumber_file <- function(
 
   list(
     blocks = blocks[!then_blocks],
-    route = route_name
+    route = route_name,
+    order = route_order
   )
 }
 

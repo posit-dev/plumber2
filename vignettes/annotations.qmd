@@ -32,7 +32,32 @@ readLines <- function(x) base::readLines(file.path(me, x))
 
 Annotations are specially-structured comments used in your plumber file to create an API. A full annotation line starts with `#*`, then the annotation keyword `@...`, any number of space characters followed by the content. If you wish to use the annotation to document your API file but don't want any OpenAPI documentation to be generated you can use `@noDoc` tag which works much like roxygens `@noRd`.
 
-## Specifying route name
+## Annotation settings
+A few annotations modify how the file is parsed and interpreted. These must all appear in the first block of the file (in the case of `@roxygenPrefix` the first line).
+
+### Use roxygen prefix
+By default, plumber2 uses the `#*` prefix for its blocks to avoid clashing with roxygen comments. plumber (the old one) allowed either and while it is recommended to differentiate between roxygen and plumber2 annotations you can opt in to also understanding roxygen prefix.
+
+>This tag **must** appear on the first line of the file to have an effect.
+
+| Annotation | Argument | Description/References |
+|-----------------|-----------------|-----------------------------|
+| `@roxygenPrefix` | None | Turns on roxygen prefix for the file |
+
+If you wish to always allow roxygen prefixes you can set the `plumber2.roxygenPrefix` option to `TRUE`
+
+##### Annotations example
+
+``` r
+#* @roxygenPrefix
+NULL
+```
+
+##### Equivalent programmatic usage
+
+There is no direct equivalent in programmatic usage as this pertains to the parsing of the plumber file.
+
+### Specifying route name
 
 By default, the name of the file (without extension) is used as the name for the route any handlers etc are attached to. However, you can change this by having a first block in your file with a `@routeName` tag specifying the name to use for all route specific blocks in the file. This also makes it possible to split out the specification of a single route among multiple files if it begins to grow unwieldy
 
@@ -50,6 +75,25 @@ NULL
 ##### Equivalent programmatic usage
 
 There is no direct equivalent in programmatic usage as this pertains to the parsing of the plumber file. Any relevant function has a `route` argument where you can specify which route to add the given functionality to.
+
+### Specifying route order
+
+Route files are processed in alphanumerical order which influence the order in which their route is attached. You can modify the route order (but not the file processing order) using the `@routeOrder` tag. If multiple files have the same `@routeName` then the lowest `@routeOrder` value will be used. Any file without a `@routeOrder` tag will be added after those that do, using the default alphanumeric order.
+
+| Annotation | Argument | Description/References |
+|-----------------|-----------------|-----------------------------|
+| `@routeOrder` | `order` | Sets the order in which routes are added to the api. Lower values means earlier position |
+
+##### Annotations example
+
+``` r
+#* @routeOrder 3
+NULL
+```
+
+##### Equivalent programmatic usage
+
+You can programmatically control the location of a route you add with `api_add_route()` using the `after` argument.
 
 ## Global annotations {#global-annotations}
 
