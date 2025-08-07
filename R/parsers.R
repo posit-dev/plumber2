@@ -383,7 +383,7 @@ parse_multipart <- function(parsers = get_parsers()) {
       if (!is.null(parser_fun)) {
         val <- parser_fun(val, list())
       }
-      attributes(val) <- part[names(part) != "value"]
+      attributes(val) <- c(attributes(val), part[names(part) != "value"])
       val
     })
   }
