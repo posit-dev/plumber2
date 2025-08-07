@@ -3,7 +3,7 @@
 \name{api_assets}
 \alias{api_assets}
 \alias{api_statics}
-\title{Serve ressources from your file system}
+\title{Serve resources from your file system}
 \usage{
 api_assets(
   api,
@@ -31,7 +31,7 @@ api_statics(
 \arguments{
 \item{api}{A plumber2 api object to add the rossource serving to}
 
-\item{at}{The path to serve the ressources from}
+\item{at}{The path to serve the resources from}
 
 \item{path}{The location on the file system to map \code{at} to}
 

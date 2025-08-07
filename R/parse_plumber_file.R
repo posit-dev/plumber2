@@ -307,7 +307,7 @@ parse_asset_block <- function(call, tags, values, env, file_dir) {
   mapping[1] <- fs::path_abs(mapping[1], file_dir)
   structure(
     list(
-      route = routr::ressource_route(!!mapping[2] := mapping[1]),
+      route = routr::resource_route(!!mapping[2] := mapping[1]),
       header = FALSE,
       endpoints = list(list(method = "get", path = mapping[2]))
     ),

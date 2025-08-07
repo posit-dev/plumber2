@@ -700,7 +700,7 @@ api_message <- function(api, handler, async = NULL, then = NULL) {
 #' Redirect request to another resource
 #'
 #' While it is optimal that an API remains stable over its lifetime it is often
-#' not fully attainable. In order to direct requests for ressources that has
+#' not fully attainable. In order to direct requests for resources that has
 #' been moved to the new location you can add a redirect that ensures a smooth
 #' transition for clients still using the old path. Depending on the value
 #' of `permanent` the redirect will respond with a `307 Temporary Redirect` or
