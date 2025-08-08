@@ -240,7 +240,7 @@ before opening.}
 \subsection{Method \code{add_route()}}{
 Add a new route to either the request or header router
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_route(name, route = NULL, header = FALSE, after = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_route(name, route = NULL, header = FALSE, after = NULL, root = "")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -257,6 +257,8 @@ created}
 \item{\code{after}}{The location to place the new route on the stack. \code{NULL}
 will place it at the end. Will not have an effect if a route with the
 given name already exists.}
+
+\item{\code{root}}{The root path to serve this route from.}
 }
 \if{html}{\out{</div>}}
 }

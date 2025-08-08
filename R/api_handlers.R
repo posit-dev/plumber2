@@ -556,6 +556,7 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #' @param after The location to place the new route on the stack. `NULL`
 #' will place it at the end. Will not have an effect if a route with the
 #' given name already exists.
+#' @param root The root path to serve this route from.
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -580,9 +581,10 @@ api_add_route <- function(
   name,
   route = NULL,
   header = FALSE,
-  after = NULL
+  after = NULL,
+  root = ""
 ) {
-  api$add_route(name = name, route = route, header = header, after = after)
+  api$add_route(name = name, route = route, header = header, after = after, root = root)
   api
 }
 

@@ -191,9 +191,11 @@ Plumber2 <- R6Class(
     #' @param after The location to place the new route on the stack. `NULL`
     #' will place it at the end. Will not have an effect if a route with the
     #' given name already exists.
-    add_route = function(name, route = NULL, header = FALSE, after = NULL) {
+    #' @param root The root path to serve this route from.
+    add_route = function(name, route = NULL, header = FALSE, after = NULL, root = "") {
       route <- route %||%
         Route$new(ignore_trailing_slash = private$IGNORE_TRAILING_SLASH)
+      route$root <- paste0(root, route$root)
       if (header) {
         router <- self$header_router
       } else {
@@ -343,7 +345,8 @@ Plumber2 <- R6Class(
       )
       if (!(header || is.null(doc) || inherits(doc, "plumber_noDoc"))) {
         doc$parameters <- doc$parameters %||% list()
-        self$add_api_doc(doc, subset = c("paths", path_info$path, method))
+        true_path <- gsub("//", "/", paste0(route$root, path_info$path))
+        self$add_api_doc(doc, subset = c("paths", true_path, method))
       }
 
       invisible(self)
@@ -424,7 +427,7 @@ Plumber2 <- R6Class(
       api <- self
 
       for (block in parsed$blocks) {
-        api <- apply_plumber2_block(block, api, parsed$route)
+        api <- apply_plumber2_block(block, api, parsed$route, parsed$root)
       }
 
       invisible(api)

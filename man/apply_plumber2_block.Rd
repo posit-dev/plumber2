@@ -4,7 +4,7 @@
 \alias{apply_plumber2_block}
 \title{Generic for applying information from a plumber2 block to an api}
 \usage{
-apply_plumber2_block(block, api, route_name, ...)
+apply_plumber2_block(block, api, route_name, root, ...)
 }
 \arguments{
 \item{block}{The block that was parsed}
@@ -13,6 +13,11 @@ apply_plumber2_block(block, api, route_name, ...)
 
 \item{route_name}{The name of the route the plumber2 file is associated with.
 Either the name of the file or the value of the \verb{@routeName} tag}
+
+\item{root}{The root given by the potential \verb{@root} tag in the file. If no
+\verb{@root} tag is present this value will be null. The value represents the root
+path for every endpoint defined in the file and should be prepended to any
+URL path you use.}
 
 \item{...}{ignored}
 }

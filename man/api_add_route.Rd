@@ -4,7 +4,7 @@
 \alias{api_add_route}
 \title{Add a new route to either the request or header router}
 \usage{
-api_add_route(api, name, route = NULL, header = FALSE, after = NULL)
+api_add_route(api, name, route = NULL, header = FALSE, after = NULL, root = "")
 }
 \arguments{
 \item{api}{A plumber2 api object to add the route to}
@@ -20,6 +20,8 @@ created}
 \item{after}{The location to place the new route on the stack. \code{NULL}
 will place it at the end. Will not have an effect if a route with the
 given name already exists.}
+
+\item{root}{The root path to serve this route from.}
 }
 \value{
 This functions return the \code{api} object allowing for easy chaining

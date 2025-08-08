@@ -95,6 +95,28 @@ NULL
 
 You can programmatically control the location of a route you add with `api_add_route()` using the `after` argument.
 
+### Specifying root url for the whole file
+
+Many annotations somehow references URL paths, either as the endpoint of a
+handler, or where to serve a shiny app from. You can set a root for the whole
+file which will be prepended to any relevant URL. In this way it is easy to move
+all functionality from a single file to a different location if necessary.
+
+| Annotation | Argument | Description/References |
+|-----------------|-----------------|-----------------------------|
+| `@root` | `path` | Sets the root of every URL path in the file |
+
+##### Annotations example
+
+``` r
+#* @root /path/to/these/apis
+NULL
+```
+
+##### Equivalent programmatic usage
+
+You can programmatically set the root of a new route you add with `api_add_route()` using the `root` argument.
+
 ## Global annotations {#global-annotations}
 
 Global annotations are not related to any handler and should be placed in their own block. The block should be terminated by a `"_API"` expression. Instead of `@title` and `@description` you can also use the convention that the first line gives the title and any proceeding lines until the first tag gives the description.

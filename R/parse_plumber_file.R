@@ -62,6 +62,11 @@ parse_plumber_file <- function(
   } else {
     fs::path_file(fs::path_ext_remove(path))
   }
+  root <- if (block_has_tags(blocks[[1]], "root")) {
+    block_get_tag_value(blocks[[1]], "root")
+  } else {
+    NULL
+  }
 
   blocks <- lapply(
     blocks,
@@ -89,7 +94,8 @@ parse_plumber_file <- function(
 
   list(
     blocks = blocks[!then_blocks],
-    route = route_name
+    route = route_name,
+    root = root
   )
 }
 
@@ -453,6 +459,10 @@ parse_report_block <- function(call, tags, values, env, file_dir) {
 #' @param api The [Plumber2] api object to apply it to
 #' @param route_name The name of the route the plumber2 file is associated with.
 #' Either the name of the file or the value of the `@routeName` tag
+#' @param root The root given by the potential `@root` tag in the file. If no
+#' `@root` tag is present this value will be null. The value represents the root
+#' path for every endpoint defined in the file and should be prepended to any
+#' URL path you use.
 #' @param ... ignored
 #'
 #' @return `api`, modified
@@ -460,7 +470,7 @@ parse_report_block <- function(call, tags, values, env, file_dir) {
 #' @export
 #' @keywords internal
 #'
-apply_plumber2_block <- function(block, api, route_name, ...) {
+apply_plumber2_block <- function(block, api, route_name, root, ...) {
   UseMethod("apply_plumber2_block")
 }
 
@@ -469,13 +479,14 @@ apply_plumber2_block.plumber2_proxy_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   if (!is.null(block$shiny_app)) {
-    api$add_shiny(block$path, block$shiny_app)
+    api$add_shiny(paste0(root, block$path), block$shiny_app)
   } else if (!is.null(block$url)) {
     for (i in seq_along(block$path)) {
-      api$forward(block$path[i], block$url[i])
+      api$forward(paste0(root, block$path[i]), block$url[i])
     }
   }
   api
@@ -485,12 +496,13 @@ apply_plumber2_block.plumber2_redirect_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   for (redirect in block$redirects) {
     api$redirect(
       redirect$method,
-      redirect$from,
+      paste0(root, redirect$from),
       redirect$to,
       redirect$permanent
     )
@@ -502,6 +514,7 @@ apply_plumber2_block.plumber2_message_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   api$message_handler(block$handler, block$async, block$then)
@@ -512,6 +525,7 @@ apply_plumber2_block.plumber2_call_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   maybe_new <- block$call(api)
@@ -522,9 +536,10 @@ apply_plumber2_block.plumber2_route_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
-  api$add_route(route_name, block$route, block$header)
+  api$add_route(route_name, block$route, block$header, root = root)
   if (!is.null(block$doc)) {
     api$add_api_doc(block$doc)
   }
@@ -535,10 +550,11 @@ apply_plumber2_block.plumber2_static_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   api$serve_static(
-    at = block$asset$at,
+    at = paste0(root, block$asset$at),
     path = block$asset$path,
     use_index = block$asset$use_index,
     fallthrough = block$asset$fallthrough,
@@ -547,7 +563,7 @@ apply_plumber2_block.plumber2_static_block <- function(
     validation = block$asset$validation
   )
   for (ex in block$asset$except) {
-    api$exclude_static(paste0(block$asset$at, ex))
+    api$exclude_static(paste0(root, block$asset$at, ex))
   }
   api
 }
@@ -556,8 +572,30 @@ apply_plumber2_block.plumber2_handler_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
+  if (!is.null(root)) {
+    if (block$header) {
+      router <- api$header_router
+    } else {
+      router <- api$request_router
+    }
+    if (!router$has_route(route_name)) {
+      api$add_route(route_name, header = block$header, root = root)
+    } else {
+      route <- router$get_route(route_name)
+      if (route$root == "/") {
+        route$root <- route_name
+      } else {
+        cli::cli_warn(
+          "Ignoring {.field @root {route_name}} as the route already has a root set",
+          .frequency = "once",
+          .frequency_id = paste0(route_name, "-", root)
+        )
+      }
+    }
+  }
   for (endpoint in block$endpoints) {
     oapi_path <- as_openapi_path(endpoint$path)
     endpoint_doc <- block$doc[[oapi_path]][[endpoint$method]]
@@ -583,6 +621,7 @@ apply_plumber2_block.plumber2_api_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   api$add_api_doc(block$doc)
@@ -593,6 +632,7 @@ apply_plumber2_block.plumber2_empty_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   api
@@ -603,6 +643,7 @@ apply_plumber2_block.plumber2_cors_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   NextMethod()
@@ -610,7 +651,7 @@ apply_plumber2_block.plumber2_cors_block <- function(
     for (path in block$endpoints[[i]]$path) {
       api <- api_security_cors(
         api,
-        path,
+        paste0(root, path),
         block$cors,
         methods = block$endpoints[[i]]$method
       )
@@ -624,13 +665,18 @@ apply_plumber2_block.plumber2_rip_block <- function(
   block,
   api,
   route_name,
+  root,
   ...
 ) {
   NextMethod()
   for (i in seq_along(block$endpoints)) {
     if (block$endpoints[[i]]$method == "get") {
       for (path in block$endpoints[[i]]$path) {
-        api <- api_security_resource_isolation(api, path, block$rip)
+        api <- api_security_resource_isolation(
+          api,
+          paste0(root, path),
+          block$rip
+        )
       }
     }
   }
