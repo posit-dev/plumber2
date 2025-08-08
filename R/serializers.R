@@ -90,7 +90,7 @@ show_registered_serializers <- function() {
 get_serializers <- function(serializers = NULL) {
   defaults <- vapply(registry$serializers, `[[`, logical(1), "default")
   if (is.null(serializers)) {
-    serializers <- names(registry$serializers)[defaults]
+    serializers <- "..."
   }
   elem_names <- names(serializers) %||% rep_along(serializers, "")
   named_serializers <- unlist(lapply(seq_along(serializers), function(i) {

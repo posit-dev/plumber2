@@ -80,7 +80,7 @@ show_registered_parsers <- function() {
 get_parsers <- function(parsers = NULL) {
   defaults <- vapply(registry$parsers, `[[`, logical(1), "default")
   if (is.null(parsers)) {
-    parsers <- names(registry$parsers)[defaults]
+    parsers <- "..."
   }
   elem_names <- names(parsers) %||% rep_along(parsers, "")
   named_parsers <- unlist(lapply(seq_along(parsers), function(i) {

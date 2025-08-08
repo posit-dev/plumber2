@@ -443,7 +443,7 @@ Plumber2 <- R6Class(
 
       doc <- subset_to_list(subset, doc)
       if (overwrite) {
-        if (is.null(overwrite)) {
+        if (is.null(subset)) {
           private$OPENAPI <- list()
         } else if (list_has_subset(private$OPENAPI, subset)) {
           private$OPENAPI[[subset]] <- list()
