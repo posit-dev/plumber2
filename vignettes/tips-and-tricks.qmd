@@ -108,11 +108,11 @@ If you run this API locally and then visit the API in a web browser, you'll see 
 While this *usually* works, the R session can become confused by entering debugging mode while running the server. Because of this it often better to mock the request. You can create a mocked request object using `fiery::fake_request()` which you can populate with a path, method, headers, and body content. You can then take this object and send it through your API using the `test_request()` method in your Plumber API object:
 
 ``` r
-papi <- api("plumber.R")
+pa <- api("plumber.R")
 
 req <- fiery::fake_request("http://localhost:8080/path/to/handler")
 
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 ```
 
 Be aware that the req and res objects above will not be those you are familiar with from the handlers, but rather the formats that plumber needs to use to interact with httpuv.

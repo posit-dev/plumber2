@@ -22,7 +22,7 @@
 #' @export
 #'
 #' @examples
-#' papi <- api() |>
+#' pa <- api() |>
 #'   api_get("/", function() {
 #'     list(msg = "Hello World")
 #'   }) |>
@@ -31,10 +31,10 @@
 #'   })
 #'
 #' # Start the server
-#' papi |> api_run(block = FALSE)
+#' pa |> api_run(block = FALSE)
 #'
 #' # Stop it again
-#' papi |> api_stop()
+#' pa |> api_stop()
 #'
 api_run <- function(
   api,

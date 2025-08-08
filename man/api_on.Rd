@@ -46,13 +46,13 @@ function(api) \{
 
 \examples{
 # Add a small console log to show the api is alive
-papi <- api() |>
+pa <- api() |>
   api_on("cycle-end", function(server) {
     server$log("message", "tick-tock")
   }, id = "lifesign")
 
 # Remove it again
-papi |>
+pa |>
   api_off("lifesign")
 
 }

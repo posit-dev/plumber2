@@ -40,14 +40,14 @@ This file defines two Plumber handlers. One is hosted at the path `/echo/{msg}` 
 If you haven't installed `plumber2` yet, see the [installation section](./index.html#installation). Once you have `plumber2` installed, you can use the `api()` function to translate this R file into a Plumber API:
 
 ``` r
-papi <- api("plumber.R")
-papi
+pa <- api("plumber.R")
+pa
 ```
 
 The `api` object now encapsulates all the logic represented in your `plumber.R` file. The next step is to bring the API to life using the `api_run()` method:
 
 ``` r
-papi |>
+pa |>
   api_run()
 ```
 
@@ -60,10 +60,10 @@ The `/echo/test` endpoint should show output resembling the following.
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/01-01-quickstart.R"))
+pa <- api(file.path(me, "files/apis/01-01-quickstart.R"))
 
 req <- fiery::fake_request("http://localhost:8080/echo/test")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```
@@ -77,7 +77,7 @@ if (packageVersion("base") < "4.5.0") {
   cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
 } else {
   req <- fiery::fake_request("http://localhost:8080/plot")
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
 
   cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
 }
@@ -97,7 +97,7 @@ if (packageVersion("base") < "4.5.0") {
   cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
 } else {
   req <- fiery::fake_request("http://localhost:8080/plot?spec=Adelie")
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
 
   cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
 }
@@ -123,10 +123,10 @@ This handler would always produce HTML when called.
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/01-02-html.R"))
+pa <- api(file.path(me, "files/apis/01-02-html.R"))
 
 req <- fiery::fake_request("http://localhost:8080/hello")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "html")
 ```

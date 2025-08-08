@@ -1,3 +1,11 @@
+# api function handles constructor errors correctly
+
+    Code
+      api(server_yml)
+    Condition
+      Error:
+      ! object 'constructor' not found
+
 # dots_to_plumber_files handles errors correctly
 
     Code

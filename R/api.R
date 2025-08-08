@@ -59,15 +59,15 @@
 #' @examples
 #' # When creating an API programmatically you'll usually initialise the object
 #' # without pointing to any route files or a _server.yml file
-#' papi <- api()
+#' pa <- api()
 #'
 #' # You can pass it a directory and it will load up all recognised files it
 #' # contains
 #' example_dir <- system.file("plumber2", "quickstart", package = "plumber2")
-#' papi <- api(example_dir)
+#' pa <- api(example_dir)
 #'
 #' # Or you can pass files directly
-#' papi <- api(list.files(example_dir, full.names = TRUE)[1])
+#' pa <- api(list.files(example_dir, full.names = TRUE)[1])
 #'
 api <- function(
   ...,
@@ -228,12 +228,12 @@ dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
 
 # For use by connect etc
 launch_server <- function(settings, host = NULL, port = NULL, ...) {
-  papi <- api(settings)
+  pa <- api(settings)
   if (!is.null(host)) {
-    papi$host <- host
+    pa$host <- host
   }
   if (!is.null(port)) {
-    papi$port <- port
+    pa$port <- port
   }
-  api_run(papi)
+  api_run(pa)
 }

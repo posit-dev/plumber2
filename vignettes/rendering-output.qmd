@@ -114,10 +114,10 @@ Visiting http://localhost:8080/boxed?letter=U or http://localhost:8080/unboxed?l
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/04-03-letters.R"))
+pa <- api(file.path(me, "files/apis/04-03-letters.R"))
 
 req <- fiery::fake_request("http://localhost:8080/boxed?letter=U")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```
@@ -128,7 +128,7 @@ However, http://localhost:8080/boxed?letter=Y will produce:
 #| echo: false
 #| results: asis
 req <- fiery::fake_request("http://localhost:8080/boxed?letter=Y")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```
@@ -139,7 +139,7 @@ while http://localhost:8080/unboxed?letter=Y will produce:
 #| echo: false
 #| results: asis
 req <- fiery::fake_request("http://localhost:8080/unboxed?letter=Y")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```
@@ -235,10 +235,10 @@ This means that it is possible for you to intentionally use `stop()` in a handle
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/04-05-error.R"))
+pa <- api(file.path(me, "files/apis/04-05-error.R"))
 
 req <- fiery::fake_request("http://localhost:8080/friendly")
-muffle <- capture.output(res <- papi$test_request(req))
+muffle <- capture.output(res <- pa$test_request(req))
 
 code_chunk(res$body, "json")
 ```
@@ -263,10 +263,10 @@ Since this API is using a `PUT` request to test this API, we'll use `curl` on th
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/06-01-capitalize.R"))
+pa <- api(file.path(me, "files/apis/06-01-capitalize.R"))
 
 req <- fiery::fake_request("http://localhost:8080/letter")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```

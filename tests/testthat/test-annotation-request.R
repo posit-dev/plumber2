@@ -1,6 +1,6 @@
 test_that("docs get generated correctly", {
-  papi <- api("annotations/request_handlers.R")
-  doc <- private(papi, "OPENAPI")
+  pa <- api("annotations/request_handlers.R")
+  doc <- private(pa, "OPENAPI")
   expect_named(
     doc$paths,
     c("/hello/{test}/", "/hello/", "/plot/", "/type/{param}/")
@@ -180,11 +180,11 @@ test_that("docs get generated correctly", {
 })
 
 test_that("handlers gets constructed correctly", {
-  papi <- api("annotations/request_handlers.R")
-  papi |> api_logger(function(event, message, request, ...) NULL)
+  pa <- api("annotations/request_handlers.R")
+  pa |> api_logger(function(event, message, request, ...) NULL)
 
   req <- fiery::fake_request("http://127.0.0.1:8080/hello/you")
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
 
   expect_equal(res$status, 200L)
   expect_equal(
@@ -198,7 +198,7 @@ test_that("handlers gets constructed correctly", {
     "http://127.0.0.1:8080/hello/you",
     headers = list("Accept" = "application/dart")
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(res$status, 406L)
   expect_equal(res$headers$`content-type`, "application/problem+json")
   expect_equal(
@@ -215,7 +215,7 @@ test_that("handlers gets constructed correctly", {
     content = jsonlite::toJSON(good_body),
     headers = list("Content_Type" = "application/json")
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(res$headers$`content-type`, "application/json")
   expect_equal(res$body, unclass(jsonlite::toJSON(good_body)))
 
@@ -225,7 +225,7 @@ test_that("handlers gets constructed correctly", {
     content = jsonlite::toJSON(bad_body),
     headers = list("Content_Type" = "application/json")
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(res$status, 400L)
   expect_equal(res$headers$`content-type`, "application/problem+json")
   expect_equal(
@@ -234,18 +234,18 @@ test_that("handlers gets constructed correctly", {
   )
 
   req <- fiery::fake_request("http://127.0.0.1:8080/header/")
-  res <- papi$test_header(req)
+  res <- pa$test_header(req)
   expect_equal(res$status, 406L)
 
   req <- fiery::fake_request("http://127.0.0.1:8080/type/a/", "post")
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(
     jsonlite::fromJSON(res$body)$detail,
     "`required` is a required query parameter but is missing"
   )
 
   req <- fiery::fake_request("http://127.0.0.1:8080/type/d/", "post")
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(
     jsonlite::fromJSON(res$body)$detail,
     "`param` must be one of \"a\", \"b\", or \"c\""
@@ -255,7 +255,7 @@ test_that("handlers gets constructed correctly", {
     "http://127.0.0.1:8080/type/a/?required=test",
     "post"
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(
     unserialize(res$body),
     list(
@@ -269,7 +269,7 @@ test_that("handlers gets constructed correctly", {
     "http://127.0.0.1:8080/type/a/?required=test&range=1",
     "post"
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(
     jsonlite::fromJSON(res$body)$detail,
     "`range` must be between 2 and 9"
@@ -279,7 +279,7 @@ test_that("handlers gets constructed correctly", {
     "http://127.0.0.1:8080/type/a/?required=test&range=3",
     "post"
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(unserialize(res$body)$query$range, 3L)
   expect_type(unserialize(res$body)$query$range, "integer")
 
@@ -287,21 +287,21 @@ test_that("handlers gets constructed correctly", {
     "http://127.0.0.1:8080/type/a/?required=test&array=1&array=2&array=3",
     "post"
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(unserialize(res$body)$query$array, c("1", "2", "3"))
 
   req <- fiery::fake_request(
     "http://127.0.0.1:8080/type/a/?required=test&array=1,2,3",
     "post"
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(unserialize(res$body)$query$array, c("1", "2", "3"))
 
   req <- fiery::fake_request(
     "http://127.0.0.1:8080/type/a/?required=test&required=1",
     "post"
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(
     jsonlite::fromJSON(res$body)$detail,
     "`required` must be a scalar value"
@@ -311,7 +311,7 @@ test_that("handlers gets constructed correctly", {
     "http://127.0.0.1:8080/type/a/?required=test&regex=1",
     "post"
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(
     jsonlite::fromJSON(res$body)$detail,
     "`regex` must match the pattern \"\\\\d-\\\\d2\""
@@ -320,7 +320,7 @@ test_that("handlers gets constructed correctly", {
     "http://127.0.0.1:8080/type/a/?required=test&regex=1-23",
     "post"
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(unserialize(res$body)$query$regex, "1-23")
 
   expect_equal(unserialize(res$body)$body$upper, 5)
@@ -338,7 +338,7 @@ test_that("handlers gets constructed correctly", {
     content = serialize(body, NULL),
     headers = list("Content_Type" = "application/rds")
   )
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_equal(unserialize(res$body)$body$upper, -7)
   expect_type(unserialize(res$body)$body$upper, "double")
   expect_equal(unserialize(res$body)$body$today, as.Date("2017-07-21"))
@@ -351,10 +351,10 @@ test_that("handlers gets constructed correctly", {
   expect_true(unserialize(res$body)$body$flag)
 
   req <- fiery::fake_request("http://127.0.0.1:8080/plot/")
-  res <- papi$test_request(req)
+  res <- pa$test_request(req)
   expect_true(promises::is.promise(res))
   res <- extract(res)
-  expect_true(papi$get_data("async_then"))
+  expect_true(pa$get_data("async_then"))
   expect_equal(res$status, 200L)
   expect_equal(res$headers$`content-type`, "image/svg+xml")
   svg_file <- tempfile(fileext = ".svg")

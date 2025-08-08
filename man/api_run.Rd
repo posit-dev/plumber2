@@ -45,7 +45,7 @@ with the pipe, even though they will often be the last part of the chain
 This function starts the api with the settings it has defined.
 }
 \examples{
-papi <- api() |>
+pa <- api() |>
   api_get("/", function() {
     list(msg = "Hello World")
   }) |>
@@ -54,9 +54,9 @@ papi <- api() |>
   })
 
 # Start the server
-papi |> api_run(block = FALSE)
+pa |> api_run(block = FALSE)
 
 # Stop it again
-papi |> api_stop()
+pa |> api_stop()
 
 }

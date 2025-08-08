@@ -96,15 +96,15 @@ full api. It is also possible to add files to the API after creation using
 \examples{
 # When creating an API programmatically you'll usually initialise the object
 # without pointing to any route files or a _server.yml file
-papi <- api()
+pa <- api()
 
 # You can pass it a directory and it will load up all recognised files it
 # contains
 example_dir <- system.file("plumber2", "quickstart", package = "plumber2")
-papi <- api(example_dir)
+pa <- api(example_dir)
 
 # Or you can pass files directly
-papi <- api(list.files(example_dir, full.names = TRUE)[1])
+pa <- api(list.files(example_dir, full.names = TRUE)[1])
 
 }
 \seealso{

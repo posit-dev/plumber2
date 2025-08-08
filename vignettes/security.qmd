@@ -74,10 +74,10 @@ The expected output here is a harmless plot.
 ```{r}
 #| echo: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/07-01-plot-unsafe.R"))
+pa <- api(file.path(me, "files/apis/07-01-plot-unsafe.R"))
 
 req <- fiery::fake_request("http://localhost:8080")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
 ```
@@ -90,7 +90,7 @@ However, plots with more points will take more time to create.
 #| echo: false
 #| results: asis
 req <- fiery::fake_request("http://localhost:8080?pts=10000")
-t <- system.time(res <- papi$test_request(req))
+t <- system.time(res <- pa$test_request(req))
 
 cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
 ```

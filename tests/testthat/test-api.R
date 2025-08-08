@@ -1,7 +1,7 @@
 test_that("is_plumber_api correctly identifies Plumber2 objects", {
   # Test with Plumber2 object
-  papi <- Plumber2$new()
-  expect_true(is_plumber_api(papi))
+  pa <- Plumber2$new()
+  expect_true(is_plumber_api(pa))
 
   # Test with non-Plumber2 object
   expect_false(is_plumber_api(list()))
@@ -11,17 +11,17 @@ test_that("is_plumber_api correctly identifies Plumber2 objects", {
 
 test_that("api function creates Plumber2 object with default parameters", {
   # Test with no parameters
-  papi <- api()
-  expect_s3_class(papi, "Plumber2")
-  expect_equal(papi$host, "127.0.0.1")
-  expect_equal(papi$port, 8080)
-  expect_equal(papi$doc_type, "rapidoc")
-  expect_equal(papi$doc_path, "__docs__")
+  pa <- api()
+  expect_s3_class(pa, "Plumber2")
+  expect_equal(pa$host, "127.0.0.1")
+  expect_equal(pa$port, 8080)
+  expect_equal(pa$doc_type, "rapidoc")
+  expect_equal(pa$doc_path, "__docs__")
 })
 
 test_that("api function creates Plumber2 object with custom parameters", {
   # Test with custom parameters
-  papi <- api(
+  pa <- api(
     host = "0.0.0.0",
     port = 8000,
     doc_type = "swagger",
@@ -29,48 +29,48 @@ test_that("api function creates Plumber2 object with custom parameters", {
     compression_limit = 2000
   )
 
-  expect_s3_class(papi, "Plumber2")
-  expect_equal(papi$host, "0.0.0.0")
-  expect_equal(papi$port, 8000)
-  expect_equal(papi$doc_type, "swagger")
-  expect_equal(papi$doc_path, "api-docs")
-  expect_equal(papi$compression_limit, 2000)
+  expect_s3_class(pa, "Plumber2")
+  expect_equal(pa$host, "0.0.0.0")
+  expect_equal(pa$port, 8000)
+  expect_equal(pa$doc_type, "swagger")
+  expect_equal(pa$doc_path, "api-docs")
+  expect_equal(pa$compression_limit, 2000)
 })
 
 test_that("api function parses plumber files correctly", {
   # Test with existing file
   file_path <- "fixtures/minimal_api.R"
-  papi <- api(file_path)
+  pa <- api(file_path)
 
-  expect_s3_class(papi, "Plumber2")
-  expect_length(papi$request_router$routes, 1)
+  expect_s3_class(pa, "Plumber2")
+  expect_length(pa$request_router$routes, 1)
 })
 
 test_that("api function parses _server.yml files correctly", {
   # Test with _server.yml
   file_path <- "fixtures/server1/_server.yml"
-  papi <- api(file_path)
+  pa <- api(file_path)
 
-  expect_s3_class(papi, "Plumber2")
-  expect_equal(papi$host, "0.0.0.0")
-  expect_equal(papi$port, 8000)
-  expect_equal(papi$doc_type, "swagger")
-  expect_equal(papi$doc_path, "api-docs")
-  expect_equal(papi$compression_limit, 2000)
-  expect_length(papi$request_router$routes, 1)
+  expect_s3_class(pa, "Plumber2")
+  expect_equal(pa$host, "0.0.0.0")
+  expect_equal(pa$port, 8000)
+  expect_equal(pa$doc_type, "swagger")
+  expect_equal(pa$doc_path, "api-docs")
+  expect_equal(pa$compression_limit, 2000)
+  expect_length(pa$request_router$routes, 1)
 })
 
 test_that("api function parses _server.yml with constructor correctly", {
   # Test with _server.yml that has a constructor
   file_path <- "fixtures/server2/_server.yml"
-  papi <- api(file_path)
+  pa <- api(file_path)
 
-  expect_s3_class(papi, "Plumber2")
-  expect_equal(papi$host, "0.0.0.0")
-  expect_equal(papi$port, 8001)
+  expect_s3_class(pa, "Plumber2")
+  expect_equal(pa$host, "0.0.0.0")
+  expect_equal(pa$port, 8001)
 
   # Check if the API doc from constructor is preserved
-  openapi <- papi$.__enclos_env__$private$OPENAPI
+  openapi <- pa$.__enclos_env__$private$OPENAPI
   expect_equal(openapi$info$title, "Constructor API")
   expect_equal(openapi$info$version, "1.0.0")
 })
@@ -104,18 +104,18 @@ test_that("api function handles constructor errors correctly", {
 })
 
 test_that("api_parse correctly parses plumber files", {
-  papi <- Plumber2$new()
+  pa <- Plumber2$new()
 
   # Parse a single file
-  result <- api_parse(papi, "fixtures/minimal_api.R")
+  result <- api_parse(pa, "fixtures/minimal_api.R")
 
   expect_s3_class(result, "Plumber2")
   expect_length(result$request_router$routes, 1)
 
   # Parse multiple files
-  papi <- Plumber2$new()
+  pa <- Plumber2$new()
   result <- api_parse(
-    papi,
+    pa,
     "fixtures/server3/api_with_low_order.R",
     "fixtures/server3/api_with_high_order.R"
   )
@@ -125,11 +125,11 @@ test_that("api_parse correctly parses plumber files", {
 })
 
 test_that("api_parse respects @routeOrder", {
-  papi <- Plumber2$new()
+  pa <- Plumber2$new()
 
   # Parse files in wrong order but with correct priority
   result <- api_parse(
-    papi,
+    pa,
     "fixtures/server3/api_with_high_order.R",
     "fixtures/server3/api_with_low_order.R"
   )
@@ -161,7 +161,8 @@ test_that("dots_to_plumber_files correctly processes file paths", {
   )
   expect_equal(length(result), 2)
   expect_true(all(
-    c("fixtures/minimal_api.R", "fixtures/server3/api_with_high_order.R") %in% result
+    c("fixtures/minimal_api.R", "fixtures/server3/api_with_high_order.R") %in%
+      result
   ))
 
   # Test with directory
@@ -181,7 +182,6 @@ test_that("dots_to_plumber_files correctly processes file paths", {
 test_that("dots_to_plumber_files handles errors correctly", {
   # Test error for non-existent files
   expect_snapshot(dots_to_plumber_files("non_existent_file.R"), error = TRUE)
-
 
   # Check for warning when providing server.yml files without preferring them
   expect_snapshot(

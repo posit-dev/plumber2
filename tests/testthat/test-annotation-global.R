@@ -27,8 +27,8 @@ real_doc <- openapi(
 )
 
 test_that("Global API blocks are parsed correctly", {
-  papi <- api("annotations/global_api.R")
-  doc <- private(papi, "OPENAPI")
+  pa <- api("annotations/global_api.R")
+  doc <- private(pa, "OPENAPI")
 
   real_doc <- openapi(
     info = openapi_info(
