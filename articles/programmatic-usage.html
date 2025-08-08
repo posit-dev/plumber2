@@ -127,13 +127,13 @@
 <p>You can read more about the event cycle of a fiery app on the <a href="https://fiery.data-imaginist.com/articles/events.html" class="external-link">fiery website</a>.</p>
 <p>You are not restricted to only listening for predefined events. You can add handlers to any event you wish, but you’ll need to trigger the event manually if it is not one of the predefined ones.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">papi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">pa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_on.html">api_on</a></span><span class="op">(</span><span class="st">"hello"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">name</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Hello"</span>, <span class="va">name</span><span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Somewhere in your server code</span></span>
-<span><span class="va">papi</span><span class="op">$</span><span class="fu">trigger</span><span class="op">(</span><span class="st">"hello"</span>, name <span class="op">=</span> <span class="st">"Thomas"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">pa</span><span class="op">$</span><span class="fu">trigger</span><span class="op">(</span><span class="st">"hello"</span>, name <span class="op">=</span> <span class="st">"Thomas"</span><span class="op">)</span></span></code></pre></div>
 </section><section class="level2"><h2 id="mount-static">Static File Routers<a class="anchor" aria-label="anchor" href="#mount-static"></a>
 </h2>
 <p>Static files can be served in two different manners. Either using a specialized route attached to the router, or by completely circumventing the R session and serving the files directly. The former approach is more flexible, while the latter is more performant</p>

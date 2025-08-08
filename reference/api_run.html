@@ -107,7 +107,7 @@ with the pipe, even though they will often be the last part of the chain</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">papi</span> <span class="op">&lt;-</span> <span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">pa</span> <span class="op">&lt;-</span> <span class="fu"><a href="api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="api_request_handlers.html">api_get</a></span><span class="op">(</span><span class="st">"/"</span>, <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>msg <span class="op">=</span> <span class="st">"Hello World"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
@@ -117,12 +117,12 @@ with the pipe, even though they will often be the last part of the chain</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Creating <span style="color: #00BB00;">default</span> route in request router</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Start the server</span></span></span>
-<span class="r-in"><span><span class="va">papi</span> <span class="op">|&gt;</span> <span class="fu">api_run</span><span class="op">(</span>block <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pa</span> <span class="op">|&gt;</span> <span class="fu">api_run</span><span class="op">(</span>block <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> plumber2 server started at http://127.0.0.1:8080</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> I'm alive</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Stop it again</span></span></span>
-<span class="r-in"><span><span class="va">papi</span> <span class="op">|&gt;</span> <span class="fu">api_stop</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pa</span> <span class="op">|&gt;</span> <span class="fu">api_stop</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

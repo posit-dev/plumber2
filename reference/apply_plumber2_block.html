@@ -57,7 +57,7 @@ to an api.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">apply_plumber2_block</span><span class="op">(</span><span class="va">block</span>, <span class="va">api</span>, <span class="va">route_name</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">apply_plumber2_block</span><span class="op">(</span><span class="va">block</span>, <span class="va">api</span>, <span class="va">route_name</span>, <span class="va">root</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -75,6 +75,13 @@ to an api.</p>
 <dt id="arg-route-name">route_name<a class="anchor" aria-label="anchor" href="#arg-route-name"></a></dt>
 <dd><p>The name of the route the plumber2 file is associated with.
 Either the name of the file or the value of the <code>@routeName</code> tag</p></dd>
+
+
+<dt id="arg-root">root<a class="anchor" aria-label="anchor" href="#arg-root"></a></dt>
+<dd><p>The root given by the potential <code>@root</code> tag in the file. If no
+<code>@root</code> tag is present this value will be null. The value represents the root
+path for every endpoint defined in the file and should be prepended to any
+URL path you use.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
