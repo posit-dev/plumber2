@@ -314,8 +314,13 @@ openapi_schema <- function(
   UseMethod("openapi_schema")
 }
 #' @export
+openapi_schema.NULL <- function(x, ...) {
+  list()
+}
+#' @export
 openapi_schema.AsIs <- function(x, default = NULL, ...) {
   check_string(x)
+  class(x) <- setdiff(class(x), "AsIs")
   compact(list(
     type = x,
     default = default,
