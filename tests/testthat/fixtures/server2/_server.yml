@@ -1,0 +1,4 @@
+engine: plumber2
+constructor: constructor.R
+routes:
+  - ../minimal_api.R

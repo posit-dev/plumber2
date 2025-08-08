@@ -93,7 +93,7 @@ api <- function(
           server_yml$constructor
         ),
         verbose = FALSE
-      )
+      )$value
       if (!is_plumber_api(api)) {
         cli::cli_abort(
           "The constructor file in {.file {locations}} did not produce a plumber2 API"

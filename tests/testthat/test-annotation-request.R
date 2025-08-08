@@ -74,7 +74,7 @@ test_that("docs get generated correctly", {
   expect_equal(
     doc$paths[[2]]$post$requestBody$content[[1]]$schema,
     list(
-      type = structure("object", class = "AsIs"),
+      type = "object",
       properties = list(
         test = list(
           type = "integer",
@@ -161,7 +161,7 @@ test_that("docs get generated correctly", {
   expect_equal(
     doc$paths[[4]]$post$requestBody$content[[1]]$schema,
     list(
-      type = structure("object", class = "AsIs"),
+      type = "object",
       properties = list(
         upper = list(
           type = "number",
