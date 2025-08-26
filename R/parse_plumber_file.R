@@ -385,8 +385,13 @@ parse_shiny_block <- function(call, tags, values, env) {
   if (!shiny::is.shiny.appobj(call)) {
     stop_input_type(call, "a shiny app object")
   }
+  except <- which(tags == "except")
   structure(
-    list(shiny_app = call, path = values[[which(tags == "shiny")]]),
+    list(
+      shiny_app = call,
+      path = values[[which(tags == "shiny")]],
+      except = unlist(values[except])
+    ),
     class = "plumber2_proxy_block"
   )
 }
@@ -407,10 +412,13 @@ parse_forward_block <- function(call, tags, values, env) {
     )
   })
   res <- res[lengths(res) != 0]
+
+  except <- which(tags == "except")
   structure(
     list(
       path = vapply(res, `[[`, character(1), "path"),
-      url = vapply(res, `[[`, character(1), "url")
+      url = vapply(res, `[[`, character(1), "url"),
+      except = unlist(values[except])
     ),
     class = "plumber2_proxy_block"
   )
@@ -483,10 +491,18 @@ apply_plumber2_block.plumber2_proxy_block <- function(
   ...
 ) {
   if (!is.null(block$shiny_app)) {
-    api$add_shiny(paste0(root, block$path), block$shiny_app)
+    api$add_shiny(
+      paste0(root, block$path),
+      block$shiny_app,
+      except = block$except
+    )
   } else if (!is.null(block$url)) {
     for (i in seq_along(block$path)) {
-      api$forward(paste0(root, block$path[i]), block$url[i])
+      api$forward(
+        paste0(root, block$path[i]),
+        block$url[i],
+        except = block$except
+      )
     }
   }
   api

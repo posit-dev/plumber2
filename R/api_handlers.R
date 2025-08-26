@@ -766,6 +766,8 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' @param api A plumber2 api to add the shiny app to
 #' @param path The path to serve the shiny app from
 #' @param app A shiny app object
+#' @param except Subpaths to `path` that should not be forwarded to the
+#' shiny app. Be sure it doesn't contains paths that the shiny app needs
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -781,8 +783,8 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' api() |>
 #'   api_shiny("my_app/", blank_shiny)
 #'
-api_shiny <- function(api, path, app) {
-  api$add_shiny(path, app)
+api_shiny <- function(api, path, app, except = NULL) {
+  api$add_shiny(path, app, except)
   api
 }
 
@@ -812,6 +814,7 @@ api_shiny <- function(api, path, app) {
 #' @param api A plumber2 api to add the shiny app to
 #' @param path The path to serve the shiny app from
 #' @param url The url to forward to
+#' @param except Subpaths to `path` that should be exempt from forwarding
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -823,7 +826,7 @@ api_shiny <- function(api, path, app) {
 #' api() |>
 #'   api_forward("my_wiki/", "https://www.wikipedia.org")
 #'
-api_forward <- function(api, path, url) {
+api_forward <- function(api, path, url, except = NULL) {
   api$forward(path, url)
   api
 }

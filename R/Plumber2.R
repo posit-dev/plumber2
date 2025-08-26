@@ -460,8 +460,10 @@ Plumber2 <- R6Class(
     #' information
     #' @param path The path to serve the app from
     #' @param app A shiny app object
+    #' @param except Subpaths to `path` that should not be forwarded to the
+    #' shiny app. Be sure it doesn't contains paths that the shiny app needs
     #'
-    add_shiny = function(path, app) {
+    add_shiny = function(path, app, except = NULL) {
       check_installed("callr")
       check_installed("shiny")
       if (!shiny::is.shiny.appobj(app)) {
@@ -510,11 +512,10 @@ Plumber2 <- R6Class(
     #' [api_forward()] for more details
     #' @param path The root to forward from
     #' @param url The url to forward to
-    #' @param continue Should the response be passed through the standard route
-    #' before being send to the client
+    #' @param except Subpaths to `path` that should be exempt from forwarding
     #'
-    forward = function(path, url, continue = FALSE) {
-      revprox <- firestorm::ReverseProxy$new(url, path)
+    forward = function(path, url, except = NULL) {
+      revprox <- firestorm::ReverseProxy$new(url, path, except)
       self$attach(revprox)
 
       invisible(self)
