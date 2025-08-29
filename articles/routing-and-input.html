@@ -173,7 +173,7 @@
 </h3>
 <p>In general when you think of inputs to a function in R you think about the arguments to that function. In plumber2 there are certain rules around the arguments in the handler function that determines what kind of input the handler gets access to. Most importantly perhaps, the path parameters are being provided directly to your handler as named arguments. For example, given the following handler</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#* @get /user/&lt;id&gt;/setting/&lt;type&gt;</span></span>
+<code class="sourceCode R"><span><span class="co">#* @get /user/&lt;user&gt;/setting/&lt;type&gt;</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">user</span>, <span class="va">type</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># ...</span></span>
 <span><span class="op">}</span></span></code></pre></div>
