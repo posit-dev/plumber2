@@ -134,7 +134,7 @@ Plumber routes requests based exclusively on the path and method of the incoming
 In general when you think of inputs to a function in R you think about the arguments to that function. In plumber2 there are certain rules around the arguments in the handler function that determines what kind of input the handler gets access to. Most importantly perhaps, the path parameters are being provided directly to your handler as named arguments. For example, given the following handler
 
 ``` r
-#* @get /user/<id>/setting/<type>
+#* @get /user/<user>/setting/<type>
 function(user, type) {
   # ...
 }
