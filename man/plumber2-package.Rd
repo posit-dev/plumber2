@@ -4,7 +4,7 @@
 \name{plumber2-package}
 \alias{plumber2}
 \alias{plumber2-package}
-\title{plumber2: Easy and Powerful Webservers in R}
+\title{plumber2: Easy and Powerful Webservers}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
