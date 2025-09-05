@@ -18,6 +18,11 @@
 #'
 #' @export
 #'
+#' @examplesIf FALSE
+#' create_server_yml(
+#'   "path/to/a/plumber/file.R"
+#' )
+#'
 create_server_yml <- function(
   ...,
   path = ".",

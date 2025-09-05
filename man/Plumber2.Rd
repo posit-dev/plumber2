@@ -441,7 +441,7 @@ docs to assign \code{doc} to}
 Add a shiny app to an api. See \code{\link[=api_shiny]{api_shiny()}} for detailed
 information
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_shiny(path, app)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_shiny(path, app, except = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -450,6 +450,9 @@ information
 \item{\code{path}}{The path to serve the app from}
 
 \item{\code{app}}{A shiny app object}
+
+\item{\code{except}}{Subpaths to \code{path} that should not be forwarded to the
+shiny app. Be sure it doesn't contains paths that the shiny app needs}
 }
 \if{html}{\out{</div>}}
 }
@@ -461,7 +464,7 @@ information
 Add a reverse proxy from a path to a given URL. See
 \code{\link[=api_forward]{api_forward()}} for more details
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$forward(path, url, continue = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$forward(path, url, except = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -471,8 +474,7 @@ Add a reverse proxy from a path to a given URL. See
 
 \item{\code{url}}{The url to forward to}
 
-\item{\code{continue}}{Should the response be passed through the standard route
-before being send to the client}
+\item{\code{except}}{Subpaths to \code{path} that should be exempt from forwarding}
 }
 \if{html}{\out{</div>}}
 }

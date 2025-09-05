@@ -30,6 +30,14 @@ registry$parsers <- list()
 #' @seealso [register_serializer()]
 #' @export
 #'
+#' @examplesIf FALSE
+#' # Register a parser that splits at a character and converts to number
+#' register_parser("comma", function(delim = ",") {
+#'   function(raw, directive) {
+#'     as.numeric(strsplit(rawToChar(raw), delim)[[1]])
+#'   }
+#' }, mime_types = "text/plain", default = FALSE)
+#'
 register_parser <- function(name, fun, mime_types, default = TRUE) {
   check_function(fun)
   check_character(mime_types)
@@ -255,6 +263,15 @@ get_parsers_internal <- function(
 #' @seealso [register_parser()]
 #' @rdname parsers
 #' @name parsers
+#'
+#' @examples
+#' # You can use parsers directly when adding handlers
+#' pa <- api() |>
+#'   api_post("/hello/<name:string>", function(name, body) {
+#'     list(
+#'       msg = paste0("Hello ", name, "!")
+#'     )
+#'   }, parsers = list("text/csv" = parse_csv()))
 #'
 NULL
 

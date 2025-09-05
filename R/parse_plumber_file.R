@@ -28,6 +28,10 @@
 #' @importFrom roxygen2 parse_file block_has_tags block_get_tag_value
 #' @keywords internal
 #'
+#' @examplesIf FALSE
+#' # Parse a plumber file
+#' parse_plumber_file("path/to/my/plumber/file.R")
+#'
 parse_plumber_file <- function(
   path,
   env = caller_env()
@@ -475,8 +479,20 @@ parse_report_block <- function(call, tags, values, env, file_dir) {
 #'
 #' @return `api`, modified
 #'
+#' @seealso [add_plumber2_tag()]
+#'
 #' @export
 #' @keywords internal
+#'
+#' @examplesIf FALSE
+#' # Add a method for a fictional "hello_block" that makes the api say hello when
+#' # it starts
+#' apply_plumber2_block.hello_block <- function(block, api, route_name, root, ...) {
+#'   api$on("start", function(...) {
+#'     message("Hello")
+#'   })
+#'   api
+#' }
 #'
 apply_plumber2_block <- function(block, api, route_name, root, ...) {
   UseMethod("apply_plumber2_block")

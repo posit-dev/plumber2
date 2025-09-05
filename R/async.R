@@ -101,6 +101,17 @@ get_async <- function(name = NULL, ...) {
 #' @rdname async_evaluators
 #' @name async_evaluators
 #'
+#' @examples
+#' # Use the default mirai backend by setting `async = TRUE` with a handler
+#'
+#' pa <- api() |>
+#'   api_get("/hello/<name:string>", function(name) {
+#'     list(
+#'       msg = paste0("Hello ", name, "!")
+#'     )
+#'   }, async = TRUE)
+#'
+#'
 NULL
 
 #' @rdname async_evaluators

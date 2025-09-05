@@ -147,6 +147,16 @@ as \code{"pdf"} to the mime type \code{application/pdf}
 }
 }
 
+\examples{
+# You can use serializers directly when adding handlers
+pa <- api() |>
+  api_get("/hello/<name:string>", function(name) {
+    list(
+      msg = paste0("Hello ", name, "!")
+    )
+  }, serializers = list("application/json" = format_unboxed()))
+
+}
 \seealso{
 \code{\link[=register_serializer]{register_serializer()}}
 }

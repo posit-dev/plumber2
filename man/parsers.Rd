@@ -98,6 +98,16 @@ registered as \code{"geojson"} for the mime types \code{application/geo+json} an
 }
 }
 
+\examples{
+# You can use parsers directly when adding handlers
+pa <- api() |>
+  api_post("/hello/<name:string>", function(name, body) {
+    list(
+      msg = paste0("Hello ", name, "!")
+    )
+  }, parsers = list("text/csv" = parse_csv()))
+
+}
 \seealso{
 \code{\link[=register_parser]{register_parser()}}
 }

@@ -29,3 +29,15 @@ start up multiple persistent background processes. See \code{\link[mirai:daemons
 }
 }
 
+\examples{
+# Use the default mirai backend by setting `async = TRUE` with a handler
+
+pa <- api() |>
+  api_get("/hello/<name:string>", function(name) {
+    list(
+      msg = paste0("Hello ", name, "!")
+    )
+  }, async = TRUE)
+
+
+}

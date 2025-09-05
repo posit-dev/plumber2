@@ -32,20 +32,12 @@ if switching to plumber2.
 
 ## Installation
 
-plumber2 is still a work in progress, and it is recommended to only use it to
-experiment and get familiarity with the future direction of plumber APIs. If you
-wish to try it out you can install the development version from GitHub using
-[pak](https://pak.r-lib.org):
+plumber2 can be installed from CRAN using `install.packages("plumber2")`. Alternatively you can install the development version from github using pak
 
 ```r
+# install.packages("pak")
 pak::pak("posit-dev/plumber2")
 ```
-
-## Feedback
-
-At this point in the development feedback is crucial. If you do decide to try
-out plumber2, please share your experience, both good and bad, and ask questions
-as it informs us about where to spend more time with documentation.
 
 ## Hello World
 

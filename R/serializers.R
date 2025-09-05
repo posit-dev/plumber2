@@ -28,6 +28,14 @@ registry$serializers <- list()
 #'
 #' @export
 #'
+#' @examplesIf FALSE
+#' # Add a serializer that deparses the value
+#' register_serializer("deparse", function(...) {
+#'   function(x) {
+#'     deparse(x, ...)
+#'   }
+#' }, mime_type = "text/plain")
+#'
 register_serializer <- function(name, fun, mime_type, default = TRUE) {
   check_function(fun)
   check_string(mime_type)
@@ -328,6 +336,15 @@ get_serializers_internal <- function(
 #' @rdname serializers
 #' @name serializers
 #'
+#' @examples
+#' # You can use serializers directly when adding handlers
+#' pa <- api() |>
+#'   api_get("/hello/<name:string>", function(name) {
+#'     list(
+#'       msg = paste0("Hello ", name, "!")
+#'     )
+#'   }, serializers = list("application/json" = format_unboxed()))
+#'
 NULL
 
 #' @rdname serializers
@@ -504,6 +521,10 @@ on_load({
 #' @return A device formatter function
 #' @keywords internal
 #' @export
+#'
+#' @examplesIf FALSE
+#' # Create a png formatter using the default png device
+#' device_formatter(png)
 #'
 device_formatter <- function(dev_open, dev_close = grDevices::dev.off()) {
   dev_name <- caller_arg(dev_open)

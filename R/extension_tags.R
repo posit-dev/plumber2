@@ -28,6 +28,17 @@ tag_extensions$tag <- list()
 #'
 #' @export
 #'
+#' @seealso [apply_plumber2_block()]
+#'
+#' @examplesIf FALSE
+#' # Add a tag that says hello when used
+#' add_plumber2_tag("hello", function(block, call, tags, values, env) {
+#'   message("Hello")
+#'   class(block) <- c("hello_block", class(block))
+#'   block
+#' })
+#'
+#'
 add_plumber2_tag <- function(tag, handler) {
   check_string(tag)
   check_function(handler)

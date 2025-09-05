@@ -4,7 +4,7 @@
 \alias{api_shiny}
 \title{Serve a Shiny app from a plumber2 api}
 \usage{
-api_shiny(api, path, app)
+api_shiny(api, path, app, except = NULL)
 }
 \arguments{
 \item{api}{A plumber2 api to add the shiny app to}
@@ -12,6 +12,9 @@ api_shiny(api, path, app)
 \item{path}{The path to serve the shiny app from}
 
 \item{app}{A shiny app object}
+
+\item{except}{Subpaths to \code{path} that should not be forwarded to the
+shiny app. Be sure it doesn't contains paths that the shiny app needs}
 }
 \value{
 This functions return the \code{api} object allowing for easy chaining

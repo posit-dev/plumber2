@@ -35,4 +35,10 @@ plumber app after the routes have been added. This function does not attach
 the parsed data to a plumber api, and it is rarely necessary to call it
 directly.
 }
+\examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# Parse a plumber file
+parse_plumber_file("path/to/my/plumber/file.R")
+\dontshow{\}) # examplesIf}
+}
 \keyword{internal}

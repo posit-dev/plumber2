@@ -1,11 +1,14 @@
 Package: plumber2
 Title: Easy and Powerful Webservers in R
 Version: 0.0.0.9000
-Authors@R:
-    person("Thomas Lin", "Pedersen", , "thomasp85@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-5147-4711"))
-Description: Automatically create a webserver from annotated R files or by
-    building it up programmatically. Provides automatic OpenAPI documentation,
+Authors@R: c(
+    person("Thomas Lin", "Pedersen", , "thomas.pedersen@posit.co", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-5147-4711")),
+    person("Posit Software, PBC", role = c("cph", "fnd"),
+           comment = c(ROR = "03wc8by49"))
+  )
+Description: Automatically create a webserver from annotated 'R' files or by
+    building it up programmatically. Provides automatic 'OpenAPI' documentation,
     input handling, async support, and middleware support.
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -35,8 +38,6 @@ Imports:
     webutils,
     yaml
 Remotes:
-    thomasp85/firestorm,
-    thomasp85/firesale,
     thomasp85/firesafety
 Suggests:
     arrow,
