@@ -37,8 +37,6 @@ Imports:
     utils,
     webutils,
     yaml
-Remotes:
-    thomasp85/firesafety
 Suggests:
     arrow,
     callr,
