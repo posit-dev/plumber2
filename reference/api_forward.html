@@ -81,7 +81,7 @@ However, for the later you'd usually use a redirect instead (via
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">api_forward</span><span class="op">(</span><span class="va">api</span>, <span class="va">path</span>, <span class="va">url</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">api_forward</span><span class="op">(</span><span class="va">api</span>, <span class="va">path</span>, <span class="va">url</span>, except <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -98,6 +98,10 @@ However, for the later you'd usually use a redirect instead (via
 
 <dt id="arg-url">url<a class="anchor" aria-label="anchor" href="#arg-url"></a></dt>
 <dd><p>The url to forward to</p></dd>
+
+
+<dt id="arg-except">except<a class="anchor" aria-label="anchor" href="#arg-except"></a></dt>
+<dd><p>Subpaths to <code>path</code> that should be exempt from forwarding</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -129,7 +133,7 @@ with the pipe</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Thomas Lin Pedersen.</p>
+  <p>Developed by Thomas Lin Pedersen, Posit Software, PBC.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -92,13 +92,31 @@ URL path you use.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>api</code>, modified</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="add_plumber2_tag.html">add_plumber2_tag()</a></code></p></div>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># Add a method for a fictional "hello_block" that makes the api say hello when</span></span></span>
+<span class="r-in"><span><span class="co"># it starts</span></span></span>
+<span class="r-in"><span><span class="va">apply_plumber2_block.hello_block</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">block</span>, <span class="va">api</span>, <span class="va">route_name</span>, <span class="va">root</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">api</span><span class="op">$</span><span class="fu">on</span><span class="op">(</span><span class="st">"start"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Hello"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">api</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Thomas Lin Pedersen.</p>
+  <p>Developed by Thomas Lin Pedersen, Posit Software, PBC.</p>
 </div>
 
 <div class="pkgdown-footer-right">

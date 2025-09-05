@@ -91,13 +91,30 @@ already been handled and incorporated into <code>block</code>. The function must
 a modified version of <code>block</code>. If you add a subclass to <code>block</code> you should
 make sure that a method for <code><a href="apply_plumber2_block.html">apply_plumber2_block()</a></code> for the subclass exists.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="apply_plumber2_block.html">apply_plumber2_block()</a></code></p></div>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># Add a tag that says hello when used</span></span></span>
+<span class="r-in"><span><span class="fu">add_plumber2_tag</span><span class="op">(</span><span class="st">"hello"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">block</span>, <span class="va">call</span>, <span class="va">tags</span>, <span class="va">values</span>, <span class="va">env</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Hello"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">block</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hello_block"</span>, <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">block</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">block</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Thomas Lin Pedersen.</p>
+  <p>Developed by Thomas Lin Pedersen, Posit Software, PBC.</p>
 </div>
 
 <div class="pkgdown-footer-right">
