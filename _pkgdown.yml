@@ -20,8 +20,7 @@ navbar:
           href: articles/rendering-output.html
         - text: 4. Runtime
           href: articles/execution-model.html
-        - text: 5. Hosting
-          href: articles/hosting.html
+        - text: 5. Hosting (TBD)
         - text: 6. Programmatic usage
           href: articles/programmatic-usage.html
         - text: 7. Annotation Reference

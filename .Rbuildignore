@@ -11,3 +11,6 @@
 ^docs$
 ^pkgdown$
 ^cran-comments\.md$
+vignettes/_ex-github.qmd
+vignettes/_ex-mailgun.qmd
+vignettes/_hosting.qmd
