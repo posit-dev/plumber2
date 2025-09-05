@@ -26,6 +26,8 @@
 #'
 #' @importFrom R6 R6Class
 #' @importFrom fiery Fire
+#' @importFrom firestorm ReverseProxy
+#' @importFrom rapidoc rapidoc_spec
 #' @importFrom jsonlite write_json
 #' @importFrom routr RouteStack Route openapi_route
 #' @importFrom stringi stri_replace_all_regex

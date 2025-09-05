@@ -3,5 +3,5 @@
 #* @redirect any /remote http://example.com
 NULL
 
-#* @forward /proxy http://127.0.0.1:9876
+#* @forward /proxy/ http://127.0.0.1:9876
 NULL

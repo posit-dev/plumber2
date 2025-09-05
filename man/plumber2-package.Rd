@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Automatically create a webserver from annotated R files or by building it up programmatically. Provides automatic OpenAPI documentation, input handling, async support, and middleware support.
+Automatically create a webserver from annotated 'R' files or by building it up programmatically. Provides automatic 'OpenAPI' documentation, input handling, async support, and middleware support.
 }
 \seealso{
 Useful links:

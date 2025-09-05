@@ -24,7 +24,7 @@ test_that("forward works", {
   pa2$ignite(block = FALSE, showcase = FALSE, silent = TRUE)
   on.exit(pa2$extinguish())
 
-  req <- fiery::fake_request("http://127.0.0.1:8080/proxy")
+  req <- fiery::fake_request("http://127.0.0.1:8080/proxy/")
   res <- pa$test_request(req)
   promise_impl <- attr(res, "promise_impl", exact = TRUE)
   while (promise_impl$status() == "pending") {
