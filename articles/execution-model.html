@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">plumber2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@
     <li><a class="dropdown-item" href="../articles/routing-and-input.html">2. Routing &amp; Input</a></li>
     <li><a class="dropdown-item" href="../articles/rendering-output.html">3. Rendering output</a></li>
     <li><a class="dropdown-item" href="../articles/execution-model.html">4. Runtime</a></li>
-    <li><a class="dropdown-item" href="../articles/hosting.html">5. Hosting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>5. Hosting (TBD)</h6></li>
     <li><a class="dropdown-item" href="../articles/programmatic-usage.html">6. Programmatic usage</a></li>
     <li><a class="dropdown-item" href="../articles/annotations.html">7. Annotation Reference</a></li>
     <li><a class="dropdown-item" href="../articles/security.html">8. Security</a></li>
@@ -142,7 +142,7 @@
 </section><section class="level3"><h3 id="external-data-store">External Data Store<a class="anchor" aria-label="anchor" href="#external-data-store"></a>
 </h3>
 <p>The final option to consider when coordinating state for an API is leveraging an external data store. This could be a relational database (like MySQL or Amazon RedShift), a non-relational database (like MongoDB), or an transactional data store like Redis.</p>
-<p>One important consideration for any of these options is to ensure that they are “transactional,” meaning that two plumber2 processes trying to write at the same time won’t overwrite one another. If you’re interested in pursuing this option you should see <a href="https://solutions.rstudio.com/db/" class="external-link">solutions.rstudio.com/db/</a> or look at <a href="http://shiny.rstudio.com/articles/overview.html" class="external-link">some</a> of the <a href="http://shiny.rstudio.com/articles/sql-injections.html" class="external-link">resources</a> <a href="http://shiny.rstudio.com/articles/pool-basics.html" class="external-link">put together</a> for Shiny as pertains to dealing with databases in a web-accessible R platform.</p>
+<p>One important consideration for any of these options is to ensure that they are “transactional,” meaning that two plumber2 processes trying to write at the same time won’t overwrite one another. If you’re interested in pursuing this option you should see <a href="https://solutions.posit.co/connections/db/" class="external-link">solutions.rstudio.com/db/</a> or look at <a href="https://shiny.posit.co/r/articles/build/overview/" class="external-link">some</a> of the <a href="https://shiny.posit.co/r/articles/build/sql-injections/" class="external-link">resources</a> <a href="https://shiny.posit.co/r/articles/build/pool-basics/" class="external-link">put together</a> for Shiny as pertains to dealing with databases in a web-accessible R platform.</p>
 </section></section><section class="level2"><h2 id="exit-handlers">Exit Handlers<a class="anchor" aria-label="anchor" href="#exit-handlers"></a>
 </h2>
 <p>It may be useful to define a function that you want to run as your API is closing – for instance, if you have a pool of database connections that need to be cleaned up when your plumber2 process is being terminated. You can add a handler to the <code>"end"</code> event to do this.</p>

@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">plumber2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@
     <li><a class="dropdown-item" href="../articles/routing-and-input.html">2. Routing &amp; Input</a></li>
     <li><a class="dropdown-item" href="../articles/rendering-output.html">3. Rendering output</a></li>
     <li><a class="dropdown-item" href="../articles/execution-model.html">4. Runtime</a></li>
-    <li><a class="dropdown-item" href="../articles/hosting.html">5. Hosting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>5. Hosting (TBD)</h6></li>
     <li><a class="dropdown-item" href="../articles/programmatic-usage.html">6. Programmatic usage</a></li>
     <li><a class="dropdown-item" href="../articles/annotations.html">7. Annotation Reference</a></li>
     <li><a class="dropdown-item" href="../articles/security.html">8. Security</a></li>
@@ -108,7 +108,7 @@
 <li><code>@delete</code></li>
 <li><code>@head</code></li>
 </ul>
-<p>These map to the HTTP methods that an API client might send along with a request. By default when you open a page in a web browser, that sends a <code>GET</code> request to the API. But you can use other API clients (or even JavaScript inside of a web browser) to form HTTP requests using the other methods listed here. There are conventions around when each of these methods should be used which you can read more about <a href="http://www.restapitutorial.com/lessons/httpmethods.html" class="external-link">here</a>. Note that some of these conventions carry with them security implications, so it’s a good idea to follow the recommended uses for each method until you fully understand why you might deviate from them.</p>
+<p>These map to the HTTP methods that an API client might send along with a request. By default when you open a page in a web browser, that sends a <code>GET</code> request to the API. But you can use other API clients (or even JavaScript inside of a web browser) to form HTTP requests using the other methods listed here. There are conventions around when each of these methods should be used which you can read more about <a href="https://developer.mozilla.org/docs/Web/HTTP/Reference/Methods" class="external-link">here</a>. Note that some of these conventions carry with them security implications, so it’s a good idea to follow the recommended uses for each method until you fully understand why you might deviate from them.</p>
 <p>Note that a single endpoint can support multiple verbs. The following function would be used to service any incoming <code>GET</code>, <code>POST</code>, or <code>PUT</code> request to <code>/cars</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /cars</span></span>
