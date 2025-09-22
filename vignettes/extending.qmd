@@ -5,7 +5,7 @@ knitr:
     collapse: false
     comment: "#>"
 vignette: >
-  %\VignetteIndexEntry{Introduction}
+  %\VignetteIndexEntry{Extending plumber2}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
