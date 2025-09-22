@@ -30,7 +30,7 @@ registry$parsers <- list()
 #' @seealso [register_serializer()]
 #' @export
 #'
-#' @examplesIf FALSE
+#' @examples
 #' # Register a parser that splits at a character and converts to number
 #' register_parser("comma", function(delim = ",") {
 #'   function(raw, directive) {

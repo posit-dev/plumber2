@@ -28,7 +28,7 @@ registry$serializers <- list()
 #'
 #' @export
 #'
-#' @examplesIf FALSE
+#' @examples
 #' # Add a serializer that deparses the value
 #' register_serializer("deparse", function(...) {
 #'   function(x) {
@@ -150,7 +150,9 @@ get_serializers <- function(serializers = NULL) {
           "No serializer registered with {.val {elem_names[i]}} as name"
         )
       }
-      if (!is.list(serializers[[i]])) serializers[[i]] <- list(serializers[[i]])
+      if (!is.list(serializers[[i]])) {
+        serializers[[i]] <- list(serializers[[i]])
+      }
       type <- registry$serializers[[elem_names[i]]]$type
       fun <- registry$serializers[[elem_names[i]]]$fun
       return(list2(!!type := inject(fun(!!!serializers[[i]]))))
@@ -209,8 +211,11 @@ get_serializers_internal <- function(
   serializers <- lapply(types, function(type) {
     type <- stringi::stri_split_regex(type, "\\{|\\s", n = 2)[[1]]
     if (stringi::stri_count_fixed(type[[1]], "/") == 1) {
-      serializer_fun <- if (length(type) == 2)
-        eval_bare(parse_expr(type[2]), env = env) else identity
+      serializer_fun <- if (length(type) == 2) {
+        eval_bare(parse_expr(type[2]), env = env)
+      } else {
+        identity
+      }
       check_function(serializer_fun)
       serializer <- list(
         fun = serializer_fun,
@@ -378,8 +383,12 @@ format_rds <- function(version = "3", ascii = FALSE, ...) {
 format_geojson <- function(...) {
   check_installed("geojsonsf")
   function(x) {
-    if (inherits(x, "sfc")) return(geojsonsf::sfc_geojson(x, ...))
-    if (inherits(x, "sf")) return(geojsonsf::sf_geojson(x, ...))
+    if (inherits(x, "sfc")) {
+      return(geojsonsf::sfc_geojson(x, ...))
+    }
+    if (inherits(x, "sf")) {
+      return(geojsonsf::sf_geojson(x, ...))
+    }
     cli::cli_abort(
       "{.fun format_geojson} did not receive an `sf` or `sfc` object."
     )
@@ -522,7 +531,7 @@ on_load({
 #' @keywords internal
 #' @export
 #'
-#' @examplesIf FALSE
+#' @examples
 #' # Create a png formatter using the default png device
 #' device_formatter(png)
 #'

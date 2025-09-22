@@ -18,7 +18,7 @@
 #'
 #' @export
 #'
-#' @examplesIf FALSE
+#' @examplesIf file.exists("path/to/a/plumber/file.R")
 #' create_server_yml(
 #'   "path/to/a/plumber/file.R"
 #' )

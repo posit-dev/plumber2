@@ -28,7 +28,7 @@ files. If you call \code{\link[=api]{api()}} with a path to such a file the API 
 constructed according to its content.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (file.exists("path/to/a/plumber/file.R")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 create_server_yml(
   "path/to/a/plumber/file.R"
 )

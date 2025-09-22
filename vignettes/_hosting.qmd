@@ -39,6 +39,24 @@ Once you have developed your plumber2 API, the next step is to find a way to hos
 
 For these reasons and more, you should consider setting up a separate server on which you can host your plumber2 APIs. There are a variety of options that you can consider.
 
+## The `_server.yml` file
+
+Since plumber2 API specifications can be spread out over multiple files we need a single file that is the source of truth for what the API is based on. plumber2 uses the `_server.yml` specification for this and you can create a scaffold of such a file using `create_server_yml()`.
+
+The `_server.yml` file not only contains the R files that make up your API, but can also holds options that modify how the API is constructed (see `get_opts()`).
+
+Once you have a `_server.yml` file you can verify that it works as it should by passing it in to `api()` and testing out the constructed API:
+
+```{r}
+#| eval: false
+# Create _server.yml in the working directory
+create_server_yml(...) # Various settings to capture your server
+
+# Test that it works
+api("_server.yml") |> 
+  api_run()
+```
+
 ## Posit Connect {#posit-connect}
 
 [Posit Connect](https://posit.co/products/enterprise/connect/) is an enterprise publishing platform from Posit. It supports push-button publishing from the RStudio IDE of a variety of R content types including plumber2 APIs. Unlike all the other options listed here, Posit Connect automatically manages the dependent packages and files your API has and recreates an environment closely mimicking your local development environment on the server.

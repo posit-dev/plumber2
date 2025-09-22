@@ -1,5 +1,5 @@
 Package: plumber2
-Title: Easy and Powerful Webservers
+Title: Easy and Powerful Web Servers
 Version: 0.1.0
 Authors@R: c(
     person("Thomas Lin", "Pedersen", , "thomas.pedersen@posit.co", role = c("aut", "cre"),
@@ -7,9 +7,9 @@ Authors@R: c(
     person("Posit Software, PBC", role = c("cph", "fnd"),
            comment = c(ROR = "03wc8by49"))
   )
-Description: Automatically create a webserver from annotated 'R' files or by
+Description: Automatically create a web server from annotated 'R' files or by
     building it up programmatically. Provides automatic 'OpenAPI' documentation,
-    input handling, async support, and middleware support.
+    input handling, asynchronous evaluation, and plugin support.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -49,6 +49,7 @@ Suggests:
     nanoparquet,
     quarto,
     redoc,
+    rmarkdown,
     shiny,
     storr,
     swagger,
