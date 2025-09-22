@@ -125,8 +125,7 @@
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
-<p>This file defines two Plumber handlers. One is hosted at the path <code>/echo/{msg}</code> and simply echoes the message passed in as the second part of the path; the other is hosted at the path <code>/plot</code> and returns an image showing a simple R plot.</p>
-<p>If you haven’t installed <code>plumber2</code> yet, see the <a href="./index.html#installation">installation section</a>. Once you have <code>plumber2</code> installed, you can use the <code><a href="../reference/api.html">api()</a></code> function to translate this R file into a Plumber API:</p>
+<p>This file defines two Plumber handlers. One is hosted at the path <code>/echo/{msg}</code> and simply echoes the message passed in as the second part of the path; the other is hosted at the path <code>/plot</code> and returns an image showing a simple R plot. You can use the <code><a href="../reference/api.html">api()</a></code> function to translate this R file into a Plumber API:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"plumber.R"</span><span class="op">)</span></span>
 <span><span class="va">pa</span></span></code></pre></div>

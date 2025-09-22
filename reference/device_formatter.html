@@ -77,10 +77,52 @@ device for rendering.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span><span class="co"># Create a png formatter using the default png device</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a png formatter using the default png device</span></span></span>
 <span class="r-in"><span><span class="fu">device_formatter</span><span class="op">(</span><span class="va">png</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> function (...) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     provided_args &lt;- names(enquos(...))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     dev_args &lt;- fn_fmls_names(dev_open)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     extra_args &lt;- setdiff(provided_args, dev_args)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     if (length(extra_args) != 0 &amp;&amp; !"..." %in% dev_args) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         cli::cli_abort("Provided arguments does not match arguments in {.fun {dev_name}}")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     init_dev &lt;- function() {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         output_file &lt;- tempfile()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         dev_open(filename = output_file, ...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         dev_id &lt;- grDevices::dev.cur()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         list(path = output_file, dev = dev_id)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     close_dev &lt;- function(info) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         grDevices::dev.set(info$dev)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         grDevices::dev.off()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         if (!file.exists(info$path)) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             return(NULL)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         con &lt;- file(info$path, "rb")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         on.exit({</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             close(con)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             unlink(info$path)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         }, add = TRUE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         readBin(con, "raw", file.info(info$path)$size)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     clean_dev &lt;- function(info) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         grDevices::dev.set(info$dev)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         grDevices::dev.off()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         unlink(info$path)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     with_dev &lt;- function(x, info) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         promises::with_promise_domain(create_graphics_device_promise_domain(info$dev), </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             x)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     structure(identity, init = init_dev, close = close_dev, clean = clean_dev, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         with = with_dev, class = "device_formatter")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x55fe2e3cd4b0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55fe2e3d3868&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "device_constructor"</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
