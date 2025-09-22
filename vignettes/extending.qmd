@@ -146,8 +146,7 @@ For an example of a method for a block object with only a single class we return
 apply_plumber2_block.plumber2_tictoc_block <- function(
   block, 
   api, 
-  route_
-  name, 
+  route_name, 
   root, 
   ...
 ) {
