@@ -4,7 +4,7 @@
 \alias{add_plumber2_tag}
 \title{Add a tag extension to plumber2}
 \usage{
-add_plumber2_tag(tag, handler)
+add_plumber2_tag(tag, handler = NULL)
 }
 \arguments{
 \item{tag}{The name of the tag}
@@ -20,18 +20,27 @@ wish to add a new tag to be used when writing annotated plumber2 routes they
 can use this function. If so, it should be called when the package is loaded.
 }
 \details{
-The \code{handler} argument must be a function with the arguments \code{block}, \code{call},
-\code{tags}, \code{values}, and \code{env}. \code{block} is a list with the currently parsed
-information from the block. You can add or modify the values within to suit
-your need as well as subclass it. You should not remove any values as others
-might need them. \code{call} is the parsed value of whatever expression was
-beneath the plumber2 block. \code{tags} is a character vector of all the tags in
-the block, and \code{values} is a list of all the values associated with the tags
-(that is, whatever comes after the tag in the block). The values are
-unparsed. You should assume that all tags not relevant for your extension has
-already been handled and incorporated into \code{block}. The function must return
-a modified version of \code{block}. If you add a subclass to \code{block} you should
-make sure that a method for \code{\link[=apply_plumber2_block]{apply_plumber2_block()}} for the subclass exists.
+The \code{handler} argument must be, if provided, a function with the arguments
+\code{block}, \code{call}, \code{tags}, \code{values}, and \code{env}. \code{block} is a list with the
+currently parsed information from the block. You can add or modify the values
+within to suit your need as well as subclass it. You should not remove any
+values as others might need them. \code{call} is the parsed value of whatever
+expression was beneath the plumber2 block. \code{tags} is a character vector of
+all the tags in the block, and \code{values} is a list of all the values
+associated with the tags (that is, whatever comes after the tag in the
+block). The values are unparsed. You should assume that all tags not relevant
+for your extension has already been handled and incorporated into \code{block}.
+The \code{env} argument contains the environment the annotation file is evaluated
+in. The function must return a modified version of \code{block} unless \code{block} is
+of the class \code{plumber2_empty_block} in which case it is allowed to construct
+a new object from scratch. If you add a subclass to \code{block} you should make
+sure that a method for \code{\link[=apply_plumber2_block]{apply_plumber2_block()}} for the subclass exists.
+
+If \code{handler} is \code{NULL} then the tag will be registered but no associated
+handler will be added. This can make sense if you have a new block type that
+consists of multiple tags but only want a single handler for it. In that case
+you register a handler for one of the required tags and register the
+remaining tags without a handler.
 }
 \examples{
 # Add a tag that says hello when used
