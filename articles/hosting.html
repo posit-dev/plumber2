@@ -18,7 +18,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="hosting_files/libs/quarto-html/popper.min.js"></script><script src="hosting_files/libs/quarto-html/tippy.umd.min.js"></script><link href="hosting_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="hosting_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Hosting">
-<meta property="og:image" content="https://posit-dev.github.io/plumber2/logo.svg">
+<meta property="og:image" content="https://plumber2.posit.co/logo.svg">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">plumber2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,21 @@
 <li>Most importantly, serving public requests from your development environment can be a security hazard. Ideally, you should separate your development instances from the servers that are accessible by others.</li>
 </ol>
 <p>For these reasons and more, you should consider setting up a separate server on which you can host your plumber2 APIs. There are a variety of options that you can consider.</p>
-<section class="level2"><h2 id="posit-connect">Posit Connect<a class="anchor" aria-label="anchor" href="#posit-connect"></a>
+<section class="level2"><h2 id="the-_server-yml-file">The <code>_server.yml</code> file<a class="anchor" aria-label="anchor" href="#the-_server-yml-file"></a>
+</h2>
+<p>Since plumber2 API specifications can be spread out over multiple files we need a single file that is the source of truth for what the API is based on. plumber2 uses the <code>_server.yml</code> specification for this and you can create a scaffold of such a file using <code><a href="../reference/create_server_yml.html">create_server_yml()</a></code>.</p>
+<p>The <code>_server.yml</code> file not only contains the R files that make up your API, but can also holds options that modify how the API is constructed (see <code><a href="../reference/get_opts.html">get_opts()</a></code>).</p>
+<p>Once you have a <code>_server.yml</code> file you can verify that it works as it should by passing it in to <code><a href="../reference/api.html">api()</a></code> and testing out the constructed API:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create _server.yml in the working directory</span></span>
+<span><span class="fu"><a href="../reference/create_server_yml.html">create_server_yml</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="co"># Various settings to capture your server</span></span>
+<span></span>
+<span><span class="co"># Test that it works</span></span>
+<span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"_server.yml"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/api_run.html">api_run</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+</section><section class="level2"><h2 id="posit-connect">Posit Connect<a class="anchor" aria-label="anchor" href="#posit-connect"></a>
 </h2>
 <p><a href="https://posit.co/products/enterprise/connect/" class="external-link">Posit Connect</a> is an enterprise publishing platform from Posit. It supports push-button publishing from the RStudio IDE of a variety of R content types including plumber2 APIs. Unlike all the other options listed here, Posit Connect automatically manages the dependent packages and files your API has and recreates an environment closely mimicking your local development environment on the server.</p>
 <p>Posit Connect automatically manages the number of R processes necessary to handle the current load and balances incoming traffic across all available processes. It can also shut down idle processes when they’re not in use. This allows you to run the appropriate number of R processes to scale your capacity to accommodate the current load.</p>
@@ -105,15 +119,15 @@
 <p><a href="https://docker.io" class="external-link">Docker</a> is a platform built on top of Linux Containers that allow you to run processes in an isolated environment; that environment might have certain resources/software pre-configured or may emulate a particular Linux environment like Ubuntu 14.04 or CentOS 7.3.</p>
 <p>We won’t delve into the details of Docker or how to setup or install everything on your system. Docker provides some <a href="https://docs.docker.com/" class="external-link">great resources</a> for those who are looking to get started. Here we’ll assume that you have Docker installed and you’re familiar with the basic commands required to spin up a container.</p>
 <p>In this article, we’ll take advantage of the <a href="https://hub.docker.com/r/rstudio/plumber/" class="external-link">rstudio/plumber</a> Docker image that bundles a recent version of R with the most recent version of plumber pre-installed (the underlying R image is courtesy of the <a href="https://github.com/rocker-org/rocker" class="external-link">rocker</a> project). You can get this image with a</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull rstudio/plumber</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull rstudio/plumber</span></code></pre></div>
 <p>Remember that this will get you the current snapshot of plumber2 and will continue to use that image until you run <code>pull</code> again.</p>
 <section class="level3"><h3 id="default-dockerfile">Default Dockerfile<a class="anchor" aria-label="anchor" href="#default-dockerfile"></a>
 </h3>
 <p>We’ll start by just running a single plumber2 application in Docker just to see things at work. By default, the <code>rstudio/plumber</code> image will take the first argument after the image name as the name of the file that you want to <code>plumb()</code> and serve on port <code>8080</code>. So right away you can run one of the examples that’s included in plumber as it is already installed on the image.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 rstudio/plumber</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 rstudio/plumber</span></code></pre></div>
 <p>which is the same as:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 rstudio/plumber <span class="dt">\</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  /usr/local/lib/R/site-library/plumber/plumber/04-mean-sum/plumber.R</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 rstudio/plumber <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  /usr/local/lib/R/site-library/plumber/plumber/04-mean-sum/plumber.R</span></code></pre></div>
 <ul>
 <li>
 <code>docker run</code> tells Docker to run a new container</li>
@@ -129,10 +143,10 @@
 <p>This will ask plumber2 to <code>plumb</code> and <code>run</code> the file you specified on port 8080 of that new container. Because you used the <code>-p</code> argument, port 8080 of your local machine will be forwarded into your container. You can test this by running this on the machine where Docker is running: <code>curl localhost:8080/mean</code>, or if you know the IP address of the machine where Docker is running, you could visit it in a web browser. The <code>/mean</code> path is one that’s defined in the plumber file we just specified – you should get an single number in an array back (<code>[-0.1993]</code>).</p>
 <p>If that works, you can try using one of your own plumber files in this arrangement. Keep in mind that the file you want to run <strong>must</strong> be available inside of the container and you must specify the path to that file as it exists inside of the container. Keep it simple for now – use a plumber file that doesn’t require any additional R packages or depend on any other files outside of the plumber definition.</p>
 <p>For instance if you have a plumber file saved in your current directory called <code>api.R</code>, you could use the following command</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 <span class="at">-v</span> <span class="kw">`</span><span class="bu">pwd</span><span class="kw">`</span>/api.R:/plumber.R rstudio/plumber /plumber.R</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 8080:8080 <span class="at">-v</span> <span class="kw">`</span><span class="bu">pwd</span><span class="kw">`</span>/api.R:/plumber.R rstudio/plumber /plumber.R</span></code></pre></div>
 <p>You’ll notice that we used the <code>-v</code> argument to specify a “volume” that should be mapped from our host machine into the Docker container. We defined that the location of that file should be at <code>/plumber.R</code>, so that’s the argument we give last to tell the container where to look for the plumber definition. You can use this same technique to share a whole directory instead of just passing in a single R file; this approach is useful if your plumber2 API depends on other files.</p>
 <p>You can also use the <code>rstudio/plumber</code> image just like you use any other. For example, if you want to start a container based on this image and poke around in a bash shell:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-it</span> <span class="at">--rm</span> <span class="at">--entrypoint</span> /bin/bash rstudio/plumber</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-it</span> <span class="at">--rm</span> <span class="at">--entrypoint</span> /bin/bash rstudio/plumber</span></code></pre></div>
 <p>This can be a handy way to debug problems. Prepare the command that you think should work then add <code>--entrypoint /bin/bash</code> before <code>rstudio/plumber</code> and explore a bit. Alternatively, you can try to run the R process and spawn the plumber application yourself and see where things go wrong (often a missing package or missing file).</p>
 </section><section class="level3"><h3 id="custom-dockerfiles">Custom Dockerfiles<a class="anchor" aria-label="anchor" href="#custom-dockerfiles"></a>
 </h3>
@@ -168,23 +182,23 @@ CMD ["/app/plumber.R"]</code></pre>
 </h3>
 <p>We’ll use Docker Compose to help us organize multiple plumber2 processes. We won’t go into detail about how to use Docker Compose, so if you’re new you should familiarize yourself using the <a href="https://docs.docker.com/compose" class="external-link">official docs</a>.</p>
 <p>You should define a Docker Compose configuration that defines the behavior of every plumber2 application that you want to run. You’ll first want to setup a Dockerfile that defines the desired behavior for each of your applications (as <a href="#custom-dockerfiles">we outlined previously</a>. You could use a <code>docker-compose.yml</code> configuration like the following:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">app1</span><span class="kw">:</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">build</span><span class="kw">:</span><span class="at"> ./app1/</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ./data:/data</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ./app1:/app</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> always</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"7000:8080"</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">app2</span><span class="kw">:</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> rstudio/plumber</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> /app/plumber.R</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ../app2:/app</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> always</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"7001:8080"</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">app1</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">build</span><span class="kw">:</span><span class="at"> ./app1/</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ./data:/data</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ./app1:/app</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> always</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"7000:8080"</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">app2</span><span class="kw">:</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> rstudio/plumber</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> /app/plumber.R</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ../app2:/app</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> always</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"7001:8080"</span></span></code></pre></div>
 <p>More detail on what each of these options does and what other options exist can be found <a href="https://docs.docker.com/compose/compose-file/" class="external-link">here</a>. This configuration defines two Docker containers that should run <code>app1</code> and <code>app2</code>. The associated files in this case are laid out on disk as follows:</p>
 <pre><code>docker-compose.yml
 app1
@@ -201,16 +215,16 @@ data
 </h3>
 <p>It may desirable to run all of your plumber2 services on a standard port like <code>80</code> (for HTTP) or <code>443</code> (for HTTPS). In that case, you’d prefer to have a router running on port <code>80</code> that can send traffic to the appropriate plumber2 API by distinguishing based on a path prefix. Requests for <code>myserver.com/app1/</code> could be sent to the <code>app1</code> container, and <code>myserver.org/app2/</code> could target the <code>app2</code> container, but both paths would be available on port 80 on your server.</p>
 <p>In order to do this, we can use another Docker container running <a href="https://www.nginx.com/" class="external-link">nginx</a> which is configured to route traffic between the two plumber2 containers. We’d add the following entry to our <code>docker-compose.yml</code> below the app containers we already have defined.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nginx</span><span class="kw">:</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> nginx:1.9</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"80:80"</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ./nginx.conf:/etc/nginx/nginx.conf:ro</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> always</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">depends_on</span><span class="kw">:</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> app1</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> app2</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nginx</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> nginx:1.9</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> </span><span class="st">"80:80"</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> ./nginx.conf:/etc/nginx/nginx.conf:ro</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> always</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">depends_on</span><span class="kw">:</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> app1</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> app2</span></span></code></pre></div>
 <p>This uses the nginx Docker image that will be downloaded for you. In order to run nginx in a meaningful way, we have to provide a configuration file and place it in <code>/etc/nginx/nginx.conf</code>, which we do by mounting a local file at that location on the container.</p>
 <p>A basic nginx config file could look something like the following:</p>
 <pre><code>events {
@@ -258,12 +272,12 @@ http {
 <p>First, we’ll want to create multiple instances of the same application. This is easily accomplished with the <code>docker-compose scale</code> command. You simply run <code>docker-compose scale app1=3</code> to run three instances of <code>app1</code>. Now we just need to load balance traffic across these three instances.</p>
 <p>You could setup the nginx configuration that we already have to balance traffic across this pool of workers, but you would need to manually re-configure and update your nginx instance every time that you need to scale the number up or down, which might be a hassle. Luckily, there’s a more elegant solution.</p>
 <p>We can use the <a href="https://github.com/docker/dockercloud-haproxy" class="external-link">dockercloud/haproxy</a> Docker image to automatically balance HTTP traffic across a pool of workers. This image is intelligent enough to listen for workers in your pool arriving or leaving and will automatically remove/add these containers into their pool. Let’s add a new container into our configuration that defines this load balancer</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">lb</span><span class="kw">:</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> </span><span class="st">'dockercloud/haproxy:1.2.1'</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">links</span><span class="kw">:</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> app1</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> /var/run/docker.sock:/var/run/docker.sock</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">lb</span><span class="kw">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> </span><span class="st">'dockercloud/haproxy:1.2.1'</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">links</span><span class="kw">:</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="at">     </span><span class="kw">-</span><span class="at"> app1</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> /var/run/docker.sock:/var/run/docker.sock</span></span></code></pre></div>
 <p>The trick that allows this image to listen in to our scaling of <code>app1</code> is by passing in the docker socket as a shared volume. Note that this particular arrangement will differ based on your host OS. The above configuration is intended for Linux, but MacOS X users would require a <a href="https://github.com/docker/dockercloud-haproxy#example-of-docker-composeyml-running-in-linux" class="external-link">slightly different config</a>.</p>
 <p>We could export port <code>80</code> of our new load balancer to port <code>80</code> of our host machine if we solely wanted to load-balance a single application. Alternatively, we can actually use both nginx (to handle the routing of various applications) and HAProxy (to handle the load balancing of a particular application). To do that, we’d merely add a new <code>location</code> block to our <code>nginx.conf</code> file that knows how to send traffic to HAProxy, or modify the existing <code>location</code> block to send traffic to the load balancer instead of going directly to the application.</p>
 <p>So the <code>location /app1/</code> block becomes:</p>
@@ -291,8 +305,8 @@ http {
 </section><section class="level3"><h3 id="install-pm2">Install pm2<a class="anchor" aria-label="anchor" href="#install-pm2"></a>
 </h3>
 <p>Now you’re ready to install pm2. pm2 is a package that’s maintained in <code>npm</code> (Node.js’s package management system); it also requires Node.js in order to run. So to start you’ll want to install Node.js. On Ubuntu 14.04, the necessary commands are:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install nodejs npm</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install nodejs npm</span></code></pre></div>
 <p>Once you have npm and Node.js installed, you’re ready to install pm2.</p>
 <pre><code>sudo npm install -g pm2</code></pre>
 <p>If you find errors like <code>SSL Error: CERT_UNTRUSTED</code> while using <code>npm</code> command, you can bypass the ssl error using:</p>
@@ -304,13 +318,13 @@ http {
 </section><section class="level3"><h3 id="wrap-your-plumber2-file">Wrap Your plumber2 File<a class="anchor" aria-label="anchor" href="#wrap-your-plumber2-file"></a>
 </h3>
 <p>Once you’ve deployed your plumber2 files onto the server, you’ll still need to tell the server <em>how</em> to run your server. You’re probably used to running commands like</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"myfile.R"</span>, port<span class="op">=</span><span class="fl">4500</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_run.html">api_run</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Unfortunately, pm2 doesn’t understand R scripts natively; however, it is possible to specify a custom interpreter. We can use this feature to launch an R-based wrapper for our plumber file using the <code>Rscript</code> scripting front-end that comes with R. The following script will run the two commands listed above.</p>
 <pre><code><span><span class="co">#!/usr/bin/env Rscript</span></span>
 <span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://posit-dev.github.io/plumber2/">plumber2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://plumber2.posit.co/" class="external-link">plumber2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"myfile.R"</span>, host<span class="op">=</span><span class="st">"0.0.0.0"</span>, port<span class="op">=</span><span class="fl">4500</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_run.html">api_run</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Setting the host option on a VM instance ensures the application can be accessed externally.</span></span>
@@ -320,7 +334,7 @@ http {
 </h3>
 <p>We’ll now need to teach pm2 about our plumber2 API so that we can put it to work. You can register and configure any number of services with pm2; let’s start with our <code>myfile</code> plumber2 service.</p>
 <p>You can use the <code>pm2 list</code> command to see which services pm2 is already running. If you run this command now, you’ll see that pm2 doesn’t have any services that it’s in charge of. Once you have the scripts and code stored in the directory where you want them, use the following command to tell pm2 about your service.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> start <span class="at">--interpreter</span><span class="op">=</span><span class="st">"Rscript"</span> /usr/local/plumber/myfile/run-myfile.R</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> start <span class="at">--interpreter</span><span class="op">=</span><span class="st">"Rscript"</span> /usr/local/plumber/myfile/run-myfile.R</span></code></pre></div>
 <p>You should see some output about pm2 starting an instance of your service, followed by some status information from pm2. If everything worked properly, you’ll see that your new service has been registered and is running. You can see this same output by executing <code>pm2 list</code> again.</p>
 <p>Once you’re happy with the pm2 services you have defined, you can use <code>pm2 save</code> to tell pm2 to retain the set of services you have running next time you boot the machine. All of the services you have defined will be automatically restarted for you.</p>
 <p>At this point, you have a persistent pm2 service created for your plumber2 application. This means that you can reboot your server, or find and kill the underlying R process that your plumber application is using and pm2 will automatically bring a new process in to replace it. This should help guarantee that you always have a plumber2 process running on the port number you specified in the shell script. It is a good idea to reboot the server to ensure that everything comes back the way you expected.</p>

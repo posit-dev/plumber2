@@ -27,7 +27,7 @@ can use this function. If so, it should be called when the package is loaded."><
     <li><a class="dropdown-item" href="../articles/routing-and-input.html">2. Routing &amp; Input</a></li>
     <li><a class="dropdown-item" href="../articles/rendering-output.html">3. Rendering output</a></li>
     <li><a class="dropdown-item" href="../articles/execution-model.html">4. Runtime</a></li>
-    <li><h6 class="dropdown-header" data-toc-skip>5. Hosting (TBD)</h6></li>
+    <li><a class="dropdown-item" href="../articles/hosting.html">5. Hosting</a></li>
     <li><a class="dropdown-item" href="../articles/programmatic-usage.html">6. Programmatic usage</a></li>
     <li><a class="dropdown-item" href="../articles/annotations.html">7. Annotation Reference</a></li>
     <li><a class="dropdown-item" href="../articles/security.html">8. Security</a></li>
@@ -57,7 +57,7 @@ can use this function. If so, it should be called when the package is loaded.</p
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_plumber2_tag</span><span class="op">(</span><span class="va">tag</span>, <span class="va">handler</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_plumber2_tag</span><span class="op">(</span><span class="va">tag</span>, handler <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -78,18 +78,26 @@ can use this function. If so, it should be called when the package is loaded.</p
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The <code>handler</code> argument must be a function with the arguments <code>block</code>, <code>call</code>,
-<code>tags</code>, <code>values</code>, and <code>env</code>. <code>block</code> is a list with the currently parsed
-information from the block. You can add or modify the values within to suit
-your need as well as subclass it. You should not remove any values as others
-might need them. <code>call</code> is the parsed value of whatever expression was
-beneath the plumber2 block. <code>tags</code> is a character vector of all the tags in
-the block, and <code>values</code> is a list of all the values associated with the tags
-(that is, whatever comes after the tag in the block). The values are
-unparsed. You should assume that all tags not relevant for your extension has
-already been handled and incorporated into <code>block</code>. The function must return
-a modified version of <code>block</code>. If you add a subclass to <code>block</code> you should
-make sure that a method for <code><a href="apply_plumber2_block.html">apply_plumber2_block()</a></code> for the subclass exists.</p>
+    <p>The <code>handler</code> argument must be, if provided, a function with the arguments
+<code>block</code>, <code>call</code>, <code>tags</code>, <code>values</code>, and <code>env</code>. <code>block</code> is a list with the
+currently parsed information from the block. You can add or modify the values
+within to suit your need as well as subclass it. You should not remove any
+values as others might need them. <code>call</code> is the parsed value of whatever
+expression was beneath the plumber2 block. <code>tags</code> is a character vector of
+all the tags in the block, and <code>values</code> is a list of all the values
+associated with the tags (that is, whatever comes after the tag in the
+block). The values are unparsed. You should assume that all tags not relevant
+for your extension has already been handled and incorporated into <code>block</code>.
+The <code>env</code> argument contains the environment the annotation file is evaluated
+in. The function must return a modified version of <code>block</code> unless <code>block</code> is
+of the class <code>plumber2_empty_block</code> in which case it is allowed to construct
+a new object from scratch. If you add a subclass to <code>block</code> you should make
+sure that a method for <code><a href="apply_plumber2_block.html">apply_plumber2_block()</a></code> for the subclass exists.</p>
+<p>If <code>handler</code> is <code>NULL</code> then the tag will be registered but no associated
+handler will be added. This can make sense if you have a new block type that
+consists of multiple tags but only want a single handler for it. In that case
+you register a handler for one of the required tags and register the
+remaining tags without a handler.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

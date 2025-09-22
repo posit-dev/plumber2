@@ -4,6 +4,7 @@ pkgdown_sha: ~
 articles:
   annotations: annotations.html
   execution-model: execution-model.html
+  hosting: hosting.html
   introduction: introduction.html
   migration: migration.html
   plumber: plumber.html
@@ -12,7 +13,7 @@ articles:
   routing-and-input: routing-and-input.html
   security: security.html
   tips-and-tricks: tips-and-tricks.html
-last_built: 2025-09-22T20:36Z
+last_built: 2025-09-22T21:06Z
 urls:
   reference: https://plumber2.posit.co/reference
   article: https://plumber2.posit.co/articles
