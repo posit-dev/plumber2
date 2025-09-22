@@ -52,6 +52,7 @@
     <li><a class="dropdown-item" href="../articles/security.html">8. Security</a></li>
     <li><a class="dropdown-item" href="../articles/tips-and-tricks.html">9. Tips &amp; Tricks</a></li>
     <li><a class="dropdown-item" href="../articles/migration.html">10. Migration</a></li>
+    <li><a class="dropdown-item" href="../articles/extending.html">11. Extending plumber2</a></li>
   </ul>
 </li>
       </ul>
@@ -441,7 +442,7 @@
 <pre><code><span><span class="co">#&gt; Creating 06-01-capitalize route in request router</span></span></code></pre>
 <div class="sourceCode" id="cb20"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"letter"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"i"</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"x"</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>If we send a <code>PUT</code> request and specify the <code>capital</code> parameter, a cookie will be set on the client which will allow the server to accommodate our preference in future requests. In <code>curl</code>, you need to specify a file in which you want to save these cookies using the <code>-c</code> option. This is a good reminder that clients handle cookies differently – some won’t support them at all – so be sure that the clients you intend to support with your API play nicely with cookies if you want to use them.</p>
