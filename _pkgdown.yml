@@ -32,6 +32,8 @@ navbar:
           href: articles/tips-and-tricks.html
         - text: 10. Migration
           href: articles/migration.html
+        - text: 11. Extending plumber2
+          href: articles/extending.html
 
 reference:
   - title: "Create an run an API"
