@@ -55,6 +55,6 @@ Suggests:
     swagger,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto
-URL: https://posit-dev.github.io/plumber2/, https://github.com/posit-dev/plumber2
+URL: http://plumber2.posit.co/, https://github.com/posit-dev/plumber2
 BugReports: https://github.com/posit-dev/plumber2/issues
 Config/testthat/edition: 3
