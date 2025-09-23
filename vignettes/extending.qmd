@@ -26,6 +26,8 @@ me <- normalizePath(
   })
 source(file.path(me, "_helpers.R"))
 readLines <- function(x) base::readLines(file.path(me, x))
+
+library(plumber2)
 ```
 
 plumber2 was from the inception build as a modular system meant for extension. In this article we'll go over the process of creating a plumber2 extension as well as talk a bit about the architecture of plumber2 and how it relates to extending it.
@@ -207,8 +209,140 @@ api_tictoc <- function(api, interval, message, type = "message") {
 ```
 
 ## New parsers, serializers, and async engines
+A simple way to expand on what plumber2 can do is to provide new parsers and serializers for it, or even a new async backend (though the one provided is for all intend and purposes the best choice). We will go through how to approach all of these below
 
-TBD
+### Serializers
+Serializers are responsible for converting the return value of your functions into the format requested by the client. plumber2 supports content negotiation so that the client can ask for a specific format (or a priority of different formats) and plumber2 will serve it to the best of its abilities. If you do not provide any additional details about which serializers to support, plumber2 will use a set of default serializers to cover the most common use cases:
+
+```{r}
+names(get_serializers())
+```
+
+There are serializers besides the defaults that are registered, usually for niche situations. These can be accessed by name, either in annotation or in the programmatic interface:
+
+```{r}
+get_serializers("geojson")
+```
+
+While you can always pass in a function directly as a serializer, registering them by name makes it much easier to reuse, and making it a default makes the serializer instantly available to all endpoints (providing they are using the defaults). It follows that providing additional serializers, both defaults and non-defaults, increases ways plumber2 can interact with the client.
+
+Creating and registering a new serializer is not involved and we will go through the process below by creating a toml serializer based on the [tomledit](https://extendr.rs/tomledit/) package.
+
+The first thing to do is to create the serializer function:
+
+```{r}
+format_toml <- function() {
+  rlang::check_installed("tomledit")
+  function(x) {
+    tomledit::to_toml(x)
+  }
+}
+```
+
+As we can see, we create a function that returns the actual serializer (which is a unary function taking the data to serialize). We do this for two reasons: First, it allows us to run one-time code only once and not every time something needs to be serialized and (not shown here), it allows us to pass in arguments that modify the behavior of the serializer, e.g. like for the rds serializer:
+
+```{r}
+print(format_rds)
+```
+
+With our serializer in hand we can now proceed to registering it. For that we need a name, the serializer itself, as well as the mime type of the output it produces. The default is to register a serializer as default and since this makes sense here we do that. The latter can sometimes be a bit of a guessing game since mime types are an evolving thing, especially for new formats. If one has been registered with [IANA](https://www.iana.org/assignments/media-types/media-types.xhtml) you should use that, but otherwise try to see what the developer of the format or the community around it suggests. For toml, the `application/toml` mime type has been registered at IANA so we'll use that.
+
+```{r}
+register_serializer("toml", format_toml, "application/toml")
+```
+
+We can convince ourself that it works by trying to fetch it by name:
+
+```{r}
+get_serializers("toml")
+```
+
+We can also see that it is part of the defaults:
+
+```{r}
+names(get_serializers())
+```
+
+#### Graphics output
+There is a special category of output that requires their own breed of serializers, namely graphics output. These produces image files through the side-effect of rendering and the serializer needs to know to capture that. Graphics serializers are not part of the default serializers and you have to specifically request them. 
+
+```{r}
+names(get_serializers(c("png", "...")))
+```
+
+In the above I request the graphics serializer "png" explicitly and then use the `...` to ask for the remainder of the same type.
+
+Since the act of capturing graphics output has been formalized in R through the graphics device interface it is relatively straightforward to add a new graphics serializer using a helper function from plumber2. Below we create a PostScript serializer based on the `postscript()` device:
+
+```{r}
+format_postscript <- device_formatter(postscript)
+```
+
+This can now be registered in the same way as the toml serializer above. plumber2 can see that the serializer is a graphics serializer, so there is no special thing you need to do differently.
+
+```{r}
+register_serializer(
+  "postscript", 
+  format_postscript, 
+  "application/postscript",
+  default = FALSE
+)
+```
+
+### Parsers
+Parsers are like serializers but for the other direction of communication, that is, for converting the body of a request into an R object. The process is very similar as the above and we will showcase it by creating a toml parser as well.
+
+Like with serializers there is also a concept of default parsers, and there is the `get_parsers()` function to retrieve parsers from the registry.
+
+```{r}
+parse_toml <- function() {
+  rlang::check_installed("tomledit")
+  function(x, directives) {
+    tomledit::read_toml(rawToChar(x))
+  }
+}
+```
+
+This looks a lot like our toml serializer. It is a function returning a function and we use the outer function for time-consuming one-off code to ensure the inner function is as lean as possible. One difference is that the inner function takes two arguments: `x` (the body of the request as a raw vector), and `directives`. The last argument is for additional parameters passed from the client as part of the `Content-Type` header. You can often ignore this last argument but for some parsers it is important.
+
+Registering the parser is done like the serializer. The only difference is that you can register a parser to multiple mime types rather than a single one, so that it can respond to all of them no matter what the client decides to call it. In general it is a good idea to include any kind of mime type, official and otherwise, you can find since you are not in control of what the client decides to use.
+
+```{r}
+register_parser(
+  "toml", 
+  parse_toml, 
+  c("application/toml", "text/x-toml", "text/toml")
+)
+```
+
+### Asynchronous engines
+plumber2 comes with build in support for asynchronous evaluation based on mirai. We strongly believe this is the best choice for async eval in R, but you may still use another engine if you se desire by registering a new one. Below, we show how to create an asynch evaluator based on the `future` package
+
+```{r}
+future_async <- function(...) {
+  rlang::check_installed("promises")
+  function(expr, envir) {
+    promises::future_promise(
+      expr = expr,
+      envir = envir,
+      substitute = FALSE,
+      ...
+    )
+  }
+}
+```
+
+As with parsers and serializers we start be creating an evaluator function which, again, is a function returning a function. The inner function takes two arguments: an expression to evaluate, and an environment that holds all the variables to use in the expression. The inner function must return a promise (based on the [promises](https://rstudio.github.io/promises/) package).
+
+Once the evaluator is in place it can be registered to a name:
+
+```{r}
+register_async("future", future_async, c("promises", "future"))
+```
+
+The last argument holds the package dependencies for the engine.
+
+You can now use this engine, either with annotation (`@async future`) or programmatically with `get_async("future")`.
 
 ## The Plumber2 object and its extension points
 
