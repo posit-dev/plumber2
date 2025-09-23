@@ -255,8 +255,174 @@
 </div>
 </section><section class="level2"><h2 id="new-parsers-serializers-and-async-engines">New parsers, serializers, and async engines<a class="anchor" aria-label="anchor" href="#new-parsers-serializers-and-async-engines"></a>
 </h2>
-<p>TBD</p>
-</section><section class="level2"><h2 id="the-plumber2-object-and-its-extension-points">The Plumber2 object and its extension points<a class="anchor" aria-label="anchor" href="#the-plumber2-object-and-its-extension-points"></a>
+<p>A simple way to expand on what plumber2 can do is to provide new parsers and serializers for it, or even a new async backend (though the one provided is for all intend and purposes the best choice). We will go through how to approach all of these below</p>
+<section class="level3"><h3 id="serializers">Serializers<a class="anchor" aria-label="anchor" href="#serializers"></a>
+</h3>
+<p>Serializers are responsible for converting the return value of your functions into the format requested by the client. plumber2 supports content negotiation so that the client can ask for a specific format (or a priority of different formats) and plumber2 will serve it to the best of its abilities. If you do not provide any additional details about which serializers to support, plumber2 will use a set of default serializers to cover the most common use cases:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/register_serializer.html">get_serializers</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code><span><span class="co">#&gt; [1] "application/json"          "text/html"</span></span>
+<span><span class="co">#&gt; [3] "application/rds"           "text/csv"</span></span>
+<span><span class="co">#&gt; [5] "text/tab-separated-values" "text/xml"</span></span>
+<span><span class="co">#&gt; [7] "text/plain"                "text/yaml"</span></span></code></pre>
+</div>
+</div>
+<p>There are serializers besides the defaults that are registered, usually for niche situations. These can be accessed by name, either in annotation or in the programmatic interface:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_serializer.html">get_serializers</a></span><span class="op">(</span><span class="st">"geojson"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code><span><span class="co">#&gt; $`application/geo+json`</span></span>
+<span><span class="co">#&gt; function (x)</span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt;     if (inherits(x, "sfc")) {</span></span>
+<span><span class="co">#&gt;         return(geojsonsf::sfc_geojson(x, ...))</span></span>
+<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt;     if (inherits(x, "sf")) {</span></span>
+<span><span class="co">#&gt;         return(geojsonsf::sf_geojson(x, ...))</span></span>
+<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt;     cli::cli_abort("{.fun format_geojson} did not receive an `sf` or `sfc` object.")</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x55b7abb06048&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55b7aa0f2d90&gt;</span></span></code></pre>
+</div>
+</div>
+<p>While you can always pass in a function directly as a serializer, registering them by name makes it much easier to reuse, and making it a default makes the serializer instantly available to all endpoints (providing they are using the defaults). It follows that providing additional serializers, both defaults and non-defaults, increases ways plumber2 can interact with the client.</p>
+<p>Creating and registering a new serializer is not involved and we will go through the process below by creating a toml serializer based on the <a href="https://extendr.rs/tomledit/" class="external-link">tomledit</a> package.</p>
+<p>The first thing to do is to create the serializer function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">format_toml</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">check_installed</a></span><span class="op">(</span><span class="st">"tomledit"</span><span class="op">)</span></span>
+<span>  <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">tomledit</span><span class="fu">::</span><span class="fu"><a href="https://extendr.github.io/tomledit/reference/write.html" class="external-link">to_toml</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<p>As we can see, we create a function that returns the actual serializer (which is a unary function taking the data to serialize). We do this for two reasons: First, it allows us to run one-time code only once and not every time something needs to be serialized and (not shown here), it allows us to pass in arguments that modify the behavior of the serializer, e.g. like for the rds serializer:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">format_rds</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code><span><span class="co">#&gt; function (version = "3", ascii = FALSE, ...)</span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt;     function(x) {</span></span>
+<span><span class="co">#&gt;         serialize(x, NULL, ascii = ascii, version = version,</span></span>
+<span><span class="co">#&gt;             ...)</span></span>
+<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x55b7abab6fd0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: namespace:plumber2&gt;</span></span></code></pre>
+</div>
+</div>
+<p>With our serializer in hand we can now proceed to registering it. For that we need a name, the serializer itself, as well as the mime type of the output it produces. The default is to register a serializer as default and since this makes sense here we do that. The latter can sometimes be a bit of a guessing game since mime types are an evolving thing, especially for new formats. If one has been registered with <a href="https://www.iana.org/assignments/media-types/media-types.xhtml" class="external-link">IANA</a> you should use that, but otherwise try to see what the developer of the format or the community around it suggests. For toml, the <code>application/toml</code> mime type has been registered at IANA so we’ll use that.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_serializer.html">register_serializer</a></span><span class="op">(</span><span class="st">"toml"</span>, <span class="va">format_toml</span>, <span class="st">"application/toml"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>We can convince ourself that it works by trying to fetch it by name:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_serializer.html">get_serializers</a></span><span class="op">(</span><span class="st">"toml"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code><span><span class="co">#&gt; $`application/toml`</span></span>
+<span><span class="co">#&gt; function (x)</span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt;     tomledit::to_toml(x)</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55b7aac624c0&gt;</span></span></code></pre>
+</div>
+</div>
+<p>We can also see that it is part of the defaults:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/register_serializer.html">get_serializers</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code><span><span class="co">#&gt; [1] "application/json"          "text/html"</span></span>
+<span><span class="co">#&gt; [3] "application/rds"           "text/csv"</span></span>
+<span><span class="co">#&gt; [5] "text/tab-separated-values" "text/xml"</span></span>
+<span><span class="co">#&gt; [7] "text/plain"                "text/yaml"</span></span>
+<span><span class="co">#&gt; [9] "application/toml"</span></span></code></pre>
+</div>
+</div>
+<section class="level4"><h4 id="graphics-output">Graphics output<a class="anchor" aria-label="anchor" href="#graphics-output"></a>
+</h4>
+<p>There is a special category of output that requires their own breed of serializers, namely graphics output. These produces image files through the side-effect of rendering and the serializer needs to know to capture that. Graphics serializers are not part of the default serializers and you have to specifically request them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/register_serializer.html">get_serializers</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"png"</span>, <span class="st">"..."</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code><span><span class="co">#&gt; [1] "image/png"       "image/jpeg"      "image/tiff"      "image/svg+xml"</span></span>
+<span><span class="co">#&gt; [5] "image/bmp"       "application/pdf"</span></span></code></pre>
+</div>
+</div>
+<p>In the above I request the graphics serializer “png” explicitly and then use the <code>...</code> to ask for the remainder of the same type.</p>
+<p>Since the act of capturing graphics output has been formalized in R through the graphics device interface it is relatively straightforward to add a new graphics serializer using a helper function from plumber2. Below we create a PostScript serializer based on the <code><a href="https://rdrr.io/r/grDevices/postscript.html" class="external-link">postscript()</a></code> device:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">format_postscript</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/device_formatter.html">device_formatter</a></span><span class="op">(</span><span class="va">postscript</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>This can now be registered in the same way as the toml serializer above. plumber2 can see that the serializer is a graphics serializer, so there is no special thing you need to do differently.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_serializer.html">register_serializer</a></span><span class="op">(</span></span>
+<span>  <span class="st">"postscript"</span>, </span>
+<span>  <span class="va">format_postscript</span>, </span>
+<span>  <span class="st">"application/postscript"</span>,</span>
+<span>  default <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+</section></section><section class="level3"><h3 id="parsers">Parsers<a class="anchor" aria-label="anchor" href="#parsers"></a>
+</h3>
+<p>Parsers are like serializers but for the other direction of communication, that is, for converting the body of a request into an R object. The process is very similar as the above and we will showcase it by creating a toml parser as well.</p>
+<p>Like with serializers there is also a concept of default parsers, and there is the <code><a href="../reference/register_parser.html">get_parsers()</a></code> function to retrieve parsers from the registry.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">parse_toml</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">check_installed</a></span><span class="op">(</span><span class="st">"tomledit"</span><span class="op">)</span></span>
+<span>  <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">directives</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">tomledit</span><span class="fu">::</span><span class="fu"><a href="https://extendr.github.io/tomledit/reference/read.html" class="external-link">read_toml</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html" class="external-link">rawToChar</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<p>This looks a lot like our toml serializer. It is a function returning a function and we use the outer function for time-consuming one-off code to ensure the inner function is as lean as possible. One difference is that the inner function takes two arguments: <code>x</code> (the body of the request as a raw vector), and <code>directives</code>. The last argument is for additional parameters passed from the client as part of the <code>Content-Type</code> header. You can often ignore this last argument but for some parsers it is important.</p>
+<p>Registering the parser is done like the serializer. The only difference is that you can register a parser to multiple mime types rather than a single one, so that it can respond to all of them no matter what the client decides to call it. In general it is a good idea to include any kind of mime type, official and otherwise, you can find since you are not in control of what the client decides to use.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_parser.html">register_parser</a></span><span class="op">(</span></span>
+<span>  <span class="st">"toml"</span>, </span>
+<span>  <span class="va">parse_toml</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"application/toml"</span>, <span class="st">"text/x-toml"</span>, <span class="st">"text/toml"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+</section><section class="level3"><h3 id="asynchronous-engines">Asynchronous engines<a class="anchor" aria-label="anchor" href="#asynchronous-engines"></a>
+</h3>
+<p>plumber2 comes with build in support for asynchronous evaluation based on mirai. We strongly believe this is the best choice for async eval in R, but you may still use another engine if you se desire by registering a new one. Below, we show how to create an asynch evaluator based on the <code>future</code> package</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">future_async</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">check_installed</a></span><span class="op">(</span><span class="st">"promises"</span><span class="op">)</span></span>
+<span>  <span class="kw">function</span><span class="op">(</span><span class="va">expr</span>, <span class="va">envir</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">promises</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/promises/reference/future_promise.html" class="external-link">future_promise</a></span><span class="op">(</span></span>
+<span>      expr <span class="op">=</span> <span class="va">expr</span>,</span>
+<span>      envir <span class="op">=</span> <span class="va">envir</span>,</span>
+<span>      substitute <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>      <span class="va">...</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<p>As with parsers and serializers we start be creating an evaluator function which, again, is a function returning a function. The inner function takes two arguments: an expression to evaluate, and an environment that holds all the variables to use in the expression. The inner function must return a promise (based on the <a href="https://rstudio.github.io/promises/" class="external-link">promises</a> package).</p>
+<p>Once the evaluator is in place it can be registered to a name:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_async.html">register_async</a></span><span class="op">(</span><span class="st">"future"</span>, <span class="va">future_async</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"promises"</span>, <span class="st">"future"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>The last argument holds the package dependencies for the engine.</p>
+<p>You can now use this engine, either with annotation (<code>@async future</code>) or programmatically with <code>get_async("future")</code>.</p>
+</section></section><section class="level2"><h2 id="the-plumber2-object-and-its-extension-points">The Plumber2 object and its extension points<a class="anchor" aria-label="anchor" href="#the-plumber2-object-and-its-extension-points"></a>
 </h2>
 <p>TBD</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
