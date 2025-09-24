@@ -152,7 +152,7 @@ The code above will apply the default settings to your API. However, we urge the
 
 ## Cross-Origin Resource Sharing (CORS)
 
-Cross-Origin Resource Sharing is a technology to control which webpages are allowed to access resources hosted on other domains. In general, you will try to limit this as much as possible to avoid webpages imitating other webpages to spoof the end user, or for other reasons. Since it is generally a good idea, CORS is turned off by default. This means that if you have a webpage that needs to communicate with your API (and that API is hosted on another domain), then you need to allow CORS.
+Cross-Origin Resource Sharing is a technology to control which webpages are allowed to access resources hosted on another domain. In general, you will try to limit this as much as possible to avoid webpages imitating other webpages to spoof the end user, or for other reasons. Since it is generally a good idea, CORS is turned off by default. This means that if you have a webpage that needs to communicate with your API (and that API is hosted on another domain), then you need to allow CORS.
 
 Setting up CORS can be done both with annotation and with code. The annotation 
 approach is both easy and allows you to keep CORS settings close to where the endpoint is defined. You set it up by adding a `@cors` tag to your annotation followed by who is allowed to interact with the endpoint. This can be either `*`
