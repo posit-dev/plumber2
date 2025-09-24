@@ -82,3 +82,8 @@ reference:
       - add_plumber2_tag
       - apply_plumber2_block
       - get_opts
+
+news:
+  releases:
+    - text: "Version 0.1.0"
+      href: "https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/"
