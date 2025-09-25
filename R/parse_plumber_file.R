@@ -151,7 +151,7 @@ parse_block <- function(
   } else if (identical(call, "_API")) {
     parse_api_block(call, tags, values, env)
   } else {
-    structure(list(), "plumber2_empty_block")
+    structure(list(), class = "plumber2_empty_block")
   }
   for (tag in tags) {
     if (is_extension_tag(tag)) {
