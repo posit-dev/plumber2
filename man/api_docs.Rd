@@ -6,7 +6,7 @@
 \alias{api_doc_add}
 \title{Configure your API for serving documentation for itself}
 \usage{
-api_doc_setting(api, doc_type, doc_path)
+api_doc_setting(api, doc_type, doc_path, ...)
 
 api_doc_add(api, doc, overwrite = FALSE, subset = NULL)
 }
@@ -19,7 +19,13 @@ generating API docs)}
 
 \item{doc_path}{The URL path to serve the api documentation from}
 
-\item{doc}{A list with the OpenAPI documentation, usually constrcuted
+\item{...}{plumber files or directories containing plumber files to be parsed
+in the given order. The order of parsing determines the final order of the
+routes in the stack. If \code{...} contains a \verb{_server.yml} file then all other
+files in \code{...} will be ignored and the \verb{_server.yml} file will be used as the
+basis for the API}
+
+\item{doc}{A list with the OpenAPI documentation, usually constructed
 with \link[=openapi]{one of the helper functions}}
 
 \item{overwrite}{Logical. Should already existing documentation be

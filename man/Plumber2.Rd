@@ -46,6 +46,8 @@ will pass through this router prior to reading in the body)}
 not generating API docs)}
 
 \item{\code{doc_path}}{The URL path to serve the api documentation from}
+
+\item{\code{doc_args}}{Further arguments to the documentation UI}
 }
 \if{html}{\out{</div>}}
 }

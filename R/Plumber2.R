@@ -155,11 +155,12 @@ Plumber2 <- R6Class(
       ) {
         openapi_file <- tempfile(fileext = ".json")
         write_json(private$OPENAPI, openapi_file, auto_unbox = TRUE)
-        api_route <- openapi_route(
+        api_route <- inject(openapi_route(
           openapi_file,
           root = private$DOC_PATH,
-          ui = private$DOC_TYPE
-        )
+          ui = private$DOC_TYPE,
+          !!!private$DOC_ARGS
+        ))
         self$request_router$add_route(api_route, "openapi")
 
         self$on(
@@ -562,6 +563,16 @@ Plumber2 <- R6Class(
       }
       check_string(value)
       private$DOC_PATH <- value
+    },
+    #' @field doc_args Further arguments to the documentation UI
+    doc_args = function(value) {
+      if (missing(value)) {
+        return(private$DOC_ARGS)
+      }
+      if (!is_bare_list(value)) {
+        stop_input_type(value, "a bare list")
+      }
+      private$DOC_ARGS <- modifyList(private$DOC_ARGS, value)
     }
   ),
   private = list(
@@ -574,6 +585,7 @@ Plumber2 <- R6Class(
     MESSAGE_ROUTER = NULL,
     DOC_TYPE = "rapidoc",
     DOC_PATH = "__docs__",
+    DOC_ARGS = list(),
     REJECT_MISSING_METHODS = FALSE,
     IGNORE_TRAILING_SLASH = TRUE,
     ASYNC_EVALUATER = NULL,
