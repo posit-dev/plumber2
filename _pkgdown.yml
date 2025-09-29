@@ -51,6 +51,7 @@ reference:
       - api_add_route
       - api_redirect
       - api_shiny
+      - api_report
       - api_forward
   - title: "Parsers"
     contents:
