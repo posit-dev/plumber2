@@ -32,7 +32,7 @@ Imports:
     readr,
     reqres (>= 1.0.0),
     rlang (>= 1.1.0),
-    routr (>= 1.0.0),
+    routr (>= 1.0.0.9000),
     roxygen2,
     stringi,
     svglite,
@@ -59,3 +59,5 @@ VignetteBuilder: quarto
 URL: http://plumber2.posit.co/, https://github.com/posit-dev/plumber2
 BugReports: https://github.com/posit-dev/plumber2/issues
 Config/testthat/edition: 3
+Remotes:  
+    thomasp85/routr

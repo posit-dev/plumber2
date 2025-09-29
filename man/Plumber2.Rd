@@ -64,6 +64,7 @@ not generating API docs)}
 \item \href{#method-Plumber2-parse_file}{\code{Plumber2$parse_file()}}
 \item \href{#method-Plumber2-add_api_doc}{\code{Plumber2$add_api_doc()}}
 \item \href{#method-Plumber2-add_shiny}{\code{Plumber2$add_shiny()}}
+\item \href{#method-Plumber2-add_report}{\code{Plumber2$add_report()}}
 \item \href{#method-Plumber2-forward}{\code{Plumber2$forward()}}
 \item \href{#method-Plumber2-clone}{\code{Plumber2$clone()}}
 }
@@ -455,6 +456,69 @@ information
 
 \item{\code{except}}{Subpaths to \code{path} that should not be forwarded to the
 shiny app. Be sure it doesn't contains paths that the shiny app needs}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_report"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_report}{}}}
+\subsection{Method \code{add_report()}}{
+Render and serve a Quarto or Rmarkdown document from an
+endpoint. See \code{\link[=api_report]{api_report()}} for more information.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_report(
+  path,
+  report,
+  ...,
+  doc = NULL,
+  max_age = Inf,
+  async = TRUE,
+  finalize = NULL,
+  continue = FALSE,
+  cache_dir = tempfile(pattern = "plumber2_report"),
+  cache_by_id = FALSE,
+  route = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{The base path to serve the report from. Additional endpoints
+will be created in addition to this.}
+
+\item{\code{report}}{The path to the report to serve}
+
+\item{\code{...}}{Further arguments to \code{quarto::quarto_render()} or
+\code{rmarkdown::render()}}
+
+\item{\code{doc}}{An \code{\link[=openapi_operation]{openapi_operation()}} documentation for the report. Only
+\code{query} parameters will be used and a request body will be generated from
+this for the POST methods.}
+
+\item{\code{max_age}}{The maximum age in seconds to keep a rendered report
+before initiating a re-render}
+
+\item{\code{async}}{Should rendering happen asynchronously (using mirai)}
+
+\item{\code{finalize}}{An optional function to run before sending the response
+back. The function will receive the request as the first argument, the
+response as the second, and the server as the third.}
+
+\item{\code{continue}}{A logical that defines whether the response is returned
+directly after rendering or should be made available to subsequent routes}
+
+\item{\code{cache_dir}}{The location of the render cache. By default a temporary
+folder is created for it.}
+
+\item{\code{cache_by_id}}{Should caching be scoped by the user id. If the
+rendering is dependent on user-level access to different data this is
+necessary to avoid data leakage.}
+
+\item{\code{route}}{The route this handler should be added to. Defaults to the
+last route in the stack. If the route does not exist it will be created
+as the last route in the stack.}
 }
 \if{html}{\out{</div>}}
 }

@@ -432,30 +432,36 @@ parse_report_block <- function(call, tags, values, env, file_dir) {
   if (sum(tags == "report") != 1) {
     cli::cli_abort("Only one {.field @report} tag allowed per block")
   }
-  x <- values[[which(tags == "report")]]
+  x <- trimws(values[[which(tags == "report")]])
   call <- fs::path_abs(call, file_dir)
-  route <- routr::report_route(x, call)
 
   info <- routr::report_info(call)
 
-  for (query in info$query_params) {
-    if (!any(grepl(paste0("^", query), unlist(values[tags == "query"])))) {
-      values <- c(values, query)
-      tags <- c(tags, "query")
-    }
-  }
+  paths <- c(
+    x,
+    paste0(sub("/?$", "/", x), info$format),
+    unique(paste0(sub("/?$", ".", x), info$ext))
+  )
+
+  endpoints <- unlist(
+    lapply(paths, function(x) {
+      list(list(method = "get", path = x), list(method = "post", path = x))
+    }),
+    recursive = FALSE
+  )
 
   doc <- list(
-    paths = parse_block_api(tags, values, character(0), info$mime_types)
+    paths = parse_block_api(tags, values, character(0), character(0))
   )
+
   structure(
     list(
-      route = route,
+      path = x,
+      report = call,
       doc = doc,
-      header = FALSE,
-      endpoints = list(list(method = "get", path = x))
+      endpoints = endpoints
     ),
-    class = "plumber2_route_block"
+    class = "plumber2_report_block"
   )
 }
 
@@ -618,7 +624,7 @@ apply_plumber2_block.plumber2_handler_block <- function(
     } else {
       route <- router$get_route(route_name)
       if (route$root == "/") {
-        route$root <- route_name
+        route$root <- root
       } else {
         cli::cli_warn(
           "Ignoring {.field @root {route_name}} as the route already has a root set",
@@ -646,6 +652,17 @@ apply_plumber2_block.plumber2_handler_block <- function(
       header = block$header
     )
   }
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_report_block <- function(
+  block,
+  api,
+  route_name,
+  root,
+  ...
+) {
+  api$add_report(block$path, block$report, doc = block$doc)
   api
 }
 #' @export

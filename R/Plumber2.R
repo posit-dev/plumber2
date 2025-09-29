@@ -195,7 +195,13 @@ Plumber2 <- R6Class(
     #' will place it at the end. Will not have an effect if a route with the
     #' given name already exists.
     #' @param root The root path to serve this route from.
-    add_route = function(name, route = NULL, header = FALSE, after = NULL, root = "") {
+    add_route = function(
+      name,
+      route = NULL,
+      header = FALSE,
+      after = NULL,
+      root = ""
+    ) {
       route <- route %||%
         Route$new(ignore_trailing_slash = private$IGNORE_TRAILING_SLASH)
       route$root <- paste0(root, route$root)
@@ -508,6 +514,232 @@ Plumber2 <- R6Class(
         proc <- self$get_data(proc_name)
         if (inherits(proc, "r_process")) proc$kill()
       })
+
+      invisible(self)
+    },
+    #' @description Render and serve a Quarto or Rmarkdown document from an
+    #' endpoint. See [api_report()] for more information.
+    #'
+    #' @param path The base path to serve the report from. Additional endpoints
+    #' will be created in addition to this.
+    #' @param report The path to the report to serve
+    #' @param ... Further arguments to `quarto::quarto_render()` or
+    #' `rmarkdown::render()`
+    #' @param doc An [openapi_operation()] documentation for the report. Only
+    #' `query` parameters will be used and a request body will be generated from
+    #' this for the POST methods.
+    #' @param max_age The maximum age in seconds to keep a rendered report
+    #' before initiating a re-render
+    #' @param async Should rendering happen asynchronously (using mirai)
+    #' @param finalize An optional function to run before sending the response
+    #' back. The function will receive the request as the first argument, the
+    #' response as the second, and the server as the third.
+    #' @param continue A logical that defines whether the response is returned
+    #' directly after rendering or should be made available to subsequent routes
+    #' @param cache_dir The location of the render cache. By default a temporary
+    #' folder is created for it.
+    #' @param cache_by_id Should caching be scoped by the user id. If the
+    #' rendering is dependent on user-level access to different data this is
+    #' necessary to avoid data leakage.
+    #' @param route The route this handler should be added to. Defaults to the
+    #' last route in the stack. If the route does not exist it will be created
+    #' as the last route in the stack.
+    #'
+    add_report = function(
+      path,
+      report,
+      ...,
+      doc = NULL,
+      max_age = Inf,
+      async = TRUE,
+      finalize = NULL,
+      continue = FALSE,
+      cache_dir = tempfile(pattern = "plumber2_report"),
+      cache_by_id = FALSE,
+      route = NULL
+    ) {
+      if (!is_bool(async) && !identical(async, "mirai")) {
+        cli::cli_warn("report serving can only be done with the mirai backend")
+        async <- TRUE
+      }
+
+      info <- routr::report_info(report)
+      paths <- c(
+        path,
+        paste0(sub("/?$", "/", path), info$format),
+        unique(paste0(sub("/?$", ".", path), info$ext))
+      )
+      formats <- c(
+        list(info$formats[!duplicated(info$mime_types)]),
+        as.list(info$formats),
+        as.list(info$formats[!duplicated(info$mime_types)])
+      )
+      response <- c(
+        list(unique(info$mime_types)),
+        as.list(info$mime_types),
+        as.list(unique(info$mime_types))
+      )
+      if (!is.null(doc$parameters)) {
+        doc$parameters <- set_names(
+          doc$parameters,
+          vapply(doc$parameters, `[[`, character(1), "name")
+        )
+      }
+      get_doc <- openapi_operation(
+        summary = doc$summary,
+        description = doc$description,
+        operation_id = doc$operationId %||% character(),
+        parameters = lapply(
+          names(info$query_params),
+          function(param) {
+            if (length(doc$parameters[[param]]$schema) == 0) {
+              schema <- openapi_schema(info$query_params[[param]])
+            } else {
+              schema <- doc$parameters[[param]]$schema
+            }
+            openapi_parameter(
+              name = param,
+              location = "query",
+              required = FALSE,
+              schema = schema
+            )
+          }
+        ),
+        responses = doc$response %||% list(),
+        tags = doc$tags %||% character()
+      )
+      post_doc <- get_doc
+      delete_doc <- get_doc
+      post_doc$requestBody <- openapi_request_body(
+        content = openapi_content(
+          "application/json" = openapi_schema(
+            I("object"),
+            properties = set_names(
+              lapply(get_doc$parameters, `[[`, "schema"),
+              vapply(get_doc$parameters, `[[`, character(1), "name")
+            )
+          )
+        )
+      )
+      post_doc$parameters <- NULL
+      delete_doc$parameters <- NULL
+
+      type_caster <- create_type_casters(doc)
+
+      rr <- routr::report_route(
+        path,
+        file = report,
+        ...,
+        max_age = max_age,
+        async = async,
+        finalize = finalize,
+        ignore_trailing_slash = private$IGNORE_TRAILING_SLASH,
+        continue = continue,
+        cache_dir = cache_dir,
+        cache_by_id = cache_by_id,
+        param_caster = type_caster
+      )
+
+      if (is.null(route)) {
+        if (length(self$request_router$routes) == 0) {
+          route <- "default"
+        } else {
+          route <- self$request_router$routes[length(
+            self$request_router$routes
+          )]
+        }
+      }
+      if (!self$request_router$has_route(route)) {
+        cli::cli_inform(
+          "Creating {.field {route}} route in request router"
+        )
+        self$add_route(route)
+      }
+      route <- self$request_router$get_route(route)
+      route$merge_route(rr)
+      if (!inherits(doc, "plumber_noDoc")) {
+        paths <- gsub("/+", "/", paste0(route$root, "/", paths))
+        for (i in seq_along(paths)) {
+          format <- paste0(
+            "*",
+            formats[[i]],
+            "* (",
+            response[[i]],
+            ")"
+          )
+          if (length(format) > 1) {
+            pg_summary <- cli::format_inline(
+              "Render and serve \"{info$title}\""
+            )
+            pg_description <- cli::format_inline(
+              "This path allows you to access *{info$title}* in one of the
+              following formats: {format} through content negotiation.",
+              keep_whitespace = FALSE
+            )
+            d_summary <- cli::format_inline(
+              "Clear render cache of \"{info$title}\""
+            )
+            d_description <- cli::format_inline(
+              "This will delete *all* cached versions of the rendered report."
+            )
+          } else {
+            pg_summary <- cli::format_inline(
+              "Render and serve \"{info$title}\" as {formats[[i]]}"
+            )
+            pg_description <- cli::format_inline(
+              "This path allows you to access *{info$title}* in the {format} format."
+            )
+            d_summary <- cli::format_inline(
+              "Clear render cache of the {formats[[i]]} version of \"{info$title}\""
+            )
+            d_description <- cli::format_inline(
+              "This will delete cached versions of the {format} format."
+            )
+          }
+          get_doc$responses <- post_doc$responses <- list(
+            "200" = openapi_response(
+              description = "The rendered report",
+              content = openapi_content(
+                !!!set_names(
+                  rep_along(
+                    response[[i]],
+                    list(set_names(list(), character()))
+                  ),
+                  response[[i]]
+                )
+              )
+            ),
+            "400" = openapi_response(
+              description = "Supplied parameters were not acceptable"
+            ),
+            "500" = openapi_response(
+              description = "Issues during rendering"
+            )
+          )
+          delete_doc$responses <- list(
+            "204" = openapi_response(
+              description = "The render cache was cleared"
+            )
+          )
+          if (i == 1) {
+            get_doc$summary <- post_doc$summary <- get_doc$summary %||%
+              pg_summary
+            get_doc$description <- post_doc$description <- get_doc$description %||%
+              pg_description
+          } else {
+            get_doc$summary <- post_doc$summary <- pg_summary
+            get_doc$description <- post_doc$description <- pg_description
+          }
+          delete_doc$summary <- d_summary
+          delete_doc$description <- d_description
+          path_doc <- openapi_path(
+            get = get_doc,
+            post = post_doc,
+            delete = delete_doc
+          )
+          self$add_api_doc(path_doc, subset = c("paths", paths[i]))
+        }
+      }
 
       invisible(self)
     },
