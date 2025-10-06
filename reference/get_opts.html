@@ -95,6 +95,26 @@ the default values of the different options.</p>
     <p>For <code>get_opts</code> The value of <code>x</code>, if any, or <code>default</code>. For
 <code>all_opts()</code> a named list of all the options that are set</p>
     </div>
+    <div class="section level2">
+    <h2 id="plumber-options">plumber2 options<a class="anchor" aria-label="anchor" href="#plumber-options"></a></h2>
+    <p>The following options are currently recognized by plumber2. They are all read
+at creation time and have a parallel argument in <code><a href="api.html">api()</a></code> where you can also
+see their default values. This means that changing an option after
+creation/during running will have no effect.</p><ul><li><p><strong>host</strong>: The address to serve the server from</p></li>
+<li><p><strong>port</strong>: The port to use for the server</p></li>
+<li><p><strong>docType</strong>: The ui to use for serving OpenAPI documentation</p></li>
+<li><p><strong>docPath</strong>: The path to serve the documentation from</p></li>
+<li><p><strong>rejectMissingMethods</strong>: Should requests to paths that doesn't have a
+handler for the specific method automatically be rejected with a 405 Method
+Not Allowed response</p></li>
+<li><p><strong>ignoreTrailingSlash</strong>: Should the trailing slash of a path be ignored
+when adding handlers and handling requests</p></li>
+<li><p><strong>maxRequestSize</strong>: The maximum allowed size of request bodies</p></li>
+<li><p><strong>sharedSecret</strong>: A shared secret the request must contain to be permitted</p></li>
+<li><p><strong>compressionLimit</strong>: The threshold for response size before automatic
+compression is used</p></li>
+<li><p><strong>async</strong>: The default async engine to use</p></li>
+</ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
