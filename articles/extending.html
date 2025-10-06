@@ -13,7 +13,10 @@
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Schibsted_Grotesk-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/National_Park-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="extending_files/libs/quarto-html/popper.min.js"></script><script src="extending_files/libs/quarto-html/tippy.umd.min.js"></script><link href="extending_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="extending_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -39,7 +42,7 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/plumber.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-learn-plumber-" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Learn plumber2</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-learn-plumber-">
 <li><a class="dropdown-item" href="../articles/introduction.html">1. Introduction</a></li>
@@ -52,7 +55,13 @@
     <li><a class="dropdown-item" href="../articles/security.html">8. Security</a></li>
     <li><a class="dropdown-item" href="../articles/tips-and-tricks.html">9. Tips &amp; Tricks</a></li>
     <li><a class="dropdown-item" href="../articles/migration.html">10. Migration</a></li>
-    <li><a class="dropdown-item" href="../articles/extending.html">11. Extending plumber2</a></li>
+  </ul>
+</li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced">
+<li><a class="dropdown-item" href="../articles/extending.html">Extending plumber2</a></li>
+    <li><a class="dropdown-item" href="../articles/server_yml.html">The _server.yml standard</a></li>
   </ul>
 </li>
       </ul>
@@ -285,8 +294,8 @@
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     cli::cli_abort("{.fun format_geojson} did not receive an `sf` or `sfc` object.")</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55991da19e88&gt;</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55991c03a208&gt;</span></span></code></pre>
+<span><span class="co">#&gt; &lt;bytecode: 0x55895611ae88&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55895473b208&gt;</span></span></code></pre>
 </div>
 </div>
 <p>While you can always pass in a function directly as a serializer, registering them by name makes it much easier to reuse, and making it a default makes the serializer instantly available to all endpoints (providing they are using the defaults). It follows that providing additional serializers, both defaults and non-defaults, increases ways plumber2 can interact with the client.</p>
@@ -313,7 +322,7 @@
 <span><span class="co">#&gt;             ...)</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55991d9e2ee0&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x5589560e3ee0&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:plumber2&gt;</span></span></code></pre>
 </div>
 </div>
@@ -332,7 +341,7 @@
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     tomledit::to_toml(x)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55991cba5008&gt;</span></span></code></pre>
+<span><span class="co">#&gt; &lt;environment: 0x5589552a6008&gt;</span></span></code></pre>
 </div>
 </div>
 <p>We can also see that it is part of the defaults:</p>

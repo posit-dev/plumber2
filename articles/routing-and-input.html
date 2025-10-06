@@ -13,7 +13,10 @@
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Schibsted_Grotesk-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/National_Park-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="routing-and-input_files/libs/quarto-html/popper.min.js"></script><script src="routing-and-input_files/libs/quarto-html/tippy.umd.min.js"></script><link href="routing-and-input_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="routing-and-input_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -52,7 +55,13 @@
     <li><a class="dropdown-item" href="../articles/security.html">8. Security</a></li>
     <li><a class="dropdown-item" href="../articles/tips-and-tricks.html">9. Tips &amp; Tricks</a></li>
     <li><a class="dropdown-item" href="../articles/migration.html">10. Migration</a></li>
-    <li><a class="dropdown-item" href="../articles/extending.html">11. Extending plumber2</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced">
+<li><a class="dropdown-item" href="../articles/extending.html">Extending plumber2</a></li>
+    <li><a class="dropdown-item" href="../articles/server_yml.html">The _server.yml standard</a></li>
   </ul>
 </li>
       </ul>
@@ -195,10 +204,9 @@
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>Visiting http://localhost:8080/?q=bread&amp;pretty=1 will print:</p>
-<pre><code><span><span class="co">#&gt; Creating 03-03-search route in request router</span></span></code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"The q parameter is 'bread'. The pretty parameter is '1'."</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"The q parameter is 'bread'. The pretty parameter is '1'."</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
 <p>In the handler above we use <code>%||%</code> to provide a fallback value in case the query parameter weren’t provided. Later you’ll learn how to provide default values or mark parameters as required.</p>
 <p>Since the query string is “open” in the sense that the user can send anything along with it the <code>query</code> value can contain a multitude of values your handler isn’t expecting. These values may be meant for other handlers in other routes or may be included in error. Because of this open nature it is a good practice to document all the query parameters your handler understand. This is done with the <code>@query</code> tag which works much like <code>@param</code>.</p>
 <p>Your API may need array-like input from the query string. plumber2 understands two forms of providing array data: Either by providing the same parameter multiple times, e.g. <code>?arg=1&amp;arg=2&amp;arg=3</code>, or by separating values with a comma, e.g. <code>?arg=1,2,3</code>. While the latter approach is more condensed it too will become quite unwieldy for large amount of data. On top of this some web browsers impose limitations on the length of a URL. Internet Explorer, in particular, caps the query string at 2,048 characters. Because of this, larger amount of data is better served through a request body.</p>
@@ -321,16 +329,16 @@
 </tbody>
 </table>
 <p>You can also provide your own parsers and register them so you can reference them by name. There are two special names you can use: <code>none</code> and <code>...</code>. If setting <code>@parser none</code> then no parsing of the request body will be attempted. This can still be done manually through the <code>request</code> at a later stage. While it may seem like a good idea to set <code>@parser none</code> if you do not intend to use the request body in your handler in order to speed up processing, it is not necessary since the body is only parsed if your code tries to access it. Setting <code>@parser ...</code> selects all the parsers that have not yet been referenced in your handler block. This can be useful if you have registered an alternative parser for a specific mime type and wish to move it to the top of the list so that it is selected over the one provided by plumber. An example could be:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @parser artisinal_json_parser</span></span>
 <span><span class="co">#* @parser ...</span></span></code></pre></div>
 <p>This would give your handler access to all parsers registered with plumber2 but will select <code>artisinal_json_parser</code> over <code>json</code> if the content type is <code>application/json</code>. You register new parsers using <code><a href="../reference/register_parser.html">register_parser()</a></code>, but can also provide them directly in the block annotation like so:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @parser application/toml function(x, ...) blogdown::read_toml(x = rawToChar(x))</span></span></code></pre></div>
 <p>However, you are probably better off registering the parser rather than having to redefine it every time you need it</p>
 <p>Unfortunately, crafting a request with a message body requires a bit more work than making a <code>GET</code> request with a query string from your web browser, but you can use tools like <code>curl</code> on the command line or the <a href="https://httr2.r-lib.org" class="external-link">httr2 R package</a>. We’ll use <code>curl</code> for the examples below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @post /user</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">body</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -340,15 +348,14 @@
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>Running <code>curl --data "id=123&amp;name=Jennifer" -H "Content-Type: application/x-www-form-urlencoded" "http://localhost:8080/user"</code> will return:</p>
-<pre><code><span><span class="co">#&gt; Creating 03-04-body route in request router</span></span></code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"123"</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Jennifer</span><span class="ch">\n</span><span class="st">"</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"123"</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Jennifer</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Alternatively, <code>echo {"id":123, "name": "Jennifer"} &gt; call.json &amp; curl --data @call.json "http://localhost:8080/user" -H "content-type: application/json"</code> (formatting the body as JSON) will have the same effect.</p>
 </section><section class="level4"><h4 id="request">
 <code>request</code><a class="anchor" aria-label="anchor" href="#request"></a>
@@ -362,7 +369,7 @@
 </h5>
 <p>HTTP headers attached to the incoming request are available through the request object. You can either access it with the <code>get_header()</code> method or the <code>headers</code> field from the request object</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Return the value of a custom header and the total number of headers</span></span>
 <span><span class="co">#* @get /</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">request</span><span class="op">)</span> <span class="op">{</span></span>
@@ -373,15 +380,14 @@
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>Running <code>curl --header "Custom-Header: abc123" http://localhost:8080</code> will return:</p>
-<pre><code><span><span class="co">#&gt; Creating 03-05-headers route in request router</span></span></code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"val"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"abc123"</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"n_headers"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"val"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"abc123"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"n_headers"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>There is a slight difference in <code>get_header()</code> and <code>headers</code> you should be aware of. Because R is not fond of <code>-</code> in symbols, the names in the list provided by <code>headers</code> has <code>-</code> substituted with <code>_</code>. With <code>get_header()</code> you can use the real header name.</p>
 </section></section><section class="level4"><h4 id="response">
 <code>response</code><a class="anchor" aria-label="anchor" href="#response"></a>
@@ -399,7 +405,7 @@
 </h2>
 <p>Path and query paramters comes from a text string, and as such they are provided as string to your handler. However, you can provide type hints to these and have plumber automatically cast them to the expected type before providing them to your handler. Consider the following API.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /type/&lt;id&gt;</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">id</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -409,17 +415,16 @@
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>Visiting http://localhost:8080/type/14 will return:</p>
-<pre><code><span><span class="co">#&gt; Creating 03-02-types route in request router</span></span></code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"14"</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"character"</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"14"</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"character"</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>If you only intend to support a particular data type for a particular parameter in your dynamic route, you can specify the desired type in the path itself, or in the <code>@param</code> field.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @get /user/&lt;id:integer&gt;</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">id</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="kw">next</span> <span class="op">&lt;-</span> <span class="va">id</span> <span class="op">+</span> <span class="fl">1</span></span>
@@ -484,12 +489,12 @@
 </section></section><section class="level2"><h2 id="static-file-handler">Static File Handler<a class="anchor" aria-label="anchor" href="#static-file-handler"></a>
 </h2>
 <p>Plumber includes a static file server which can be used to host directories of static assets such as JavaScript, CSS, or HTML files. These servers are fairly simple to configure and integrate into your plumber application.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @assets ./files/static</span></span>
 <span><span class="cn">NULL</span></span></code></pre></div>
 <p>This example would expose the local directory <code>./files/static</code> at the root <code>/</code> path on your server. So if you had a file <code>./files/static/branding.html</code>, it would be available on your Plumber server at <code>/branding.html</code>.</p>
 <p>You can optionally provide an additional argument to configure the path used for your server. For instance</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @assets ./files/static /static</span></span>
 <span><span class="cn">NULL</span></span></code></pre></div>
 <p>would expose the local directory <code>files/static</code> not at <code>/</code>, but at <code>/static</code>.</p>
