@@ -34,6 +34,9 @@ navbar:
           href: articles/migration.html
         - text: 11. Extending plumber2
           href: articles/extending.html
+    server_yml:
+      text: _server.yml
+      href: articles/server_yml.html
 
 reference:
   - title: "Create an run an API"
