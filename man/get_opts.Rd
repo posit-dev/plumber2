@@ -28,6 +28,29 @@ in the latter case the variable name must be in upper case and prefixed with
 value is cast to the type giving in \code{default}. See the docs for \code{\link[=api]{api()}} for
 the default values of the different options.
 }
+\section{plumber2 options}{
+The following options are currently recognized by plumber2. They are all read
+at creation time and have a parallel argument in \code{\link[=api]{api()}} where you can also
+see their default values. This means that changing an option after
+creation/during running will have no effect.
+\itemize{
+\item \strong{host}: The address to serve the server from
+\item \strong{port}: The port to use for the server
+\item \strong{docType}: The ui to use for serving OpenAPI documentation
+\item \strong{docPath}: The path to serve the documentation from
+\item \strong{rejectMissingMethods}: Should requests to paths that doesn't have a
+handler for the specific method automatically be rejected with a 405 Method
+Not Allowed response
+\item \strong{ignoreTrailingSlash}: Should the trailing slash of a path be ignored
+when adding handlers and handling requests
+\item \strong{maxRequestSize}: The maximum allowed size of request bodies
+\item \strong{sharedSecret}: A shared secret the request must contain to be permitted
+\item \strong{compressionLimit}: The threshold for response size before automatic
+compression is used
+\item \strong{async}: The default async engine to use
+}
+}
+
 \examples{
 # Using `options()`
 old_opts <- options(plumber2.port = 9889L)
