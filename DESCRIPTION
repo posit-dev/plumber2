@@ -56,8 +56,8 @@ Suggests:
     testthat (>= 3.0.0),
     tomledit
 VignetteBuilder: quarto
-URL: http://plumber2.posit.co/, https://github.com/posit-dev/plumber2
+URL: https://plumber2.posit.co/, https://github.com/posit-dev/plumber2
 BugReports: https://github.com/posit-dev/plumber2/issues
 Config/testthat/edition: 3
-Remotes:  
+Remotes:
     thomasp85/routr
