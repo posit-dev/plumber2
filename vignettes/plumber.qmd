@@ -57,6 +57,7 @@ The `/echo/test` endpoint should show output resembling the following.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/01-01-quickstart.R"))
 
@@ -70,6 +71,7 @@ The `/plot` endpoint will show you a simple plot of some data from the palmerpen
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 if (packageVersion("base") < "4.5.0") {
   cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
@@ -90,6 +92,7 @@ You may have noticed that the functions that define our endpoints accept paramet
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 if (packageVersion("base") < "4.5.0") {
   cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
@@ -120,6 +123,7 @@ This handler would always produce HTML when called.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/01-02-html.R"))
 

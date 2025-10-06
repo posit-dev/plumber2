@@ -73,6 +73,7 @@ The expected output here is a harmless plot.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/07-01-plot-unsafe.R"))
 
@@ -88,6 +89,7 @@ However, plots with more points will take more time to create.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 req <- fiery::fake_request("http://localhost:8080?pts=10000")
 t <- system.time(res <- pa$test_request(req))

@@ -161,6 +161,7 @@ Visiting http://localhost:8080/?q=bread&pretty=1 will print:
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/03-03-search.R"))
 
@@ -227,6 +228,7 @@ Running `curl --data "id=123&name=Jennifer" -H "Content-Type: application/x-www-
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/03-04-body.R"))
 
@@ -266,6 +268,7 @@ Running `curl --header "Custom-Header: abc123" http://localhost:8080` will retur
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/03-05-headers.R"))
 
@@ -305,6 +308,7 @@ Visiting http://localhost:8080/type/14 will return:
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/03-02-types.R"))
 

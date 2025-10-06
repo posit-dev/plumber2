@@ -1,10 +1,19 @@
 url: https://plumber2.posit.co
 template:
   bootstrap: 5
+  bslib:
+    bg: "#212121"
+    fg: "#B4FFE4"
+    primary: "#FF81D2"
+    secondary: "#00FFA3"
+    code_bg: "#494949"
+    base_font: {google: "Schibsted Grotesk"}
+    heading_font: {google: "National Park"}
+    code_font: {google: "Fira Code"}
 
 navbar:
   structure:
-    left: [get_started, reference, articles]
+    left: [get_started, reference, articles, advanced]
   components:
     get_started:
       text: Get Started
@@ -32,11 +41,13 @@ navbar:
           href: articles/tips-and-tricks.html
         - text: 10. Migration
           href: articles/migration.html
-        - text: 11. Extending plumber2
+    advanced:
+      text: Advanced
+      menu:
+        - text: Extending plumber2
           href: articles/extending.html
-    server_yml:
-      text: _server.yml
-      href: articles/server_yml.html
+        - text: The _server.yml standard
+          href: articles/server_yml.html
 
 reference:
   - title: "Create an run an API"
