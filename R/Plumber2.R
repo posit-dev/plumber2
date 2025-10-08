@@ -157,7 +157,7 @@ Plumber2 <- R6Class(
         openapi <- private$OPENAPI
         openapi$servers <- c(
           openapi$servers,
-          list(list(url = "./"))
+          list(list(url = ""))
         )
         write_json(openapi, openapi_file, auto_unbox = TRUE)
         api_route <- inject(openapi_route(
@@ -166,6 +166,17 @@ Plumber2 <- R6Class(
           ui = private$DOC_TYPE,
           !!!private$DOC_ARGS
         ))
+        logo <- system.file("help", "figures", "logo.svg", package = "plumber2")
+        if (logo == "") logo <- system.file("man", "figures", "logo.svg", package = "plumber2")
+        api_route$add_handler(
+          "get",
+          paste0(sub("/?$", "/", private$DOC_PATH), "logo.svg"),
+          function(request, response, keys, ...) {
+            response$file <- logo
+            response$status <- 200L
+            FALSE
+          }
+        )
         self$request_router$add_route(api_route, "openapi")
 
         self$on(
@@ -822,7 +833,13 @@ Plumber2 <- R6Class(
     MESSAGE_ROUTER = NULL,
     DOC_TYPE = "rapidoc",
     DOC_PATH = "__docs__",
-    DOC_ARGS = list(),
+    DOC_ARGS = list(
+      slots = "<img slot=\"logo\" src=\"./logo.svg\" width=36px style=\"margin-left:7px\"/>",
+      heading_text = paste0("plumber2 ", packageVersion("plumber2")),
+      primary_color = "#FF81D2",
+      text_color = "#B4FFE4",
+      bg_color = "#212121"
+    ),
     REJECT_MISSING_METHODS = FALSE,
     IGNORE_TRAILING_SLASH = TRUE,
     ASYNC_EVALUATER = NULL,
