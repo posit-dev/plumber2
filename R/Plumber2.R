@@ -154,17 +154,10 @@ Plumber2 <- R6Class(
           private$DOC_TYPE != ""
       ) {
         openapi_file <- tempfile(fileext = ".json")
-        server_loc <- paste0(
-          rep(
-            "..",
-            length(fs::path_split(fs::path_norm(private$DOC_PATH))[[1]]) - 1
-          ),
-          collapse = "/"
-        )
         openapi <- private$OPENAPI
         openapi$servers <- c(
           openapi$servers,
-          list(list(url = server_loc))
+          list(list(url = "./"))
         )
         write_json(openapi, openapi_file, auto_unbox = TRUE)
         api_route <- inject(openapi_route(
