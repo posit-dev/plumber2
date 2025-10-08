@@ -7,6 +7,8 @@
   but with even more settings. Parameters are now type checked using the same
   facilities as the request handlers, and much more comprehensive OpenAPI
   documentation is provided.
+* Fixed a bug in the documentation UI when serving the api through a proxy,
+  affecting e.g. Posit Workbench users
 
 # plumber2 0.1.0
 
