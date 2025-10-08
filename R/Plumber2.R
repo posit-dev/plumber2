@@ -157,7 +157,7 @@ Plumber2 <- R6Class(
         server_loc <- paste0(
           rep(
             "..",
-            length(fs::path_split(fs::path_norm(private$DOC_PATH))[[1]])
+            length(fs::path_split(fs::path_norm(private$DOC_PATH))[[1]]) - 1
           ),
           collapse = "/"
         )
