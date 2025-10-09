@@ -145,7 +145,7 @@
 <code class="sourceCode R"><span><span class="va">pa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/api_logger.html">api_logger</a></span><span class="op">(</span><span class="fu"><a href="../reference/api_logger.html">logger_otel</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>If you use this logger then all logs will appear together with your spans and metrics. If a log occur during request handling then the log will automatically be associated with the request span. Further, the automatic logging of server start and end will have the attribute <code>server.id</code> which contains the unique name of the server instance.</p>
+<p>If you use this logger then all logs will appear together with your spans and metrics. If a log occur during request handling then the log will automatically be associated with the request span. Further, all logs will get the attribute <code>server.id</code> which identifies the server instance from which the log originated.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
