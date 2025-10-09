@@ -292,7 +292,7 @@ get_serializers_internal <- function(
 #' Serializing graphic output is special because it requires operations before
 #' and after the handler is executed. Further, handlers creating graphics are
 #' expected to do so through side-effects (ie. call to graphics rendering) or
-#' by returning a ggplot2 object. If you want to create your own graphics
+#' by returning a \pkg{ggplot2} object. If you want to create your own graphics
 #' serializer you should use [device_formatter()] for constructing it.
 #' * `format_png()` uses [ragg::agg_png()] for rendering. It is registered
 #'   as `"png"` to the mime type `image/png`
@@ -607,7 +607,9 @@ with_formatter <- function(expr, formatter, info) {
   with_fun(expr, info)
 }
 
-create_graphics_device_promise_domain <- function(which = grDevices::dev.cur()) {
+create_graphics_device_promise_domain <- function(
+  which = grDevices::dev.cur()
+) {
   force(which)
 
   promises::new_promise_domain(

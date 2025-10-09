@@ -21,16 +21,17 @@ me <- normalizePath(
     "articles"
   } else {
     "vignettes/articles"
-  })
+  }
+)
 source(file.path(me, "_helpers.R"))
 readLines <- function(x) base::readLines(file.path(me, x))
 ```
 
 ![](files/images/plumber_input.png){width="45%" style="float:right;"}
 
-Plumber's primary job is to execute R code in response to incoming HTTP requests, so it's important to understand how incoming HTTP requests get translated into the execution of R functions.
+`{plumber2}`'s primary job is to execute R code in response to incoming HTTP requests, so it's important to understand how incoming HTTP requests get translated into the execution of R functions.
 
-An incoming HTTP request must be "routed" to one or more R functions. Routing is the process of taking the path a request is sent to (the part of the URL after the domain and before query parameters) and figuring out which handler function that path corresponds to. In plumber2 a central router passes a request through one or more routes. Each route can have multiple handlers attached to different paths and will select one or none to pass the request through. This means that at most a request will pass through a handler for each route in the router, but the number can easily be lower.
+An incoming HTTP request must be "routed" to one or more R functions. Routing is the process of taking the path a request is sent to (the part of the URL after the domain and before query parameters) and figuring out which handler function that path corresponds to. In `{plumber2}`, a central router passes a request through one or more routes. Each route can have multiple handlers attached to different paths and will select one or none to pass the request through. This means that at most a request will pass through a handler for each route in the router, but the number can easily be lower.
 
 Usually you will have one main handler that takes care of a specific path, but then potentially have more general handlers in earlier routes that takes care of things like authentication etc. and perhaps later handlers that wraps things up.
 
@@ -98,7 +99,7 @@ function(from, to){
 
 ### Path wildcard
 
-Often path parameters are all you need as they allow you to provide a dynamic but structured path and extract parameters from the input. However, plumber2 also support path wildcards which can match to *anything* you pass it to. Conceptually it works like `*` in file globbing or `.*` in regular expressions.
+Often path parameters are all you need as they allow you to provide a dynamic but structured path and extract parameters from the input. However, `{plumber2}` also support path wildcards which can match to *anything* you pass it to. Conceptually it works like `*` in file globbing or `.*` in regular expressions.
 
 ``` r
 #* @get /images/*
@@ -125,11 +126,11 @@ They have been ordered as the route would order it, with the highest priority on
 
 ## Handler input {#input-handling}
 
-Plumber routes requests based exclusively on the path and method of the incoming HTTP request, but requests can contain much more information than just this. They might include additional HTTP headers, a query string, or a request body. All of these fields may be viewed as "inputs" to your Plumber API.
+`{plumber2}` routes requests based exclusively on the path and method of the incoming HTTP request, but requests can contain much more information than just this. They might include additional HTTP headers, a query string, or a request body. All of these fields may be viewed as "inputs" to your Plumber API.
 
 ### Handler arguments
 
-In general when you think of inputs to a function in R you think about the arguments to that function. In plumber2 there are certain rules around the arguments in the handler function that determines what kind of input the handler gets access to. Most importantly perhaps, the path parameters are being provided directly to your handler as named arguments. For example, given the following handler
+In general when you think of inputs to a function in R you think about the arguments to that function. In `{plumber2}`, there are certain rules around the arguments in the handler function that determines what kind of input the handler gets access to. Most importantly perhaps, the _path_ parameters are being provided directly to your handler as named arguments. For example, given the following handler
 
 ``` r
 #* @get /user/<id>/setting/<type>
@@ -148,7 +149,7 @@ Path parameters are the only type of variable handler arguments. All other are p
 
 A query string may be appended to a URL in order to convey additional information beyond just the request route. Query strings allow for the encoding of character string keys and values. For example, in the URL `https://duckduckgo.com/?q=bread&pretty=1`, everything following the `?` constitutes the query string. In this case, two variables (`q` and `pretty`) have been set (to `bread` and `1`, respectively).
 
-Plumber will automatically parse the query string and make it available as the `query` argument of the handler function. The following example defines a search API that mimics the example from [DuckDuckGo](https://duckduckgo.com) above but merely prints out what it receives.
+Plumber APIs will automatically parse the query string and make it available as the `query` argument of the handler function. The following example defines a search API that mimics the example from [DuckDuckGo](https://duckduckgo.com) above but merely prints out what it receives.
 
 ```{r}
 #| eval: false
@@ -172,15 +173,15 @@ In the handler above we use `%||%` to provide a fallback value in case the query
 
 Since the query string is "open" in the sense that the user can send anything along with it the `query` value can contain a multitude of values your handler isn't expecting. These values may be meant for other handlers in other routes or may be included in error. Because of this open nature it is a good practice to document all the query parameters your handler understand. This is done with the `@query` tag which works much like `@param`.
 
-Your API may need array-like input from the query string. plumber2 understands two forms of providing array data: Either by providing the same parameter multiple times, e.g. `?arg=1&arg=2&arg=3`, or by separating values with a comma, e.g. `?arg=1,2,3`. While the latter approach is more condensed it too will become quite unwieldy for large amount of data. On top of this some web browsers impose limitations on the length of a URL. Internet Explorer, in particular, caps the query string at 2,048 characters. Because of this, larger amount of data is better served through a request body.
+Your API may need array-like input from the query string. `{plumber2}` understands two forms of providing array data: Either by providing the same parameter multiple times, e.g. `?arg=1&arg=2&arg=3`, or by separating values with a comma, e.g. `?arg=1,2,3`. While the latter approach is more condensed it too will become quite unwieldy for large amount of data. On top of this some web browsers impose limitations on the length of a URL. Internet Explorer, in particular, caps the query string at 2,048 characters. Because of this, larger amount of data is better served through a request body.
 
 #### `body`
 
 Another way to provide additional information inside an HTTP request is using the message body. Effectively, once a client specifies all the metadata about a request (the path it's trying to reach, some HTTP headers, etc.) it can then provide a message body. The maximum size of a request body depends largely on the technologies involved (client, proxies, etc.) but is typically at least 2MB -- much larger than a query string. This approach is most commonly seen with `PUT`, `POST`, and `PATCH` requests, though you could encounter it with other HTTP methods.
 
-Plumber will attempt to parse the request body using the best matching parser provided to the handler through one or more `@parser` tags. If no parsers are provided then plumber2 will try all registered parsers. The result of the parsing is then made available as the `body` argument. You can document your expectations around the request body using the `@body` tag which works much like `@param` and `@query`.
+`{plumber2}` will attempt to parse the request body using the best matching parser provided to the handler through one or more `@parser` tags. If no parsers are provided then `{plumber2}` will try all registered parsers. The result of the parsing is then made available as the `body` argument. You can document your expectations around the request body using the `@body` tag which works much like `@param` and `@query`.
 
-Plumber2 comes with a selection of parsers for the most common data transfer formats:
+`{plumber2}` comes with a selection of parsers for the most common data transfer formats:
 
 | Annotation | Content Type | Description/References |
 |------------------------|------------------------|------------------------|
@@ -206,7 +207,7 @@ You can also provide your own parsers and register them so you can reference the
 #* @parser ...
 ```
 
-This would give your handler access to all parsers registered with plumber2 but will select `artisinal_json_parser` over `json` if the content type is `application/json`. You register new parsers using `register_parser()`, but can also provide them directly in the block annotation like so:
+This would give your handler access to all parsers registered with `{plumber2}` but will select `artisinal_json_parser` over `json` if the content type is `application/json`. You register new parsers using `register_parser()`, but can also provide them directly in the block annotation like so:
 
 ``` r
 #* @parser application/toml function(x, ...) blogdown::read_toml(x = rawToChar(x))
@@ -243,7 +244,7 @@ Alternatively, `echo {"id":123, "name": "Jennifer"} > call.json & curl --data @c
 
 #### `request`
 
-The `request` argument contains the request object. In plumber2 this object is provided by the reqres package and the[documentation there](https://reqres.data-imaginist.com/reference/Request.html) gives a great overview of the information it contains. Of special interest is the `headers`, `cookies`, and `session` field which gives access to additional input that are otherwise not available through handler arguments.
+The `request` argument contains the request object. In `{plumber2}`, this object is provided by the reqres package and the[documentation there](https://reqres.data-imaginist.com/reference/Request.html) gives a great overview of the information it contains. Of special interest is the `headers`, `cookies`, and `session` field which gives access to additional input that are otherwise not available through handler arguments.
 
 ##### Cookies {#read-cookies}
 

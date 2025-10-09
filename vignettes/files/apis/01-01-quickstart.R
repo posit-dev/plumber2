@@ -1,4 +1,4 @@
-#* Echo the parameter that was sent in
+#* Echo the path parameter
 #*
 #* @get /echo/<msg>
 #*
@@ -10,7 +10,7 @@ function(msg) {
   )
 }
 
-#* Plot out data from the palmer penguins dataset
+#* Plot the palmer penguins dataset
 #*
 #* @get /plot
 #*
@@ -20,20 +20,20 @@ function(msg) {
 #* @serializer png
 #*
 function(query) {
-  myData <- palmerpenguins::penguins
+  my_data <- palmerpenguins::penguins
   title <- "All Species"
 
   # Filter if the species was specified
-  if (!is.null(query$spec)){
+  if (!is.null(query$spec)) {
     title <- paste0("Only the '", query$spec, "' Species")
-    myData <- subset(myData, species == query$spec)
+    my_data <- subset(my_data, species == query$spec)
   }
 
   plot(
-    myData$flipper_length_mm,
-    myData$bill_length_mm,
-    main=title,
-    xlab="Flipper Length (mm)",
-    ylab="Bill Length (mm)"
+    my_data$flipper_length_mm,
+    my_data$bill_length_mm,
+    main = title,
+    xlab = "Flipper Length (mm)",
+    ylab = "Bill Length (mm)"
   )
 }

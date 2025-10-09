@@ -171,7 +171,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' proceed
 #'
 #' ### Returning a ggplot2 object
-#' If you return a ggplot2 object it will get plotted for you (and added to the
+#' If you return a \pkg{ggplot2} object it will get plotted for you (and added to the
 #' response assuming a graphics serializer is provided) before handling
 #' continues
 #'
