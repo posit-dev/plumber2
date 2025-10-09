@@ -40,7 +40,7 @@ Apart from creating this subspan, routr also takes responsibility of setting the
 If you wish to add additional instrumentation to your server logic you'll likely do this within your endpoint handlers. If so, you should probably use `otel::start_local_active_span()` which will automatically close itself at the end of your code and pick up the active routr subspan as the parent. However, don't go overboard and only add instrumentation for things your are specifically interested in collecting. The default instrumentation is already quite detailed. An alternative way to add additional information is to add your own attributes or events to the spans already in place. As mentioned above, the parent span is available in `request$otel`, while the routr span can be accessed using `otel::get_active_span()`.
 
 ## Metrics
-The HTTP semantic convention also covers metrics. reqres takes care of collecting those on the convention which are: 
+The HTTP semantic convention also covers metrics. reqres takes care of collecting those from the convention which are: 
 
 * `http.server.request.duration` collects the duration of the request handling by the server
 * `http.server.active_requests` collects the number of active requests at any point in time
