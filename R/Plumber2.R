@@ -119,6 +119,8 @@ Plumber2 <- R6Class(
 
       check_environment(env)
       private$PARENT_ENV <- env
+
+      private$SESSION_FRAMEWORK <- "plumber2"
     },
     #' @description Human readable description of the api object
     #' @param ... ignored
