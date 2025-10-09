@@ -22,6 +22,8 @@ api_get(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -34,6 +36,8 @@ api_head(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -46,6 +50,8 @@ api_post(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -58,6 +64,8 @@ api_put(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -70,6 +78,8 @@ api_delete(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -82,6 +92,8 @@ api_connect(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -94,6 +106,8 @@ api_options(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -106,6 +120,8 @@ api_trace(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -118,6 +134,8 @@ api_patch(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -130,6 +148,8 @@ api_any(
   parsers = NULL,
   use_strict_serializer = FALSE,
   download = FALSE,
+  async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL
 )
@@ -163,6 +183,15 @@ header in the response to \code{attachment}. Setting it to a string is equivalen
 to setting it to \code{TRUE} but will in addition also set the default filename of
 the download to the string value}
 
+\item{async}{If \code{FALSE} create a regular handler. If \code{TRUE}, use the default
+async evaluator to create an async handler. If a string, the async evaluator
+registered to that name is used. If a function is provided then this is used
+as the async evaluator. See the \emph{Async} section for more detail}
+
+\item{then}{A list of function to be called once the async handler is done.
+The functions will be chained using \code{\link[promises:then]{promises::then()}}. See the \emph{Async}
+section for more detail}
+
 \item{doc}{A list with the OpenAPI spec for the endpoint}
 
 \item{route}{The route this handler should be added to. Defaults to the last
@@ -177,6 +206,72 @@ with the pipe
 This family of functions facilitates adding a request handler for a specific
 HTTP method and path.
 }
+\section{Using annotation}{
+Handlers can be specified in an annotated route file using one of the method
+tags followed by the path it pertains to. You can use various tags to
+descripe the handler and these will automatically be converted to OpenAPI
+documentation. Further, additional tags allow you to modify the behaviour of
+the handler, reflecting the arguments available in the functional approach.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+function(username) \{
+  find_user_in_db(username)
+\}
+}\if{html}{\out{</div>}}
+
+Handlers can be specified in an annotated route file using one of the method
+tags followed by the path it pertains to. You can use various tags to
+descripe the handler and these will automatically be converted to OpenAPI
+documentation. Further, additional tags allow you to modify the behaviour of
+the handler, reflecting the arguments available in the functional approach.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+function(username) \{
+  find_user_in_db(username)
+\}
+}\if{html}{\out{</div>}}
+
+You can create async handlers with \code{then} chaining using annotation, through
+the \verb{@async} and \verb{@then} tags
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+#* @async
+function(username) \{
+  find_user_in_db(username)
+\}
+#* @then
+function(server, response) \{
+  server$log("message", "async operation completed")
+  response$set_header("etag", "abcdef")
+  Next
+\}
+}\if{html}{\out{</div>}}
+}
+
 \section{HTTP Methods}{
 The HTTP specs provide a selection of specific methods that clients can send
 to the server (your plumber api). While there is no enforcement that the
@@ -191,16 +286,16 @@ most ubiquitous method in use. \code{GET} requests should only retrieve data and
 should not contain any body content
 \item \code{HEAD}: This method is identical to \code{GET}, except the response should only
 contain headers, no body. Apart from this it is expected that a \code{HEAD}
-request is identical to a \code{GET} request for the same ressource
+request is identical to a \code{GET} request for the same resource
 \item \code{POST}: This method delivers content, in the form of a request body, to the
 server, potentially causing a change in the server. In the context of
 plumber2 it is often used to call functions that require input larger than
 what can be put in the URL
-\item \code{PUT}: This method is used to update a specific ressource on the server. In
+\item \code{PUT}: This method is used to update a specific resource on the server. In
 the context of a standard plumber2 server this is rarely relevant, though
 usage can come up. \code{PUT} is considered by clients to be indemptotent meaning
 that sending the same \code{PUT} request multiple times have no effect
-\item \code{DELETE}: This method deletes a ressource and is the opposite to \code{PUT}. As
+\item \code{DELETE}: This method deletes a resource and is the opposite to \code{PUT}. As
 with \code{PUT} this method has limited use in most standard plumber2 servers
 \item \code{CONNECT}: This method request the establishment of a proxy tunnel. It is
 considered advanced use and is very unlikely to have a usecase for your
@@ -211,7 +306,7 @@ methods and other settings are supported on a server
 containing the request (stripped of any sensitive information). Many
 servers disallow this method due to security concerns
 \item \code{PATCH}: This method is like \code{PUT} but allows partial modification of a
-ressource
+resource
 }
 
 Apart from the above, plumber2 also understands the \code{ANY} method which
@@ -321,7 +416,7 @@ routes (\code{Break})
 
 \subsection{Returning \code{NULL} or the \code{response} object}{
 
-This is the same as returning \code{Next}, ie. it signals that handling can
+This is the same as returning \code{Next}, i.e. it signals that handling can
 proceed
 }
 
@@ -335,7 +430,7 @@ continues
 \subsection{Returning any other value}{
 
 Any kind of value returned that is not captured by the above description will
-be set to the response body (overwritting what was already there) and
+be set to the response body (overwriting what was already there) and
 handling is then allowed to continue
 }
 
@@ -365,6 +460,75 @@ help inform the client about how the server has been implemented.
 }
 }
 
+\section{Async handling}{
+plumber2 supports async handling of requests in one of two ways:
+\enumerate{
+\item The handler you provide returns a promise object
+\item You set \code{async = TRUE} (or the name of a registered async evaluator) when
+adding the handler
+}
+
+For 1), there is no more to do. You have full custody over the created
+promise and any \code{then()}-chaining that might be added to it. For 2) it is a
+bit different. In that case you provide a regular function and plumber2 takes
+care of converting it to a promise. Due to the nature of promises a handler
+being converted to a promise can't take \code{request}, \code{response}, and \code{server}
+arguments, so if you need to manipulate these you need to use \code{then} (more on
+this shortly). The async handler should yield the value that the response
+should ultimately get assigned to the body or have plotting side effects (in
+which case the plot will get added to the response).
+\subsection{Async chaining}{
+
+Because you can't manipulate \code{request} \code{response}, or \code{server} in the async
+handler it may be needed to add operations to perform once the async handler
+has finished. This can be done through the \code{then} argument (or using the
+\verb{@then} tag in annotated route files). This takes a list of functions to
+chain to the promise using \code{\link[promises:then]{promises::then()}}. Before the \code{then} chain is
+executed the response will get the return value of the main handler asigned
+to the body. Each \code{then} call will receive the same arguments as a standard
+request handler as well as \code{result} which will hold the return value of the
+previous handler in the chain. For the first \code{then} call \code{result} will be a
+boolean signalling if the async handler wants request handling to proceed to
+the next route or terminate early. The last call in the chain must return
+\code{Next} or \code{Break} to signal if processing should be allowed to continue to
+the next route.
+}
+}
+
+\examples{
+# Standard use
+api() |>
+  api_get("/hello/<name:string>", function(name) {
+    list(
+      msg = paste0("Hello ", name, "!")
+    )
+  })
+
+# Specify serializers
+api() |>
+  api_get(
+    "/hello/<name:string>",
+    function(name) {
+      list(
+        msg = paste0("Hello ", name, "!")
+      )
+    },
+    serializers = get_serializers(c("json", "xml"))
+  )
+
+# Request a download and make it async
+api() |>
+  api_get(
+    "/the_plot",
+    function() {
+      plot(1:10, 1:10)
+    },
+    serializers = get_serializers(c("png", "jpeg")),
+    download = TRUE,
+    async = TRUE
+  )
+
+}
 \seealso{
 Other Request Handlers: 
 \code{\link{api_request_header_handlers}}

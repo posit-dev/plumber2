@@ -6,11 +6,11 @@ compact <- function(x) {
 }
 
 as_openapi_path <- function(x) {
-  stringi::stri_replace_all_regex(
+  sub("^/?", "/", stringi::stri_replace_all_regex(
     x,
     "<(.+?)(:.+?)?>",
     "{$1}"
-  )
+  ))
 }
 
 as_routr_path <- function(x, call = caller_env()) {

@@ -100,8 +100,8 @@ openapi_tag(name = character(), description = character())
 are lists as constructed by \code{openapi_path()}}
 
 \item{tags}{For \code{openapi()} a list with elements corresponding to the value
-constructed by \code{openapi_tag()}. For \code{openapi_operation()} this argument is a
-simple character vector}
+constructed by \code{openapi_tag()}. For \code{openapi_operation()} a character vector
+or a list of strings}
 
 \item{title}{A string giving the title of the API}
 
@@ -160,7 +160,7 @@ are:
 \item \code{integer}: Will signal \code{type: integer}
 \item \code{numeric}: Will signal \code{type: number}
 \item \code{character}: Will signal \code{type: string}
-\item \code{faactor}: Will signal \code{type: string} and \code{enum} set the factor levels
+\item \code{factor}: Will signal \code{type: string} and \code{enum} set the factor levels
 \item \code{raw}: Will signal \verb{type:string; format: binary}
 \item \code{Date}: Will signal \verb{type:string; format: date}
 \item \code{POSIXt}: Will signal \verb{type:string; format: date-time}
@@ -190,4 +190,42 @@ and instead construct it all manually (or import it from a json or yaml
 file). The purpose of these helpers is mainly in basic input checking and for
 documenting the structure. Read more about the spec at
 \url{https://spec.openapis.org/oas/v3.0.0.html}
+}
+\examples{
+# Create docs for an API with a single endpoint
+doc <- openapi(
+  info = openapi_info(
+    title = "My awesome api",
+    version = "1.0.0"
+  ),
+  paths = list(
+    "/hello/{name}" = openapi_path(
+      get = openapi_operation(
+        summary = "Get a greeting",
+        parameters = list(
+          openapi_parameter(
+            name = "name",
+            location = "path",
+            description = "Your name",
+            schema = openapi_schema(character())
+          )
+        ),
+        responses = list(
+          "200" = openapi_response(
+            description = "a kind message",
+            content = openapi_content(
+              "text/plain" = openapi_schema(character())
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+# Add it to an api
+api() |>
+  api_doc_add(doc)
+
+
 }

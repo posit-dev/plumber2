@@ -6,6 +6,7 @@ create_request_handler <- function(
   download = FALSE,
   doc = NULL,
   async = NULL,
+  then = NULL,
   call = caller_env()
 ) {
   # Input checks
@@ -14,16 +15,26 @@ create_request_handler <- function(
   if (!"..." %in% fn_fmls_names(handler)) {
     fn_fmls(handler) <- c(fn_fmls(handler), "..." = missing_arg())
   }
+  for (i in seq_along(then)) {
+    check_function(then[[i]], arg = paste0("then[[", i, "]]"))
+    if (!"..." %in% fn_fmls_names(then[[i]])) {
+      fn_fmls(then[[i]]) <- c(fn_fmls(then[[i]]), "..." = missing_arg())
+    }
+  }
   if (
     !is.null(serializers) && !(is_list(serializers) && is_named2(serializers))
   ) {
     stop_input_type(serializers, "a named list", allow_null = TRUE, call = call)
   }
-  if (length(serializers) == 0) serializers <- NULL
+  if (length(serializers) == 0) {
+    serializers <- NULL
+  }
   if (!is.null(parsers) && !(is_list(parsers) && is_named2(parsers))) {
     stop_input_type(parsers, "a named list", allow_null = TRUE, call = call)
   }
-  if (length(parsers) == 0) parsers <- NULL
+  if (length(parsers) == 0) {
+    parsers <- NULL
+  }
   check_bool(use_strict_serializer, call = call)
   if (is_bool(download)) {
     dl_file <- NULL
@@ -42,10 +53,16 @@ create_request_handler <- function(
     if (!is.null(parsers)) {
       request$parse(!!!parsers)
     }
-    type_casters$body(request$body, request$headers$Content_Type)
+    type_casters$body(request$body, request$headers$content_type)
   }
 
   if (is.null(async)) {
+    if (!is.null(then)) {
+      cli::cli_abort(
+        "{.arg then} can only be used with async handlers",
+        call = call
+      )
+    }
     create_sequential_request_handler(
       handler,
       serializers,
@@ -64,7 +81,8 @@ create_request_handler <- function(
       type_casters,
       body_parser,
       download,
-      dl_file
+      dl_file,
+      then
     )
   }
 }
@@ -80,7 +98,9 @@ create_sequential_request_handler <- function(
 ) {
   function(request, response, keys, server, id, arg_list = list(), ...) {
     # Default the response to 200 if it is 404 (the default) as we hit an endpoint
-    if (response$status == 404L) response$status <- 200L
+    if (response$status == 404L) {
+      response$status <- 200L
+    }
 
     # Add serializers for the finalizing route
     success <- response$set_formatter(
@@ -184,7 +204,8 @@ create_async_request_handler <- function(
   type_casters,
   body_parser,
   download,
-  dl_file
+  dl_file,
+  then
 ) {
   envir <- list2env(list(
     handler = handler,
@@ -202,7 +223,9 @@ create_async_request_handler <- function(
 
   function(request, response, keys, server, id, arg_list = list(), ...) {
     # Default the response to 200 if it is 404 (the default) as we hit an endpoint
-    if (response$status == 404L) response$status <- 200L
+    if (response$status == 404L) {
+      response$status <- 200L
+    }
 
     # Add serializers for the finalizing route
     success <- response$set_formatter(
@@ -223,19 +246,42 @@ create_async_request_handler <- function(
     envir$formatter <- response$formatter
     envir$keys <- type_casters$path(keys)
     envir$id <- id
-    if (has_query) envir$query <- type_casters$query(request$query)
-    if (has_body) envir$body <- body_parser(request)
+    if (has_query) {
+      envir$query <- type_casters$query(request$query)
+    }
+    if (has_body) {
+      envir$body <- body_parser(request)
+    }
     envir$dots <- list2(!!!arg_list, ...)
 
     result <- async(async_request_call, envir = envir)
 
-    promises::then(
+    result <- promises::then(
       result,
       function(result) {
         response$body <- result$result
         result$continue
       }
     )
+    for (handler in then) {
+      result <- promises::then(
+        result,
+        function(result) {
+          inject(handler(
+            result = result,
+            !!!envir$keys,
+            request = request,
+            response = response,
+            server = server,
+            client_id = id,
+            query = envir$query,
+            body = envir$body,
+            !!!envir$dots
+          ))
+        }
+      )
+    }
+    result
   }
 }
 
@@ -275,7 +321,9 @@ async_request_call <- quote({
   # Overwrite result with closing value if any (equivalent to %||%)
   result2 <- plumber2::close_formatter(formatter, info)
   is_clean <- TRUE
-  if (!is.null(result2)) result <- result2
+  if (!is.null(result2)) {
+    result <- result2
+  }
 
   # Return the result and continue signal so it can be used in the then()
   list(

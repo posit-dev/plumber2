@@ -15,9 +15,11 @@ vignette: >
 me <- normalizePath(
   if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
     Sys.getenv("QUARTO_DOCUMENT_PATH")
-  } else if (file.exists("benchmarks-funcs.R")) {
+  } else if (file.exists("_helpers.R")) {
     getwd()
-  } else if (file.exists("articles/benchmarks-funcs.R")) {
+  } else if (file.exists("vignettes/_helpers.R")) {
+    "vignettes"
+  } else if (file.exists("articles/_helpers.R")) {
     "articles"
   } else {
     "vignettes/articles"
@@ -34,23 +36,21 @@ readLines <- function(x) base::readLines(file.path(me, x))
 #| code: !expr readLines("files/apis/01-01-quickstart.R")
 ```
 
-This file defines two `Plumber` handlers. One is hosted at the path `/echo/{msg}` and simply echoes the message passed in as the second part of the path; the other is hosted at the path `/plot` and returns an image showing a simple R plot.
-
-If you haven't installed `{plumber2}` yet, see the [installation section](./index.html#installation). Once you have `{plumber2}` installed, you can use the `api()` function to translate this R file into a Plumber API:
+This file defines two Plumber handlers. One is hosted at the path `/echo/{msg}` and simply echoes the message passed in as the second part of the path; the other is hosted at the path `/plot` and returns an image showing a simple R plot. You can use the `api()` function to translate this R file into a Plumber API:
 
 ``` r
-papi <- api("plumber.R")
-papi
+pa <- api("plumber.R")
+pa
 ```
 
 The `api` object now encapsulates all the logic represented in your `plumber.R` file. The next step is to bring the API to life using the `api_run()` method:
 
 ``` r
-papi |>
+pa |>
   api_run()
 ```
 
-You should see a message about your API running on your computer on port `8080`. The API will continue running in your R session even though you can still interact with the session. To stop the API from running, use `api_stop()`. If you're running this code locally on your personal machine, you should be able to open <http://localhost:8080/echo/test> or <http://localhost:8080/plot> in a web browser to test your new API endpoints.
+You should see a message about your API running on your computer on port `8080`. The API will continue running in your R session even though you can still interact with the session. To stop the API from running, use `api_stop()`. If you're running this code locally on your personal machine, you should be able to open http://localhost:8080/echo/test or http://localhost:8080/plot in a web browser to test your new API endpoints.
 
 > If you're using a tool like RStudio Server to run your R code on a remote machine, you should see the [networking section](./security.html#networking) for help with visiting your API.
 
@@ -58,11 +58,12 @@ The `/echo/test` endpoint should show output resembling the following.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/01-01-quickstart.R"))
+pa <- api(file.path(me, "files/apis/01-01-quickstart.R"))
 
 req <- fiery::fake_request("http://localhost:8080/echo/test")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```
@@ -71,26 +72,37 @@ The `/plot` endpoint will show you a simple plot of some data from the palmerpen
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-req <- fiery::fake_request("http://localhost:8080/plot")
-res <- papi$test_request(req)
+if (packageVersion("base") < "4.5.0") {
+  cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
+} else {
+  req <- fiery::fake_request("http://localhost:8080/plot")
+  res <- pa$test_request(req)
 
-cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
+  cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
+}
+
 ```
 
 If you see something like the above: congratulations! You've just created your first Plumber API! You've already exercised your API from a web browser, but there's nothing stopping you from leveraging this API from third-party tools or a client developed in R or any other programming language.
 
 ## Specifying the Inputs
 
-You may have noticed that the functions that define our endpoints accept parameters. These parameters allow us to customize the behavior of our endpoints. In the example above we use two different ways of specifying the outputs. For the `/echo/...` handler we take a variable part of the path and use this as an argument. You can see above that "test" is used in the resulting json object and had we provided a different path, e.g. `/echo/plumber` then "plumber" would have been used instead. In the other handler we rely on the "query string" to pass in an optional argument. If you visit <http://localhost:8080/plot?spec=Adelie>, you should see a similar graph to the one you saw before, but now the dataset has been filtered to only include the "Adelie" species in the palmerpenguins dataset.
+You may have noticed that the functions that define our endpoints accept parameters. These parameters allow us to customize the behavior of our endpoints. In the example above we use two different ways of specifying the outputs. For the `/echo/...` handler we take a variable part of the path and use this as an argument. You can see above that "test" is used in the resulting json object and had we provided a different path, e.g. `/echo/plumber` then "plumber" would have been used instead. In the other handler we rely on the "query string" to pass in an optional argument. If you visit http://localhost:8080/plot?spec=Adelie, you should see a similar graph to the one you saw before, but now the dataset has been filtered to only include the "Adelie" species in the palmerpenguins dataset.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-req <- fiery::fake_request("http://localhost:8080/plot?spec=Adelie")
-res <- papi$test_request(req)
+if (packageVersion("base") < "4.5.0") {
+  cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
+} else {
+  req <- fiery::fake_request("http://localhost:8080/plot?spec=Adelie")
+  res <- pa$test_request(req)
 
-cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
+  cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
+}
 ```
 
 As you might have guessed, the `spec=Adelie` portion of the URL sets the `spec` element in `query` to `Adelie`. More details on how Plumber processes inputs are available in the [Routing & Input article](./routing-and-input.html).
@@ -112,11 +124,12 @@ This handler would always produce HTML when called.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/01-02-html.R"))
+pa <- api(file.path(me, "files/apis/01-02-html.R"))
 
 req <- fiery::fake_request("http://localhost:8080/hello")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "html")
 ```

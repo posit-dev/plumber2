@@ -26,6 +26,8 @@
 #'
 #' @importFrom R6 R6Class
 #' @importFrom fiery Fire
+#' @importFrom firestorm ReverseProxy
+#' @importFrom rapidoc rapidoc_spec
 #' @importFrom jsonlite write_json
 #' @importFrom routr RouteStack Route openapi_route
 #' @importFrom stringi stri_replace_all_regex
@@ -54,7 +56,7 @@ Plumber2 <- R6Class(
     #' @param ignore_trailing_slash Logical. Should the trailing slash of a path
     #' be ignored when adding handlers and handling requests. Setting this will
     #' not change the request or the path associated with but just ensure that
-    #' both `path/to/ressource` and `path/to/ressource/` ends up in the same
+    #' both `path/to/resource` and `path/to/resource/` ends up in the same
     #' handler. This setting will only affect routes that are created automatically.
     #' @param max_request_size Sets a maximum size of request bodies. Setting this
     #' will add a handler to the header router that automatically rejects requests
@@ -83,10 +85,11 @@ Plumber2 <- R6Class(
       max_request_size = get_opts("maxRequestSize"),
       shared_secret = get_opts("sharedSecret"),
       compression_limit = get_opts("compressionLimit", 1e3),
-      default_async = get_opts("async", "future"),
+      default_async = get_opts("async", "mirai"),
       env = caller_env()
     ) {
       super$initialize(host, port)
+      self$query_delim <- ","
 
       if (!is.null(doc_type)) {
         private$DOC_TYPE <- arg_match0(
@@ -116,6 +119,9 @@ Plumber2 <- R6Class(
 
       check_environment(env)
       private$PARENT_ENV <- env
+
+      private$SESSION_FRAMEWORK <- "plumber2"
+      private$SESSION_FRAMEWORK_VERSION <- utils::packageVersion("plumber2")
     },
     #' @description Human readable description of the api object
     #' @param ... ignored
@@ -151,11 +157,28 @@ Plumber2 <- R6Class(
           private$DOC_TYPE != ""
       ) {
         openapi_file <- tempfile(fileext = ".json")
-        write_json(private$OPENAPI, openapi_file, auto_unbox = TRUE)
-        api_route <- openapi_route(
+        openapi <- private$OPENAPI
+        openapi$servers <- c(
+          openapi$servers,
+          list(list(url = ""))
+        )
+        write_json(openapi, openapi_file, auto_unbox = TRUE)
+        api_route <- inject(openapi_route(
           openapi_file,
           root = private$DOC_PATH,
-          ui = private$DOC_TYPE
+          ui = private$DOC_TYPE,
+          !!!private$DOC_ARGS
+        ))
+        logo <- system.file("help", "figures", "logo.svg", package = "plumber2")
+        if (logo == "") logo <- system.file("man", "figures", "logo.svg", package = "plumber2")
+        api_route$add_handler(
+          "get",
+          paste0(sub("/?$", "/", private$DOC_PATH), "logo.svg"),
+          function(request, response, keys, ...) {
+            response$file <- logo
+            response$status <- 200L
+            FALSE
+          }
         )
         self$request_router$add_route(api_route, "openapi")
 
@@ -174,10 +197,11 @@ Plumber2 <- R6Class(
         }
       }
 
-      if (!silent)
+      if (!silent) {
         cli::cli_text(
           "plumber2 server started at http://{self$host}:{self$port}"
         )
+      }
       super$ignite(block = block, showcase = showcase, ..., silent = TRUE)
     },
     #' @description Add a new route to either the request or header router
@@ -189,9 +213,17 @@ Plumber2 <- R6Class(
     #' @param after The location to place the new route on the stack. `NULL`
     #' will place it at the end. Will not have an effect if a route with the
     #' given name already exists.
-    add_route = function(name, route = NULL, header = FALSE, after = NULL) {
+    #' @param root The root path to serve this route from.
+    add_route = function(
+      name,
+      route = NULL,
+      header = FALSE,
+      after = NULL,
+      root = ""
+    ) {
       route <- route %||%
         Route$new(ignore_trailing_slash = private$IGNORE_TRAILING_SLASH)
+      route$root <- paste0(root, route$root)
       if (header) {
         router <- self$header_router
       } else {
@@ -200,8 +232,10 @@ Plumber2 <- R6Class(
       if (!router$has_route(name)) {
         router$add_route(route, name, after)
       } else if (!route$empty) {
-        router$get_route(name)$merge(route)
+        router$get_route(name)$merge_route(route)
       }
+
+      invisible(self)
     },
     #' @description Add a handler to a request. See [api_request_handlers] for
     #' detailed information
@@ -228,6 +262,7 @@ Plumber2 <- R6Class(
     #' default async evaluator to create an async handler. If a string, the
     #' async evaluator registered to that name is used. If a function is
     #' provided then this is used as the async evaluator
+    #' @param then A function to call at the completion of an async handler
     #' @param doc OpenAPI documentation for the handler. Will be added to the
     #' `paths$<handler_path>$<handler_method>` portion of the API.
     #' @param route The route this handler should be added to. Defaults to the
@@ -244,6 +279,7 @@ Plumber2 <- R6Class(
       use_strict_serializer = FALSE,
       download = FALSE,
       async = FALSE,
+      then = NULL,
       doc = NULL,
       route = NULL,
       header = FALSE
@@ -264,7 +300,9 @@ Plumber2 <- R6Class(
           "all"
         )
       )
-      if (method == "any") method <- "all"
+      if (method == "any") {
+        method <- "all"
+      }
       check_bool(header)
       check_string(path)
       check_string(route, allow_null = TRUE)
@@ -285,11 +323,8 @@ Plumber2 <- R6Class(
         ),
         doc$parameters[!doc_path_param]
       )
-      operation_id <- paste0(path_info$path, "-", method)
-      doc$parameters <- lapply(doc$parameters, function(par) {
-        par$operationId <- par$operationId %||% operation_id
-        par
-      })
+      doc$operationId <- doc$operationId %||%
+        paste0(path_info$path, "-", method)
 
       # Substitute the plumber style path arg for a routr style
       path <- as_routr_path(path)
@@ -331,14 +366,18 @@ Plumber2 <- R6Class(
           use_strict_serializer,
           download,
           doc,
-          get_async(async)
+          get_async(async),
+          then
         ),
         reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
-      if (!header) {
+      if (!(header || is.null(doc) || inherits(doc, "plumber_noDoc"))) {
         doc$parameters <- doc$parameters %||% list()
-        self$add_api_doc(doc, subset = c("paths", path_info$path, method))
+        true_path <- gsub("//", "/", paste0(route$root, path_info$path))
+        self$add_api_doc(doc, subset = c("paths", true_path, method))
       }
+
+      invisible(self)
     },
     #' @description Add a handler to a WebSocket message. See [api_message] for
     #' detailed information
@@ -348,14 +387,17 @@ Plumber2 <- R6Class(
     #' default async evaluator to create an async handler. If a string, the
     #' async evaluator registered to that name is used. If a function is
     #' provided then this is used as the async evaluator
-    message_handler = function(handler, async = FALSE) {
+    #' @param then A function to call at the completion of an async handler
+    message_handler = function(handler, async = FALSE, then = NULL) {
       if (isTRUE(async)) {
         async <- private$ASYNC_EVALUATER
       } else if (isFALSE(async)) {
         async <- NULL
       }
-      handler <- create_message_handler(handler, get_async(async))
+      handler <- create_message_handler(handler, get_async(async), then)
       self$on("message", handler)
+
+      invisible(self)
     },
     #' @description Add a redirect to the header router. Depending on the value
     #' of `permanent` it will respond with a 307 Temporary Redirect or 308
@@ -386,11 +428,20 @@ Plumber2 <- R6Class(
           "all"
         )
       )
-      if (method == "any") method <- "all"
+      if (method == "any") {
+        method <- "all"
+      }
       check_string(from)
       check_string(to)
       check_bool(permanent)
-      self$header_router$add_redirect(method, from, to, permanent)
+      self$header_router$add_redirect(
+        method,
+        as_routr_path(from),
+        as_routr_path(to),
+        permanent
+      )
+
+      invisible(self)
     },
     #' @description Parses a plumber file and updates the app according to it
     #' @param file The path to a file to parse
@@ -399,49 +450,15 @@ Plumber2 <- R6Class(
     #' used
     parse_file = function(file, env = NULL) {
       eval_env <- new.env(parent = env %||% private$PARENT_ENV)
-      parsed <- parse_plumber_file(
-        file,
-        ignore_trailing_slash = private$IGNORE_TRAILING_SLASH,
-        default_async = private$ASYNC_EVALUATER,
-        env = eval_env
-      )
-      if (!parsed$route[[1]]$empty) {
-        self$add_route(names(parsed$route), parsed$route[[1]], header = FALSE)
+      parsed <- parse_plumber_file(file, env = eval_env)
+
+      api <- self
+
+      for (block in parsed$blocks) {
+        api <- apply_plumber2_block(block, api, parsed$route, parsed$root)
       }
-      if (!parsed$header_route[[1]]$empty) {
-        self$add_route(
-          names(parsed$header_route),
-          parsed$header_route[[1]],
-          header = TRUE
-        )
-      }
-      for (asset in parsed$asset_routes) {
-        self$serve_static(
-          at = asset$at,
-          path = asset$path,
-          use_index = asset$use_index,
-          fallthrough = asset$fallthrough,
-          html_charset = asset$html_charset,
-          headers = asset$headers,
-          validation = asset$validation
-        )
-        for (ex in asset$except) {
-          self$exclude_static(paste0(asset$at, ex))
-        }
-      }
-      for (handler in parsed$message_handlers) {
-        self$on("message", handler)
-      }
-      for (redirect in parsed$redirects) {
-        self$redirect(
-          redirect$method,
-          redirect$from,
-          redirect$to,
-          redirect$permanent
-        )
-      }
-      self$add_api_doc(parsed$api)
-      parsed$modifier(self)
+
+      invisible(api)
     },
     #' @description Add a (partial) OpenAPI spec to the api docs
     #' @param doc A list with the OpenAPI documentation
@@ -457,13 +474,305 @@ Plumber2 <- R6Class(
 
       doc <- subset_to_list(subset, doc)
       if (overwrite) {
-        if (is.null(overwrite)) {
+        if (is.null(subset)) {
           private$OPENAPI <- list()
         } else if (list_has_subset(private$OPENAPI, subset)) {
           private$OPENAPI[[subset]] <- list()
         }
       }
       private$OPENAPI <- utils::modifyList(private$OPENAPI, doc)
+
+      invisible(self)
+    },
+    #' @description Add a shiny app to an api. See [api_shiny()] for detailed
+    #' information
+    #' @param path The path to serve the app from
+    #' @param app A shiny app object
+    #' @param except Subpaths to `path` that should not be forwarded to the
+    #' shiny app. Be sure it doesn't contains paths that the shiny app needs
+    #'
+    add_shiny = function(path, app, except = NULL) {
+      check_installed("callr")
+      check_installed("shiny")
+      if (!shiny::is.shiny.appobj(app)) {
+        stop_input_type(app, "a shiny app object")
+      }
+      port <- self$get_data("shiny_port") %||% 53000L
+      self$set_data("shiny_port", port + 1L)
+      proc_name <- paste0("shiny_reverse_proxy_", port)
+
+      shiny_proxy <- firestorm::ReverseProxy$new(
+        paste0("http://127.0.0.1:", port),
+        path
+      )
+      self$attach(shiny_proxy)
+
+      self$on("start", function(...) {
+        proc <- callr::r_bg(
+          function(app, port, .__fiery_id_fun__) {
+            shiny::runApp(
+              app,
+              port = port,
+              launch.browser = FALSE,
+              host = "127.0.0.1",
+              workerId = "",
+              quiet = TRUE,
+              display.mode = "normal",
+              test.mode = FALSE
+            )
+          },
+          args = list(
+            app = app,
+            port = port,
+            .__fiery_id_fun__ = private$client_id
+          )
+        )
+        self$set_data(proc_name, proc)
+      })
+      self$on("end", function(...) {
+        proc <- self$get_data(proc_name)
+        if (inherits(proc, "r_process")) proc$kill()
+      })
+
+      invisible(self)
+    },
+    #' @description Render and serve a Quarto or Rmarkdown document from an
+    #' endpoint. See [api_report()] for more information.
+    #'
+    #' @param path The base path to serve the report from. Additional endpoints
+    #' will be created in addition to this.
+    #' @param report The path to the report to serve
+    #' @param ... Further arguments to `quarto::quarto_render()` or
+    #' `rmarkdown::render()`
+    #' @param doc An [openapi_operation()] documentation for the report. Only
+    #' `query` parameters will be used and a request body will be generated from
+    #' this for the POST methods.
+    #' @param max_age The maximum age in seconds to keep a rendered report
+    #' before initiating a re-render
+    #' @param async Should rendering happen asynchronously (using mirai)
+    #' @param finalize An optional function to run before sending the response
+    #' back. The function will receive the request as the first argument, the
+    #' response as the second, and the server as the third.
+    #' @param continue A logical that defines whether the response is returned
+    #' directly after rendering or should be made available to subsequent routes
+    #' @param cache_dir The location of the render cache. By default a temporary
+    #' folder is created for it.
+    #' @param cache_by_id Should caching be scoped by the user id. If the
+    #' rendering is dependent on user-level access to different data this is
+    #' necessary to avoid data leakage.
+    #' @param route The route this handler should be added to. Defaults to the
+    #' last route in the stack. If the route does not exist it will be created
+    #' as the last route in the stack.
+    #'
+    add_report = function(
+      path,
+      report,
+      ...,
+      doc = NULL,
+      max_age = Inf,
+      async = TRUE,
+      finalize = NULL,
+      continue = FALSE,
+      cache_dir = tempfile(pattern = "plumber2_report"),
+      cache_by_id = FALSE,
+      route = NULL
+    ) {
+      if (!is_bool(async) && !identical(async, "mirai")) {
+        cli::cli_warn("report serving can only be done with the mirai backend")
+        async <- TRUE
+      }
+
+      info <- routr::report_info(report)
+      paths <- c(
+        path,
+        paste0(sub("/?$", "/", path), info$format),
+        unique(paste0(sub("/?$", ".", path), info$ext))
+      )
+      formats <- c(
+        list(info$formats[!duplicated(info$mime_types)]),
+        as.list(info$formats),
+        as.list(info$formats[!duplicated(info$mime_types)])
+      )
+      response <- c(
+        list(unique(info$mime_types)),
+        as.list(info$mime_types),
+        as.list(unique(info$mime_types))
+      )
+      if (!is.null(doc$parameters)) {
+        doc$parameters <- set_names(
+          doc$parameters,
+          vapply(doc$parameters, `[[`, character(1), "name")
+        )
+      }
+      get_doc <- openapi_operation(
+        summary = doc$summary,
+        description = doc$description,
+        operation_id = doc$operationId %||% character(),
+        parameters = lapply(
+          names(info$query_params),
+          function(param) {
+            if (length(doc$parameters[[param]]$schema) == 0) {
+              schema <- openapi_schema(info$query_params[[param]])
+            } else {
+              schema <- doc$parameters[[param]]$schema
+            }
+            openapi_parameter(
+              name = param,
+              location = "query",
+              required = FALSE,
+              schema = schema
+            )
+          }
+        ),
+        responses = doc$response %||% list(),
+        tags = doc$tags %||% character()
+      )
+      post_doc <- get_doc
+      delete_doc <- get_doc
+      post_doc$requestBody <- openapi_request_body(
+        content = openapi_content(
+          "application/json" = openapi_schema(
+            I("object"),
+            properties = set_names(
+              lapply(get_doc$parameters, `[[`, "schema"),
+              vapply(get_doc$parameters, `[[`, character(1), "name")
+            )
+          )
+        )
+      )
+      post_doc$parameters <- NULL
+      delete_doc$parameters <- NULL
+
+      type_caster <- create_type_casters(doc)
+
+      rr <- routr::report_route(
+        path,
+        file = report,
+        ...,
+        max_age = max_age,
+        async = async,
+        finalize = finalize,
+        ignore_trailing_slash = private$IGNORE_TRAILING_SLASH,
+        continue = continue,
+        cache_dir = cache_dir,
+        cache_by_id = cache_by_id,
+        param_caster = type_caster
+      )
+
+      if (is.null(route)) {
+        if (length(self$request_router$routes) == 0) {
+          route <- "default"
+        } else {
+          route <- self$request_router$routes[length(
+            self$request_router$routes
+          )]
+        }
+      }
+      if (!self$request_router$has_route(route)) {
+        cli::cli_inform(
+          "Creating {.field {route}} route in request router"
+        )
+        self$add_route(route)
+      }
+      route <- self$request_router$get_route(route)
+      route$merge_route(rr)
+      if (!inherits(doc, "plumber_noDoc")) {
+        paths <- gsub("/+", "/", paste0(route$root, "/", paths))
+        for (i in seq_along(paths)) {
+          format <- paste0(
+            "*",
+            formats[[i]],
+            "* (",
+            response[[i]],
+            ")"
+          )
+          if (length(format) > 1) {
+            pg_summary <- cli::format_inline(
+              "Render and serve \"{info$title}\""
+            )
+            pg_description <- cli::format_inline(
+              "This path allows you to access *{info$title}* in one of the
+              following formats: {format} through content negotiation.",
+              keep_whitespace = FALSE
+            )
+            d_summary <- cli::format_inline(
+              "Clear render cache of \"{info$title}\""
+            )
+            d_description <- cli::format_inline(
+              "This will delete *all* cached versions of the rendered report."
+            )
+          } else {
+            pg_summary <- cli::format_inline(
+              "Render and serve \"{info$title}\" as {formats[[i]]}"
+            )
+            pg_description <- cli::format_inline(
+              "This path allows you to access *{info$title}* in the {format} format."
+            )
+            d_summary <- cli::format_inline(
+              "Clear render cache of the {formats[[i]]} version of \"{info$title}\""
+            )
+            d_description <- cli::format_inline(
+              "This will delete cached versions of the {format} format."
+            )
+          }
+          get_doc$responses <- post_doc$responses <- list(
+            "200" = openapi_response(
+              description = "The rendered report",
+              content = openapi_content(
+                !!!set_names(
+                  rep_along(
+                    response[[i]],
+                    list(set_names(list(), character()))
+                  ),
+                  response[[i]]
+                )
+              )
+            ),
+            "400" = openapi_response(
+              description = "Supplied parameters were not acceptable"
+            ),
+            "500" = openapi_response(
+              description = "Issues during rendering"
+            )
+          )
+          delete_doc$responses <- list(
+            "204" = openapi_response(
+              description = "The render cache was cleared"
+            )
+          )
+          if (i == 1) {
+            get_doc$summary <- post_doc$summary <- get_doc$summary %||%
+              pg_summary
+            get_doc$description <- post_doc$description <- get_doc$description %||%
+              pg_description
+          } else {
+            get_doc$summary <- post_doc$summary <- pg_summary
+            get_doc$description <- post_doc$description <- pg_description
+          }
+          delete_doc$summary <- d_summary
+          delete_doc$description <- d_description
+          path_doc <- openapi_path(
+            get = get_doc,
+            post = post_doc,
+            delete = delete_doc
+          )
+          self$add_api_doc(path_doc, subset = c("paths", paths[i]))
+        }
+      }
+
+      invisible(self)
+    },
+    #' @description Add a reverse proxy from a path to a given URL. See
+    #' [api_forward()] for more details
+    #' @param path The root to forward from
+    #' @param url The url to forward to
+    #' @param except Subpaths to `path` that should be exempt from forwarding
+    #'
+    forward = function(path, url, except = NULL) {
+      revprox <- firestorm::ReverseProxy$new(url, path, except)
+      self$attach(revprox)
+
+      invisible(self)
     }
   ),
   active = list(
@@ -490,7 +799,9 @@ Plumber2 <- R6Class(
     #' `"rapidoc"` (the default), `"redoc"`, `"swagger"`, or `NULL` (equating to
     #' not generating API docs)
     doc_type = function(value) {
-      if (missing(value)) return(private$DOC_TYPE)
+      if (missing(value)) {
+        return(private$DOC_TYPE)
+      }
       if (!is.null(value)) {
         value <- arg_match0(value, c("rapidoc", "redoc", "swagger"))
       }
@@ -498,9 +809,21 @@ Plumber2 <- R6Class(
     },
     #' @field doc_path The URL path to serve the api documentation from
     doc_path = function(value) {
-      if (missing(value)) return(private$DOC_PATH)
+      if (missing(value)) {
+        return(private$DOC_PATH)
+      }
       check_string(value)
       private$DOC_PATH <- value
+    },
+    #' @field doc_args Further arguments to the documentation UI
+    doc_args = function(value) {
+      if (missing(value)) {
+        return(private$DOC_ARGS)
+      }
+      if (!is_bare_list(value)) {
+        stop_input_type(value, "a bare list")
+      }
+      private$DOC_ARGS <- modifyList(private$DOC_ARGS, value)
     }
   ),
   private = list(
@@ -513,6 +836,13 @@ Plumber2 <- R6Class(
     MESSAGE_ROUTER = NULL,
     DOC_TYPE = "rapidoc",
     DOC_PATH = "__docs__",
+    DOC_ARGS = list(
+      slots = "<img slot=\"logo\" src=\"./logo.svg\" width=36px style=\"margin-left:7px\"/>",
+      heading_text = paste0("plumber2 ", packageVersion("plumber2")),
+      primary_color = "#FF81D2",
+      text_color = "#B4FFE4",
+      bg_color = "#212121"
+    ),
     REJECT_MISSING_METHODS = FALSE,
     IGNORE_TRAILING_SLASH = TRUE,
     ASYNC_EVALUATER = NULL,
@@ -530,8 +860,12 @@ subset_to_list <- function(x, end_value = list()) {
   }
 }
 list_has_subset <- function(x, subset) {
-  if (length(subset) == 0) return(TRUE)
+  if (length(subset) == 0) {
+    return(TRUE)
+  }
   x <- x[[subset[1]]]
-  if (is.null(x)) return(FALSE)
+  if (is.null(x)) {
+    return(FALSE)
+  }
   list_has_subset(x, subset[-1])
 }

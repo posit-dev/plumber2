@@ -26,7 +26,7 @@ with the pipe
 }
 \description{
 While it is optimal that an API remains stable over its lifetime it is often
-not fully attainable. In order to direct requests for ressources that has
+not fully attainable. In order to direct requests for resources that has
 been moved to the new location you can add a redirect that ensures a smooth
 transition for clients still using the old path. Depending on the value
 of \code{permanent} the redirect will respond with a \verb{307 Temporary Redirect} or
@@ -34,4 +34,19 @@ of \code{permanent} the redirect will respond with a \verb{307 Temporary Redirec
 wildcards which will be matched between the two to construct the correct
 redirect path. Further, \code{to} can either be a path to the same server or a
 fully qualified URL to redirect requests to another server alltogether.
+}
+\section{Using annotation}{
+You can specify redirects in an annotated plumber file using the \verb{@redirect}
+tag. Preceed the method with a \code{!} to mark the redirect as permanent
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @redirect !get /old/data/* /new/data/*
+#* @redirect any /unstable/endpoint /stable/endpoint
+NULL
+}\if{html}{\out{</div>}}
+}
+
+\examples{
+api() |>
+  api_redirect("get", "/old/data/*", "/new/data/*")
+
 }

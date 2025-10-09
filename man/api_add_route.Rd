@@ -4,7 +4,7 @@
 \alias{api_add_route}
 \title{Add a new route to either the request or header router}
 \usage{
-api_add_route(api, name, route = NULL, header = FALSE, after = NULL)
+api_add_route(api, name, route = NULL, header = FALSE, after = NULL, root = "")
 }
 \arguments{
 \item{api}{A plumber2 api object to add the route to}
@@ -20,6 +20,8 @@ created}
 \item{after}{The location to place the new route on the stack. \code{NULL}
 will place it at the end. Will not have an effect if a route with the
 given name already exists.}
+
+\item{root}{The root path to serve this route from.}
 }
 \value{
 This functions return the \code{api} object allowing for easy chaining
@@ -31,4 +33,32 @@ predefined \link[routr:Route-class]{routr::Route} into the router of the api. A 
 created with the \code{route} argument when \link[=api_get]{adding a handler}. However,
 that way will always add new routes to the end of the stack, whereas using
 \code{api_add_route()} allows you full control of the placement.
+}
+\section{Using annotation}{
+There is no direct equivalent to this when using annotated route files.
+However you can name your route in a file by adding \verb{@routeName <name>} to
+the first block of the file like so.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @routeName my_route
+NULL
+}\if{html}{\out{</div>}}
+
+All relevant blocks in the file will then be added to this route, even if the
+route already exist. In that way you can split the definition of a single
+route out among multiple files if needed.
+}
+
+\examples{
+# Add a new route and use it for a handler
+api() |>
+  api_add_route("logger_route") |>
+  api_any(
+    "/*",
+    function() {
+      cat("I just handled a request!")
+    },
+    route = "logger_route"
+  )
+
+
 }

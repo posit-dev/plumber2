@@ -7,7 +7,7 @@ registry$parsers <- list()
 #' function facilitates.
 #'
 #' If you want to register your own parser, then the function you register must
-#' be a factory function, ie. a function returning a function. The returned
+#' be a factory function, i.e. a function returning a function. The returned
 #' function must accept two arguments, the first being a raw vector
 #' corresponding to the request body, the second being the parsed directives
 #' from the request `Content-Type` header. All arguments to the factory function
@@ -21,6 +21,7 @@ registry$parsers <- list()
 #' directives given by the requests `Content-Type` header
 #' @param mime_types One or more mime types that this parser can handle. The
 #' mime types are allowed to contain wildcards, e.g. `"text/*"`
+#' @param default Should this parser be part of the default set of parsers
 #'
 #' @return For `get_parsers` a named list of parser functions named by their
 #' mime types. The order given in `parsers` is preserved.
@@ -29,7 +30,15 @@ registry$parsers <- list()
 #' @seealso [register_serializer()]
 #' @export
 #'
-register_parser <- function(name, fun, mime_types) {
+#' @examples
+#' # Register a parser that splits at a character and converts to number
+#' register_parser("comma", function(delim = ",") {
+#'   function(raw, directive) {
+#'     as.numeric(strsplit(rawToChar(raw), delim)[[1]])
+#'   }
+#' }, mime_types = "text/plain", default = FALSE)
+#'
+register_parser <- function(name, fun, mime_types, default = TRUE) {
   check_function(fun)
   check_character(mime_types)
   check_string(name)
@@ -43,7 +52,11 @@ register_parser <- function(name, fun, mime_types) {
       "{.arg name} must not be {.val {c('...', 'none')}}"
     )
   }
-  registry$parsers[[name]] <- list(fun = fun, types = mime_types)
+  registry$parsers[[name]] <- list(
+    fun = fun,
+    types = mime_types,
+    default = default
+  )
   invisible(NULL)
 }
 #' @rdname register_parser
@@ -51,7 +64,8 @@ register_parser <- function(name, fun, mime_types) {
 show_registered_parsers <- function() {
   res <- data.frame(
     name = names(registry$parsers),
-    mime_types = I(lapply(registry$parsers, `[[`, "types"))
+    mime_types = I(lapply(registry$parsers, `[[`, "types")),
+    default = vapply(registry$parsers, `[[`, logical(1), "default")
   )
   attr(res, "row.names") <- .set_row_names(nrow(res))
   res
@@ -72,8 +86,9 @@ show_registered_parsers <- function() {
 #'
 #' @export
 get_parsers <- function(parsers = NULL) {
+  defaults <- vapply(registry$parsers, `[[`, logical(1), "default")
   if (is.null(parsers)) {
-    parsers <- names(registry$parsers)
+    parsers <- "..."
   }
   elem_names <- names(parsers) %||% rep_along(parsers, "")
   named_parsers <- unlist(lapply(seq_along(parsers), function(i) {
@@ -91,7 +106,7 @@ get_parsers <- function(parsers = NULL) {
     cli::cli_abort("{.val ...} can only be used once in {.arg parsers}")
   }
   named_parsers <- named_parsers[!grepl("/|^\\.\\.\\.$", named_parsers)]
-  dots_parsers <- setdiff(names(registry$parsers), named_parsers)
+  dots_parsers <- setdiff(names(registry$parsers)[defaults], named_parsers)
   parsers <- lapply(seq_along(parsers), function(i) {
     if (is_function(parsers[[i]])) {
       if (length(fn_fmls(parsers[[i]])) != 2) {
@@ -140,13 +155,14 @@ get_parsers_internal <- function(
     return(NULL)
   }
   if (is.null(types)) {
-    types <- names(registry$parsers)
+    types <- "..."
   }
   dots <- which(types == "...")
   if (length(dots) != 0) {
+    defaults <- vapply(registry$parsers, `[[`, logical(1), "default")
     types <- c(
       types[seq_len(dots - 1)],
-      dots_parsers %||% setdiff(names(registry$parsers), types),
+      dots_parsers %||% setdiff(names(registry$parsers)[defaults], types),
       types[dots + seq_len(length(types) - dots)]
     )
   }
@@ -210,10 +226,10 @@ get_parsers_internal <- function(
 #'   `"octet"` for the mime type `application/octet-stream`
 #' * `parse_rds()` uses [unserialize()] for parsing. It is registered as
 #'   `"rds"` for the mime type `application/rds`
-#' * `parse_feather()` uses [arrow::read_feather()] for parsing. It is
+#' * `parse_feather()` uses `arrow::read_feather()` for parsing. It is
 #'   registered as `"feather"` for the mime types
 #'   `application/vnd.apache.arrow.file` and `application/feather`
-#' * `parse_parquet()` uses [arrow::read_parquet()] for parsing. It is
+#' * `parse_parquet()` uses `arrow::read_parquet()` for parsing. It is
 #'   registered as `"parquet"` for the mime type `application/vnd.apache.parquet`
 #' * `parse_text()` uses [rawToChar()] for parsing. It is registered as
 #'   `"text"` for the mime types `text/plain` and `text/*`
@@ -223,7 +239,7 @@ get_parsers_internal <- function(
 #' * `parse_yaml()` uses [yaml::yaml.load()] for parsing. It is registered as
 #'   `"yaml"` for the mime types `text/vnd.yaml`, `application/yaml`,
 #'   `application/x-yaml`, `text/yaml`, and `text/x-yaml`
-#' * `parse_geojson()` uses [geojsonsf::geojson_sf()] for parsing. It is
+#' * `parse_geojson()` uses `geojsonsf::geojson_sf()` for parsing. It is
 #'   registered as `"geojson"` for the mime types `application/geo+json` and
 #'   `application/vdn.geo+json`
 #'
@@ -248,13 +264,21 @@ get_parsers_internal <- function(
 #' @rdname parsers
 #' @name parsers
 #'
+#' @examples
+#' # You can use parsers directly when adding handlers
+#' pa <- api() |>
+#'   api_post("/hello/<name:string>", function(name, body) {
+#'     list(
+#'       msg = paste0("Hello ", name, "!")
+#'     )
+#'   }, parsers = list("text/csv" = parse_csv()))
+#'
 NULL
 
 #' @rdname parsers
 #' @export
 #'
 parse_csv <- function(...) {
-  check_installed("readr")
   function(raw, directives) {
     readr::read_csv(raw, ...)
   }
@@ -306,7 +330,6 @@ parse_text <- function(multiple = FALSE) {
 #' @export
 #'
 parse_tsv <- function(...) {
-  check_installed("readr")
   function(raw, directives) {
     readr::read_tsv(raw, ...)
   }
@@ -315,7 +338,6 @@ parse_tsv <- function(...) {
 #' @export
 #'
 parse_yaml <- function(...) {
-  check_installed("yaml")
   function(raw, directives) {
     yaml::yaml.load(rawToChar(raw), eval.expr = FALSE, ...)
   }
@@ -378,7 +400,7 @@ parse_multipart <- function(parsers = get_parsers()) {
       if (!is.null(parser_fun)) {
         val <- parser_fun(val, list())
       }
-      attributes(val) <- part[names(part) != "value"]
+      attributes(val) <- c(attributes(val), part[names(part) != "value"])
       val
     })
   }
@@ -395,6 +417,11 @@ on_load({
     parse_csv,
     c("application/csv", "application/x-csv", "text/csv", "text/x-csv")
   )
+  register_parser(
+    "tsv",
+    parse_tsv,
+    c("application/tab-separated-values", "text/tab-separated-values")
+  )
   register_parser("multi", parse_multipart, "multipart/*")
   register_parser("octet", parse_octet, "application/octet-stream")
   register_parser(
@@ -403,18 +430,7 @@ on_load({
     "application/x-www-form-urlencoded"
   )
   register_parser("rds", parse_rds, "application/rds")
-  register_parser(
-    "feather",
-    parse_feather,
-    c("application/vnd.apache.arrow.file", "application/feather")
-  )
-  register_parser("parquet", parse_parquet, "application/vnd.apache.parquet")
   register_parser("text", parse_text, c("text/plain", "text/*"))
-  register_parser(
-    "tsv",
-    parse_tsv,
-    c("application/tab-separated-values", "text/tab-separated-values")
-  )
   register_parser(
     "yaml",
     parse_yaml,
@@ -429,8 +445,21 @@ on_load({
   register_parser("xml", reqres::parse_xml, c("application/xml", "text/xml"))
   register_parser("html", reqres::parse_html, c("text/html"))
   register_parser(
+    "feather",
+    parse_feather,
+    c("application/vnd.apache.arrow.file", "application/feather"),
+    default = FALSE
+  )
+  register_parser(
+    "parquet",
+    parse_parquet,
+    "application/vnd.apache.parquet",
+    default = FALSE
+  )
+  register_parser(
     "geojson",
     parse_geojson,
-    c("application/geo+json", "application/vdn.geo+json")
+    c("application/geo+json", "application/vdn.geo+json"),
+    default = FALSE
   )
 })

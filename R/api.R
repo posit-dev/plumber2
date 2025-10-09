@@ -29,7 +29,7 @@
 #' @param ignore_trailing_slash Logical. Should the trailing slash of a path
 #' be ignored when adding handlers and handling requests. Setting this will
 #' not change the request or the path associated with but just ensure that
-#' both `path/to/ressource` and `path/to/ressource/` ends up in the same
+#' both `path/to/resource` and `path/to/resource/` ends up in the same
 #' handler.
 #' @param max_request_size Sets a maximum size of request bodies. Setting this
 #' will add a handler to the header router that automatically rejects requests
@@ -52,6 +52,23 @@
 #'
 #' @export
 #'
+#' @seealso [api_package()] for creating an api based on files distributed with
+#' a package
+#' @seealso [get_opts()] for how to set default options
+#'
+#' @examples
+#' # When creating an API programmatically you'll usually initialise the object
+#' # without pointing to any route files or a _server.yml file
+#' pa <- api()
+#'
+#' # You can pass it a directory and it will load up all recognised files it
+#' # contains
+#' example_dir <- system.file("plumber2", "quickstart", package = "plumber2")
+#' pa <- api(example_dir)
+#'
+#' # Or you can pass files directly
+#' pa <- api(list.files(example_dir, full.names = TRUE)[1])
+#'
 api <- function(
   ...,
   host = get_opts("host", "127.0.0.1"),
@@ -63,7 +80,7 @@ api <- function(
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
   compression_limit = get_opts("compressionLimit", 1e3),
-  default_async = get_opts("async", "future"),
+  default_async = get_opts("async", "mirai"),
   env = caller_env()
 ) {
   locations <- dots_to_plumber_files(...)
@@ -76,7 +93,7 @@ api <- function(
           server_yml$constructor
         ),
         verbose = FALSE
-      )
+      )$value
       if (!is_plumber_api(api)) {
         cli::cli_abort(
           "The constructor file in {.file {locations}} did not produce a plumber2 API"
@@ -133,15 +150,39 @@ is_plumber_api <- function(x) inherits(x, "Plumber2")
 #' @export
 api_parse <- function(api, ...) {
   locations <- dots_to_plumber_files(..., prefer_yml = FALSE)
+  priority <- vapply(
+    locations,
+    function(path) {
+      lines <- readLines(path)
+      lines <- lines[seq_len(
+        which(grepl("^(?!#('|\\*))", lines, perl = T))[1] - 1
+      )]
+      order <- which(grepl("^#('|\\*) @routeOrder", lines))
+      if (length(order) == 0) {
+        order <- NA
+      } else {
+        order <- utils::type.convert(
+          trimws(sub("^#('|\\*) @routeOrder", "", lines[order[1]])),
+          as.is = TRUE
+        )
+      }
+      check_number_whole(order, allow_na = TRUE, arg = "@routeOrder")
+      order
+    },
+    numeric(1)
+  )
+  locations <- locations[order(priority)]
   for (loc in locations) {
-    api$parse_file(loc)
+    api <- api$parse_file(loc)
   }
   api
 }
 
 dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
   locations <- unlist(lapply(list2(...), function(loc) {
-    if (length(loc) == 0) return(NULL)
+    if (length(loc) == 0) {
+      return(NULL)
+    }
     if (fs::is_dir(loc)) {
       loc <- fs::dir_ls(loc, all = TRUE, recurse = TRUE)
       server_yml <- is_plumber2_server_yml(loc)
@@ -153,7 +194,9 @@ dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
     }
     loc
   }))
-  if (length(locations) == 0) return(character())
+  if (length(locations) == 0) {
+    return(character())
+  }
   if (!all(fs::file_exists(locations))) {
     cli::cli_abort("{.arg ...} must point to existing files", call = call)
   }
@@ -184,13 +227,13 @@ dots_to_plumber_files <- function(..., prefer_yml = TRUE, call = caller_env()) {
 }
 
 # For use by connect etc
-launch_server <- function(settings, host = NULL, port = NULL) {
-  papi <- api(settings)
+launch_server <- function(settings, host = NULL, port = NULL, ...) {
+  pa <- api(settings)
   if (!is.null(host)) {
-    papi$host <- host
+    pa$host <- host
   }
   if (!is.null(port)) {
-    papi$port <- port
+    pa$port <- port
   }
-  api_run(papi)
+  api_run(pa)
 }

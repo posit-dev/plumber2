@@ -18,6 +18,11 @@
 #'
 #' @export
 #'
+#' @examplesIf file.exists("path/to/a/plumber/file.R")
+#' create_server_yml(
+#'   "path/to/a/plumber/file.R"
+#' )
+#'
 create_server_yml <- function(
   ...,
   path = ".",
@@ -59,7 +64,7 @@ create_server_yml <- function(
 
 is_plumber2_server_yml <- function(path) {
   vapply(path, function(p) {
-    if (fs::path_file(p) != "_server.yml") {
+    if (!grepl("^_server.ya?ml$", fs::path_file(p))) {
       return(FALSE)
     }
     isTRUE(tolower(yaml::read_yaml(p)$engine) == "plumber2")

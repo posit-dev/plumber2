@@ -6,7 +6,7 @@
 \alias{get_parsers}
 \title{Register or fetch a parser}
 \usage{
-register_parser(name, fun, mime_types)
+register_parser(name, fun, mime_types, default = TRUE)
 
 show_registered_parsers()
 
@@ -23,6 +23,8 @@ directives given by the requests \code{Content-Type} header}
 
 \item{mime_types}{One or more mime types that this parser can handle. The
 mime types are allowed to contain wildcards, e.g. \code{"text/*"}}
+
+\item{default}{Should this parser be part of the default set of parsers}
 
 \item{parsers}{Parsers to collect. This can either be a character vector of
 names of registered parsers or a list. If it is a list then the following
@@ -50,11 +52,20 @@ function facilitates.
 }
 \details{
 If you want to register your own parser, then the function you register must
-be a factory function, ie. a function returning a function. The returned
+be a factory function, i.e. a function returning a function. The returned
 function must accept two arguments, the first being a raw vector
 corresponding to the request body, the second being the parsed directives
 from the request \code{Content-Type} header. All arguments to the factory function
 should be optional.
+}
+\examples{
+# Register a parser that splits at a character and converts to number
+register_parser("comma", function(delim = ",") {
+  function(raw, directive) {
+    as.numeric(strsplit(rawToChar(raw), delim)[[1]])
+  }
+}, mime_types = "text/plain", default = FALSE)
+
 }
 \seealso{
 \link{parsers}

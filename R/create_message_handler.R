@@ -1,13 +1,25 @@
-create_message_handler <- function(handler, async = NULL) {
+create_message_handler <- function(handler, async = NULL, then = NULL) {
   # Input checks
   check_function(handler)
   ## Add ... to formals so we never error on unknown arguments
   if (!"..." %in% fn_fmls_names(handler)) {
     fn_fmls(handler) <- c(fn_fmls(handler), "..." = missing_arg())
   }
+  for (i in seq_along(then)) {
+    check_function(then[[i]], arg = paste0("then[[", i, "]]"))
+    if (!"..." %in% fn_fmls_names(then[[i]])) {
+      fn_fmls(then[[i]]) <- c(fn_fmls(then[[i]]), "..." = missing_arg())
+    }
+  }
   check_function(async, allow_null = TRUE)
 
   if (is.null(async)) {
+    if (!is.null(then)) {
+      cli::cli_abort(
+        "{.arg then} can only be used with async handlers",
+        call = call
+      )
+    }
     function(server, id, binary, message, request, ...) {
       # Call the handler
       response <- handler(
@@ -44,11 +56,25 @@ create_message_handler <- function(handler, async = NULL) {
       envir$message <- message
       envir$id <- id
       response <- async(async_message_call, envir = envir)
-      promises::then(response, function(response) {
+      response <- promises::then(response, function(response) {
         if (is.raw(response) || is_string(response)) {
           server$send(response, id)
         }
+        response
       })
+      for (handler in then) {
+        response <- promises::then(response, function(response) {
+          handler(
+            result = response,
+            message = message,
+            server = server,
+            client_id = id,
+            request = request,
+            ...
+          )
+        })
+      }
+      response
     }
   }
 }

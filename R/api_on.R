@@ -6,6 +6,20 @@
 #' when specific events fire. `api_off()` can be used to remove the handler if
 #' necessary
 #'
+#' # Using annotation
+#' Event handler setup doesn't have a dedicated annotation tag, but you can set
+#' it up in a `@plumber` block
+#'
+#' ```
+#' #* @plumber
+#' function(api) {
+#'   api |>
+#'     api_on("cycle-end", function(server) {
+#'       server$log("message", "tick-tock")
+#'     })
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to launch or stop
 #' @param event A string naming the event to listen for
 #' @param handler A function to call when `event` fires
@@ -16,6 +30,17 @@
 #' with the pipe
 #'
 #' @export
+#'
+#' @examples
+#' # Add a small console log to show the api is alive
+#' pa <- api() |>
+#'   api_on("cycle-end", function(server) {
+#'     server$log("message", "tick-tock")
+#'   }, id = "lifesign")
+#'
+#' # Remove it again
+#' pa |>
+#'   api_off("lifesign")
 #'
 api_on <- function(api, event, handler, id = NULL) {
   api$on(event, handler, id = id)

@@ -10,6 +10,8 @@ handle_constructor <- function(method, header = FALSE) {
     parsers = NULL,
     use_strict_serializer = FALSE,
     download = FALSE,
+    async = FALSE,
+    then = NULL,
     doc = NULL,
     route = NULL
   ) {
@@ -21,6 +23,8 @@ handle_constructor <- function(method, header = FALSE) {
       parsers = parsers,
       use_strict_serializer = use_strict_serializer,
       download = download,
+      async = async,
+      then = then,
       doc = doc,
       route = route,
       header = header
@@ -38,6 +42,28 @@ handle_constructor <- function(method, header = FALSE) {
 #' This family of functions facilitates adding a request handler for a specific
 #' HTTP method and path.
 #'
+#' # Using annotation
+#' Handlers can be specified in an annotated route file using one of the method
+#' tags followed by the path it pertains to. You can use various tags to
+#' descripe the handler and these will automatically be converted to OpenAPI
+#' documentation. Further, additional tags allow you to modify the behaviour of
+#' the handler, reflecting the arguments available in the functional approach.
+#'
+#' ```
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' function(username) {
+#'   find_user_in_db(username)
+#' }
+#' ```
+#'
 #' # HTTP Methods
 #' The HTTP specs provide a selection of specific methods that clients can send
 #' to the server (your plumber api). While there is no enforcement that the
@@ -52,16 +78,16 @@ handle_constructor <- function(method, header = FALSE) {
 #'   should not contain any body content
 #' * `HEAD`: This method is identical to `GET`, except the response should only
 #'   contain headers, no body. Apart from this it is expected that a `HEAD`
-#'   request is identical to a `GET` request for the same ressource
+#'   request is identical to a `GET` request for the same resource
 #' * `POST`: This method delivers content, in the form of a request body, to the
 #'   server, potentially causing a change in the server. In the context of
 #'   plumber2 it is often used to call functions that require input larger than
 #'   what can be put in the URL
-#' * `PUT`: This method is used to update a specific ressource on the server. In
+#' * `PUT`: This method is used to update a specific resource on the server. In
 #'   the context of a standard plumber2 server this is rarely relevant, though
 #'   usage can come up. `PUT` is considered by clients to be indemptotent meaning
 #'   that sending the same `PUT` request multiple times have no effect
-#' * `DELETE`: This method deletes a ressource and is the opposite to `PUT`. As
+#' * `DELETE`: This method deletes a resource and is the opposite to `PUT`. As
 #'   with `PUT` this method has limited use in most standard plumber2 servers
 #' * `CONNECT`: This method request the establishment of a proxy tunnel. It is
 #'   considered advanced use and is very unlikely to have a usecase for your
@@ -72,7 +98,7 @@ handle_constructor <- function(method, header = FALSE) {
 #'   containing the request (stripped of any sensitive information). Many
 #'   servers disallow this method due to security concerns
 #' * `PATCH`: This method is like `PUT` but allows partial modification of a
-#'   ressource
+#'   resource
 #'
 #' Apart from the above, plumber2 also understands the `ANY` method which
 #' responds to requests to any of the above methods, assuming that a specific
@@ -167,7 +193,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' routes (`Break`)
 #'
 #' ### Returning `NULL` or the `response` object
-#' This is the same as returning `Next`, ie. it signals that handling can
+#' This is the same as returning `Next`, i.e. it signals that handling can
 #' proceed
 #'
 #' ### Returning a ggplot2 object
@@ -177,7 +203,7 @@ handle_constructor <- function(method, header = FALSE) {
 #'
 #' ### Returning any other value
 #' Any kind of value returned that is not captured by the above description will
-#' be set to the response body (overwritting what was already there) and
+#' be set to the response body (overwriting what was already there) and
 #' handling is then allowed to continue
 #'
 #' ## Handler conditions
@@ -201,6 +227,85 @@ handle_constructor <- function(method, header = FALSE) {
 #' details can be a security risk and forwarding internal errors to a client can
 #' help inform the client about how the server has been implemented.
 #'
+#' # Async handling
+#' plumber2 supports async handling of requests in one of two ways:
+#'
+#' 1. The handler you provide returns a promise object
+#' 2. You set `async = TRUE` (or the name of a registered async evaluator) when
+#'    adding the handler
+#'
+#' For 1), there is no more to do. You have full custody over the created
+#' promise and any `then()`-chaining that might be added to it. For 2) it is a
+#' bit different. In that case you provide a regular function and plumber2 takes
+#' care of converting it to a promise. Due to the nature of promises a handler
+#' being converted to a promise can't take `request`, `response`, and `server`
+#' arguments, so if you need to manipulate these you need to use `then` (more on
+#' this shortly). The async handler should yield the value that the response
+#' should ultimately get assigned to the body or have plotting side effects (in
+#' which case the plot will get added to the response).
+#'
+#' ## Async chaining
+#' Because you can't manipulate `request` `response`, or `server` in the async
+#' handler it may be needed to add operations to perform once the async handler
+#' has finished. This can be done through the `then` argument (or using the
+#' `@then` tag in annotated route files). This takes a list of functions to
+#' chain to the promise using [promises::then()]. Before the `then` chain is
+#' executed the response will get the return value of the main handler asigned
+#' to the body. Each `then` call will receive the same arguments as a standard
+#' request handler as well as `result` which will hold the return value of the
+#' previous handler in the chain. For the first `then` call `result` will be a
+#' boolean signalling if the async handler wants request handling to proceed to
+#' the next route or terminate early. The last call in the chain must return
+#' `Next` or `Break` to signal if processing should be allowed to continue to
+#' the next route.
+#'
+#' # Using annotation
+#' Handlers can be specified in an annotated route file using one of the method
+#' tags followed by the path it pertains to. You can use various tags to
+#' descripe the handler and these will automatically be converted to OpenAPI
+#' documentation. Further, additional tags allow you to modify the behaviour of
+#' the handler, reflecting the arguments available in the functional approach.
+#'
+#' ```
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' function(username) {
+#'   find_user_in_db(username)
+#' }
+#' ```
+#'
+#' You can create async handlers with `then` chaining using annotation, through
+#' the `@async` and `@then` tags
+#'
+#' ```
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' #* @async
+#' function(username) {
+#'   find_user_in_db(username)
+#' }
+#' #* @then
+#' function(server, response) {
+#'   server$log("message", "async operation completed")
+#'   response$set_header("etag", "abcdef")
+#'   Next
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to add the handler to
 #' @param path A string giving the path the handler responds to. See Details
 #' @param handler A handler function to call when a request is matched to the
@@ -222,6 +327,13 @@ handle_constructor <- function(method, header = FALSE) {
 #' header in the response to `attachment`. Setting it to a string is equivalent
 #' to setting it to `TRUE` but will in addition also set the default filename of
 #' the download to the string value
+#' @param async If `FALSE` create a regular handler. If `TRUE`, use the default
+#' async evaluator to create an async handler. If a string, the async evaluator
+#' registered to that name is used. If a function is provided then this is used
+#' as the async evaluator. See the *Async* section for more detail
+#' @param then A list of function to be called once the async handler is done.
+#' The functions will be chained using [promises::then()]. See the *Async*
+#' section for more detail
 #' @param doc A list with the OpenAPI spec for the endpoint
 #' @param route The route this handler should be added to. Defaults to the last
 #' route in the stack. If the route does not exist it will be created as the
@@ -234,6 +346,39 @@ handle_constructor <- function(method, header = FALSE) {
 #' @name api_request_handlers
 #'
 #' @family Request Handlers
+#'
+#' @examples
+#' # Standard use
+#' api() |>
+#'   api_get("/hello/<name:string>", function(name) {
+#'     list(
+#'       msg = paste0("Hello ", name, "!")
+#'     )
+#'   })
+#'
+#' # Specify serializers
+#' api() |>
+#'   api_get(
+#'     "/hello/<name:string>",
+#'     function(name) {
+#'       list(
+#'         msg = paste0("Hello ", name, "!")
+#'       )
+#'     },
+#'     serializers = get_serializers(c("json", "xml"))
+#'   )
+#'
+#' # Request a download and make it async
+#' api() |>
+#'   api_get(
+#'     "/the_plot",
+#'     function() {
+#'       plot(1:10, 1:10)
+#'     },
+#'     serializers = get_serializers(c("png", "jpeg")),
+#'     download = TRUE,
+#'     async = TRUE
+#'   )
 #'
 NULL
 
@@ -280,11 +425,36 @@ api_any <- handle_constructor("any")
 
 #' Add a handler for a request header
 #'
-#' These handlers are called before the request body has been recieved and lets y
-#' ou preemptively reject requests before recieving their full content. Most of
-#' your logic, however, will be in the main handlers and you are asked to
+#' These handlers are called before the request body has been recieved and lets
+#' you preemptively reject requests before recieving their full content. If the
+#' handler does not return [Next] then the request will be returned at once.
+#' Most of your logic, however, will be in the main handlers and you are asked to
 #' consult the [api_request_handlers] docs for in-depth details on how to use
 #' request handlers in general.
+#'
+#' # Using annotation
+#' Adding request header handler is done in the same way as for [standard
+#' request handlers][api_request_handlers]. The only difference is that you
+#' include a `@header` tag as well. It is not normal to document header requests
+#' as they usually exist as internal controls. You can add `@noDoc` to avoid
+#' generating OpenAPI docs for the handler
+#'
+#' ```
+#' #* A header handler authorizing users
+#' #*
+#' #* @get /*
+#' #*
+#' #* @header
+#' #* @noDoc
+#' function(client_id, response) {
+#'   if (user_is_allowed(username)) {
+#'     Next
+#'   } else {
+#'     response$status <- 404L
+#'     Break
+#'   }
+#' }
+#' ```
 #'
 #' @inheritParams api_request_handlers
 #'
@@ -295,6 +465,22 @@ api_any <- handle_constructor("any")
 #' @name api_request_header_handlers
 #'
 #' @family Request Handlers
+#'
+#' @examples
+#' # Simple size limit (better to use build-in functionality)
+#' api() |>
+#'   api_post_header(
+#'     "/*",
+#'     function(request, response) {
+#'       if (request$get_header("content-type") > 1024) {
+#'         response$status <- 413L
+#'         Break
+#'       } else {
+#'         Next
+#'       }
+#'     }
+#'   )
+#'
 #'
 NULL
 
@@ -347,6 +533,20 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #' that way will always add new routes to the end of the stack, whereas using
 #' `api_add_route()` allows you full control of the placement.
 #'
+#' # Using annotation
+#' There is no direct equivalent to this when using annotated route files.
+#' However you can name your route in a file by adding `@routeName <name>` to
+#' the first block of the file like so.
+#'
+#' ```
+#' #* @routeName my_route
+#' NULL
+#' ```
+#'
+#' All relevant blocks in the file will then be added to this route, even if the
+#' route already exist. In that way you can split the definition of a single
+#' route out among multiple files if needed.
+#'
 #' @param api A plumber2 api object to add the route to
 #' @param name The name of the route to add. If a route is already present
 #' with this name then the provided route (if any) is merged into it
@@ -356,20 +556,41 @@ api_any_header <- handle_constructor("any", header = TRUE)
 #' @param after The location to place the new route on the stack. `NULL`
 #' will place it at the end. Will not have an effect if a route with the
 #' given name already exists.
+#' @param root The root path to serve this route from.
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
 #'
 #' @export
 #'
+#' @examples
+#' # Add a new route and use it for a handler
+#' api() |>
+#'   api_add_route("logger_route") |>
+#'   api_any(
+#'     "/*",
+#'     function() {
+#'       cat("I just handled a request!")
+#'     },
+#'     route = "logger_route"
+#'   )
+#'
+#'
 api_add_route <- function(
   api,
   name,
   route = NULL,
   header = FALSE,
-  after = NULL
+  after = NULL,
+  root = ""
 ) {
-  api$add_route(name = name, route = route, header = header, after = after)
+  api$add_route(
+    name = name,
+    route = route,
+    header = header,
+    after = after,
+    root = root
+  )
   api
 }
 
@@ -401,24 +622,93 @@ api_add_route <- function(
 #' returns either a raw vector or a single string it is taken as a signal to
 #' send this back to the client. Any other return value is silently ignored.
 #'
+#' # Async
+#' You can handle websocket messages asynchronously if needed. Like with
+#' [request handlers][api_get] you can either do it manually by creating and
+#' returning a promise inside the handler, or by letting plumber2 convert your
+#' handler to an async handler using the `async` argument. Due to the nature of
+#' promises a handler being converted to a promise can't take `request` and
+#' `server` arguments, so if you need to manipulate these you need to use `then`
+#' (more on this shortly). The same conventions about return value holds for
+#' async message handlers as for regular ones.
+#'
+#' ## Async chaining
+#' Because you can't manipulate `request` or `server` in the async handler it
+#' may be needed to add operations to perform once the async handler has
+#' finished. This can be done through the `then` argument. This takes a list of
+#' functions to chain to the promise using [promises::then()]. Before the `then`
+#' chain is executed the return value of the async handler will be send back to
+#' the client if it is a string or a raw vector. Each `then` call will receive
+#' the same arguments as a standard message handler as well as `result` which
+#' will hold the return value of the previous handler in the chain. For the
+#' first `then` call `result` will be whatever the main async handler returned.
+#' The return value of the last call in the chain will be silently ignored.
+#'
+#' # Using annotation
+#' A websocket message handler can be added to an API in an annotated route file
+#' by using the `@message` tag
+#'
+#' ```
+#' #* @message
+#' function(message) {
+#'   if (message == "Hello") {
+#'     return("Hello, you...")
+#'   }
+#' }
+#' ```
+#'
+#' You can create async handlers with `then` chaining using annotation, through
+#' the `@async` and `@then` tags
+#'
+#' ```
+#' #* @message
+#' #* @async
+#' function(message) {
+#'   if (message == "Hello") {
+#'     return("Hello, you...")
+#'   }
+#' }
+#' #* @then
+#' function(server) {
+#'   server$log("message", "websocket message received")
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to add the handler to
 #' @param handler A function conforming to the specifications laid out in
 #' Details
+#' @param async If `FALSE` create a regular handler. If `TRUE`, use the default
+#' async evaluator to create an async handler. If a string, the async evaluator
+#' registered to that name is used. If a function is provided then this is used
+#' as the async evaluator. See the *Async* section for more detail
+#' @param then A list of function to be called once the async handler is done.
+#' The functions will be chained using [promises::then()]. See the *Async*
+#' section for more detail
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
 #'
 #' @export
 #'
-api_message <- function(api, handler) {
-  api$message_handler(handler)
+#' @examples
+#' api() |>
+#'   api_message(
+#'     function(message) {
+#'       if (message == "Hello") {
+#'         return("Hello, you...")
+#'       }
+#'     }
+#'   )
+#'
+api_message <- function(api, handler, async = NULL, then = NULL) {
+  api$message_handler(handler, async, then)
   api
 }
 
 #' Redirect request to another resource
 #'
 #' While it is optimal that an API remains stable over its lifetime it is often
-#' not fully attainable. In order to direct requests for ressources that has
+#' not fully attainable. In order to direct requests for resources that has
 #' been moved to the new location you can add a redirect that ensures a smooth
 #' transition for clients still using the old path. Depending on the value
 #' of `permanent` the redirect will respond with a `307 Temporary Redirect` or
@@ -426,6 +716,16 @@ api_message <- function(api, handler) {
 #' wildcards which will be matched between the two to construct the correct
 #' redirect path. Further, `to` can either be a path to the same server or a
 #' fully qualified URL to redirect requests to another server alltogether.
+#'
+#' # Using annotation
+#' You can specify redirects in an annotated plumber file using the `@redirect`
+#' tag. Preceed the method with a `!` to mark the redirect as permanent
+#'
+#' ```
+#' #* @redirect !get /old/data/* /new/data/*
+#' #* @redirect any /unstable/endpoint /stable/endpoint
+#' NULL
+#' ```
 #'
 #' @param api A plumber2 api object to add the redirect to
 #' @param method The HTTP method the redirect should respond to
@@ -441,7 +741,221 @@ api_message <- function(api, handler) {
 #'
 #' @export
 #'
+#' @examples
+#' api() |>
+#'   api_redirect("get", "/old/data/*", "/new/data/*")
+#'
 api_redirect <- function(api, method, from, to, permanent = TRUE) {
   api$redirect(method, from, to, permanent)
+  api
+}
+
+#' Serve a Shiny app from a plumber2 api
+#'
+#' You can serve one or more shiny apps as part of a plumber2 api. The shiny app
+#' launches in a background process and the api will work as a reverse proxy to
+#' forward requests to `path` to the process and relay the response to the
+#' client. The shiny app is started along with the api and shut down once the
+#' api is stopped. This functionality requires the shiny and callr packages to
+#' be installed. Be aware that all requests to subpaths of `path` will be
+#' forwarded to the shiny process, and thus not end up in your normal route
+#'
+#' # Using annotation
+#' A shiny app can be served using an annotated route file by using the `@shiny`
+#' tag and proceeding the annotation block with the shiny app object
+#'
+#' ```
+#' #* @shiny /my_app/
+#' shiny::shinyAppDir("./shiny")
+#' ```
+#'
+#' @param api A plumber2 api to add the shiny app to
+#' @param path The path to serve the shiny app from
+#' @param app A shiny app object
+#' @param except Subpaths to `path` that should not be forwarded to the
+#' shiny app. Be sure it doesn't contains paths that the shiny app needs
+#'
+#' @return This functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+#' @examplesIf requireNamespace("shiny", quietly = TRUE)
+#' blank_shiny <- shiny::shinyApp(
+#'   ui = shiny::fluidPage(),
+#'   server = shiny::shinyServer(function(...) {})
+#' )
+#'
+#' api() |>
+#'   api_shiny("my_app/", blank_shiny)
+#'
+api_shiny <- function(api, path, app, except = NULL) {
+  api$add_shiny(path, app, except)
+  api
+}
+
+#' Serve Quarto and Rmarkdown documents from a plumber2 api
+#'
+#' You can serve Quarto and Rmarkdown documents from a plumber2 api and have it
+#' automatically render the report when requested. Reports are automatically
+#' cached to reduce overhead. Parameterized reports are supported and parameters
+#' can be provided either with the query string for GET requests or in the
+#' request body for POST request. It is also possible to delete the cached
+#' render using a DELETE request. See **Details** for more information
+#'
+#' @details
+#'
+#' ## Parameterized reports
+#' Parameters provided to parameterized reports are automatically type checked
+#' and casted based on the default values in the report and the schema provided
+#' in the `doc`. Only the `query` parameters will be used as the request body is
+#' inferred from that. It is important to understand that for Quarto documents,
+#' the parameters are passed through as a yaml file and thus any type not
+#' supported by yaml will not arrive unchanged to the document. Python reports
+#' are supported, but the type of parameters cannot be inferred from the
+#' document so if you want type checking you will have to provided schemas for
+#' them in the `doc`. For POST request where the parameters are provided in the
+#' body, you must use JSON format.
+#'
+#' ## Multiple outputs
+#' If a report has multiple different output formats then each format is
+#' accessible through a subpath with the name of the format. The path provided
+#' in `path` will use content negotiation through the `Content-Type` header to
+#' select a format. In addition, a path with the file extension added to `path`
+#' can also be used to select the specific format. For the last two, if multiple
+#' formats share the same mime type/file extension then only the first one can
+#' be selected.
+#'
+#' ## Caching
+#' Reports are cached, by default in a temporary folder. You can chose a
+#' different folder with the `cache_dir` argument. Cached versions can be
+#' deleted, thus forcing a rerender upon next request, by sending a DELETE
+#' request. A DELETE request to the main path will delete all versions of the
+#' report, whereas a DELETE request to one of the subpaths (see above) will only
+#' delete versions of the specific output format. All different parameterized
+#' versions will always be deleted together. Instead of sending DELETE requests
+#' you can also set a `max_age` which will force a rerender if the render is
+#' older than the given argument.
+#'
+#' If the content of the report is dependent on different credentials given by
+#' the user you can cache the reports by session id so that every user will have
+#' it rendered uniquely for them. This is important to prevent leakage of
+#' confidential data, but also ensures that the report looks as expected for
+#' each user.
+#'
+#' # Using annotation
+#' A report can be served using an annotated route file by using the `@report`
+#' tag and proceeding the annotation block with the path to the report
+#'
+#' ```
+#' #* @report /quarterly
+#' "my/awesome/report.qmd"
+#' ```
+#'
+#' @param api A plumber2 api to serve the report with.
+#' @param path The base path to serve the report from. Additional endpoints
+#' will be created in addition to this.
+#' @param report The path to the report to serve
+#' @param ... Further arguments to `quarto::quarto_render()` or
+#' `rmarkdown::render()`
+#' @param doc An [openapi_operation()] documentation for the report. Only
+#' `query` parameters will be used and a request body will be generated from
+#' this for the POST methods.
+#' @param max_age The maximum age in seconds to keep a rendered report
+#' before initiating a re-render
+#' @param async Should rendering happen asynchronously (using mirai)
+#' @param finalize An optional function to run before sending the response
+#' back. The function will receive the request as the first argument, the
+#' response as the second, and the server as the third.
+#' @param continue A logical that defines whether the response is returned
+#' directly after rendering or should be made available to subsequent routes
+#' @param cache_dir The location of the render cache. By default a temporary
+#' folder is created for it.
+#' @param cache_by_id Should caching be scoped by the user id. If the
+#' rendering is dependent on user-level access to different data this is
+#' necessary to avoid data leakage.
+#' @param route The route this handler should be added to. Defaults to the
+#' last route in the stack. If the route does not exist it will be created
+#' as the last route in the stack.
+#'
+#' @return This functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+#' @examplesIf file.exists("my/awesome/report.qmd")
+#' api() |>
+#'   api_report("/quarterly", "my/awesome/report.qmd")
+#'
+api_report <- function(
+  api,
+  path,
+  report,
+  ...,
+  doc = NULL,
+  max_age = Inf,
+  async = TRUE,
+  finalize = NULL,
+  continue = FALSE,
+  cache_dir = tempfile(pattern = "plumber2_report"),
+  cache_by_id = FALSE,
+  route = NULL
+) {
+  api$add_report(
+    path = path,
+    report = report,
+    ...,
+    doc = doc,
+    max_age = max_age,
+    async = async,
+    finalize = finalize,
+    continue = continue,
+    cache_dir = cache_dir,
+    cache_by_id = cache_by_id,
+    route = route
+  )
+  api
+}
+
+#' Set up a plumber2 api to act as a reverse proxy
+#'
+#' You can set up your plumber2 api to act as reverse proxy and forward all
+#' requests to a specific path (and it's subpaths) to a different URL. In
+#' contrast to [api_shiny()], `api_forward()` is not responsible for launching
+#' whatever service is being proxied so this should be handled elsewhere. The
+#' `path` will be stripped from the request before being forwarded to the url,
+#' meaning that if you set up a proxy on `my/proxy/` to `http://example.com`,
+#' then a request for `my/proxy/user/thomas` will end at
+#' `http://example.com/user/thomas`. Proxying is most useful when forwarding to
+#' internal servers though you are free to forward to public URLs as well.
+#' However, for the later you'd usually use a redirect instead (via
+#' [api_redirect()])
+#'
+#' # Using annotation
+#' You can set up a reverse proxy in your annotated route file using the
+#' `@forward` tag
+#'
+#' ```
+#' #* @forward /proxy http://127.0.0.1:56789
+#' NULL
+#' ```
+#'
+#' @param api A plumber2 api to add the shiny app to
+#' @param path The path to serve the shiny app from
+#' @param url The url to forward to
+#' @param except Subpaths to `path` that should be exempt from forwarding
+#'
+#' @return This functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+#' @examples
+#' # Serve wikipedia directly from your app
+#' api() |>
+#'   api_forward("my_wiki/", "https://www.wikipedia.org")
+#'
+api_forward <- function(api, path, url, except = NULL) {
+  api$forward(path, url)
   api
 }

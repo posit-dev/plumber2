@@ -15,9 +15,11 @@ vignette: >
 me <- normalizePath(
   if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
     Sys.getenv("QUARTO_DOCUMENT_PATH")
-  } else if (file.exists("benchmarks-funcs.R")) {
+  } else if (file.exists("_helpers.R")) {
     getwd()
-  } else if (file.exists("articles/benchmarks-funcs.R")) {
+  } else if (file.exists("vignettes/_helpers.R")) {
+    "vignettes"
+  } else if (file.exists("articles/_helpers.R")) {
     "articles"
   } else {
     "vignettes/articles"
@@ -89,13 +91,13 @@ You can read more about the event cycle of a fiery app on the [fiery website](ht
 You are not restricted to only listening for predefined events. You can add handlers to any event you wish, but you'll need to trigger the event manually if it is not one of the predefined ones.
 
 ``` r
-papi <- api() |>
+pa <- api() |>
   api_on("hello", function(name) {
     print("Hello", name)
   })
 
 ## Somewhere in your server code
-papi$trigger("hello", name = "Thomas")
+pa$trigger("hello", name = "Thomas")
 ```
 
 ## Static File Routers {#mount-static}

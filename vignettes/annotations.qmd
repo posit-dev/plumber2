@@ -15,9 +15,11 @@ vignette: >
 me <- normalizePath(
   if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
     Sys.getenv("QUARTO_DOCUMENT_PATH")
-  } else if (file.exists("benchmarks-funcs.R")) {
+  } else if (file.exists("_helpers.R")) {
     getwd()
-  } else if (file.exists("articles/benchmarks-funcs.R")) {
+  } else if (file.exists("vignettes/_helpers.R")) {
+    "vignettes"
+  } else if (file.exists("articles/_helpers.R")) {
     "articles"
   } else {
     "vignettes/articles"
@@ -30,19 +32,105 @@ readLines <- function(x) base::readLines(file.path(me, x))
 
 Annotations are specially-structured comments used in your plumber file to create an API. A full annotation line starts with `#*`, then the annotation keyword `@...`, any number of space characters followed by the content. If you wish to use the annotation to document your API file but don't want any OpenAPI documentation to be generated you can use `@noDoc` tag which works much like roxygens `@noRd`.
 
+## Annotation settings
+A few annotations modify how the file is parsed and interpreted. These must all appear in the first block of the file (in the case of `@roxygenPrefix` the first line).
+
+### Use roxygen prefix
+By default, plumber2 uses the `#*` prefix for its blocks to avoid clashing with roxygen comments. plumber (the old one) allowed either and while it is recommended to differentiate between roxygen and plumber2 annotations you can opt in to also understanding roxygen prefix.
+
+>This tag **must** appear on the first line of the file to have an effect.
+
+| Annotation | Argument | Description/References |
+|-----------------|-----------------|-----------------------------|
+| `@roxygenPrefix` | None | Turns on roxygen prefix for the file |
+
+If you wish to always allow roxygen prefixes you can set the `plumber2.roxygenPrefix` option to `TRUE`
+
+##### Annotations example
+
+``` r
+#* @roxygenPrefix
+NULL
+```
+
+##### Equivalent programmatic usage
+
+There is no direct equivalent in programmatic usage as this pertains to the parsing of the plumber file.
+
+### Specifying route name
+
+By default, the name of the file (without extension) is used as the name for the route any handlers etc are attached to. However, you can change this by having a first block in your file with a `@routeName` tag specifying the name to use for all route specific blocks in the file. This also makes it possible to split out the specification of a single route among multiple files if it begins to grow unwieldy
+
+| Annotation | Argument | Description/References |
+|-----------------|-----------------|-----------------------------|
+| `@routeName` | `name` | Sets the name of the route to use for all blocks in the file |
+
+##### Annotations example
+
+``` r
+#* @routeName main_route
+NULL
+```
+
+##### Equivalent programmatic usage
+
+There is no direct equivalent in programmatic usage as this pertains to the parsing of the plumber file. Any relevant function has a `route` argument where you can specify which route to add the given functionality to.
+
+### Specifying route order
+
+Route files are processed in alphanumerical order which influence the order in which their route is attached. You can modify the route order (but not the file processing order) using the `@routeOrder` tag. If multiple files have the same `@routeName` then the lowest `@routeOrder` value will be used. Any file without a `@routeOrder` tag will be added after those that do, using the default alphanumeric order.
+
+| Annotation | Argument | Description/References |
+|-----------------|-----------------|-----------------------------|
+| `@routeOrder` | `order` | Sets the order in which routes are added to the api. Lower values means earlier position |
+
+##### Annotations example
+
+``` r
+#* @routeOrder 3
+NULL
+```
+
+##### Equivalent programmatic usage
+
+You can programmatically control the location of a route you add with `api_add_route()` using the `after` argument.
+
+### Specifying root url for the whole file
+
+Many annotations somehow references URL paths, either as the endpoint of a
+handler, or where to serve a shiny app from. You can set a root for the whole
+file which will be prepended to any relevant URL. In this way it is easy to move
+all functionality from a single file to a different location if necessary.
+
+| Annotation | Argument | Description/References |
+|-----------------|-----------------|-----------------------------|
+| `@root` | `path` | Sets the root of every URL path in the file |
+
+##### Annotations example
+
+``` r
+#* @root /path/to/these/apis
+NULL
+```
+
+##### Equivalent programmatic usage
+
+You can programmatically set the root of a new route you add with `api_add_route()` using the `root` argument.
+
 ## Global annotations {#global-annotations}
 
-Global annotations are not related to any handler and should be placed in their own block. The block should be terminated by a `NULL` expression. Instead of `@apiTitle` and `@apiDescription` you can also use the convention that the first line gives the title and any proceeding lines until the first tag gives the description.
+Global annotations are not related to any handler and should be placed in their own block. The block should be terminated by a `"_API"` expression. Instead of `@title` and `@description` you can also use the convention that the first line gives the title and any proceeding lines until the first tag gives the description.
 
 | Annotation | Argument | Description/References |
 |-------------------|-------------------|----------------------------------|
-| `@apiTitle` | `Title` | [Info Object](http://spec.openapis.org/oas/v3.0.3#info-object) |
-| `@apiDescription` | `Description` | [Info Object](http://spec.openapis.org/oas/v3.0.3#info-object) |
-| `@apiTOS` | `TOS link` | [Info Object](http://spec.openapis.org/oas/v3.0.3#info-object) |
-| `@apiContact` | `Contact object` | [Contact Object](http://spec.openapis.org/oas/v3.0.3#contact-object) |
-| `@apiLicense` | `License object` | [License Object](http://spec.openapis.org/oas/v3.0.3#license-object) |
-| `@apiVersion` | `Version` | [Info Object](http://spec.openapis.org/oas/v3.0.3#info-object) |
-| `@apiTag` | `Tag` `Description` | Can be repeated to add multiple tags. Quote with " or ' to use non word character (like spaces) in `Tag`. [Tag Object](http://spec.openapis.org/oas/v3.0.3#tag-object) |
+| `@title` | `Title` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
+| `@description` | `Description` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
+| `@tos` | `TOS link` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
+| `@contact` | `Contact object` | [Contact Object](https://spec.openapis.org/oas/v3.0.3#contact-object) |
+| `@license` | `License object` | [License Object](https://spec.openapis.org/oas/v3.0.3#license-object) |
+| `@version` | `Version` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
+| `@tag` | `Tag` `Description` | Can be repeated to add multiple tags. Quote with " or ' to use non word character (like spaces) in `Tag`. [Tag Object](https://spec.openapis.org/oas/v3.0.3#tag-object) |
+| `@noDoc` | None | Don't generate OpenAPI documentation from this block |
 
 ##### Annotations example
 
@@ -51,14 +139,14 @@ Global annotations are not related to any handler and should be placed in their 
 #*
 #* This is a sample server for a pet store.
 #*
-#* @apiTOS http://example.com/terms/
-#* @apiContact list(name = "API Support", url = "http://www.example.com/support", email = "support@example.com")
-#* @apiLicense list(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html")
-#* @apiVersion 1.0.1
-#* @apiTag pet Pets operations
-#* @apiTag toy Toys operations
-#* @apiTag "toy space" Toys operations
-NULL
+#* @tos http://example.com/terms/
+#* @contact list(name = "API Support", url = "http://www.example.com/support", email = "support@example.com")
+#* @license list(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html")
+#* @version 1.0.1
+#* @tag pet Pets operations
+#* @tag toy Toys operations
+#* @tag "toy space" Toys operations
+"_API"
 ```
 
 ##### Equivalent programmatic usage
@@ -67,19 +155,20 @@ NULL
 #| output: false
 #| eval: !expr R.Version()$minor > package_version("4.0")
 api() |>
-  api_doc_add(list(
-    info = list(
+  api_doc_add(
+    openapi(
+    info = openapi_info(
       title = "Sample Pet Store App",
       description = "This is a sample server for a pet store.",
-      termsOfService = "http://example.com/terms/",
-      contact = list(name = "API Support", url = "http://www.example.com/support", email = "support@example.com"),
-      license = list(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
+      terms_of_service = "http://example.com/terms/",
+      contact = openapi_contact(name = "API Support", url = "http://www.example.com/support", email = "support@example.com"),
+      license = openapi_license(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
       version = "1.0.1"
     ),
     tags = list(
-      list(name = "pet", description = "Pets operations"),
-      list(name = "toy", description = "Toys operations"),
-      list(name = "toy space", description = "Toys operations")
+      openapi_tag(name = "pet", description = "Pets operations"),
+      openapi_tag(name = "toy", description = "Toys operations"),
+      openapi_tag(name = "toy space", description = "Toys operations")
     )
   ))
 ```
@@ -90,71 +179,96 @@ Handler annotation describe all aspects of a request handler and always proceeds
 
 ### Endpoint {#endpoint-block-annotations}
 
-<table style="width:92%;">
+<table style="width:91%;">
 <colgroup>
 <col style="width: 24%" />
 <col style="width: 24%" />
-<col style="width: 43%" />
+<col style="width: 42%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th><p>Annotation</p></th>
 <th><p>Argument</p></th>
 <th><p>Description/References</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><p><code>@get</code>, <code>@head</code>, <code>@post</code>, <code>@put</code>, <code>@delete</code>, <code>@connect</code>, <code>@options</code>, <code>@trace</code>, <code>@patch</code>, <code>@any</code></p></td>
 <td><p><code>Path</code></p></td>
 <td><p><a href="./routing-and-input.html#endpoints">Endpoints</a>, <a href="./routing-and-input.html#dynamic-routes">Dynamic Routes</a>, <a href="./routing-and-input.html#typed-dynamic-routes">Typed Dynamic Routes</a></p></td>
 </tr>
-<tr class="even">
+<tr>
 <td><p><code>@header</code></p></td>
 <td><p>None</p></td>
 <td><p>Should the handler be attached to the header router</p></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><p><code>@serializer</code></p></td>
 <td><p><code>Alias</code>[<code>{Args list]}</code>]</p>
 <p><code>Mime</code> <code>Function</code></p></td>
 <td><p>Some serializers accept arguments. See <a href="./rendering-output.html#serializers">serializers article</a> and <a href="https://www.rplumber.io/reference/serializers.html">serializers reference</a>. Aliases : <code>r paste0("&lt;code&gt;", registered_serializers(), "&lt;/code&gt;", collapse = ", ")</code> from <a href="https://www.rplumber.io/reference/register_serializer.html"><code>registered_serializers()</code></a>.</p></td>
 </tr>
-<tr class="even">
+<tr>
 <td><p><code>@serializerStrict</code></p></td>
 <td><p>None</p></td>
 <td><p>Turn on strict content negotiation. By default, the first serializer is chosen if the client requests a response type that isnt supported. By using strict content negotiation a 406 response is sent if the requested response type is not available</p></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><p><code>@parser</code></p></td>
 <td><p><code>Alias</code>[<code>{Args list}</code>]</p>
 <p><code>Mime</code> <code>Function</code></p></td>
 <td><p>Some parsers accept arguments. See <a href="https://www.rplumber.io/reference/parsers.html">parsers reference</a>. Can be repeated to allow multiple parsers on the same endpoint. Aliases : <code>r paste0("&lt;code&gt;", registered_parsers(), "&lt;/code&gt;", collapse = ", ")</code> from <a href="https://www.rplumber.io/reference/register_parser.html"><code>registered_parsers()</code></a>.</p></td>
 </tr>
-<tr class="even">
+<tr>
 <td><p><code>@param</code>, <code>@query</code>, <code>@body</code></p></td>
 <td><p><code>Name</code>[<code>:Type</code>][<code>(Default)</code>][<code>*</code>][<code>Description</code>]</p></td>
 <td><p>Adding an asterix indicates that the parameter is required. Can be repeated to define different parameters. If a single <code>@body</code> tag is used the <code>Name</code> can be omitted to indicate that the body is not a named object but simply an instance of the given <code>Type</code></p></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><p><code>@response</code></p></td>
 <td><p><code>Status</code>[<code>:Type</code>] <code>Description</code></p></td>
-<td><p>Simple <a href="http://spec.openapis.org/oas/v3.0.3#response-object">Response object</a>. Can be repeated to define different responses.</p></td>
+<td><p>Simple <a href="https://spec.openapis.org/oas/v3.0.3#response-object">Response object</a>. Can be repeated to define different responses.</p></td>
 </tr>
-<tr class="even">
+<tr>
 <td><p><code>@download</code></p></td>
 <td><p>[<code>Filename</code>]</p></td>
 <td><p>Mark the response as something that should be downloaded, optionally setting a default filename for the file</p></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><p><code>@tag</code></p></td>
 <td><p><code>Tag</code></p></td>
-<td><p>Can be repeated to add multiple tags. Quote with or to use non word character (like spaces) in <code>Tag</code>. <a href="http://spec.openapis.org/oas/v3.0.3#operation-object">Tag field</a></p></td>
+<td><p>Can be repeated to add multiple tags. Quote with or to use non word character (like spaces) in <code>Tag</code>. <a href="https://spec.openapis.org/oas/v3.0.3#operation-object">Tag field</a></p></td>
 </tr>
-<tr class="even">
+<tr>
 <td><p><code>@message</code></p></td>
 <td><p>None</p></td>
-<td><p>Marks the handler as a WebSocket message handler. No other tags will have an effect if this tag is present</p></td>
+<td><p>Marks the handler as a WebSocket message handler. No other tags will have an effect if this tag is present (except <code>@async</code>)</p></td>
+</tr>
+<tr>
+<td><p><code>@async</code></p></td>
+<td><p>[<code>engine</code>]</p></td>
+<td><p>Marks the handler as running asynchronously. The default uses mirai, but a different registered engine can be specified as well</p></td>
+</tr>
+<tr>
+<td><p><code>@then</code></p></td>
+<td><p>None</p></td>
+<td><p>Chains the handler to the preceeding message or request handler if that handler is asynchronous</p></td>
+</tr>
+<tr>
+<td><p><code>@cors</code></p></td>
+<td><p>[<code>Origin</code>]</p></td>
+<td><p>Add CORS to the endpoints in the handler. <code>Origin</code> can be a comma separated list of allowed origins</p></td>
+</tr>
+<tr>
+<td><p><code>@rip</code></p></td>
+<td><p>[<code>Allowed Site</code>]</p></td>
+<td><p>Adds a resource isolation policy to the `get` endpoints in the handler. <code>Allowed Site</code> can be used to change the allowance level</p></td>
+</tr>
+<tr>
+<td><p><code>@noDoc</code></p></td>
+<td><p>None</p></td>
+<td><p>Dont generate OpenAPI documentation from this block</p></td>
 </tr>
 </tbody>
 </table>
@@ -175,12 +289,18 @@ Some types can have a nested structure which is also supported, but the type spe
 | `date-time` | `string` `format:date-time` |
 | `byte` | `string` `format:byte` |
 | `binary` | `string` `format:binary` |
+| `enum` | `string` `enum:|...|` |
+| `pattern` | `string` `pattern:|...|` |
 | `[Type]` | `array` `items:type:Type` |
 | `{prop_name: Type, prop_name2: Type2}` | `object` `properties:prop_name:type:Type` `properties:prop_name2:type:Type2` |
 
 Types can have a default value, which is given in parentheses after the type specification, e.g. `integer(10)`. For objects and arrays you should use JSON notation to describe the default value (e.g. `[integer]([2, 6, 1])`).
 
 For the `integer` and `number` types it is also possible to specify the lower and/or upper bounds of the value. This is done by putting these between `|` like so: `integer|3, 7|`. Omitting one of these will remove that bound requirement (e.g. `integer|,7|` only requires the input to be below or equal to 7). If combining this with a default value the range comes first (`integer|3,7|(5)`).
+
+The `enum` type is a factor type and you must provide the valid values of the type in between `|`, separated by comma and an optional whitespace. The `pattern` type is a string type that must match the regular expression given between `|`.
+
+The `date` and `date-time` types require the use of a specific format for the date or time described in [RFC 3339, section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6). The date must be given in full-date notation, e.g. *2017-07-21* while the date-time must be given in the date-time notation, e.g. *2017-07-21T17:32:28Z*
 
 parameters can be specified as optional or required in their type notation. Path parameters are always required so any setting is ignored for this. A parameter can be marked as required by adding a `*` suffix to the type description, e.g. `arg1:integer*` to indicate that `arg1` is required and an integer. A parameter cannot both be required and have a default value (for reasons of logic).
 
@@ -252,19 +372,19 @@ api() |>
     handler = qp_handler,
     serializers = get_serializers("text"),
     parsers = get_parsers(),
-    doc = list(
+    doc = openapi_operation(
       parameters = list(
-        list(
-          `in` = "query",
+        openapi_parameter(
           name = "name",
-          schema = list(type = "string"),
-          required = TRUE
+          location = "query",
+          required = TRUE,
+          schema = openapi_schema(character())
         ),
-        list(
-          `in` = "query",
+        openapi_parameter(
           name = "age",
-          schema = list(type = "integer"),
-          required = TRUE
+          location = "query",
+          required = TRUE,
+          schema = openapi_schema(integer())
         )
       )
     )
@@ -273,14 +393,12 @@ api() |>
     path = "/dyn/<name:string>/<age:integer>/route",
     handler = text_handler,
     serializers = get_serializers("text"),
-    doc = list(
+    doc = openapi_operation(
       responses = list(
-         "200" = list(
+         "200" = openapi_response(
           description = "A sentence",
-          content = list(
-            "text/plain" = list(schema = list(
-              type = "string"
-            ))
+          content = openapi_content(
+            "text/plain" = openapi_schema(character())
           )
         )
       )
@@ -291,19 +409,11 @@ api() |>
     handler = file_handler,
     serializers = get_serializers("rds"),
     parsers = get_parsers("multi"),
-    doc = list(
+    doc = openapi_operation(
       description = "Upload an rds file and return the object",
-      requestBody = list(
-        content = list(
-          "multipart/form-data" = list(schema = list(
-            type = "object",
-            properties = list(
-              file = list(
-                type = "string",
-                format = "binary"
-              )
-            )
-          ))
+      request_body = openapi_request_body(
+        content = openapi_content(
+          "multipart/form-data" = openapi_schema(list(file = raw()))
         )
       )
     )
@@ -354,7 +464,7 @@ api() %>%
 
 | Annotation | Arguments | Description/References |
 |-------------------|-------------------|----------------------------------|
-| `@plumber` | None | Modify plumber router from plumber file. The plumber router provided to the function **must** be returned. In most cases, anonymous functions are used following the `#* @plumber` annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses. |
+| `@plumber` | None | Modify plumber router from plumber file. If the function returns a plumber2 api object then this object will be used going forward, otherwise the return value is ignored. In most cases, anonymous functions are used following the `#* @plumber` annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses. |
 
 ##### Annotations example
 
@@ -383,3 +493,88 @@ use_swagger
 api() |>
   api_doc_setting("swagger")
 ```
+
+## Forwards and redirects
+
+plumber2 allows you to orchestrate requests that are ultimately handled elsewhere. There are two approaches to this. Either return a redirect response and let the client follow that to the new location, or handle it directly by forwarding the request to another origin and passing along the response to the client (this is called a reverse proxy). Both of these are considered somewhat advanced use.
+
+| Annotation | Arguments | Description/References |
+|-------------------|-------------------|----------------------------------|
+| `@redirect` | \[!\]`Method` `From` `To` | Will add a redirect response for the method given as `Method` from the path given in `From` to the path given in `To`. Path parameters are supported and will be matched between `Trom` and `To`. If the method is preceded by a `!` then the redirect is considered permanent (308) — otherwise it is considered temporary (307) |
+| `@forward` | `Path` `URL` | Will forward requests from `Path` to `URL`, acting as a reverse proxy. The proxy will also forward any WebSocket messaging that is established with `Path`. All forwarding is performed asynchronously so the api will not block if the URL takes a long time to respond. |
+
+##### Annotation example
+
+``` r
+#* @redirect !any old/<path> new/<path>
+#* @redirect get main/<path> temp/main/<path>
+NULL
+
+#* @forward proxy/server http://127.0.0.1:56789
+NULL
+```
+
+##### Equivalent programmatic usage
+
+```{r}
+#| output: false
+#| eval: !expr R.Version()$minor > package_version("4.0")
+api() |>
+  api_redirect("any", "old/<path>", "new/<path>", permanent = TRUE) |>
+  api_redirect("get", "main/*", "temp/main/*") |>
+  api_forward("proxy/server", "http://127.0.0.1:56789")
+```
+
+## Shiny
+
+plumber2 can serve one or more shiny apps at specified paths. It works by launching the shiny app defined below the block in a separate process and then forward requests to the defined path to the process. The shiny app is automatically launched and stopped along with the main plumber2 api.
+
+| Annotation | Arguments | Description/References |
+|-------------------|-------------------|----------------------------------|
+| `@shiny` | `Path` | Launc the app defined below the annotation block and forward requests to `Path` to it |
+
+##### Annotation example
+
+``` r
+#* @shiny app/
+shinyAppDir("path/to/shiny/app")
+```
+
+##### Equivalent programmatic usage
+
+```{r}
+#| output: false
+#| eval: false
+api() |>
+  api_shiny("app/", shinyAppDir("path/to/shiny/app"))
+```
+
+## Reports
+
+plumber2 can automatically serve Rmarkdown and Quarto reports. The report will be rendered upon request but cached for the future. Different output formats can be selected through the `Content-Type` request header as long as a matching format is specified in the reports yaml header. Query parameters are automatically passed in as parameters to the report to support parameterized reports natively. Reports can be annotated just like standard request handlers to have OpenAPI documentation generated for it. Rendering is performed asynchronously so the api is not blocked by someone requesting a report that takes a while to render
+
+| Annotation | Arguments | Description/References |
+|-------------------|-------------------|----------------------------------|
+| `@report` | `Path` | Serve a report given by the path specified below the annotation block from `Path`. The report location is relative to the path of the annotation file |
+
+##### Annotation example
+
+``` r
+#* Access the quarterly report
+#*
+#* @query quarter:enum|spring, summer, autumn, winter| The quarter to generate the report for
+#*
+#* @report quarterly/
+"my_amazing_report.qmd"
+```
+
+##### Equivalent programmatic usage
+
+```{r}
+#| output: false
+#| eval: false
+api() |>
+  api_add_route(routr::report_route("quarterly/", "my_amazing_report.qmd"))
+```
+
+Note that the programmatic usage doesn't add any documentation by itself

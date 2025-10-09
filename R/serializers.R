@@ -7,7 +7,7 @@ registry$serializers <- list()
 #' function facilitates.
 #'
 #' If you want to register your own serializer, then the function you register
-#' must be a factory function, ie. a function returning a function. The returned
+#' must be a factory function, i.e. a function returning a function. The returned
 #' function must accept a single argument which is the response body. All
 #' arguments to the factory function should be optional.
 #'
@@ -17,6 +17,8 @@ registry$serializers <- list()
 #' serialize a response body to the mime type defined in `mime_type`
 #' @param mime_type The format this serializer creates. You should take care to
 #' ensure that the value provided is a standard mime type for the format
+#' @param default Should this serializer be part of the default set of
+#' serializers
 #'
 #' @return For `get_serializers` a named list of serializer functions named by
 #' their mime type. The order given in `serializers` is preserved.
@@ -26,10 +28,19 @@ registry$serializers <- list()
 #'
 #' @export
 #'
-register_serializer <- function(name, fun, mime_type) {
+#' @examples
+#' # Add a serializer that deparses the value
+#' register_serializer("deparse", function(...) {
+#'   function(x) {
+#'     deparse(x, ...)
+#'   }
+#' }, mime_type = "text/plain")
+#'
+register_serializer <- function(name, fun, mime_type, default = TRUE) {
   check_function(fun)
   check_string(mime_type)
   check_string(name)
+  check_bool(default)
   if (grepl("/", name, fixed = TRUE)) {
     cli::cli_abort(
       "{.arg name} must not contain the forward slash character ({.field /})"
@@ -42,7 +53,8 @@ register_serializer <- function(name, fun, mime_type) {
   }
   registry$serializers[[name]] <- list(
     fun = fun,
-    type = mime_type
+    type = mime_type,
+    default = default
   )
   invisible(NULL)
 }
@@ -56,7 +68,8 @@ show_registered_serializers <- function() {
       registry$serializers,
       function(x) is_device_constructor(x$fun),
       logical(1)
-    )
+    ),
+    default = vapply(registry$serializers, `[[`, logical(1), "default")
   )
   attr(res, "row.names") <- .set_row_names(nrow(res))
   res
@@ -83,8 +96,9 @@ show_registered_serializers <- function() {
 #'
 #' @export
 get_serializers <- function(serializers = NULL) {
+  defaults <- vapply(registry$serializers, `[[`, logical(1), "default")
   if (is.null(serializers)) {
-    serializers <- names(registry$serializers)
+    serializers <- "..."
   }
   elem_names <- names(serializers) %||% rep_along(serializers, "")
   named_serializers <- unlist(lapply(seq_along(serializers), function(i) {
@@ -104,7 +118,10 @@ get_serializers <- function(serializers = NULL) {
   named_serializers <- named_serializers[
     !grepl("/|^\\.\\.\\.$", named_serializers)
   ]
-  dots_serializers <- setdiff(names(registry$serializers), named_serializers)
+  dots_serializers <- setdiff(
+    names(registry$serializers)[defaults],
+    named_serializers
+  )
   serializers <- lapply(seq_along(serializers), function(i) {
     if (is_function(serializers[[i]])) {
       if (length(fn_fmls(serializers[[i]])) != 1) {
@@ -133,7 +150,9 @@ get_serializers <- function(serializers = NULL) {
           "No serializer registered with {.val {elem_names[i]}} as name"
         )
       }
-      if (!is.list(serializers[[i]])) serializers[[i]] <- list(serializers[[i]])
+      if (!is.list(serializers[[i]])) {
+        serializers[[i]] <- list(serializers[[i]])
+      }
       type <- registry$serializers[[elem_names[i]]]$type
       fun <- registry$serializers[[elem_names[i]]]$fun
       return(list2(!!type := inject(fun(!!!serializers[[i]]))))
@@ -173,10 +192,12 @@ get_serializers_internal <- function(
   dots <- which(types == "...")
   from_dots <- rep_along(types, FALSE)
   if (length(dots) != 0) {
+    defaults <- vapply(registry$serializers, `[[`, logical(1), "default")
     if (length(dots) > 1) {
       cli::cli_abort("{.val ...} can only be used once")
     }
-    dnames <- dots_serializers %||% setdiff(names(registry$serializers), types)
+    dnames <- dots_serializers %||%
+      setdiff(names(registry$serializers)[defaults], types)
     from_dots <- rep(
       c(FALSE, TRUE, FALSE),
       c(dots - 1, length(dnames), length(types) - dots)
@@ -190,8 +211,11 @@ get_serializers_internal <- function(
   serializers <- lapply(types, function(type) {
     type <- stringi::stri_split_regex(type, "\\{|\\s", n = 2)[[1]]
     if (stringi::stri_count_fixed(type[[1]], "/") == 1) {
-      serializer_fun <- if (length(type) == 2)
-        eval_bare(parse_expr(type[2]), env = env) else identity
+      serializer_fun <- if (length(type) == 2) {
+        eval_bare(parse_expr(type[2]), env = env)
+      } else {
+        identity
+      }
       check_function(serializer_fun)
       serializer <- list(
         fun = serializer_fun,
@@ -256,17 +280,17 @@ get_serializers_internal <- function(
 #'   as `"tsv"` to the mime type `text/tsv`
 #' * `format_rds()` uses [serialize()] for formatting. It is registered as
 #'   `"rds"` to the mime type `application/rds`
-#' * `format_geojson()` uses [geojsonsf::sfc_geojson()] or [geojsonsf::sf_geojson()]
+#' * `format_geojson()` uses `geojsonsf::sfc_geojson()` or `geojsonsf::sf_geojson()`
 #'   for formatting depending on the class of the response body. It is
 #'   registered as `"geojson"` to the mime type `application/geo+json`
-#' * `format_feather()` uses [arrow::write_feather()] for formatting. It is
+#' * `format_feather()` uses `arrow::write_feather()` for formatting. It is
 #'   registered as `"feather"` to the mime type
 #'   `application/vnd.apache.arrow.file`
-#' * `format_parquet()` uses [nanoparquet::write_parquet()] for formatting. It is
+#' * `format_parquet()` uses `nanoparquet::write_parquet()` for formatting. It is
 #'   registered as `"parquet"` to the mime type `application/vnd.apache.parquet`
 #' * `format_yaml()` uses [yaml::as.yaml()] for formatting. It is registered
 #'   as `"yaml"` to the mime type `text/yaml`
-#' * `format_htmlwidget()` uses [htmlwidgets::saveWidget()] for formatting. It is
+#' * `format_htmlwidget()` uses `htmlwidgets::saveWidget()` for formatting. It is
 #'   registered as `"htmlwidget"` to the mime type `text/html`
 #' * `format_format()` uses [format()] for formatting. It is registered
 #'   as `"format"` to the mime type `text/plain`
@@ -291,7 +315,7 @@ get_serializers_internal <- function(
 #' # Provided graphics serializers
 #' Serializing graphic output is special because it requires operations before
 #' and after the handler is executed. Further, handlers creating graphics are
-#' expected to do so through side-effects (ie. call to graphics rendering) or
+#' expected to do so through side-effects (i.e. call to graphics rendering) or
 #' by returning a \pkg{ggplot2} object. If you want to create your own graphics
 #' serializer you should use [device_formatter()] for constructing it.
 #' * `format_png()` uses [ragg::agg_png()] for rendering. It is registered
@@ -317,13 +341,21 @@ get_serializers_internal <- function(
 #' @rdname serializers
 #' @name serializers
 #'
+#' @examples
+#' # You can use serializers directly when adding handlers
+#' pa <- api() |>
+#'   api_get("/hello/<name:string>", function(name) {
+#'     list(
+#'       msg = paste0("Hello ", name, "!")
+#'     )
+#'   }, serializers = list("application/json" = format_unboxed()))
+#'
 NULL
 
 #' @rdname serializers
 #' @export
 #'
 format_csv <- function(...) {
-  check_installed("readr")
   function(x) {
     readr::format_csv(x, ...)
   }
@@ -332,7 +364,6 @@ format_csv <- function(...) {
 #' @export
 #'
 format_tsv <- function(...) {
-  check_installed("readr")
   function(x) {
     readr::format_tsv(x, ...)
   }
@@ -352,8 +383,12 @@ format_rds <- function(version = "3", ascii = FALSE, ...) {
 format_geojson <- function(...) {
   check_installed("geojsonsf")
   function(x) {
-    if (inherits(x, "sfc")) return(geojsonsf::sfc_geojson(x, ...))
-    if (inherits(x, "sf")) return(geojsonsf::sf_geojson(x, ...))
+    if (inherits(x, "sfc")) {
+      return(geojsonsf::sfc_geojson(x, ...))
+    }
+    if (inherits(x, "sf")) {
+      return(geojsonsf::sf_geojson(x, ...))
+    }
     cli::cli_abort(
       "{.fun format_geojson} did not receive an `sf` or `sfc` object."
     )
@@ -384,7 +419,6 @@ format_parquet <- function(...) {
 #' @export
 #'
 format_yaml <- function(...) {
-  check_installed("yaml")
   function(x) {
     yaml::as.yaml(x, ...)
   }
@@ -450,24 +484,36 @@ on_load({
   register_serializer("rds", format_rds, "application/rds")
   register_serializer("csv", format_csv, "text/csv")
   register_serializer("tsv", format_tsv, "text/tab-separated-values")
-  register_serializer(
-    "feather",
-    format_feather,
-    "application/vnd.apache.arrow.file"
-  )
-  register_serializer(
-    "parquet",
-    format_parquet,
-    "application/vnd.apache.parquet"
-  )
-  register_serializer("yaml", format_yaml, "text/yaml")
   register_serializer("xml", reqres::format_xml, "text/xml")
   register_serializer("text", reqres::format_plain, "text/plain")
   register_serializer("format", format_format, "text/plain")
   register_serializer("print", format_print, "text/plain")
   register_serializer("cat", format_cat, "text/plain")
-  register_serializer("htmlwidget", format_htmlwidget, "text/html")
-  register_serializer("geojson", format_geojson, "application/geo+json")
+  register_serializer("yaml", format_yaml, "text/yaml")
+  register_serializer(
+    "feather",
+    format_feather,
+    "application/vnd.apache.arrow.file",
+    default = FALSE
+  )
+  register_serializer(
+    "parquet",
+    format_parquet,
+    "application/vnd.apache.parquet",
+    default = FALSE
+  )
+  register_serializer(
+    "htmlwidget",
+    format_htmlwidget,
+    "text/html",
+    default = FALSE
+  )
+  register_serializer(
+    "geojson",
+    format_geojson,
+    "application/geo+json",
+    default = FALSE
+  )
 })
 
 # Device serializers -----------------------------------------------------------
@@ -484,6 +530,10 @@ on_load({
 #' @return A device formatter function
 #' @keywords internal
 #' @export
+#'
+#' @examples
+#' # Create a png formatter using the default png device
+#' device_formatter(png)
 #'
 device_formatter <- function(dev_open, dev_close = grDevices::dev.off()) {
   dev_name <- caller_arg(dev_open)

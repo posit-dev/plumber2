@@ -1,4 +1,4 @@
-#' Serve ressources from your file system
+#' Serve resources from your file system
 #'
 #' plumber2 provides two ways to serve files from your server. One
 #' (`api_assets`) goes through R and gives you all the power you expect to
@@ -7,19 +7,46 @@
 #' price of very limited freedom to modify the response or even do basic
 #' authentication. Each has their place.
 #'
+#' # Using annotation
+#' When using annotated route files the functionality of `api_assets()` can be
+#' achieved like this:
+#'
+#' ```
+#' #* @assets my_wd/ ./
+#' NULL
+#' ```
+#'
+#' When using annotated route files the functionality of `api_statics()` can be
+#' achieved like this:
+#'
+#' ```
+#' #* @statics my_docs/ ~/
+#' #* @except my_secret_folder/
+#' NULL
+#' ```
+#'
 #' @param api A plumber2 api object to add the rossource serving to
-#' @param at The path to serve the ressources from
+#' @param at The path to serve the resources from
 #' @param path The location on the file system to map `at` to
 #' @param route The name of the route in the header router to add the asset
 #' route to. Defaults to the last route in the stack. If the route does not
 #' exist it will be created as the last route in the stack
-#' @inheritParams routr::ressource_route
+#' @inheritParams routr::resource_route
 #' @inheritParams routr::asset_route
 #'
 #' @return These functions return the `api` object allowing for easy chaining
 #' with the pipe
 #'
 #' @export
+#'
+#' @examples
+#' # Add asset serving through routr route
+#' api() |>
+#'   api_assets("my_wd/", "./")
+#'
+#' # Add asset serving directly
+#' api() |>
+#'   api_statics("my_docs", "~/", except = "my_secret_folder/")
 #'
 api_assets <- function(
   api,
@@ -31,7 +58,7 @@ api_assets <- function(
   continue = FALSE,
   route = NULL
 ) {
-  asset_route <- routr::ressource_route(
+  asset_route <- routr::resource_route(
     !!at := path,
     default_file = default_file,
     default_ext = default_ext,
@@ -78,7 +105,7 @@ api_statics <- function(
     validation = validation
   )
   for (ex in except) {
-    api$exclude_static(paste0(at, ex))
+    api$exclude_static(fs::path(at, ex))
   }
   api
 }

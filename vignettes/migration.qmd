@@ -15,9 +15,11 @@ vignette: >
 me <- normalizePath(
   if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
     Sys.getenv("QUARTO_DOCUMENT_PATH")
-  } else if (file.exists("benchmarks-funcs.R")) {
+  } else if (file.exists("_helpers.R")) {
     getwd()
-  } else if (file.exists("articles/benchmarks-funcs.R")) {
+  } else if (file.exists("vignettes/_helpers.R")) {
+    "vignettes"
+  } else if (file.exists("articles/_helpers.R")) {
     "articles"
   } else {
     "vignettes/articles"
@@ -99,7 +101,7 @@ execution. However, returning `Break` will inform `{plumber2}` that this handler
 specifically wants to return the response as it is *right now* with no further
 modification (except for serializing). This is useful in header route handlers
 to reject requests early on, but can also be used in the normal request handling
-if e.g. you know a ressource has been moved and you want to return a redirect
+if e.g. you know a resource has been moved and you want to return a redirect
 response immediately.
 
 You might also want to use `Break` if your handler catches an error and need to

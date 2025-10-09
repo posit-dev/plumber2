@@ -4,21 +4,28 @@
 \name{plumber2-package}
 \alias{plumber2}
 \alias{plumber2-package}
-\title{plumber2: Easy and Powerful Webservers in R}
+\title{plumber2: Easy and Powerful Web Servers}
 \description{
-Automatically create a webserver from annotated R files or by building it up programmatically. Provides automatic OpenAPI documentation, input handling, async support, and middleware support.
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
+Automatically create a web server from annotated 'R' files or by building it up programmatically. Provides automatic 'OpenAPI' documentation, input handling, asynchronous evaluation, and plugin support.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://posit-dev.github.io/plumber2/}
+  \item \url{https://plumber2.posit.co/}
   \item \url{https://github.com/posit-dev/plumber2}
   \item Report bugs at \url{https://github.com/posit-dev/plumber2/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Thomas Lin Pedersen \email{thomasp85@gmail.com} (\href{https://orcid.org/0000-0002-5147-4711}{ORCID})
+\strong{Maintainer}: Thomas Lin Pedersen \email{thomas.pedersen@posit.co} (\href{https://orcid.org/0000-0002-5147-4711}{ORCID})
+
+Other contributors:
+\itemize{
+  \item Posit Software, PBC (03wc8by49) [copyright holder, funder]
+}
 
 }
 \keyword{internal}

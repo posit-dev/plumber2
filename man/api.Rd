@@ -17,7 +17,7 @@ api(
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
   compression_limit = get_opts("compressionLimit", 1000),
-  default_async = get_opts("async", "future"),
+  default_async = get_opts("async", "mirai"),
   env = caller_env()
 )
 
@@ -57,7 +57,7 @@ setting anly affects handlers on the request router.}
 \item{ignore_trailing_slash}{Logical. Should the trailing slash of a path
 be ignored when adding handlers and handling requests. Setting this will
 not change the request or the path associated with but just ensure that
-both \code{path/to/ressource} and \verb{path/to/ressource/} ends up in the same
+both \code{path/to/resource} and \verb{path/to/resource/} ends up in the same
 handler.}
 
 \item{max_request_size}{Sets a maximum size of request bodies. Setting this
@@ -92,4 +92,24 @@ A \link{Plumber2} object
 This is the main way to create a new \link{Plumber2} object that encapsulates your
 full api. It is also possible to add files to the API after creation using
 \code{api_parse()}
+}
+\examples{
+# When creating an API programmatically you'll usually initialise the object
+# without pointing to any route files or a _server.yml file
+pa <- api()
+
+# You can pass it a directory and it will load up all recognised files it
+# contains
+example_dir <- system.file("plumber2", "quickstart", package = "plumber2")
+pa <- api(example_dir)
+
+# Or you can pass files directly
+pa <- api(list.files(example_dir, full.names = TRUE)[1])
+
+}
+\seealso{
+\code{\link[=api_package]{api_package()}} for creating an api based on files distributed with
+a package
+
+\code{\link[=get_opts]{get_opts()}} for how to set default options
 }

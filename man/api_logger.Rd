@@ -7,6 +7,7 @@
 \alias{logger_console}
 \alias{logger_file}
 \alias{logger_logger}
+\alias{logger_otel}
 \alias{logger_switch}
 \alias{common_log_format}
 \alias{combined_log_format}
@@ -21,6 +22,8 @@ logger_console(format = "{time} - {event}: {message}")
 logger_file(file, format = "{time} - {event}: {message}")
 
 logger_logger(default_level = "INFO")
+
+logger_otel(format = "{time} - {event}: {message}")
 
 logger_switch(..., default = logger_null())
 
@@ -59,5 +62,28 @@ actual logging is handled by a customizable function that can be set. You can
 read more about the logging infrastructure in the
 \link[fiery:loggers]{fiery documentation}. plumber2 reexports the loggers
 provided by fiery so they are immediately available to the user.
+}
+\section{Using annotation}{
+Logger setup doesn't have a dedicated annotation tag, but you can set it up
+in a \verb{@plumber} block
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @plumber
+function(api) \{
+  api |>
+    api_logger(logger = logger_null())
+\}
+}\if{html}{\out{</div>}}
+}
+
+\examples{
+# Use a different access log format
+api() |>
+  api_logger(access_log_format = combined_log_format)
+
+# Turn off logging
+api() |>
+  api_logger(logger_null())
+
+
 }
 \keyword{datasets}

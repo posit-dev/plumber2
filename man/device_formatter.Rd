@@ -19,4 +19,9 @@ A device formatter function
 This internal function facilitates creating a formatter that uses a specific
 device for rendering.
 }
+\examples{
+# Create a png formatter using the default png device
+device_formatter(png)
+
+}
 \keyword{internal}

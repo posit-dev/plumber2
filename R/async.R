@@ -16,6 +16,21 @@ registry$async <- list()
 #'
 #' @export
 #'
+#' @examples
+#' # Register an async evaluator based on future (the provided mirai backend is
+#' # superior in every way so this is for illustrative purpose)
+#' future_async <- function(...) {
+#'   function(expr, envir) {
+#'     promises::future_promise(
+#'       expr = expr,
+#'       envir = envir,
+#'       substitute = FALSE,
+#'       ...
+#'     )
+#'   }
+#' }
+#' register_async("future", future_async, c("promises", "future"))
+#'
 register_async <- function(name, fun, dependency = NULL) {
   check_string(name)
   check_character(dependency, allow_null = TRUE)
@@ -71,9 +86,6 @@ get_async <- function(name = NULL, ...) {
 #' well using [register_async()].
 #'
 #' # Provided evaluators
-#' * `future_async()` uses [promises::future_promise()]. It is registered as
-#'   `"future"`. Be aware that for this evaluator to execute asynchronously you
-#'   need to set a different planner than the default. See [future::plan()].
 #' * `mirai_async()` uses [mirai::mirai()]. It is registered as
 #'   `"mirai"`. Be aware that for this evaluator to be performant you should
 #'   start up multiple persistent background processes. See [mirai::daemons()].
@@ -89,20 +101,19 @@ get_async <- function(name = NULL, ...) {
 #' @rdname async_evaluators
 #' @name async_evaluators
 #'
+#' @examples
+#' # Use the default mirai backend by setting `async = TRUE` with a handler
+#'
+#' pa <- api() |>
+#'   api_get("/hello/<name:string>", function(name) {
+#'     list(
+#'       msg = paste0("Hello ", name, "!")
+#'     )
+#'   }, async = TRUE)
+#'
+#'
 NULL
 
-#' @rdname async_evaluators
-#' @export
-future_async <- function(...) {
-  function(expr, envir) {
-    promises::future_promise(
-      expr = expr,
-      envir = envir,
-      substitute = FALSE,
-      ...
-    )
-  }
-}
 #' @rdname async_evaluators
 #' @export
 mirai_async <- function(...) {
@@ -112,6 +123,5 @@ mirai_async <- function(...) {
 }
 
 on_load({
-  register_async("future", future_async, "future")
   register_async("mirai", mirai_async, "mirai")
 })

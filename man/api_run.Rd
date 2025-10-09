@@ -7,6 +7,8 @@
 \usage{
 api_run(
   api,
+  host = NULL,
+  port = NULL,
   block = !is_interactive(),
   showcase = is_interactive(),
   ...,
@@ -17,6 +19,9 @@ api_stop(api)
 }
 \arguments{
 \item{api}{A plumber2 api object to launch or stop}
+
+\item{host, port}{Host and port to run the api on. If not provided the host
+and port used during the creation of the Plumber2 api will be used}
 
 \item{block}{Should the console be blocked while running (alternative is
 to run in the background). Defaults to \code{FALSE} in interactive sessions and
@@ -38,4 +43,20 @@ with the pipe, even though they will often be the last part of the chain
 }
 \description{
 This function starts the api with the settings it has defined.
+}
+\examples{
+pa <- api() |>
+  api_get("/", function() {
+    list(msg = "Hello World")
+  }) |>
+  api_on("start", function(...) {
+    cat("I'm alive")
+  })
+
+# Start the server
+pa |> api_run(block = FALSE)
+
+# Stop it again
+pa |> api_stop()
+
 }

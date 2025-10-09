@@ -1,10 +1,19 @@
-url: https://posit-dev.github.io/plumber2/
+url: https://plumber2.posit.co
 template:
   bootstrap: 5
+  bslib:
+    bg: "#212121"
+    fg: "#B4FFE4"
+    primary: "#FF81D2"
+    secondary: "#00FFA3"
+    code_bg: "#494949"
+    base_font: {google: "Schibsted Grotesk"}
+    heading_font: {google: "National Park"}
+    code_font: {google: "Fira Code"}
 
 navbar:
   structure:
-    left: [get_started, reference, articles]
+    left: [get_started, reference, articles, advanced]
   components:
     get_started:
       text: Get Started
@@ -32,11 +41,21 @@ navbar:
           href: articles/tips-and-tricks.html
         - text: 10. Migration
           href: articles/migration.html
+    advanced:
+      text: Advanced
+      menu:
+        - text: Extending plumber2
+          href: articles/extending.html
+        - text: The _server.yml standard
+          href: articles/server_yml.html
+        - text: OpenTelemetry instrumentation
+          href: articles/otel.html
 
 reference:
   - title: "Create an run an API"
     contents:
       - api
+      - api_package
       - api_run
       - create_server_yml
   - title: "Adding handlers and routes"
@@ -47,6 +66,9 @@ reference:
       - api_message
       - api_add_route
       - api_redirect
+      - api_shiny
+      - api_report
+      - api_forward
   - title: "Parsers"
     contents:
       - register_parser
@@ -59,6 +81,9 @@ reference:
     contents:
       - register_async
       - async_evaluators
+  - title: "Security"
+    contents:
+      - starts_with("api_security")
   - title: "OpenAPI documentation"
     contents:
       - api_doc_add
@@ -69,4 +94,13 @@ reference:
       - api_logger
       - api_on
       - api_session_cookie
+      - api_datastore
       - Next
+      - add_plumber2_tag
+      - apply_plumber2_block
+      - get_opts
+
+news:
+  releases:
+    - text: "Version 0.1.0"
+      href: "https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/"

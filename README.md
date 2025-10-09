@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# plumber2
+# plumber2 <a href="http://plumber2.posit.co/"><img src="man/figures/logo.png" align="right" height="139" alt="plumber2 website" /></a>
 
 <!-- badges: start -->
 
@@ -22,21 +22,14 @@ the two packages. Because of this, you may need to update your existing
 
 ## Installation
 
-`{plumber2}` is still a work in progress, and it is recommended to only
-use it to experiment and get familiarity with the future direction of
-plumber APIs. If you wish to try it out you can install the development
-version from GitHub using [pak](https://pak.r-lib.org):
+`{plumber2}` can be installed from CRAN using
+`install.packages("plumber2")`. Alternatively you can install the
+development version from github using `{pak}`
 
 ``` r
+# install.packages("pak")
 pak::pak("posit-dev/plumber2")
 ```
-
-## Feedback
-
-At this point in the development, feedback is crucial! If you do decide
-to try out `{plumber2}`, please share your experience (both good and
-bad), and ask questions as it informs us about where to spend more time
-with documentation.
 
 ## Hello World
 
@@ -70,7 +63,7 @@ function(msg) {
 #*
 #* @async
 function(query) {
-  myData <- palmerpenguins::penguins
+  myData <- penguins
   title <- "All Species"
 
   # Filter if the species was specified
@@ -83,8 +76,8 @@ function(query) {
   }
 
   plot(
-    myData$flipper_length_mm,
-    myData$bill_length_mm,
+    myData$flipper_len,
+    myData$bill_len,
     main=title,
     xlab="Flipper Length (mm)",
     ylab="Bill Length (mm)"

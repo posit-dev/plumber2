@@ -15,9 +15,11 @@ vignette: >
 me <- normalizePath(
   if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
     Sys.getenv("QUARTO_DOCUMENT_PATH")
-  } else if (file.exists("benchmarks-funcs.R")) {
+  } else if (file.exists("_helpers.R")) {
     getwd()
-  } else if (file.exists("articles/benchmarks-funcs.R")) {
+  } else if (file.exists("vignettes/_helpers.R")) {
+    "vignettes"
+  } else if (file.exists("articles/_helpers.R")) {
     "articles"
   } else {
     "vignettes/articles"
@@ -56,7 +58,7 @@ The annotations that generate an endpoint include:
 -   `@delete`
 -   `@head`
 
-These map to the HTTP methods that an API client might send along with a request. By default when you open a page in a web browser, that sends a `GET` request to the API. But you can use other API clients (or even JavaScript inside of a web browser) to form HTTP requests using the other methods listed here. There are conventions around when each of these methods should be used which you can read more about [here](http://www.restapitutorial.com/lessons/httpmethods.html). Note that some of these conventions carry with them security implications, so it's a good idea to follow the recommended uses for each method until you fully understand why you might deviate from them.
+These map to the HTTP methods that an API client might send along with a request. By default when you open a page in a web browser, that sends a `GET` request to the API. But you can use other API clients (or even JavaScript inside of a web browser) to form HTTP requests using the other methods listed here. There are conventions around when each of these methods should be used which you can read more about [here](https://developer.mozilla.org/docs/Web/HTTP/Reference/Methods). Note that some of these conventions carry with them security implications, so it's a good idea to follow the recommended uses for each method until you fully understand why you might deviate from them.
 
 Note that a single endpoint can support multiple verbs. The following function would be used to service any incoming `GET`, `POST`, or `PUT` request to `/cars`.
 
@@ -108,13 +110,13 @@ function() {
 }
 ```
 
-In the example above, the handler would match to both `/images/index.html`, `/images/february/img_03.png`, `/images/metadata/` or any other path that starts with `/images/`. Wildcards needs to be on their own, ie. you can't have a path like `/imag*` that match to anything that starts with `/imag` (like `/images/` and `/imaginary`). However, they do not need to be on the end, so you could have a path like `/*/robot.txt` that matches to any path that ends with `robot.txt`. The fact that they are so "unspecific" as well as doesn't give rise to argument input to your handler means that wildcards are used much less frequently but they can be an indispensable tool in your belt in some situations.
+In the example above, the handler would match to both `/images/index.html`, `/images/february/img_03.png`, `/images/metadata/` or any other path that starts with `/images/`. Wildcards needs to be on their own, i.e. you can't have a path like `/imag*` that match to anything that starts with `/imag` (like `/images/` and `/imaginary`). However, they do not need to be on the end, so you could have a path like `/*/robot.txt` that matches to any path that ends with `robot.txt`. The fact that they are so "unspecific" as well as doesn't give rise to argument input to your handler means that wildcards are used much less frequently but they can be an indispensable tool in your belt in some situations.
 
 ### Path priority
 
 As discussed above, every route will only select at most one handler for the request. However, the existence of path parameters and path wildcards means that a route can easily contain multiple handlers that can match to a given request. How does a route decide which one wins?
 
-Internally the route will order the handlers based on three metrics: The specificity (ie. the number of elements in the path) - the higher the better, the number of path parameters - the lower the better, and the number of wildcards - the lower the better. Consider the following paths
+Internally the route will order the handlers based on three metrics: The specificity (i.e. the number of elements in the path) - the higher the better, the number of path parameters - the lower the better, and the number of wildcards - the lower the better. Consider the following paths
 
 1.  `/path/to/something/specific`
 2.  `/path/to/<name>/specific`
@@ -133,7 +135,7 @@ They have been ordered as the route would order it, with the highest priority on
 In general when you think of inputs to a function in R you think about the arguments to that function. In `{plumber2}`, there are certain rules around the arguments in the handler function that determines what kind of input the handler gets access to. Most importantly perhaps, the _path_ parameters are being provided directly to your handler as named arguments. For example, given the following handler
 
 ``` r
-#* @get /user/<id>/setting/<type>
+#* @get /user/<user>/setting/<type>
 function(user, type) {
   # ...
 }
@@ -160,11 +162,12 @@ Visiting http://localhost:8080/?q=bread&pretty=1 will print:
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/03-03-search.R"))
+pa <- api(file.path(me, "files/apis/03-03-search.R"))
 
 req <- fiery::fake_request("http://localhost:8080/?q=bread&pretty=1")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```
@@ -226,8 +229,9 @@ Running `curl --data "id=123&name=Jennifer" -H "Content-Type: application/x-www-
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/03-04-body.R"))
+pa <- api(file.path(me, "files/apis/03-04-body.R"))
 
 req <- fiery::fake_request(
   "http://localhost:8080/user",
@@ -235,7 +239,7 @@ req <- fiery::fake_request(
   content = "id=123&name=Jennifer",
   headers = list(Content_Type = "application/x-www-form-urlencoded")
 )
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```
@@ -265,14 +269,15 @@ Running `curl --header "Custom-Header: abc123" http://localhost:8080` will retur
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/03-05-headers.R"))
+pa <- api(file.path(me, "files/apis/03-05-headers.R"))
 
 req <- fiery::fake_request(
   "http://localhost:8080",
   headers = list(Custom_Header = "abc123")
 )
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```
@@ -304,11 +309,12 @@ Visiting http://localhost:8080/type/14 will return:
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/03-02-types.R"))
+pa <- api(file.path(me, "files/apis/03-02-types.R"))
 
 req <- fiery::fake_request("http://localhost:8080/type/14")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 code_chunk(res$body, "json")
 ```

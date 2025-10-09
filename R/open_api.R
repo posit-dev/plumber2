@@ -1,19 +1,47 @@
 parse_global_api <- function(tags, values, env = caller_env()) {
-  if (any(tags == "noDoc")) return(NULL)
+  if (any(tags == "noDoc")) {
+    return(NULL)
+  }
   values <- set_names(values, tags)
+  if (!is.null(values$contact)) {
+    contact <- strsplit(trimws(values$contact), " ")[[1]]
+    def_names <- seq_len(max(length(contact) - 2, 1))
+    contact_email <- grepl("@", contact[-def_names], fixed = TRUE)
+    contact_url <- grepl("/|:|^www\\.", contact[-def_names]) & !contact_email
+    email <- if (any(contact_email)) {
+      contact[length(def_names) + which(contact_email)]
+    }
+    url <- if (any(contact_url)) contact[length(def_names) + which(contact_url)]
+    not_name <- which(c(
+      rep_along(def_names, FALSE),
+      contact_email | contact_url
+    ))[1]
+    name <- if (is.na(not_name)) contact else contact[seq_len(not_name - 1)]
+    name <- paste0(name, collapse = " ")
+    values$contact <- openapi_contact(name, url, email)
+  }
+  if (!is.null(values$license)) {
+    license <- strsplit(trimws(values$license), " ")[[1]]
+    if (grepl("/|:|^www\\.", license[length(license)])) {
+      url <- license[length(license)]
+      name <- license[-length(license)]
+    } else {
+      url <- NULL
+      name <- license
+    }
+    name <- paste0(name, collapse = " ")
+    values$license <- openapi_license(name, url)
+  }
   openapi(
     info = openapi_info(
-      title = trimws(values$apiTitle %||% values$title),
-      description = trimws(
-        values$apiDescription %||%
-          paste0(values$description, "\n\n", values$details)
-      ),
-      terms_of_service = trimws(values$apiTOS),
-      contact = eval(parse(text = values$apiContact %||% "NULL"), env),
-      license = eval(parse(text = values$apiLicense %||% "NULL"), env),
-      version = trimws(values$apiVersion)
+      title = trimws(values$title),
+      description = trimws(paste0(values$description, "\n\n", values$details)),
+      terms_of_service = trimws(values$tos),
+      contact = values$contact,
+      license = values$license,
+      version = trimws(values$version)
     ),
-    tags = unname(lapply(values[tags == "apiTag"], function(tag) {
+    tags = unname(lapply(values[tags == "tag"], function(tag) {
       tag <- stringi::stri_match_all_regex(tag, "^((\".+?\")|(\\S+))(.*)")[[1]]
       openapi_tag(
         name = gsub('^"|"$', "", tag[2]),
@@ -41,7 +69,8 @@ parse_path <- function(path) {
         NULL,
         min = arg$min,
         max = arg$max,
-        enum = arg$enum
+        enum = arg$enum,
+        pattern = arg$pattern
       ),
       style = "simple" # TODO: Should this be user definable
     )
@@ -85,7 +114,8 @@ parse_responses <- function(tags, values, serializers) {
               response$type,
               min = response$min,
               max = response$max,
-              enum = response$enum
+              enum = response$enum,
+              pattern = response$pattern
             ))
           )
         )
@@ -93,28 +123,35 @@ parse_responses <- function(tags, values, serializers) {
     )
   })
   responses <- unlist(responses, recursive = FALSE) %||% list()
+  default_responses[["200"]]$content <- openapi_content(
+    !!!rep_named(
+      serializers,
+      list(parse_openapi_type(NULL))
+    )
+  )
 
   utils::modifyList(default_responses, responses)
 }
 
 parse_block_api <- function(tags, values, parsers, serializers) {
-  if (any(tags == "noDoc")) return(NULL)
   api <- list()
   summary <- if ("title" %in% tags) values[[which(tags == "title")]]
   description <- paste0(
     unlist(values[tags %in% c("description", "details")]),
     collapse = "\n\n"
   )
-  if (description == "") description <- NULL
+  if (description == "") {
+    description <- NULL
+  }
   path_params <- parse_params(tags, values, "path")
   query_params <- parse_params(tags, values, "query")
-  body_params <- parse_params(tags, values, "header") # We use `header` because "body" is not allowed in openapi_parameter(). We strip it away in the next call
+  body_params <- parse_params(tags, values, "body")
 
   request_body <- parse_body_params(body_params, parsers)
 
   responses <- parse_responses(tags, values, serializers)
 
-  tag <- unlist(values[tags == "tag"])
+  tag <- trimws(unlist(values[tags == "tag"]))
 
   methods <- which(
     tags %in%
@@ -127,7 +164,8 @@ parse_block_api <- function(tags, values, parsers, serializers) {
         "connect",
         "options",
         "trace",
-        "patch"
+        "patch",
+        "report"
       )
   )
   paths <- trimws(unlist(values[methods]))
@@ -139,6 +177,9 @@ parse_block_api <- function(tags, values, parsers, serializers) {
     local_params <- unname(c(local_params, query_params))
     endpoint <- openapi_path()
     for (method in methods[[path]]) {
+      if (method == "report") {
+        method <- "get"
+      }
       endpoint[[method]] <- openapi_operation(
         summary = summary,
         description = description,
@@ -148,10 +189,16 @@ parse_block_api <- function(tags, values, parsers, serializers) {
         responses = responses,
         tags = tag
       )
+      if (any(tags == "noDoc")) {
+        class(endpoint[[method]]) <- c(
+          "plumber_noDoc",
+          class(endpoint[[method]])
+        )
+      }
     }
     api[[path_info$path]] <- endpoint
   }
-  list(paths = api)
+  api
 }
 
 parse_openapi_type <- function(
@@ -159,12 +206,15 @@ parse_openapi_type <- function(
   default = NULL,
   min = NULL,
   max = NULL,
-  enum = NULL
+  enum = NULL,
+  pattern = NULL
 ) {
   check_string(string, allow_na = TRUE, allow_null = TRUE)
   check_number_decimal(min, allow_null = TRUE)
   check_number_decimal(max, allow_null = TRUE)
-  if (is.na(string) || is.null(string) || string == "any") return(list())
+  if (is.na(string) || is.null(string) || string == "any") {
+    return(list())
+  }
   string <- trimws(string)
   if (grepl("^\\{", string)) {
     content <- gsub("^\\{|\\}$", "", string)
@@ -181,7 +231,7 @@ parse_openapi_type <- function(
       length(curly_open) != length(curly_close) ||
         length(brack_open) != length(brack_close) ||
         length(paren_open) != length(paren_close) ||
-        length(pipe) %% 2 != 0
+        (!is.na(pipe) && length(pipe) %% 2 != 0)
     ) {
       cli::cli_abort(
         "Syntax error in {.val {content}}. Opening and closing brackets doesn't match"
@@ -221,7 +271,7 @@ parse_openapi_type <- function(
       properties = set_names(
         lapply(content_split[, 3], function(x) {
           x <- split_type_spec(x)
-          parse_openapi_type(x$type, x$default, x$min, x$max, x$enum)
+          parse_openapi_type(x$type, x$default, x$min, x$max, x$enum, x$pattern)
         }),
         content_split[, 2] %|% content
       ),
@@ -231,7 +281,14 @@ parse_openapi_type <- function(
     x <- split_type_spec(gsub("^\\[|\\]$", "", string))
     type <- list(
       type = "array",
-      items = parse_openapi_type(x$type, x$default, x$min, x$max, x$enum)
+      items = parse_openapi_type(
+        x$type,
+        x$default,
+        x$min,
+        x$max,
+        x$enum,
+        x$pattern
+      )
     )
   } else if (string %in% c("date", "date-time", "byte", "binary")) {
     type <- list(
@@ -261,6 +318,12 @@ parse_openapi_type <- function(
     }
     type$enum <- enum
   }
+  if (!is.null(pattern)) {
+    if (!type$type == "string") {
+      cli::cli_abort("Pattern requires string type")
+    }
+    type$pattern <- pattern
+  }
   if (!is.null(default)) {
     caster <- type_caster(type, FALSE, "", "")
     type$default <- caster(default)
@@ -288,6 +351,9 @@ default_responses <- list(
 
 parse_params <- function(tags, values, type = "path") {
   tag_name <- switch(type, path = "param", type)
+  if (type == "body") {
+    type <- "header"
+  } # We use `header` because "body" is not allowed in openapi_parameter(). It will be stripped away in the next call
   params <- lapply(unlist(values[tags == tag_name]), function(param) {
     p <- split_param_spec(param)
     openapi_parameter(
@@ -300,7 +366,8 @@ parse_params <- function(tags, values, type = "path") {
         default = if (p$required) NULL else p$default,
         min = p$min,
         max = p$max,
-        enum = p$enum
+        enum = p$enum,
+        pattern = p$pattern
       ),
       style = "form" # TODO: Should this be user definable
     )
@@ -320,7 +387,7 @@ parse_body_params <- function(params, parsers) {
     )
   } else if (length(params) > 1) {
     schema <- openapi_schema(
-      type = I("object"),
+      x = I("object"),
       properties = lapply(
         params,
         function(p) c(p$schema, list(description = p$description))
@@ -361,19 +428,41 @@ split_type_spec <- function(x) {
   if (isTRUE(x[2] == "enum")) {
     list(
       type = "string",
-      default = if (is.na(x[7]) || x[7] == "") NULL else
-        jsonlite::fromJSON(x[7]),
+      default = if (is.na(x[7]) || x[7] == "") {
+        NULL
+      } else {
+        jsonlite::fromJSON(x[7])
+      },
       enum = trimws(c(
         x[4],
         stringi::stri_split_fixed(x[5], ",", omit_empty = TRUE)[[1]]
       )),
       required = !is.na(x[8])
     )
+  } else if (isTRUE(x[2] == "pattern")) {
+    if (is.na(x[3])) {
+      cli::cli_abort(
+        "The pattern type must specify a regex using the |<regex>| syntax"
+      )
+    }
+    list(
+      type = "string",
+      default = if (is.na(x[7]) || x[7] == "") {
+        NULL
+      } else {
+        jsonlite::fromJSON(x[7])
+      },
+      pattern = gsub("^\\||\\|$", "", x[3]),
+      required = !is.na(x[8])
+    )
   } else {
     list(
       type = if (is.na(x[2]) || x[2] == "") NULL else x[2],
-      default = if (is.na(x[7]) || x[7] == "") NULL else
-        jsonlite::fromJSON(x[7]),
+      default = if (is.na(x[7]) || x[7] == "") {
+        NULL
+      } else {
+        jsonlite::fromJSON(x[7])
+      },
       min = if (is.na(x[4]) || x[4] == "") NULL else as.numeric(x[4]),
       max = if (is.na(x[5]) || x[5] == "") NULL else as.numeric(x[5]),
       required = !is.na(x[8])

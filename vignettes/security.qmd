@@ -15,9 +15,11 @@ vignette: >
 me <- normalizePath(
   if (Sys.getenv("QUARTO_DOCUMENT_PATH") != "") {
     Sys.getenv("QUARTO_DOCUMENT_PATH")
-  } else if (file.exists("benchmarks-funcs.R")) {
+  } else if (file.exists("_helpers.R")) {
     getwd()
-  } else if (file.exists("articles/benchmarks-funcs.R")) {
+  } else if (file.exists("vignettes/_helpers.R")) {
+    "vignettes"
+  } else if (file.exists("articles/_helpers.R")) {
     "articles"
   } else {
     "vignettes/articles"
@@ -54,7 +56,7 @@ These two assurances are critical if your API will be handling any sensitive dat
 
 As an added layer of protection, you can consider enabling [HTTP Strict Transport Security (HSTS)](https://www.troyhunt.com/understanding-http-strict-transport/). HSTS is a way to instruct clients that -- in the future -- they should refuse to connect to this server over unsecure HTTP. This ensures that no imposter server would be able to trick a client into connecting over insecure HTTP in the future.
 
-Unfortunately, Plumber does not implement HTTPS support natively, but most of the [documented hosting options](./hosting.html) offer ways to deploy HTTPS and HSTS in front of your Plumber API.
+Unfortunately, Plumber does not implement HTTPS support natively, but most hosting options offer ways to deploy HTTPS and HSTS in front of your Plumber API.
 
 ## Denial Of Service (DoS) {#dos}
 
@@ -71,11 +73,12 @@ The expected output here is a harmless plot.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
-papi <- api(file.path(me, "files/apis/07-01-plot-unsafe.R"))
+pa <- api(file.path(me, "files/apis/07-01-plot-unsafe.R"))
 
 req <- fiery::fake_request("http://localhost:8080")
-res <- papi$test_request(req)
+res <- pa$test_request(req)
 
 cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
 ```
@@ -86,9 +89,10 @@ However, plots with more points will take more time to create.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 req <- fiery::fake_request("http://localhost:8080?pts=10000")
-t <- system.time(res <- papi$test_request(req))
+t <- system.time(res <- pa$test_request(req))
 
 cat('<img src="data:image/png;base64,', base64enc::base64encode(res$body), '">')
 ```
@@ -132,13 +136,52 @@ File paths are not the only opportunity for malicious input to do damage to your
 
 As you can see, the comment has JavaScript embedded within it, in this case used to popup a message to the user. Of course JavaScript could be used in other harmful way by redirecting your users to a malicious site, for instance, or uploading data that they have special access to on your server to some other destination. Any user input that might be included on an HTML page should be properly escaped (see `htmltools::html_escape` for help).
 
-Lastly, user input can be used in an "injection attack," in which the user injects malicious commands that might be sent to another system. The best known in this family are SQL injection attacks, in which user input that is meant to be included in a SQL query to be executed against a database might contain additional SQL commands that could leak data or do damage to your database. Further details about SQL injection attacks and mitigation strategies in R are available [here](https://solutions.rstudio.com/db/best-practices/run-queries-safely/).
+Lastly, user input can be used in an "injection attack," in which the user injects malicious commands that might be sent to another system. The best known in this family are SQL injection attacks, in which user input that is meant to be included in a SQL query to be executed against a database might contain additional SQL commands that could leak data or do damage to your database. Further details about SQL injection attacks and mitigation strategies in R are available [here](https://solutions.posit.co/connections/db/best-practices/run-queries-safely/).
 
 In summary, be sure to separate "trusted" from "untrusted" objects in your API implementation. Anything which the user provides should be considered "untrusted" until it has been escaped or sanitized. At that point you can consider the object to be "trusted" and proceed to take further actions on it.
 
+## Security Headers
+
+Your plumber2 API will use the HTTP protocol to communicate with the client. Over the cause of the internets existence there have been a cat-and-mouse game going on between bad actors that wish to scam or otherwise harm users, and the people developing the internet into being a safe experience. A lot of the improvements to security have been implemented as specific HTTP headers where the server opt into certain behavior that is safer for the client. plumber2 provides an easy way to set these headers and provides good sensible defaults as well.
+
+```{r}
+#| eval: false
+pa <- api() |> 
+  api_security_headers()
+```
+
+The code above will apply the default settings to your API. However, we urge the developer to spend some time getting acquainted with the concepts around the various headers. Especially, some of them are only relevant if your API is serving HTML pages, which many plumber2 APIs aren't, and these can thus by turned off to save a bit on the packet size and thus improve latency. You can read more about all of the headers as well as understand which are relevant when by reading the documentation for `firesafety::SecurityHeaders`.
+
 ## Cross-Origin Resource Sharing (CORS)
 
-TBD
+Cross-Origin Resource Sharing is a technology to control which webpages are allowed to access resources hosted on another domain. In general, you will try to limit this as much as possible to avoid webpages imitating other webpages to spoof the end user, or for other reasons. Since it is generally a good idea, CORS is turned off by default. This means that if you have a webpage that needs to communicate with your API (and that API is hosted on another domain), then you need to allow CORS.
+
+Setting up CORS can be done both with annotation and with code. The annotation 
+approach is both easy and allows you to keep CORS settings close to where the endpoint is defined. You set it up by adding a `@cors` tag to your annotation followed by who is allowed to interact with the endpoint. This can be either `*`
+to allow everyone, or a specific origin to whitelist.
+
+```{r}
+#| eval: false
+#* @get /sensitive/info
+#* @cors https://I-trust-you.com
+function(...) {
+  # endpoint logic
+}
+```
+
+The annotation is somewhat limited and if you need more power to define the CORS specification you can do so programmatically with the `api_security_cors()`
+function. With that you can also specify which headers are allowed and which will be exposed, along with allowing credentials to pass through and set the maximum time the CORS agreement can be kept in the cache.
+
+You can read more about CORS in the documentation for `firesafety::CORS`.
+
+## Resource Isolation Policies
+
+Setting up resource isolation policies can complement CORS be denying access to resources that are not protected by CORS. It prevents, at the server level, the access to resources and is thus not a technology that relies on browser implementations (which CORS does). It's important to state that it is not a decision between CORS or resource isolation but two sides of the same coin.
+
+Like CORS, resource isolation can be set up with annotation using the `@rip`. Rather than providing an allowed origin like for CORS, you specify the allowance level (`cross-site`, `same-site`, or `same-origin`). Also, like with
+CORS, you have even more control if using it programmatically with `api_security_resource_isolation()`.
+
+You can read more about resource isolation policies at the documentation for `firesafety::ResourceIsolation`.
 
 ## Cookies {#security-cookies}
 

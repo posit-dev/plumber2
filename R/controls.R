@@ -32,4 +32,17 @@ print.plumber_control <- function(x, ...) {
 #' @rdname Next
 #' @param x An object to test
 #' @export
+#'
+#' @return A boolean value
+#'
+#' @examples
+#' # should_break() only returns TRUE with Break
+#'
+#' should_break(10)
+#'
+#' should_break(FALSE)
+#'
+#' should_break(Next)
+#'
+#' should_break(Break)
 should_break <- function(x) is_plumber_control(x) && !x

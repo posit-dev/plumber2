@@ -46,6 +46,8 @@ will pass through this router prior to reading in the body)}
 not generating API docs)}
 
 \item{\code{doc_path}}{The URL path to serve the api documentation from}
+
+\item{\code{doc_args}}{Further arguments to the documentation UI}
 }
 \if{html}{\out{</div>}}
 }
@@ -61,6 +63,9 @@ not generating API docs)}
 \item \href{#method-Plumber2-redirect}{\code{Plumber2$redirect()}}
 \item \href{#method-Plumber2-parse_file}{\code{Plumber2$parse_file()}}
 \item \href{#method-Plumber2-add_api_doc}{\code{Plumber2$add_api_doc()}}
+\item \href{#method-Plumber2-add_shiny}{\code{Plumber2$add_shiny()}}
+\item \href{#method-Plumber2-add_report}{\code{Plumber2$add_report()}}
+\item \href{#method-Plumber2-forward}{\code{Plumber2$forward()}}
 \item \href{#method-Plumber2-clone}{\code{Plumber2$clone()}}
 }
 }
@@ -119,7 +124,7 @@ Create a new \code{Plumber2} api
   max_request_size = get_opts("maxRequestSize"),
   shared_secret = get_opts("sharedSecret"),
   compression_limit = get_opts("compressionLimit", 1000),
-  default_async = get_opts("async", "future"),
+  default_async = get_opts("async", "mirai"),
   env = caller_env()
 )}\if{html}{\out{</div>}}
 }
@@ -149,7 +154,7 @@ setting anly affects handlers on the request router.}
 \item{\code{ignore_trailing_slash}}{Logical. Should the trailing slash of a path
 be ignored when adding handlers and handling requests. Setting this will
 not change the request or the path associated with but just ensure that
-both \code{path/to/ressource} and \verb{path/to/ressource/} ends up in the same
+both \code{path/to/resource} and \verb{path/to/resource/} ends up in the same
 handler. This setting will only affect routes that are created automatically.}
 
 \item{\code{max_request_size}}{Sets a maximum size of request bodies. Setting this
@@ -238,7 +243,7 @@ before opening.}
 \subsection{Method \code{add_route()}}{
 Add a new route to either the request or header router
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_route(name, route = NULL, header = FALSE, after = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_route(name, route = NULL, header = FALSE, after = NULL, root = "")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -255,6 +260,8 @@ created}
 \item{\code{after}}{The location to place the new route on the stack. \code{NULL}
 will place it at the end. Will not have an effect if a route with the
 given name already exists.}
+
+\item{\code{root}}{The root path to serve this route from.}
 }
 \if{html}{\out{</div>}}
 }
@@ -275,6 +282,7 @@ detailed information
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  then = NULL,
   doc = NULL,
   route = NULL,
   header = FALSE
@@ -315,6 +323,8 @@ default async evaluator to create an async handler. If a string, the
 async evaluator registered to that name is used. If a function is
 provided then this is used as the async evaluator}
 
+\item{\code{then}}{A function to call at the completion of an async handler}
+
 \item{\code{doc}}{OpenAPI documentation for the handler. Will be added to the
 \verb{paths$<handler_path>$<handler_method>} portion of the API.}
 
@@ -334,7 +344,7 @@ as the last route in the stack.}
 Add a handler to a WebSocket message. See \link{api_message} for
 detailed information
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$message_handler(handler, async = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$message_handler(handler, async = FALSE, then = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -347,6 +357,8 @@ detailed information
 default async evaluator to create an async handler. If a string, the
 async evaluator registered to that name is used. If a function is
 provided then this is used as the async evaluator}
+
+\item{\code{then}}{A function to call at the completion of an async handler}
 }
 \if{html}{\out{</div>}}
 }
@@ -421,6 +433,114 @@ removed or should it be merged together with \code{doc}}
 
 \item{\code{subset}}{A character vector giving the path to the subset of the
 docs to assign \code{doc} to}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_shiny"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_shiny}{}}}
+\subsection{Method \code{add_shiny()}}{
+Add a shiny app to an api. See \code{\link[=api_shiny]{api_shiny()}} for detailed
+information
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_shiny(path, app, except = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{The path to serve the app from}
+
+\item{\code{app}}{A shiny app object}
+
+\item{\code{except}}{Subpaths to \code{path} that should not be forwarded to the
+shiny app. Be sure it doesn't contains paths that the shiny app needs}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_report"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_report}{}}}
+\subsection{Method \code{add_report()}}{
+Render and serve a Quarto or Rmarkdown document from an
+endpoint. See \code{\link[=api_report]{api_report()}} for more information.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_report(
+  path,
+  report,
+  ...,
+  doc = NULL,
+  max_age = Inf,
+  async = TRUE,
+  finalize = NULL,
+  continue = FALSE,
+  cache_dir = tempfile(pattern = "plumber2_report"),
+  cache_by_id = FALSE,
+  route = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{The base path to serve the report from. Additional endpoints
+will be created in addition to this.}
+
+\item{\code{report}}{The path to the report to serve}
+
+\item{\code{...}}{Further arguments to \code{quarto::quarto_render()} or
+\code{rmarkdown::render()}}
+
+\item{\code{doc}}{An \code{\link[=openapi_operation]{openapi_operation()}} documentation for the report. Only
+\code{query} parameters will be used and a request body will be generated from
+this for the POST methods.}
+
+\item{\code{max_age}}{The maximum age in seconds to keep a rendered report
+before initiating a re-render}
+
+\item{\code{async}}{Should rendering happen asynchronously (using mirai)}
+
+\item{\code{finalize}}{An optional function to run before sending the response
+back. The function will receive the request as the first argument, the
+response as the second, and the server as the third.}
+
+\item{\code{continue}}{A logical that defines whether the response is returned
+directly after rendering or should be made available to subsequent routes}
+
+\item{\code{cache_dir}}{The location of the render cache. By default a temporary
+folder is created for it.}
+
+\item{\code{cache_by_id}}{Should caching be scoped by the user id. If the
+rendering is dependent on user-level access to different data this is
+necessary to avoid data leakage.}
+
+\item{\code{route}}{The route this handler should be added to. Defaults to the
+last route in the stack. If the route does not exist it will be created
+as the last route in the stack.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-forward"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-forward}{}}}
+\subsection{Method \code{forward()}}{
+Add a reverse proxy from a path to a given URL. See
+\code{\link[=api_forward]{api_forward()}} for more details
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$forward(path, url, except = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{The root to forward from}
+
+\item{\code{url}}{The url to forward to}
+
+\item{\code{except}}{Subpaths to \code{path} that should be exempt from forwarding}
 }
 \if{html}{\out{</div>}}
 }

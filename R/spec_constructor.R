@@ -13,12 +13,49 @@
 #' @param paths A named list. The names correspond to endpoints and the elements
 #' are lists as constructed by `openapi_path()`
 #' @param tags For `openapi()` a list with elements corresponding to the value
-#' constructed by `openapi_tag()`. For `openapi_operation()` this argument is a
-#' simple character vector
+#' constructed by `openapi_tag()`. For `openapi_operation()` a character vector
+#' or a list of strings
 #'
 #' @return A list
 #'
 #' @export
+#'
+#' @examples
+#' # Create docs for an API with a single endpoint
+#' doc <- openapi(
+#'   info = openapi_info(
+#'     title = "My awesome api",
+#'     version = "1.0.0"
+#'   ),
+#'   paths = list(
+#'     "/hello/{name}" = openapi_path(
+#'       get = openapi_operation(
+#'         summary = "Get a greeting",
+#'         parameters = list(
+#'           openapi_parameter(
+#'             name = "name",
+#'             location = "path",
+#'             description = "Your name",
+#'             schema = openapi_schema(character())
+#'           )
+#'         ),
+#'         responses = list(
+#'           "200" = openapi_response(
+#'             description = "a kind message",
+#'             content = openapi_content(
+#'               "text/plain" = openapi_schema(character())
+#'             )
+#'           )
+#'         )
+#'       )
+#'     )
+#'   )
+#' )
+#'
+#' # Add it to an api
+#' api() |>
+#'   api_doc_add(doc)
+#'
 #'
 openapi <- function(
   openapi = "3.0.0",
@@ -30,13 +67,16 @@ openapi <- function(
   if (!(is_list(paths) && is_named2(paths))) {
     cli::cli_abort("{.arg paths} must be a named list")
   }
-  c(
-    compact(list(
-      openapi = openapi,
-      info = info,
-      tags = tags
-    )),
-    list(paths = paths)
+  structure(
+    c(
+      compact(list(
+        openapi = openapi,
+        info = info,
+        tags = tags
+      )),
+      list(paths = paths)
+    ),
+    class = "plumber2_openapi"
   )
 }
 
@@ -96,7 +136,9 @@ openapi_license <- function(
   name = character(),
   url = character()
 ) {
-  if (length(url) != 0) require_input(name = name)
+  if (length(url) != 0) {
+    require_input(name = name)
+  }
   compact(list(
     name = name,
     url = url
@@ -166,13 +208,14 @@ openapi_operation <- function(
   op <- compact(list(
     summary = summary,
     description = description,
-    operation_id = operation_id,
+    operationId = operation_id,
     parameters = parameters,
-    request_body = request_body,
-    responses = responses
+    requestBody = request_body,
+    responses = responses,
+    tags = as.list(tags)
   ))
-  if (length(op) != 0 && is.null(op$response)) {
-    op$response <- list()
+  if (length(op) != 0 && is.null(op$responses)) {
+    op$responses <- list()
   }
   op
 }
@@ -211,7 +254,7 @@ openapi_parameter <- function(
   if (length(schema) != 0 && length(content) != 0) {
     cli::cli_abort("Only one of {.arg schema} and {.arg content} must be used")
   }
-  compact(list(
+  res <- compact(list(
     name = name,
     `in` = location,
     description = description,
@@ -220,6 +263,10 @@ openapi_parameter <- function(
     content = content,
     ...
   ))
+  if (is.null(res$schema) && is.null(res$content)) {
+    res$schema <- list()
+  }
+  res
 }
 
 #' @rdname openapi
@@ -243,7 +290,7 @@ openapi_header <- function(
 #' * `integer`: Will signal `type: integer`
 #' * `numeric`: Will signal `type: number`
 #' * `character`: Will signal `type: string`
-#' * `faactor`: Will signal `type: string` and `enum` set the factor levels
+#' * `factor`: Will signal `type: string` and `enum` set the factor levels
 #' * `raw`: Will signal `type:string; format: binary`
 #' * `Date`: Will signal `type:string; format: date`
 #' * `POSIXt`: Will signal `type:string; format: date-time`
@@ -256,12 +303,24 @@ openapi_header <- function(
 #' @param default A default value for the parameter. Must be reconsilable with
 #' the type of `x`
 #' @param min,max Bounds for the value of the parameter
-openapi_schema <- function(x, default = NULL, min = NULL, max = NULL, ..., required = NULL) {
+openapi_schema <- function(
+  x,
+  default = NULL,
+  min = NULL,
+  max = NULL,
+  ...,
+  required = NULL
+) {
   UseMethod("openapi_schema")
+}
+#' @export
+openapi_schema.NULL <- function(x, ...) {
+  list()
 }
 #' @export
 openapi_schema.AsIs <- function(x, default = NULL, ...) {
   check_string(x)
+  class(x) <- setdiff(class(x), "AsIs")
   compact(list(
     type = x,
     default = default,
@@ -351,7 +410,9 @@ openapi_schema.list <- function(x, default = NULL, ..., required = NULL) {
 #'
 openapi_content <- function(...) {
   content <- list2(...)
-  if (length(content) == 0) return(content)
+  if (length(content) == 0) {
+    return(content)
+  }
   if (
     !is_named(content) ||
       !all(stringi::stri_detect_regex(names(content), "^.*/.*$"))
