@@ -7,7 +7,6 @@
 ^[\.]?air\.toml$
 ^\.vscode$
 ^.*/_ex[^/]*.qmd$
-^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
 ^cran-comments\.md$
