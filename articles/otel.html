@@ -124,7 +124,7 @@
 <p>If you wish to add additional instrumentation to your server logic you’ll likely do this within your endpoint handlers. If so, you should probably use <code><a href="https://otel.r-lib.org/reference/start_local_active_span.html" class="external-link">otel::start_local_active_span()</a></code> which will automatically close itself at the end of your code and pick up the active routr subspan as the parent. However, don’t go overboard and only add instrumentation for things your are specifically interested in collecting. The default instrumentation is already quite detailed. An alternative way to add additional information is to add your own attributes or events to the spans already in place. As mentioned above, the parent span is available in <code>request$otel</code>, while the routr span can be accessed using <code><a href="https://otel.r-lib.org/reference/get_active_span.html" class="external-link">otel::get_active_span()</a></code>.</p>
 </section></section><section class="level2"><h2 id="metrics">Metrics<a class="anchor" aria-label="anchor" href="#metrics"></a>
 </h2>
-<p>The HTTP semantic convention also covers metrics. reqres takes care of collecting those on the convention which are:</p>
+<p>The HTTP semantic convention also covers metrics. reqres takes care of collecting those from the convention which are:</p>
 <ul>
 <li>
 <code>http.server.request.duration</code> collects the duration of the request handling by the server</li>
