@@ -121,6 +121,7 @@ Plumber2 <- R6Class(
       private$PARENT_ENV <- env
 
       private$SESSION_FRAMEWORK <- "plumber2"
+      private$SESSION_FRAMEWORK_VERSION <- utils::packageVersion("plumber2")
     },
     #' @description Human readable description of the api object
     #' @param ... ignored
