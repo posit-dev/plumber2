@@ -13,7 +13,7 @@ Automatically create a web server from annotated 'R' files or by building it up 
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://plumber2.posit.co/}
+  \item \url{https://plumber2.posit.co/}
   \item \url{https://github.com/posit-dev/plumber2}
   \item Report bugs at \url{https://github.com/posit-dev/plumber2/issues}
 }

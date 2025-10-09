@@ -7,6 +7,7 @@
 \alias{logger_console}
 \alias{logger_file}
 \alias{logger_logger}
+\alias{logger_otel}
 \alias{logger_switch}
 \alias{common_log_format}
 \alias{combined_log_format}
@@ -21,6 +22,8 @@ logger_console(format = "{time} - {event}: {message}")
 logger_file(file, format = "{time} - {event}: {message}")
 
 logger_logger(default_level = "INFO")
+
+logger_otel(format = "{time} - {event}: {message}")
 
 logger_switch(..., default = logger_null())
 
