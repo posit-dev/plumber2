@@ -60,4 +60,4 @@ pa <- api() |>
   api_logger(logger_otel())
 ```
 
-If you use this logger then all logs will appear together with your spans and metrics. If a log occur during request handling then the log will automatically be associated with the request span. Further, the automatic logging of server start and end will have the attribute `server.id` which contains the unique name of the server instance.
+If you use this logger then all logs will appear together with your spans and metrics. If a log occur during request handling then the log will automatically be associated with the request span. Further, all logs will get the attribute `server.id` which identifies the server instance from which the log originated.
