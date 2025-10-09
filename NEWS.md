@@ -10,6 +10,8 @@
 * Fixed a bug in the documentation UI when serving the api through a proxy,
   affecting e.g. Posit Workbench users
 * Default styling of docs ui now reflect plumber2 aesthetics
+* Support for instrumentation with otel, along with a vignette describing said
+  support.
 
 # plumber2 0.1.0
 
