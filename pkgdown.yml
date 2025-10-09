@@ -8,6 +8,7 @@ articles:
   hosting: hosting.html
   introduction: introduction.html
   migration: migration.html
+  otel: otel.html
   plumber: plumber.html
   programmatic-usage: programmatic-usage.html
   rendering-output: rendering-output.html
@@ -15,7 +16,7 @@ articles:
   security: security.html
   server_yml: server_yml.html
   tips-and-tricks: tips-and-tricks.html
-last_built: 2025-10-09T07:10Z
+last_built: 2025-10-09T08:30Z
 urls:
   reference: https://plumber2.posit.co/reference
   article: https://plumber2.posit.co/articles

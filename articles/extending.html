@@ -62,6 +62,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-advanced">
 <li><a class="dropdown-item" href="../articles/extending.html">Extending plumber2</a></li>
     <li><a class="dropdown-item" href="../articles/server_yml.html">The _server.yml standard</a></li>
+    <li><a class="dropdown-item" href="../articles/otel.html">OpenTelemetry instrumentation</a></li>
   </ul>
 </li>
       </ul>
@@ -294,8 +295,8 @@
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     cli::cli_abort("{.fun format_geojson} did not receive an `sf` or `sfc` object.")</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55d4279fc020&gt;</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55d428761e48&gt;</span></span></code></pre>
+<span><span class="co">#&gt; &lt;bytecode: 0x557f2955b598&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x557f2a3151d8&gt;</span></span></code></pre>
 </div>
 </div>
 <p>While you can always pass in a function directly as a serializer, registering them by name makes it much easier to reuse, and making it a default makes the serializer instantly available to all endpoints (providing they are using the defaults). It follows that providing additional serializers, both defaults and non-defaults, increases ways plumber2 can interact with the client.</p>
@@ -322,7 +323,7 @@
 <span><span class="co">#&gt;             ...)</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55d4279c1e00&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x557f295041f0&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:plumber2&gt;</span></span></code></pre>
 </div>
 </div>
@@ -341,7 +342,7 @@
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     tomledit::to_toml(x)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55d4244a2df8&gt;</span></span></code></pre>
+<span><span class="co">#&gt; &lt;environment: 0x557f250437e8&gt;</span></span></code></pre>
 </div>
 </div>
 <p>We can also see that it is part of the defaults:</p>

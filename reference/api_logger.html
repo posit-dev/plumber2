@@ -46,6 +46,7 @@ provided by fiery so they are immediately available to the user."><meta property
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-advanced"><li><a class="dropdown-item" href="../articles/extending.html">Extending plumber2</a></li>
     <li><a class="dropdown-item" href="../articles/server_yml.html">The _server.yml standard</a></li>
+    <li><a class="dropdown-item" href="../articles/otel.html">OpenTelemetry instrumentation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -83,6 +84,8 @@ provided by fiery so they are immediately available to the user.</p>
 <span><span class="fu">logger_file</span><span class="op">(</span><span class="va">file</span>, format <span class="op">=</span> <span class="st">"{time} - {event}: {message}"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">logger_logger</span><span class="op">(</span>default_level <span class="op">=</span> <span class="st">"INFO"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">logger_otel</span><span class="op">(</span>format <span class="op">=</span> <span class="st">"{time} - {event}: {message}"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">logger_switch</span><span class="op">(</span><span class="va">...</span>, default <span class="op">=</span> <span class="fu">logger_null</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
