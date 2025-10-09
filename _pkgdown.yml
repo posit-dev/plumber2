@@ -48,6 +48,8 @@ navbar:
           href: articles/extending.html
         - text: The _server.yml standard
           href: articles/server_yml.html
+        - text: OpenTelemetry instrumentation
+          href: articles/otel.html
 
 reference:
   - title: "Create an run an API"
