@@ -12,6 +12,8 @@
 * Default styling of docs ui now reflect plumber2 aesthetics
 * Support for instrumentation with otel, along with a vignette describing said
   support.
+* `api_get()` and other endpoint functions now defaults to using the default
+  serializers and parsers (#57)
 
 # plumber2 0.1.0
 
