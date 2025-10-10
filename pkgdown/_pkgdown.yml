@@ -3,9 +3,9 @@ template:
   bootstrap: 5
   bslib:
     bg: "#212121"
-    fg: "#B4FFE4"
-    primary: "#FF81D2"
-    secondary: "#00FFA3"
+    fg: "#CCFFED" # "#B4FFE4"
+    primary: "#FFB4E4" # "#FF81D2"
+    secondary: "#99FFDA" # "#00FFA3"
     code_bg: "#494949"
     base_font: {google: "Schibsted Grotesk"}
     heading_font: {google: "National Park"}
