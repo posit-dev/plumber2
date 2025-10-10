@@ -19,6 +19,8 @@
   `@authScope` and `@authenticator` tags
 * Added `@datastore` tag to set up persistent data storage natively in annotated
   files
+* `api_get()` and other endpoint functions now defaults to using the default
+  serializers and parsers (#57)
 
 # plumber2 0.1.0
 

@@ -289,7 +289,7 @@ Plumber2 <- R6Class(
       method,
       path,
       handler,
-      serializers,
+      serializers = NULL,
       parsers = NULL,
       use_strict_serializer = FALSE,
       auth_flow = NULL,
