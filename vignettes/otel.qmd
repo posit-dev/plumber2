@@ -61,3 +61,6 @@ pa <- api() |>
 ```
 
 If you use this logger then all logs will appear together with your spans and metrics. If a log occur during request handling then the log will automatically be associated with the request span. Further, all logs will get the attribute `server.id` which identifies the server instance from which the log originated.
+
+## Context propagation
+As we touched upon in the beginning, the span initiated by the request will automatically inherit the context from the client if it has been encoded in the request. This principle also holds if your server itself sends off a request to another service. The `request$forward()` method will automatically add the main span context to the request, and if one of your endpoint functions uses httr2 to request information from a different server, the active span context will automatically be added there as well, so that if the other server also has instrumentation set up you follow it across servers.
