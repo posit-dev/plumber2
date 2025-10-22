@@ -316,7 +316,7 @@ register_parser(
 ```
 
 ### Asynchronous engines
-plumber2 comes with build in support for asynchronous evaluation based on mirai. We strongly believe this is the best choice for async eval in R, but you may still use another engine if you se desire by registering a new one. Below, we show how to create an asynch evaluator based on the `future` package
+plumber2 comes with build in support for asynchronous evaluation based on mirai. We strongly believe this is the best choice for async eval in R, but you may still use another engine if you se desire by registering a new one. Below, we show how to create an async evaluator based on the `future` package
 
 ```{r}
 future_async <- function(...) {
