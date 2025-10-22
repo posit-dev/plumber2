@@ -4,7 +4,7 @@
 \alias{api_shiny}
 \title{Serve a Shiny app from a plumber2 api}
 \usage{
-api_shiny(api, path, app, except = NULL)
+api_shiny(api, path, app, except = NULL, auth_flow = NULL, auth_scope = NULL)
 }
 \arguments{
 \item{api}{A plumber2 api to add the shiny app to}
@@ -15,6 +15,11 @@ api_shiny(api, path, app, except = NULL)
 
 \item{except}{Subpaths to \code{path} that should not be forwarded to the
 shiny app. Be sure it doesn't contains paths that the shiny app needs}
+
+\item{auth_flow}{A logical expression giving the authentication flow the
+client must pass to get access to the resource.}
+
+\item{auth_scope}{The scope requirements of the resource}
 }
 \value{
 This functions return the \code{api} object allowing for easy chaining

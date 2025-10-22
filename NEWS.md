@@ -12,6 +12,11 @@
 * Default styling of docs ui now reflect plumber2 aesthetics
 * Support for instrumentation with otel, along with a vignette describing said
   support.
+* Support for authentication through the fireproof package. Authentication can
+  be setup programmatically with `api_authenticator()` and
+  `api_authentication()` as well as directly in all functions creating
+  endpoints. Further it can be added with annotation using the `@auth`,
+  `@authScope` and `@authenticator` tags
 
 # plumber2 0.1.0
 

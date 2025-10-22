@@ -2,6 +2,8 @@ handle_constructor <- function(method, header = FALSE) {
   force(method)
   force(header)
   doc <- NULL
+  auth_flow <- NULL
+  auth_scope <- NULL
   fun <- function(
     api,
     path,
@@ -11,6 +13,8 @@ handle_constructor <- function(method, header = FALSE) {
     use_strict_serializer = FALSE,
     download = FALSE,
     async = FALSE,
+    auth_flow = NULL,
+    auth_scope = NULL,
     then = NULL,
     doc = NULL,
     route = NULL
@@ -22,6 +26,8 @@ handle_constructor <- function(method, header = FALSE) {
       serializers = serializers,
       parsers = parsers,
       use_strict_serializer = use_strict_serializer,
+      auth_flow = {{ auth_flow }},
+      auth_scope = auth_scope,
       download = download,
       async = async,
       then = then,
@@ -32,7 +38,9 @@ handle_constructor <- function(method, header = FALSE) {
     api
   }
   if (header) {
-    fn_fmls(fun) <- fn_fmls(fun)[fn_fmls_names(fun) != "doc"]
+    fn_fmls(fun) <- fn_fmls(fun)[
+      !fn_fmls_names(fun) %in% c("auth_flow", "auth_scope", "doc")
+    ]
   }
   fun
 }
@@ -259,6 +267,28 @@ handle_constructor <- function(method, header = FALSE) {
 #' `Next` or `Break` to signal if processing should be allowed to continue to
 #' the next route.
 #'
+#' # Authentication
+#' plumber2 supports various authentication schemas which can be added with
+#' [api_authenticator()]. An authentication flow for the handler can then be
+#' specified with the `auth_flow` argument and optional scopes can be set with
+#' the `auth_scope` argument. The flow is defined by a logical expression
+#' referencing the names of the authenticators part of the flow. Assuming two
+#' authenticators are available, `auth1` and `auth2`, then a flow could be
+#' `auth1 && auth2` to require the request passes both authenticators.
+#' Alternatively it could be `auth1 || auth2` to require the request passing
+#' either. Flows can be arbitrarily complex with nesting etc, but he OpenAPI
+#' spec has limits to what it can describe so if you want to have an OpenAPI
+#' compliant api you must limit yourself to at most two levels of nesting with
+#' the outer level being `||` (ie. `(auth1 && auth2) || (auth3 && auth4)` is ok,
+#' but `(auth1 || auth2) && (auth3 || auth4)` is not due to the outer level
+#' being `&&`, and `(auth1 && auth2) || (auth3 && (auth4 || auth5))` is not
+#' allowed because it has 3 nesting levels). This is only a limitation of
+#' OpenAPI and plumber2 itself can handle all of the above.
+#'
+#' plumber2 also supports requiring specific scopes to access resources. If you
+#' require these you must make sure the authenticator provides scopes upon a
+#' successful authentication, otherwise the request will be denied.
+#'
 #' # Using annotation
 #' Handlers can be specified in an annotated route file using one of the method
 #' tags followed by the path it pertains to. You can use various tags to
@@ -306,6 +336,26 @@ handle_constructor <- function(method, header = FALSE) {
 #' }
 #' ```
 #'
+#' You can add authentication using the `@auth` and `@authScope` tags
+#'
+#' ```
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' #* @auth auth1 || auth2
+#' #* @authScope read, write
+#' #*
+#' function(username) {
+#'   find_user_in_db(username)
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to add the handler to
 #' @param path A string giving the path the handler responds to. See Details
 #' @param handler A handler function to call when a request is matched to the
@@ -338,6 +388,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' @param route The route this handler should be added to. Defaults to the last
 #' route in the stack. If the route does not exist it will be created as the
 #' last route in the stack
+#' @inheritParams api_authentication
 #'
 #' @return These functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -774,6 +825,7 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' @param app A shiny app object
 #' @param except Subpaths to `path` that should not be forwarded to the
 #' shiny app. Be sure it doesn't contains paths that the shiny app needs
+#' @inheritParams api_authentication
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -789,8 +841,15 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' api() |>
 #'   api_shiny("my_app/", blank_shiny)
 #'
-api_shiny <- function(api, path, app, except = NULL) {
-  api$add_shiny(path, app, except)
+api_shiny <- function(
+  api,
+  path,
+  app,
+  except = NULL,
+  auth_flow = NULL,
+  auth_scope = NULL
+) {
+  api$add_shiny(path, app, except, {{ auth_flow }}, auth_scope)
   api
 }
 
@@ -877,6 +936,7 @@ api_shiny <- function(api, path, app, except = NULL) {
 #' @param route The route this handler should be added to. Defaults to the
 #' last route in the stack. If the route does not exist it will be created
 #' as the last route in the stack.
+#' @inheritParams api_authentication
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -899,6 +959,8 @@ api_report <- function(
   continue = FALSE,
   cache_dir = tempfile(pattern = "plumber2_report"),
   cache_by_id = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   route = NULL
 ) {
   api$add_report(
@@ -912,6 +974,8 @@ api_report <- function(
     continue = continue,
     cache_dir = cache_dir,
     cache_by_id = cache_by_id,
+    auth_flow = {{ auth_flow }},
+    auth_scope = auth_scope,
     route = route
   )
   api
@@ -944,6 +1008,7 @@ api_report <- function(
 #' @param path The path to serve the shiny app from
 #' @param url The url to forward to
 #' @param except Subpaths to `path` that should be exempt from forwarding
+#' @inheritParams api_authentication
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -955,7 +1020,20 @@ api_report <- function(
 #' api() |>
 #'   api_forward("my_wiki/", "https://www.wikipedia.org")
 #'
-api_forward <- function(api, path, url, except = NULL) {
-  api$forward(path, url)
+api_forward <- function(
+  api,
+  path,
+  url,
+  except = NULL,
+  auth_flow = NULL,
+  auth_scope = NULL
+) {
+  api$forward(
+    path,
+    url,
+    except = except,
+    auth_flow = {{ auth_flow }},
+    auth_scope = auth_scope
+  )
   api
 }

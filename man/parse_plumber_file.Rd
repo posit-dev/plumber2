@@ -17,7 +17,7 @@ A list containing:
 \item \code{route} The main route handling requests according to the parsed file, as a
 named list of length one
 \item \code{header_route} The route to be attached to header events (fires before the
-body has been recieved and can be used to prematurely reject requests based
+body has been received and can be used to prematurely reject requests based
 on their headers), as a named list of length one
 \item \code{asset_routes} All the asset routes created by \verb{@static} blocks as a named
 list

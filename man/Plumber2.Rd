@@ -66,6 +66,8 @@ not generating API docs)}
 \item \href{#method-Plumber2-add_shiny}{\code{Plumber2$add_shiny()}}
 \item \href{#method-Plumber2-add_report}{\code{Plumber2$add_report()}}
 \item \href{#method-Plumber2-forward}{\code{Plumber2$forward()}}
+\item \href{#method-Plumber2-add_authenticator}{\code{Plumber2$add_authenticator()}}
+\item \href{#method-Plumber2-add_authentication}{\code{Plumber2$add_authentication()}}
 \item \href{#method-Plumber2-clone}{\code{Plumber2$clone()}}
 }
 }
@@ -280,6 +282,8 @@ detailed information
   serializers,
   parsers = NULL,
   use_strict_serializer = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   download = FALSE,
   async = FALSE,
   then = NULL,
@@ -311,6 +315,14 @@ selected is based on the request \code{Content-Type} header}
 the requests \code{Accept} header cannot be found, then the first of the
 provided ones are used. Setting this to \code{TRUE} will instead send back a
 \verb{406 Not Acceptable} response}
+
+\item{\code{auth_flow}}{The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names}
+
+\item{\code{auth_scope}}{The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be \code{NULL}}
 
 \item{\code{download}}{Should the response mark itself for download instead of
 being shown inline? Setting this to \code{TRUE} will set the
@@ -388,7 +400,7 @@ resolving any path parameters and wildcards it will be used in the
 \code{Location} header}
 
 \item{\code{permanent}}{Logical. Is the redirect considered permanent or
-temporary? Determines the type of redirct status code to use}
+temporary? Determines the type of redirect status code to use}
 }
 \if{html}{\out{</div>}}
 }
@@ -444,7 +456,13 @@ docs to assign \code{doc} to}
 Add a shiny app to an api. See \code{\link[=api_shiny]{api_shiny()}} for detailed
 information
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_shiny(path, app, except = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_shiny(
+  path,
+  app,
+  except = NULL,
+  auth_flow = NULL,
+  auth_scope = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -456,6 +474,14 @@ information
 
 \item{\code{except}}{Subpaths to \code{path} that should not be forwarded to the
 shiny app. Be sure it doesn't contains paths that the shiny app needs}
+
+\item{\code{auth_flow}}{The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names}
+
+\item{\code{auth_scope}}{The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be \code{NULL}}
 }
 \if{html}{\out{</div>}}
 }
@@ -478,6 +504,8 @@ endpoint. See \code{\link[=api_report]{api_report()}} for more information.
   continue = FALSE,
   cache_dir = tempfile(pattern = "plumber2_report"),
   cache_by_id = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   route = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -516,6 +544,14 @@ folder is created for it.}
 rendering is dependent on user-level access to different data this is
 necessary to avoid data leakage.}
 
+\item{\code{auth_flow}}{The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names}
+
+\item{\code{auth_scope}}{The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be \code{NULL}}
+
 \item{\code{route}}{The route this handler should be added to. Defaults to the
 last route in the stack. If the route does not exist it will be created
 as the last route in the stack.}
@@ -530,7 +566,7 @@ as the last route in the stack.}
 Add a reverse proxy from a path to a given URL. See
 \code{\link[=api_forward]{api_forward()}} for more details
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$forward(path, url, except = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$forward(path, url, except = NULL, auth_flow = NULL, auth_scope = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -541,6 +577,69 @@ Add a reverse proxy from a path to a given URL. See
 \item{\code{url}}{The url to forward to}
 
 \item{\code{except}}{Subpaths to \code{path} that should be exempt from forwarding}
+
+\item{\code{auth_flow}}{The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names}
+
+\item{\code{auth_scope}}{The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be \code{NULL}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_authenticator"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_authenticator}{}}}
+\subsection{Method \code{add_authenticator()}}{
+Adds an authenticator scheme to your API which can then be
+referenced in authentication flows.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_authenticator(auth, name = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{auth}}{An \link[fireproof:Auth]{Auth} subclass object defining the
+scheme}
+
+\item{\code{name}}{The name to use for referencing the scheme in an
+authentication flow}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_authentication"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_authentication}{}}}
+\subsection{Method \code{add_authentication()}}{
+Add an authentication flow to an endpoint
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_authentication(
+  method,
+  path,
+  auth_flow,
+  auth_scope = NULL,
+  add_doc = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{method}}{The HTTP method to add authentication to}
+
+\item{\code{path}}{A string giving the path to be authenticated}
+
+\item{\code{auth_flow}}{A logical expression giving the authentication flow the
+client must pass to get access to the resource}
+
+\item{\code{auth_scope}}{The scope requirements of the resource}
+
+\item{\code{add_doc}}{Should OpenAPI documentation be added for the
+authentication}
 }
 \if{html}{\out{</div>}}
 }

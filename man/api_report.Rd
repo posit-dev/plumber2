@@ -16,6 +16,8 @@ api_report(
   continue = FALSE,
   cache_dir = tempfile(pattern = "plumber2_report"),
   cache_by_id = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   route = NULL
 )
 }
@@ -52,6 +54,11 @@ folder is created for it.}
 \item{cache_by_id}{Should caching be scoped by the user id. If the
 rendering is dependent on user-level access to different data this is
 necessary to avoid data leakage.}
+
+\item{auth_flow}{A logical expression giving the authentication flow the
+client must pass to get access to the resource.}
+
+\item{auth_scope}{The scope requirements of the resource}
 
 \item{route}{The route this handler should be added to. Defaults to the
 last route in the stack. If the route does not exist it will be created

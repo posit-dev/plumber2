@@ -256,6 +256,16 @@ Handler annotation describe all aspects of a request handler and always proceeds
 <td><p>Chains the handler to the preceeding message or request handler if that handler is asynchronous</p></td>
 </tr>
 <tr>
+<td><p><code>@auth</code></p></td>
+<td><p><code>flow</code></p></td>
+<td><p>Sets an authentication flow for the endpoint, referencing one or more authenticators added to the api</p></td>
+</tr>
+<tr>
+<td><p><code>@authScope</code></p></td>
+<td><p><code>scopes</code></p></td>
+<td><p>Sets one or more scopes required for visiting the endpoint. Multiple scopes can be set either as a comma-separated list or with multiple tags</p></td>
+</tr>
+<tr>
 <td><p><code>@cors</code></p></td>
 <td><p>[<code>Origin</code>]</p></td>
 <td><p>Add CORS to the endpoints in the handler. <code>Origin</code> can be a comma separated list of allowed origins</p></td>
@@ -460,6 +470,37 @@ api() %>%
   api_statics("/", "./assets/static_files", except = "/secret_files")
 ```
 
+## Authenticator annotation
+
+| Annotation       | Arguments | Description/References |
+|------------------|-----------|----------------------------------|
+| `@authenticator` | `name`    | Adds a new authenticator with the given name. The authenticator is given below the annotation as a `fireproof::Auth` specification |
+
+##### Annotations example
+
+```r
+#* @authenticator auth1
+fireproof::auth_key(
+  key = "plumber2_key",
+  secret = "MY_VERY_SECRET_SECRET"
+)
+```
+
+##### Equivalent programmatic usage
+
+```{r}
+#| output: false
+#| eval: !expr R.Version()$minor > package_version("4.0")
+api() |>
+  api_authenticator(
+    fireproof::auth_key(
+      key = "plumber2_key",
+      secret = "MY_VERY_SECRET_SECRET"
+    ),
+    "auth1"
+  )
+```
+
 ## plumber2 annotation {#plumber-block-annotations}
 
 | Annotation | Arguments | Description/References |
@@ -468,7 +509,7 @@ api() %>%
 
 ##### Annotations example
 
-``` r
+```r
 #* @plumber
 function(api) {
   api %>%

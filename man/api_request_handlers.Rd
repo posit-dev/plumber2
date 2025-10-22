@@ -23,6 +23,8 @@ api_get(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -37,6 +39,8 @@ api_head(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -51,6 +55,8 @@ api_post(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -65,6 +71,8 @@ api_put(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -79,6 +87,8 @@ api_delete(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -93,6 +103,8 @@ api_connect(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -107,6 +119,8 @@ api_options(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -121,6 +135,8 @@ api_trace(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -135,6 +151,8 @@ api_patch(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -149,6 +167,8 @@ api_any(
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -187,6 +207,11 @@ the download to the string value}
 async evaluator to create an async handler. If a string, the async evaluator
 registered to that name is used. If a function is provided then this is used
 as the async evaluator. See the \emph{Async} section for more detail}
+
+\item{auth_flow}{A logical expression giving the authentication flow the
+client must pass to get access to the resource.}
+
+\item{auth_scope}{The scope requirements of the resource}
 
 \item{then}{A list of function to be called once the async handler is done.
 The functions will be chained using \code{\link[promises:then]{promises::then()}}. See the \emph{Async}
@@ -268,6 +293,25 @@ function(server, response) \{
   server$log("message", "async operation completed")
   response$set_header("etag", "abcdef")
   Next
+\}
+}\if{html}{\out{</div>}}
+
+You can add authentication using the \verb{@auth} and \verb{@authScope} tags
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+#* @auth auth1 || auth2
+#* @authScope read, write
+#*
+function(username) \{
+  find_user_in_db(username)
 \}
 }\if{html}{\out{</div>}}
 }
@@ -493,6 +537,29 @@ the next route or terminate early. The last call in the chain must return
 \code{Next} or \code{Break} to signal if processing should be allowed to continue to
 the next route.
 }
+}
+
+\section{Authentication}{
+plumber2 supports various authentication schemas which can be added with
+\code{\link[=api_authenticator]{api_authenticator()}}. An authentication flow for the handler can then be
+specified with the \code{auth_flow} argument and optional scopes can be set with
+the \code{auth_scope} argument. The flow is defined by a logical expression
+referencing the names of the authenticators part of the flow. Assuming two
+authenticators are available, \code{auth1} and \code{auth2}, then a flow could be
+\code{auth1 && auth2} to require the request passes both authenticators.
+Alternatively it could be \code{auth1 || auth2} to require the request passing
+either. Flows can be arbitrarily complex with nesting etc, but he OpenAPI
+spec has limits to what it can describe so if you want to have an OpenAPI
+compliant api you must limit yourself to at most two levels of nesting with
+the outer level being \code{||} (ie. \code{(auth1 && auth2) || (auth3 && auth4)} is ok,
+but \code{(auth1 || auth2) && (auth3 || auth4)} is not due to the outer level
+being \code{&&}, and \code{(auth1 && auth2) || (auth3 && (auth4 || auth5))} is not
+allowed because it has 3 nesting levels). This is only a limitation of
+OpenAPI and plumber2 itself can handle all of the above.
+
+plumber2 also supports requiring specific scopes to access resources. If you
+require these you must make sure the authenticator provides scopes upon a
+successful authentication, otherwise the request will be denied.
 }
 
 \examples{

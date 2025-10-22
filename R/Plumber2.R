@@ -31,6 +31,7 @@
 #' @importFrom jsonlite write_json
 #' @importFrom routr RouteStack Route openapi_route
 #' @importFrom stringi stri_replace_all_regex
+#' @importFrom fireproof Fireproof
 #'
 #' @export
 #'
@@ -52,7 +53,7 @@ Plumber2 <- R6Class(
     #' the same path at a later point will overwrite this functionality. Be
     #' aware that setting this to `TRUE` will prevent the request from falling
     #' through to other routes that might have a matching method and path. This
-    #' setting anly affects handlers on the request router.
+    #' setting only affects handlers on the request router.
     #' @param ignore_trailing_slash Logical. Should the trailing slash of a path
     #' be ignored when adding handlers and handling requests. Setting this will
     #' not change the request or the path associated with but just ensure that
@@ -162,6 +163,7 @@ Plumber2 <- R6Class(
           openapi$servers,
           list(list(url = ""))
         )
+        openapi <- fireproof::prune_openapi(openapi)
         write_json(openapi, openapi_file, auto_unbox = TRUE)
         api_route <- inject(openapi_route(
           openapi_file,
@@ -260,6 +262,12 @@ Plumber2 <- R6Class(
     #' the requests `Accept` header cannot be found, then the first of the
     #' provided ones are used. Setting this to `TRUE` will instead send back a
     #' `406 Not Acceptable` response
+    #' @param auth_flow The authentication flow the request must be validated by
+    #' to be allowed into the handler, provided as a logical expression of
+    #' authenticator names
+    #' @param auth_scope The scope required to access this handler given a
+    #' successful authentication. Unless your authenticators provide scopes this
+    #' should be `NULL`
     #' @param download Should the response mark itself for download instead of
     #' being shown inline? Setting this to `TRUE` will set the
     #' `Content-Disposition` header in the response to `attachment`. Setting it
@@ -284,6 +292,8 @@ Plumber2 <- R6Class(
       serializers,
       parsers = NULL,
       use_strict_serializer = FALSE,
+      auth_flow = NULL,
+      auth_scope = NULL,
       download = FALSE,
       async = FALSE,
       then = NULL,
@@ -378,10 +388,23 @@ Plumber2 <- R6Class(
         ),
         reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
-      if (!(header || is.null(doc) || inherits(doc, "plumber_noDoc"))) {
+      has_doc <- !(header || is.null(doc) || inherits(doc, "plumber_noDoc"))
+      if (has_doc) {
         doc$parameters <- doc$parameters %||% list()
         true_path <- gsub("//", "/", paste0(route$root, path_info$path))
         self$add_api_doc(doc, subset = c("paths", true_path, method))
+      }
+
+      auth_flow <- enquo(auth_flow)
+      if (!quo_is_null(auth_flow)) {
+        real_path <- gsub("//", "/", paste0(route$root, path))
+        self$add_authentication(
+          method,
+          real_path,
+          !!auth_flow,
+          auth_scope,
+          add_doc = has_doc
+        )
       }
 
       invisible(self)
@@ -417,7 +440,7 @@ Plumber2 <- R6Class(
     #' resolving any path parameters and wildcards it will be used in the
     #' `Location` header
     #' @param permanent Logical. Is the redirect considered permanent or
-    #' temporary? Determines the type of redirct status code to use
+    #' temporary? Determines the type of redirect status code to use
     redirect = function(method, from, to, permanent = TRUE) {
       method <- arg_match0(
         tolower(method),
@@ -475,9 +498,6 @@ Plumber2 <- R6Class(
     #' docs to assign `doc` to
     add_api_doc = function(doc, overwrite = FALSE, subset = NULL) {
       check_character(subset, allow_null = TRUE)
-      if (!(is_list(doc) && is_named2(doc))) {
-        stop_input_type(doc, "a named list")
-      }
 
       doc <- subset_to_list(subset, doc)
       if (overwrite) {
@@ -497,8 +517,20 @@ Plumber2 <- R6Class(
     #' @param app A shiny app object
     #' @param except Subpaths to `path` that should not be forwarded to the
     #' shiny app. Be sure it doesn't contains paths that the shiny app needs
+    #' @param auth_flow The authentication flow the request must be validated by
+    #' to be allowed into the handler, provided as a logical expression of
+    #' authenticator names
+    #' @param auth_scope The scope required to access this handler given a
+    #' successful authentication. Unless your authenticators provide scopes this
+    #' should be `NULL`
     #'
-    add_shiny = function(path, app, except = NULL) {
+    add_shiny = function(
+      path,
+      app,
+      except = NULL,
+      auth_flow = NULL,
+      auth_scope = NULL
+    ) {
       check_installed("callr")
       check_installed("shiny")
       if (!shiny::is.shiny.appobj(app)) {
@@ -541,6 +573,17 @@ Plumber2 <- R6Class(
         if (inherits(proc, "r_process")) proc$kill()
       })
 
+      auth_flow <- enquo(auth_flow)
+      if (!quo_is_null(auth_flow)) {
+        self$add_authentication(
+          "get",
+          path,
+          !!auth_flow,
+          auth_scope,
+          add_doc = FALSE
+        )
+      }
+
       invisible(self)
     },
     #' @description Render and serve a Quarto or Rmarkdown document from an
@@ -567,6 +610,12 @@ Plumber2 <- R6Class(
     #' @param cache_by_id Should caching be scoped by the user id. If the
     #' rendering is dependent on user-level access to different data this is
     #' necessary to avoid data leakage.
+    #' @param auth_flow The authentication flow the request must be validated by
+    #' to be allowed into the handler, provided as a logical expression of
+    #' authenticator names
+    #' @param auth_scope The scope required to access this handler given a
+    #' successful authentication. Unless your authenticators provide scopes this
+    #' should be `NULL`
     #' @param route The route this handler should be added to. Defaults to the
     #' last route in the stack. If the route does not exist it will be created
     #' as the last route in the stack.
@@ -582,6 +631,8 @@ Plumber2 <- R6Class(
       continue = FALSE,
       cache_dir = tempfile(pattern = "plumber2_report"),
       cache_by_id = FALSE,
+      auth_flow = NULL,
+      auth_scope = NULL,
       route = NULL
     ) {
       if (!is_bool(async) && !identical(async, "mirai")) {
@@ -683,8 +734,8 @@ Plumber2 <- R6Class(
       }
       route <- self$request_router$get_route(route)
       route$merge_route(rr)
+      paths <- gsub("/+", "/", paste0(route$root, "/", paths))
       if (!inherits(doc, "plumber_noDoc")) {
-        paths <- gsub("/+", "/", paste0(route$root, "/", paths))
         for (i in seq_along(paths)) {
           format <- paste0(
             "*",
@@ -767,6 +818,22 @@ Plumber2 <- R6Class(
         }
       }
 
+      auth_flow <- enquo(auth_flow)
+      if (!quo_is_null(auth_flow)) {
+        add_doc <- !inherits(doc, "plumber_noDoc")
+        for (path in paths) {
+          for (method in c("get", "post", "delete")) {
+            self$add_authentication(
+              method,
+              path,
+              !!auth_flow,
+              auth_scope,
+              add_doc = add_doc
+            )
+          }
+        }
+      }
+
       invisible(self)
     },
     #' @description Add a reverse proxy from a path to a given URL. See
@@ -774,11 +841,88 @@ Plumber2 <- R6Class(
     #' @param path The root to forward from
     #' @param url The url to forward to
     #' @param except Subpaths to `path` that should be exempt from forwarding
+    #' @param auth_flow The authentication flow the request must be validated by
+    #' to be allowed into the handler, provided as a logical expression of
+    #' authenticator names
+    #' @param auth_scope The scope required to access this handler given a
+    #' successful authentication. Unless your authenticators provide scopes this
+    #' should be `NULL`
     #'
-    forward = function(path, url, except = NULL) {
+    forward = function(
+      path,
+      url,
+      except = NULL,
+      auth_flow = NULL,
+      auth_scope = NULL
+    ) {
       revprox <- firestorm::ReverseProxy$new(url, path, except)
       self$attach(revprox)
 
+      auth_flow <- enquo(auth_flow)
+      if (!quo_is_null(auth_flow)) {
+        self$add_authentication(
+          "all",
+          path,
+          !!auth_flow,
+          auth_scope,
+          add_doc = FALSE
+        )
+      }
+
+      invisible(self)
+    },
+    #' @description Adds an authenticator scheme to your API which can then be
+    #' referenced in authentication flows.
+    #' @param auth An [Auth][fireproof::Auth] subclass object defining the
+    #' scheme
+    #' @param name The name to use for referencing the scheme in an
+    #' authentication flow
+    #'
+    add_authenticator = function(auth, name = NULL) {
+      fp <- self$plugins$fireproof
+      if (is.null(fp)) {
+        fp <- fireproof::Fireproof$new()
+        self$attach(fp)
+      }
+      fp$add_auth(
+        auth = auth,
+        name = name
+      )
+      self$add_api_doc(
+        auth$open_api,
+        subset = c("components", "securitySchemes", name %||% auth$name)
+      )
+      invisible(self)
+    },
+    #' @description Add an authentication flow to an endpoint
+    #' @param method The HTTP method to add authentication to
+    #' @param path A string giving the path to be authenticated
+    #' @param auth_flow A logical expression giving the authentication flow the
+    #' client must pass to get access to the resource
+    #' @param auth_scope The scope requirements of the resource
+    #' @param add_doc Should OpenAPI documentation be added for the
+    #' authentication
+    #'
+    add_authentication = function(
+      method,
+      path,
+      auth_flow,
+      auth_scope = NULL,
+      add_doc = TRUE
+    ) {
+      fp <- self$plugins$fireproof
+      if (is.null(fp)) {
+        fp <- fireproof::Fireproof$new()
+        self$attach(fp)
+      }
+      flow <- fp$add_auth_handler(method, path, {{ auth_flow }}, auth_scope)
+
+      if (add_doc) {
+        self$add_api_doc(
+          fp$flow_to_openapi(flow, auth_scope),
+          subset = c("paths", as_openapi_path(path), method)
+        )
+      }
       invisible(self)
     }
   ),
