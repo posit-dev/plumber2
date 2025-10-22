@@ -115,7 +115,7 @@ Plumber2 <- R6Class(
         private$HEADER_ROUTER <- header_router
       }
 
-      private$ASYNC_EVALUATER <- get_async(default_async)
+      private$ASYNC_EVALUATOR <- get_async(default_async)
 
       check_environment(env)
       private$PARENT_ENV <- env
@@ -170,7 +170,14 @@ Plumber2 <- R6Class(
           !!!private$DOC_ARGS
         ))
         logo <- system.file("help", "figures", "logo.svg", package = "plumber2")
-        if (logo == "") logo <- system.file("man", "figures", "logo.svg", package = "plumber2")
+        if (logo == "") {
+          logo <- system.file(
+            "man",
+            "figures",
+            "logo.svg",
+            package = "plumber2"
+          )
+        }
         api_route$add_handler(
           "get",
           paste0(sub("/?$", "/", private$DOC_PATH), "logo.svg"),
@@ -351,7 +358,7 @@ Plumber2 <- R6Class(
       route <- router$get_route(route)
 
       if (isTRUE(async)) {
-        async <- private$ASYNC_EVALUATER
+        async <- private$ASYNC_EVALUATOR
       } else if (isFALSE(async)) {
         async <- NULL
       }
@@ -390,7 +397,7 @@ Plumber2 <- R6Class(
     #' @param then A function to call at the completion of an async handler
     message_handler = function(handler, async = FALSE, then = NULL) {
       if (isTRUE(async)) {
-        async <- private$ASYNC_EVALUATER
+        async <- private$ASYNC_EVALUATOR
       } else if (isFALSE(async)) {
         async <- NULL
       }
@@ -845,7 +852,7 @@ Plumber2 <- R6Class(
     ),
     REJECT_MISSING_METHODS = FALSE,
     IGNORE_TRAILING_SLASH = TRUE,
-    ASYNC_EVALUATER = NULL,
+    ASYNC_EVALUATOR = NULL,
     PARENT_ENV = NULL
   )
 )

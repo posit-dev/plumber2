@@ -59,14 +59,14 @@ Adding a new tags is relatively simple but it does require a bit of knowledge ab
 
 1. The annotation is parsed and split into it's constituents. Each tag will at this point be made up of the tag name and an optional text string that contains anything that followed the tag. At this point, the expression that follows the annotation block will also be parsed and evaluated.
 2. plumber2 will determine which, if any, of the basic block types this is, e.g. a handler block, a shiny block, or something else
-3. If plumber2 recognises the block type it will create an S3 object with a name following the `plumber2_*_block` class name structure. The object will contain all information necessary to apply the annotation to a Plumber2 object.
+3. If plumber2 recognizes the block type it will create an S3 object with a name following the `plumber2_*_block` class name structure. The object will contain all information necessary to apply the annotation to a Plumber2 object.
 4. After this, plumber2 will go over all tags in the block and see if one or more handlers have been registered for the tag and call the handlers one by one. The handlers have the option to modify the block object, either by adding to or modifying its elements (it is not allowed to delete them). Further, it may choose to subclass the object (but not remove a class).
 5. Once the annotation file has been converted into a list of objects they are one by one applied to the Plumber2 object by calling the `apply_plumber2_block()` generic on the block and passing in the block object created in 3 and 4 along with the Plumber2 object.
 
 It follows from the above that there are two places you should be concerned about when it comes to extending plumber2 tags: *tag registration* and *apply_plumber2_block* methods. Depending on your need you'll have to add one of them or potentially both. We'll go through both below:
 
 ### Tag registration
-When adding a new tag, or, if you want to add functionality to an already existing tag, you'll have to add a new handler to the tag. This is done with the `add_plumber2_tag()` function which takes the tag name and a handler function. In general, you *can* add a handler to an already existing tag (a tag can have mutliple handlers and they will each be called in turn), but you should exert caution when doing this to not mess with the original behaviour of the tag. Because adding a handler for a new tag that you control, this is what we will focus on.
+When adding a new tag, or, if you want to add functionality to an already existing tag, you'll have to add a new handler to the tag. This is done with the `add_plumber2_tag()` function which takes the tag name and a handler function. In general, you *can* add a handler to an already existing tag (a tag can have multiple handlers and they will each be called in turn), but you should exert caution when doing this to not mess with the original behavior of the tag. Because adding a handler for a new tag that you control, this is what we will focus on.
 
 An additional aspect to think about is whether the tag is meant to fit into an already existing block type (e.g. a standard handler block) or be the basis of a new block type. Below we will show both.
 
@@ -114,7 +114,7 @@ In the handler function above we can see the two different modes of input for an
 In the handler above we first check to see if `block` is a `plumber2_empty_block` object. This is not strictly necessary but if we are implementing a new block type we should check that it is not being mixed with other block types. Apart from this, the handler is mainly parsing the relevant tags and collecting them in a new object that it gives the class `plumber2_tictoc_block`.
 
 #### Existing block type
-You may want to augment an already existing block type with a new tag. The proces of doing so is similar to the above, but there are other considerations to take into account for the handler function. As an example we will look at the `@cors` tag which is implemented as an extension inside plumber2 itself:
+You may want to augment an already existing block type with a new tag. The process of doing so is similar to the above, but there are other considerations to take into account for the handler function. As an example we will look at the `@cors` tag which is implemented as an extension inside plumber2 itself:
 
 ```{r}
 #| eval: false
@@ -192,10 +192,10 @@ apply_plumber2_block.plumber2_cors_block <- function(
 }
 ```
 
-The most important takeaway from the above is that it starts off by calling `NextMethod()` thus ensuring that the parent methods have been called first. Another thing to note is that the method is using the programmatic api under the hood to support the annotation functionality (the use of `api_security_cors()`). This is a good design that ensures the annotation and programmtic interface stays aligned. We didn't do it for the `tictoc` tag above because we had not yet created a programmatic interface but we will get to that in a second.
+The most important takeaway from the above is that it starts off by calling `NextMethod()` thus ensuring that the parent methods have been called first. Another thing to note is that the method is using the programmatic api under the hood to support the annotation functionality (the use of `api_security_cors()`). This is a good design that ensures the annotation and programmatic interface stays aligned. We didn't do it for the `tictoc` tag above because we had not yet created a programmatic interface but we will get to that in a second.
 
 ## Adding a programmatic interface
-While the annotations are what makes plumber2 stand out, you should ensure that whatever functionality your extension provides should also be available to users who build their api programmatically. There does not need to be a one-to-one correspondance between annotations and functions but keep it as closely aligned as possible. To ensure the programmatic interface feels native you need to make it pipe-friendly, meaning that it should take a Plumber2 object as the first argument (generally named `api`) and return it back modified in the end. Apart from this the only other ask is that you prefix the function name with `api_` to align it with the rest of the interface. For the `tictoc` example we created above it would look something like:
+While the annotations are what makes plumber2 stand out, you should ensure that whatever functionality your extension provides should also be available to users who build their api programmatically. There does not need to be a one-to-one correspondence between annotations and functions but keep it as closely aligned as possible. To ensure the programmatic interface feels native you need to make it pipe-friendly, meaning that it should take a Plumber2 object as the first argument (generally named `api`) and return it back modified in the end. Apart from this the only other ask is that you prefix the function name with `api_` to align it with the rest of the interface. For the `tictoc` example we created above it would look something like:
 
 ```{r}
 api_tictoc <- function(api, interval, message, type = "message") {

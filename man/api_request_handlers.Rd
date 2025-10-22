@@ -209,8 +209,8 @@ HTTP method and path.
 \section{Using annotation}{
 Handlers can be specified in an annotated route file using one of the method
 tags followed by the path it pertains to. You can use various tags to
-descripe the handler and these will automatically be converted to OpenAPI
-documentation. Further, additional tags allow you to modify the behaviour of
+describe the handler and these will automatically be converted to OpenAPI
+documentation. Further, additional tags allow you to modify the behavior of
 the handler, reflecting the arguments available in the functional approach.
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
@@ -229,8 +229,8 @@ function(username) \{
 
 Handlers can be specified in an annotated route file using one of the method
 tags followed by the path it pertains to. You can use various tags to
-descripe the handler and these will automatically be converted to OpenAPI
-documentation. Further, additional tags allow you to modify the behaviour of
+describe the handler and these will automatically be converted to OpenAPI
+documentation. Further, additional tags allow you to modify the behavior of
 the handler, reflecting the arguments available in the functional approach.
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
@@ -293,12 +293,12 @@ plumber2 it is often used to call functions that require input larger than
 what can be put in the URL
 \item \code{PUT}: This method is used to update a specific resource on the server. In
 the context of a standard plumber2 server this is rarely relevant, though
-usage can come up. \code{PUT} is considered by clients to be indemptotent meaning
+usage can come up. \code{PUT} is considered by clients to be idempotent meaning
 that sending the same \code{PUT} request multiple times have no effect
 \item \code{DELETE}: This method deletes a resource and is the opposite to \code{PUT}. As
 with \code{PUT} this method has limited use in most standard plumber2 servers
 \item \code{CONNECT}: This method request the establishment of a proxy tunnel. It is
-considered advanced use and is very unlikely to have a usecase for your
+considered advanced use and is very unlikely to have a use case for your
 plumber2 api
 \item \code{OPTIONS}: This method is used by clients to query a server about what
 methods and other settings are supported on a server
@@ -369,7 +369,7 @@ wildcards.
 
 A request made to \code{user/carl} will thus end up in the third handler, while a
 request made to \code{user/thomas} will end up in the second. This ordering makes
-it possible to both provide default handlers as well as specialisations for
+it possible to both provide default handlers as well as specializations for
 specific paths.
 }
 }
@@ -484,7 +484,7 @@ handler it may be needed to add operations to perform once the async handler
 has finished. This can be done through the \code{then} argument (or using the
 \verb{@then} tag in annotated route files). This takes a list of functions to
 chain to the promise using \code{\link[promises:then]{promises::then()}}. Before the \code{then} chain is
-executed the response will get the return value of the main handler asigned
+executed the response will get the return value of the main handler assigned
 to the body. Each \code{then} call will receive the same arguments as a standard
 request handler as well as \code{result} which will hold the return value of the
 previous handler in the chain. For the first \code{then} call \code{result} will be a

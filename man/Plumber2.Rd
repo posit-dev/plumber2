@@ -149,7 +149,7 @@ the client of the implemented methods. Assigning a handler to \code{"any"} for
 the same path at a later point will overwrite this functionality. Be
 aware that setting this to \code{TRUE} will prevent the request from falling
 through to other routes that might have a matching method and path. This
-setting anly affects handlers on the request router.}
+setting only affects handlers on the request router.}
 
 \item{\code{ignore_trailing_slash}}{Logical. Should the trailing slash of a path
 be ignored when adding handlers and handling requests. Setting this will

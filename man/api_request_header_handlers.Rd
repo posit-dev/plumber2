@@ -191,8 +191,8 @@ These functions return the \code{api} object allowing for easy chaining
 with the pipe
 }
 \description{
-These handlers are called before the request body has been recieved and lets
-you preemptively reject requests before recieving their full content. If the
+These handlers are called before the request body has been received and lets
+you preemptively reject requests before receiving their full content. If the
 handler does not return \link{Next} then the request will be returned at once.
 Most of your logic, however, will be in the main handlers and you are asked to
 consult the \link{api_request_handlers} docs for in-depth details on how to use

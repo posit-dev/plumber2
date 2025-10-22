@@ -45,8 +45,8 @@ handle_constructor <- function(method, header = FALSE) {
 #' # Using annotation
 #' Handlers can be specified in an annotated route file using one of the method
 #' tags followed by the path it pertains to. You can use various tags to
-#' descripe the handler and these will automatically be converted to OpenAPI
-#' documentation. Further, additional tags allow you to modify the behaviour of
+#' describe the handler and these will automatically be converted to OpenAPI
+#' documentation. Further, additional tags allow you to modify the behavior of
 #' the handler, reflecting the arguments available in the functional approach.
 #'
 #' ```
@@ -85,12 +85,12 @@ handle_constructor <- function(method, header = FALSE) {
 #'   what can be put in the URL
 #' * `PUT`: This method is used to update a specific resource on the server. In
 #'   the context of a standard plumber2 server this is rarely relevant, though
-#'   usage can come up. `PUT` is considered by clients to be indemptotent meaning
+#'   usage can come up. `PUT` is considered by clients to be idempotent meaning
 #'   that sending the same `PUT` request multiple times have no effect
 #' * `DELETE`: This method deletes a resource and is the opposite to `PUT`. As
 #'   with `PUT` this method has limited use in most standard plumber2 servers
 #' * `CONNECT`: This method request the establishment of a proxy tunnel. It is
-#'   considered advanced use and is very unlikely to have a usecase for your
+#'   considered advanced use and is very unlikely to have a use case for your
 #'   plumber2 api
 #' * `OPTIONS`: This method is used by clients to query a server about what
 #'   methods and other settings are supported on a server
@@ -154,7 +154,7 @@ handle_constructor <- function(method, header = FALSE) {
 #'
 #' A request made to `user/carl` will thus end up in the third handler, while a
 #' request made to `user/thomas` will end up in the second. This ordering makes
-#' it possible to both provide default handlers as well as specialisations for
+#' it possible to both provide default handlers as well as specializations for
 #' specific paths.
 #'
 #' # The Handler
@@ -250,7 +250,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' has finished. This can be done through the `then` argument (or using the
 #' `@then` tag in annotated route files). This takes a list of functions to
 #' chain to the promise using [promises::then()]. Before the `then` chain is
-#' executed the response will get the return value of the main handler asigned
+#' executed the response will get the return value of the main handler assigned
 #' to the body. Each `then` call will receive the same arguments as a standard
 #' request handler as well as `result` which will hold the return value of the
 #' previous handler in the chain. For the first `then` call `result` will be a
@@ -262,8 +262,8 @@ handle_constructor <- function(method, header = FALSE) {
 #' # Using annotation
 #' Handlers can be specified in an annotated route file using one of the method
 #' tags followed by the path it pertains to. You can use various tags to
-#' descripe the handler and these will automatically be converted to OpenAPI
-#' documentation. Further, additional tags allow you to modify the behaviour of
+#' describe the handler and these will automatically be converted to OpenAPI
+#' documentation. Further, additional tags allow you to modify the behavior of
 #' the handler, reflecting the arguments available in the functional approach.
 #'
 #' ```
@@ -425,8 +425,8 @@ api_any <- handle_constructor("any")
 
 #' Add a handler for a request header
 #'
-#' These handlers are called before the request body has been recieved and lets
-#' you preemptively reject requests before recieving their full content. If the
+#' These handlers are called before the request body has been received and lets
+#' you preemptively reject requests before receiving their full content. If the
 #' handler does not return [Next] then the request will be returned at once.
 #' Most of your logic, however, will be in the main handlers and you are asked to
 #' consult the [api_request_handlers] docs for in-depth details on how to use
@@ -604,11 +604,11 @@ api_add_route <- function(
 #' A handler for a websocket message is much simpler than for requests in
 #' general since it doesn't have to concern itself with methods, paths, and
 #' responses. Any message handler registered will get called in sequence when a
-#' websocket message is recieved from a client. Still, a few expectations apply
+#' websocket message is received from a client. Still, a few expectations apply
 #'
 #' ## Handler Arguments
 #' The handler can take any of the following arguments:
-#' * `message`: Either a raw vector if the message recieved is in binary form or
+#' * `message`: Either a raw vector if the message received is in binary form or
 #'   a single string, giving the message sent from the client
 #' * `server`: The [Plumber2] object representing your server implementation
 #' * `client_id`: A string uniquely identifying the session the request comes
@@ -715,11 +715,11 @@ api_message <- function(api, handler, async = NULL, then = NULL) {
 #' `308 Permanent Redirect`. `from` and `to` can contain path parameters and
 #' wildcards which will be matched between the two to construct the correct
 #' redirect path. Further, `to` can either be a path to the same server or a
-#' fully qualified URL to redirect requests to another server alltogether.
+#' fully qualified URL to redirect requests to another server altogether.
 #'
 #' # Using annotation
 #' You can specify redirects in an annotated plumber file using the `@redirect`
-#' tag. Preceed the method with a `!` to mark the redirect as permanent
+#' tag. Precede the method with a `!` to mark the redirect as permanent
 #'
 #' ```
 #' #* @redirect !get /old/data/* /new/data/*
@@ -734,7 +734,7 @@ api_message <- function(api, handler, async = NULL, then = NULL) {
 #' resolving any path parameters and wildcards it will be used in the
 #' `Location` header
 #' @param permanent Logical. Is the redirect considered permanent or
-#' temporary? Determines the type of redirct status code to use
+#' temporary? Determines the type of redirect status code to use
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
