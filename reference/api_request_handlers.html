@@ -609,7 +609,7 @@ the next route.</p>
     <div class="section level2">
     <h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a></h2>
     <p>plumber2 supports various authentication schemas which can be added with
-<code>api_authenticator()</code>. An authentication flow for the handler can then be
+<code><a href="api_auth_guard.html">api_auth_guard()</a></code>. An authentication flow for the handler can then be
 specified with the <code>auth_flow</code> argument and optional scopes can be set with
 the <code>auth_scope</code> argument. The flow is defined by a logical expression
 referencing the names of the authenticators part of the flow. Assuming two
