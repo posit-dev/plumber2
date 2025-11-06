@@ -66,8 +66,8 @@ not generating API docs)}
 \item \href{#method-Plumber2-add_shiny}{\code{Plumber2$add_shiny()}}
 \item \href{#method-Plumber2-add_report}{\code{Plumber2$add_report()}}
 \item \href{#method-Plumber2-forward}{\code{Plumber2$forward()}}
-\item \href{#method-Plumber2-add_authenticator}{\code{Plumber2$add_authenticator()}}
-\item \href{#method-Plumber2-add_authentication}{\code{Plumber2$add_authentication()}}
+\item \href{#method-Plumber2-add_auth_guard}{\code{Plumber2$add_auth_guard()}}
+\item \href{#method-Plumber2-add_auth}{\code{Plumber2$add_auth()}}
 \item \href{#method-Plumber2-clone}{\code{Plumber2$clone()}}
 }
 }
@@ -590,50 +590,44 @@ should be \code{NULL}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plumber2-add_authenticator"></a>}}
-\if{latex}{\out{\hypertarget{method-Plumber2-add_authenticator}{}}}
-\subsection{Method \code{add_authenticator()}}{
-Adds an authenticator scheme to your API which can then be
-referenced in authentication flows.
+\if{html}{\out{<a id="method-Plumber2-add_auth_guard"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_auth_guard}{}}}
+\subsection{Method \code{add_auth_guard()}}{
+Adds an auth guard to your API which can then be
+referenced in auth flows.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_authenticator(auth, name = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_auth_guard(guard, name = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{auth}}{An \link[fireproof:Auth]{Auth} subclass object defining the
+\item{\code{guard}}{An \link[fireproof:Guard]{Guard} subclass object defining the
 scheme}
 
 \item{\code{name}}{The name to use for referencing the scheme in an
-authentication flow}
+auth flow}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Plumber2-add_authentication"></a>}}
-\if{latex}{\out{\hypertarget{method-Plumber2-add_authentication}{}}}
-\subsection{Method \code{add_authentication()}}{
-Add an authentication flow to an endpoint
+\if{html}{\out{<a id="method-Plumber2-add_auth"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_auth}{}}}
+\subsection{Method \code{add_auth()}}{
+Add an auth flow to an endpoint
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_authentication(
-  method,
-  path,
-  auth_flow,
-  auth_scope = NULL,
-  add_doc = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_auth(method, path, auth_flow, auth_scope = NULL, add_doc = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{method}}{The HTTP method to add authentication to}
+\item{\code{method}}{The HTTP method to add auth to}
 
 \item{\code{path}}{A string giving the path to be authenticated}
 
-\item{\code{auth_flow}}{A logical expression giving the authentication flow the
+\item{\code{auth_flow}}{A logical expression giving the auth flow the
 client must pass to get access to the resource}
 
 \item{\code{auth_scope}}{The scope requirements of the resource}

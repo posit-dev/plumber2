@@ -33,7 +33,7 @@
 #' exist it will be created as the last route in the stack
 #' @inheritParams routr::resource_route
 #' @inheritParams routr::asset_route
-#' @inheritParams api_authentication
+#' @inheritParams api_auth
 #'
 #' @return These functions return the `api` object allowing for easy chaining
 #' with the pipe

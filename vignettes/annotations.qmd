@@ -470,19 +470,19 @@ api() %>%
   api_statics("/", "./assets/static_files", except = "/secret_files")
 ```
 
-## Authenticator annotation
+## Auth guard annotation
 
 | Annotation       | Arguments | Description/References |
 |------------------|-----------|----------------------------------|
-| `@authenticator` | `name`    | Adds a new authenticator with the given name. The authenticator is given below the annotation as a `fireproof::Auth` specification |
+| `@authGuard`     | `name`    | Adds a new guard with the given name. The guard is given below the annotation as a `fireproof::Guard` specification |
 
 ##### Annotations example
 
 ```r
-#* @authenticator auth1
-fireproof::auth_key(
-  key = "plumber2_key",
-  secret = "MY_VERY_SECRET_SECRET"
+#* @authGuard auth1
+fireproof::guard_key(
+  key_name = "plumber2_key",
+  validate = "MY_VERY_SECRET_SECRET"
 )
 ```
 
@@ -492,10 +492,10 @@ fireproof::auth_key(
 #| output: false
 #| eval: !expr R.Version()$minor > package_version("4.0")
 api() |>
-  api_authenticator(
-    fireproof::auth_key(
-      key = "plumber2_key",
-      secret = "MY_VERY_SECRET_SECRET"
+  api_auth_guard(
+    fireproof::guard_key(
+      key_name = "plumber2_key",
+      validate = "MY_VERY_SECRET_SECRET"
     ),
     "auth1"
   )

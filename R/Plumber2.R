@@ -398,7 +398,7 @@ Plumber2 <- R6Class(
       auth_flow <- enquo(auth_flow)
       if (!quo_is_null(auth_flow)) {
         real_path <- gsub("//", "/", paste0(route$root, path))
-        self$add_authentication(
+        self$add_auth(
           method,
           real_path,
           !!auth_flow,
@@ -575,7 +575,7 @@ Plumber2 <- R6Class(
 
       auth_flow <- enquo(auth_flow)
       if (!quo_is_null(auth_flow)) {
-        self$add_authentication(
+        self$add_auth(
           "get",
           path,
           !!auth_flow,
@@ -823,7 +823,7 @@ Plumber2 <- R6Class(
         add_doc <- !inherits(doc, "plumber_noDoc")
         for (path in paths) {
           for (method in c("get", "post", "delete")) {
-            self$add_authentication(
+            self$add_auth(
               method,
               path,
               !!auth_flow,
@@ -860,7 +860,7 @@ Plumber2 <- R6Class(
 
       auth_flow <- enquo(auth_flow)
       if (!quo_is_null(auth_flow)) {
-        self$add_authentication(
+        self$add_auth(
           "all",
           path,
           !!auth_flow,
@@ -871,39 +871,39 @@ Plumber2 <- R6Class(
 
       invisible(self)
     },
-    #' @description Adds an authenticator scheme to your API which can then be
-    #' referenced in authentication flows.
-    #' @param auth An [Auth][fireproof::Auth] subclass object defining the
+    #' @description Adds an auth guard to your API which can then be
+    #' referenced in auth flows.
+    #' @param guard An [Guard][fireproof::Guard] subclass object defining the
     #' scheme
     #' @param name The name to use for referencing the scheme in an
-    #' authentication flow
+    #' auth flow
     #'
-    add_authenticator = function(auth, name = NULL) {
+    add_auth_guard = function(guard, name = NULL) {
       fp <- self$plugins$fireproof
       if (is.null(fp)) {
         fp <- fireproof::Fireproof$new()
         self$attach(fp)
       }
-      fp$add_auth(
-        auth = auth,
+      fp$add_guard(
+        guard = guard,
         name = name
       )
       self$add_api_doc(
-        auth$open_api,
-        subset = c("components", "securitySchemes", name %||% auth$name)
+        guard$open_api,
+        subset = c("components", "securitySchemes", guard$name)
       )
       invisible(self)
     },
-    #' @description Add an authentication flow to an endpoint
-    #' @param method The HTTP method to add authentication to
+    #' @description Add an auth flow to an endpoint
+    #' @param method The HTTP method to add auth to
     #' @param path A string giving the path to be authenticated
-    #' @param auth_flow A logical expression giving the authentication flow the
+    #' @param auth_flow A logical expression giving the auth flow the
     #' client must pass to get access to the resource
     #' @param auth_scope The scope requirements of the resource
     #' @param add_doc Should OpenAPI documentation be added for the
     #' authentication
     #'
-    add_authentication = function(
+    add_auth = function(
       method,
       path,
       auth_flow,
@@ -915,7 +915,12 @@ Plumber2 <- R6Class(
         fp <- fireproof::Fireproof$new()
         self$attach(fp)
       }
-      flow <- fp$add_auth_handler(method, path, {{ auth_flow }}, auth_scope)
+      flow <- fp$add_auth(
+        method = method,
+        path = path,
+        flow = {{ auth_flow }},
+        scope = auth_scope
+      )
 
       if (add_doc) {
         self$add_api_doc(

@@ -13,8 +13,8 @@
 * Support for instrumentation with otel, along with a vignette describing said
   support.
 * Support for authentication through the fireproof package. Authentication can
-  be setup programmatically with `api_authenticator()` and
-  `api_authentication()` as well as directly in all functions creating
+  be setup programmatically with `api_auth_guard()` and
+  `api_auth()` as well as directly in all functions creating
   endpoints. Further it can be added with annotation using the `@auth`,
   `@authScope` and `@authenticator` tags
 

@@ -388,7 +388,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' @param route The route this handler should be added to. Defaults to the last
 #' route in the stack. If the route does not exist it will be created as the
 #' last route in the stack
-#' @inheritParams api_authentication
+#' @inheritParams api_auth
 #'
 #' @return These functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -825,7 +825,7 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' @param app A shiny app object
 #' @param except Subpaths to `path` that should not be forwarded to the
 #' shiny app. Be sure it doesn't contains paths that the shiny app needs
-#' @inheritParams api_authentication
+#' @inheritParams api_auth
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -936,7 +936,7 @@ api_shiny <- function(
 #' @param route The route this handler should be added to. Defaults to the
 #' last route in the stack. If the route does not exist it will be created
 #' as the last route in the stack.
-#' @inheritParams api_authentication
+#' @inheritParams api_auth
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -1008,7 +1008,7 @@ api_report <- function(
 #' @param path The path to serve the shiny app from
 #' @param url The url to forward to
 #' @param except Subpaths to `path` that should be exempt from forwarding
-#' @inheritParams api_authentication
+#' @inheritParams api_auth
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe

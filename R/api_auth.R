@@ -1,27 +1,27 @@
-#' Add an authentication mechanism to your API
+#' Add an auth guard to your API
 #'
-#' This function adds an authentication scheme to your API. Notably, this does
-#' not turn on authentication for any of your handlers but makes it available
-#' for reference in an authentication flow. To use it, reference it in the
-#' `auth_flow` argument of functions supporting it. Authentication schemes are
-#' defined using the various `auth_*()` constructors in the fireproof package.
+#' This function adds an auth guard to your API. Notably, this does
+#' not turn on auth for any of your handlers but makes it available
+#' for reference in an auth flow. To use it, reference it in the
+#' `auth_flow` argument of functions supporting it. Guards are
+#' defined using the various `guard_*()` constructors in the fireproof package.
 #' Refer to these for further documentation
 #'
 #' # Using annotation
-#' To add an authenticator to your api defined in an annotated file use the
-#' `@authenticator` tag:
+#' To add a guard to your api defined in an annotated file use the
+#' `@authGuard` tag:
 #'
 #' ```
-#' #* @authenticator BasicAuth
-#' fireproof::auth_basic(...)
+#' #* @authGuard BasicAuth
+#' fireproof::guard_basic(...)
 #' ```
 #'
-#' The tag parameter (`BasicAuth`) provides the name for the authenticator
+#' The tag parameter (`BasicAuth`) provides the name for the guard
 #'
 #' @param api A plumber2 api object to add the authenticator to
-#' @param auth An [Auth][fireproof::Auth] subclass object defining an
+#' @param guard A [Guard][fireproof::Guard] subclass object defining an
 #' authentication scheme
-#' @param name The name to use for referencing the scheme in an authentication
+#' @param name The name to use for referencing the guard in an authentication
 #' flow
 #'
 #' @return This functions return the `api` object allowing for easy chaining
@@ -30,24 +30,27 @@
 #' @export
 #'
 #' @examples
-#' auth <- fireproof::auth_key("plumber2-key", "MY_VERY_SECRET_KEY")
+#' guard <- fireproof::guard_key(
+#'   key_name = "plumber2-key",
+#'   validate = "MY_VERY_SECRET_KEY"
+#' )
 #'
 #' api() |>
-#'   api_authenticator(auth, "cookie_key")
+#'   api_auth_guard(guard, "cookie_key")
 #'
-api_authenticator <- function(api, auth, name = NULL) {
-  api$add_authenticator(auth = auth, name = name)
+api_auth_guard <- function(api, guard, name = NULL) {
+  api$add_auth_guard(guard = guard, name = name)
   api
 }
 
-#' Add authentication to an endpoint
+#' Add auth to an endpoint
 #'
-#' This function adds authentication to a specific method + path. It does so by
-#' defining an authentication flow the request must pass in order to proceed, as
+#' This function adds auth to a specific method + path. It does so by
+#' defining an auth flow which the request must pass in order to proceed, as
 #' well as an optional vector of scopes required. The flow is given as a logical
-#' expression of [authenticators][api_authenticator] it must satisfy. If you
-#' have registered two authenticators `auth1` and `auth2`, then a flow could be
-#' `auth1 && auth2` to require that both authenticators must be passed to gain
+#' expression of [guards][api_auth_guard] it must satisfy. If you
+#' have registered two guards, `auth1` and `auth2`, then a flow could be
+#' `auth1 && auth2` to require that both guards must be passed to gain
 #' access. Alternatively you could use `auth1 || auth2` to require that just one
 #' of them are passed. Flows can be arbitrarily complex with nesting etc, but
 #' the OpenAPI spec has limits to what it can describe so if you want to have an
@@ -63,7 +66,7 @@ api_authenticator <- function(api, auth, name = NULL) {
 #' directly, it is often more convenient to add it along with the resource or
 #' functionality you want to protect. To that end, many functions such as
 #' [api_get()] and [api_report()] also takes `auth_flow` and `auth_scope` as
-#' input and if given will add authentication to the relevant endpoint.
+#' input and if given will add auth to the relevant endpoint.
 #'
 #' @param api A plumber2 api object to add authentication to
 #' @param method The HTTP method to add authentication to
@@ -80,17 +83,17 @@ api_authenticator <- function(api, auth, name = NULL) {
 #' @export
 #'
 #' @examples
-#' # We are not adding the authenticators here - only the authentication flow
-#' # We assume the authenticators `oauth`, `basic`, and `key` will be added
+#' # We are not adding the guards here - only the auth flow
+#' # We assume the guards `oauth`, `basic`, and `key` will be added
 #' # later
 #' api() |>
-#'   api_authentication(
+#'   api_auth(
 #'     method = "get",
 #'     path = "/user/<username>",
 #'     auth_flow = oauth || (basic && key)
 #'   )
 #'
-api_authentication <- function(
+api_auth <- function(
   api,
   method,
   path,
@@ -98,7 +101,7 @@ api_authentication <- function(
   auth_scope = NULL,
   add_doc = TRUE
 ) {
-  api$add_authentication(
+  api$add_auth(
     method = method,
     path = path,
     auth_flow = {{ auth_flow }},

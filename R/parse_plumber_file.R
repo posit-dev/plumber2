@@ -116,8 +116,8 @@ parse_block <- function(
     parse_asset_block(call, tags, values, env, file_dir)
   } else if (block_has_tags(block, "statics")) {
     parse_static_block(call, tags, values, env, file_dir)
-  } else if (block_has_tags(block, "authenticator")) {
-    parse_authenticator_block(call, tags, values, env)
+  } else if (block_has_tags(block, "authGuard")) {
+    parse_auth_guard_block(call, tags, values, env)
   } else if (block_has_tags(block, "message")) {
     parse_message_block(call, tags, values, env)
   } else if (block_has_tags(block, "then")) {
@@ -321,17 +321,17 @@ parse_asset_block <- function(call, tags, values, env, file_dir) {
   )
 }
 
-parse_authenticator_block <- function(call, tags, values, env) {
-  if (!is.function(call) || fireproof::is_auth(call)) {
-    stop_input_type(call, "an {.cls Auth} subclass object or a function")
+parse_auth_guard_block <- function(call, tags, values, env) {
+  if (!is.function(call) || fireproof::is_guard(call)) {
+    stop_input_type(call, "an {.cls Guard} subclass object or a function")
   }
-  name <- trimws(values[[which(tags == "authenticator")[1]]])
+  name <- trimws(values[[which(tags == "authGuard")[1]]])
   structure(
     list(
-      auth = call,
+      guard = call,
       name = name
     ),
-    class = "plumber2_authenticator_block"
+    class = "plumber2_auth_guard_block"
   )
 }
 
@@ -601,7 +601,7 @@ apply_plumber2_block.plumber2_route_block <- function(
   if (!is.null(block$auth)) {
     for (i in seq_along(block$endpoints)) {
       for (path in block$endpoints[[i]]$path) {
-        api$add_authentication(
+        api$add_auth(
           method = block$endpoints[[i]]$method,
           path = paste0(root, path),
           auth_flow = !!block$auth$flow,
@@ -704,15 +704,15 @@ apply_plumber2_block.plumber2_report_block <- function(
   api
 }
 #' @export
-apply_plumber2_block.plumber2_authenticator_block <- function(
+apply_plumber2_block.plumber2_auth_guard_block <- function(
   block,
   api,
   route_name,
   root,
   ...
 ) {
-  api$add_authenticator(
-    block$auth,
+  api$add_auth_guard(
+    block$guard,
     block$name
   )
   api
