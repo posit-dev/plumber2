@@ -502,6 +502,31 @@ api() |>
   )
 ```
 
+## Datastore annotation
+
+| Annotation       | Arguments | Description/References |
+|------------------|-----------|----------------------------------|
+| `@datastore`     | `[name]`    | Adds a new datastore backend optionally setting a different store name. The driver for the backend is provided below the block |
+
+##### Annotations example
+
+```r
+#* @datastore persistent_data
+storr::driver_environment()
+```
+
+##### Equivalent programmatic usage
+
+```{r}
+#| output: false
+#| eval: !expr R.Version()$minor > package_version("4.0")
+api() |>
+  api_datastore(
+    driver = storr::driver_environment(),
+    store_name = "persistent_data"
+  )
+```
+
 ## plumber2 annotation {#plumber-block-annotations}
 
 | Annotation | Arguments | Description/References |

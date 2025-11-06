@@ -118,6 +118,8 @@ parse_block <- function(
     parse_static_block(call, tags, values, env, file_dir)
   } else if (block_has_tags(block, "authGuard")) {
     parse_auth_guard_block(call, tags, values, env)
+  } else if (block_has_tags(block, "datastore")) {
+    parse_datastore_block(call, tags, values, env)
   } else if (block_has_tags(block, "message")) {
     parse_message_block(call, tags, values, env)
   } else if (block_has_tags(block, "then")) {
@@ -332,6 +334,20 @@ parse_auth_guard_block <- function(call, tags, values, env) {
       name = name
     ),
     class = "plumber2_auth_guard_block"
+  )
+}
+
+parse_datastore_block <- function(call, tags, values, env) {
+  name <- trimws(values[[which(tags == "datastore")[1]]])
+  if (length(name) == 0 || name[1] == "") {
+    name <- "datastore"
+  }
+  structure(
+    list(
+      driver = call,
+      name = name
+    ),
+    class = "plumber2_datastore_block"
   )
 }
 
@@ -715,6 +731,18 @@ apply_plumber2_block.plumber2_auth_guard_block <- function(
     block$guard,
     block$name
   )
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_datastore_block <- function(
+  block,
+  api,
+  route_name,
+  root,
+  ...
+) {
+  api |>
+    api_datastore(driver = block$driver, store_name = block$name)
   api
 }
 #' @export

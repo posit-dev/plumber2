@@ -17,6 +17,8 @@
   `api_auth()` as well as directly in all functions creating
   endpoints. Further it can be added with annotation using the `@auth`,
   `@authScope` and `@authenticator` tags
+* Added `@datastore` tag to set up persistent data storage natively in annotated
+  files
 
 # plumber2 0.1.0
 
