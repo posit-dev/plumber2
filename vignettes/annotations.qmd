@@ -492,6 +492,7 @@ fireproof::guard_key(
 #| output: false
 #| eval: !expr R.Version()$minor > package_version("4.0")
 api() |>
+  api_datastore(storr::driver_environment()) |> 
   api_auth_guard(
     fireproof::guard_key(
       key_name = "plumber2_key",
