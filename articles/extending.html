@@ -119,14 +119,14 @@
 <ol type="1">
 <li>The annotation is parsed and split into it’s constituents. Each tag will at this point be made up of the tag name and an optional text string that contains anything that followed the tag. At this point, the expression that follows the annotation block will also be parsed and evaluated.</li>
 <li>plumber2 will determine which, if any, of the basic block types this is, e.g. a handler block, a shiny block, or something else</li>
-<li>If plumber2 recognises the block type it will create an S3 object with a name following the <code>plumber2_*_block</code> class name structure. The object will contain all information necessary to apply the annotation to a Plumber2 object.</li>
+<li>If plumber2 recognizes the block type it will create an S3 object with a name following the <code>plumber2_*_block</code> class name structure. The object will contain all information necessary to apply the annotation to a Plumber2 object.</li>
 <li>After this, plumber2 will go over all tags in the block and see if one or more handlers have been registered for the tag and call the handlers one by one. The handlers have the option to modify the block object, either by adding to or modifying its elements (it is not allowed to delete them). Further, it may choose to subclass the object (but not remove a class).</li>
 <li>Once the annotation file has been converted into a list of objects they are one by one applied to the Plumber2 object by calling the <code><a href="../reference/apply_plumber2_block.html">apply_plumber2_block()</a></code> generic on the block and passing in the block object created in 3 and 4 along with the Plumber2 object.</li>
 </ol>
 <p>It follows from the above that there are two places you should be concerned about when it comes to extending plumber2 tags: <em>tag registration</em> and <em>apply_plumber2_block</em> methods. Depending on your need you’ll have to add one of them or potentially both. We’ll go through both below:</p>
 <section class="level3"><h3 id="tag-registration">Tag registration<a class="anchor" aria-label="anchor" href="#tag-registration"></a>
 </h3>
-<p>When adding a new tag, or, if you want to add functionality to an already existing tag, you’ll have to add a new handler to the tag. This is done with the <code><a href="../reference/add_plumber2_tag.html">add_plumber2_tag()</a></code> function which takes the tag name and a handler function. In general, you <em>can</em> add a handler to an already existing tag (a tag can have mutliple handlers and they will each be called in turn), but you should exert caution when doing this to not mess with the original behaviour of the tag. Because adding a handler for a new tag that you control, this is what we will focus on.</p>
+<p>When adding a new tag, or, if you want to add functionality to an already existing tag, you’ll have to add a new handler to the tag. This is done with the <code><a href="../reference/add_plumber2_tag.html">add_plumber2_tag()</a></code> function which takes the tag name and a handler function. In general, you <em>can</em> add a handler to an already existing tag (a tag can have multiple handlers and they will each be called in turn), but you should exert caution when doing this to not mess with the original behavior of the tag. Because adding a handler for a new tag that you control, this is what we will focus on.</p>
 <p>An additional aspect to think about is whether the tag is meant to fit into an already existing block type (e.g. a standard handler block) or be the basis of a new block type. Below we will show both.</p>
 <section class="level4"><h4 id="new-block-type">New block type<a class="anchor" aria-label="anchor" href="#new-block-type"></a>
 </h4>
@@ -170,7 +170,7 @@
 <p>In the handler above we first check to see if <code>block</code> is a <code>plumber2_empty_block</code> object. This is not strictly necessary but if we are implementing a new block type we should check that it is not being mixed with other block types. Apart from this, the handler is mainly parsing the relevant tags and collecting them in a new object that it gives the class <code>plumber2_tictoc_block</code>.</p>
 </section><section class="level4"><h4 id="existing-block-type">Existing block type<a class="anchor" aria-label="anchor" href="#existing-block-type"></a>
 </h4>
-<p>You may want to augment an already existing block type with a new tag. The proces of doing so is similar to the above, but there are other considerations to take into account for the handler function. As an example we will look at the <code>@cors</code> tag which is implemented as an extension inside plumber2 itself:</p>
+<p>You may want to augment an already existing block type with a new tag. The process of doing so is similar to the above, but there are other considerations to take into account for the handler function. As an example we will look at the <code>@cors</code> tag which is implemented as an extension inside plumber2 itself:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/add_plumber2_tag.html">add_plumber2_tag</a></span><span class="op">(</span><span class="st">"cors"</span>, <span class="kw">function</span><span class="op">(</span><span class="va">block</span>, <span class="va">call</span>, <span class="va">tags</span>, <span class="va">values</span>, <span class="va">env</span><span class="op">)</span> <span class="op">{</span></span>
@@ -248,10 +248,10 @@
 <span>  <span class="va">api</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
-<p>The most important takeaway from the above is that it starts off by calling <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> thus ensuring that the parent methods have been called first. Another thing to note is that the method is using the programmatic api under the hood to support the annotation functionality (the use of <code><a href="../reference/api_security_cors.html">api_security_cors()</a></code>). This is a good design that ensures the annotation and programmtic interface stays aligned. We didn’t do it for the <code>tictoc</code> tag above because we had not yet created a programmatic interface but we will get to that in a second.</p>
+<p>The most important takeaway from the above is that it starts off by calling <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> thus ensuring that the parent methods have been called first. Another thing to note is that the method is using the programmatic api under the hood to support the annotation functionality (the use of <code><a href="../reference/api_security_cors.html">api_security_cors()</a></code>). This is a good design that ensures the annotation and programmatic interface stays aligned. We didn’t do it for the <code>tictoc</code> tag above because we had not yet created a programmatic interface but we will get to that in a second.</p>
 </section></section></section><section class="level2"><h2 id="adding-a-programmatic-interface">Adding a programmatic interface<a class="anchor" aria-label="anchor" href="#adding-a-programmatic-interface"></a>
 </h2>
-<p>While the annotations are what makes plumber2 stand out, you should ensure that whatever functionality your extension provides should also be available to users who build their api programmatically. There does not need to be a one-to-one correspondance between annotations and functions but keep it as closely aligned as possible. To ensure the programmatic interface feels native you need to make it pipe-friendly, meaning that it should take a Plumber2 object as the first argument (generally named <code>api</code>) and return it back modified in the end. Apart from this the only other ask is that you prefix the function name with <code>api_</code> to align it with the rest of the interface. For the <code>tictoc</code> example we created above it would look something like:</p>
+<p>While the annotations are what makes plumber2 stand out, you should ensure that whatever functionality your extension provides should also be available to users who build their api programmatically. There does not need to be a one-to-one correspondence between annotations and functions but keep it as closely aligned as possible. To ensure the programmatic interface feels native you need to make it pipe-friendly, meaning that it should take a Plumber2 object as the first argument (generally named <code>api</code>) and return it back modified in the end. Apart from this the only other ask is that you prefix the function name with <code>api_</code> to align it with the rest of the interface. For the <code>tictoc</code> example we created above it would look something like:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">api_tictoc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">api</span>, <span class="va">interval</span>, <span class="va">message</span>, <span class="va">type</span> <span class="op">=</span> <span class="st">"message"</span><span class="op">)</span> <span class="op">{</span></span>
@@ -295,8 +295,8 @@
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     cli::cli_abort("{.fun format_geojson} did not receive an `sf` or `sfc` object.")</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55681404a270&gt;</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x556814dfcb88&gt;</span></span></code></pre>
+<span><span class="co">#&gt; &lt;bytecode: 0x55dc655b3fd0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55dc623998c8&gt;</span></span></code></pre>
 </div>
 </div>
 <p>While you can always pass in a function directly as a serializer, registering them by name makes it much easier to reuse, and making it a default makes the serializer instantly available to all endpoints (providing they are using the defaults). It follows that providing additional serializers, both defaults and non-defaults, increases ways plumber2 can interact with the client.</p>
@@ -323,7 +323,7 @@
 <span><span class="co">#&gt;             ...)</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x556813fe8f88&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x55dc6557ec38&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:plumber2&gt;</span></span></code></pre>
 </div>
 </div>
@@ -342,7 +342,7 @@
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     tomledit::to_toml(x)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55680fb067c0&gt;</span></span></code></pre>
+<span><span class="co">#&gt; &lt;environment: 0x55dc64dbaf18&gt;</span></span></code></pre>
 </div>
 </div>
 <p>We can also see that it is part of the defaults:</p>
@@ -409,7 +409,7 @@
 </div>
 </section><section class="level3"><h3 id="asynchronous-engines">Asynchronous engines<a class="anchor" aria-label="anchor" href="#asynchronous-engines"></a>
 </h3>
-<p>plumber2 comes with build in support for asynchronous evaluation based on mirai. We strongly believe this is the best choice for async eval in R, but you may still use another engine if you se desire by registering a new one. Below, we show how to create an asynch evaluator based on the <code>future</code> package</p>
+<p>plumber2 comes with build in support for asynchronous evaluation based on mirai. We strongly believe this is the best choice for async eval in R, but you may still use another engine if you se desire by registering a new one. Below, we show how to create an async evaluator based on the <code>future</code> package</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">future_async</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>

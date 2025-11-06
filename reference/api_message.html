@@ -105,11 +105,11 @@ with the pipe</p>
     <p>A handler for a websocket message is much simpler than for requests in
 general since it doesn't have to concern itself with methods, paths, and
 responses. Any message handler registered will get called in sequence when a
-websocket message is recieved from a client. Still, a few expectations apply</p><div class="section">
+websocket message is received from a client. Still, a few expectations apply</p><div class="section">
 <h3 id="handler-arguments">Handler Arguments<a class="anchor" aria-label="anchor" href="#handler-arguments"></a></h3>
 
 
-<p>The handler can take any of the following arguments:</p><ul><li><p><code>message</code>: Either a raw vector if the message recieved is in binary form or
+<p>The handler can take any of the following arguments:</p><ul><li><p><code>message</code>: Either a raw vector if the message received is in binary form or
 a single string, giving the message sent from the client</p></li>
 <li><p><code>server</code>: The <a href="Plumber2.html">Plumber2</a> object representing your server implementation</p></li>
 <li><p><code>client_id</code>: A string uniquely identifying the session the request comes

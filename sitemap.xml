@@ -27,6 +27,8 @@
 <url><loc>https://plumber2.posit.co/reference/api.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_add_route.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_assets.html</loc></url>
+<url><loc>https://plumber2.posit.co/reference/api_auth.html</loc></url>
+<url><loc>https://plumber2.posit.co/reference/api_auth_guard.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_datastore.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_docs.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_forward.html</loc></url>

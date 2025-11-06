@@ -539,6 +539,40 @@ Chains the handler to the preceeding message or request handler if that handler 
 <tr>
 <td>
 <p>
+<code><span class="citation" data-cites="auth">@auth</span></code>
+</p>
+</td>
+<td>
+<p>
+<code>flow</code>
+</p>
+</td>
+<td>
+<p>
+Sets an authentication flow for the endpoint, referencing one or more authenticators added to the api
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>
+<code><span class="citation" data-cites="authScope">@authScope</span></code>
+</p>
+</td>
+<td>
+<p>
+<code>scopes</code>
+</p>
+</td>
+<td>
+<p>
+Sets one or more scopes required for visiting the endpoint. Multiple scopes can be set either as a comma-separated list or with multiple tags
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>
 <code><span class="citation" data-cites="cors">@cors</span></code>
 </p>
 </td>
@@ -841,6 +875,47 @@ Dont generate OpenAPI documentation from this block
 <span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu"><a href="../reference/api_assets.html">api_statics</a></span><span class="op">(</span><span class="st">"/"</span>, <span class="st">"./assets/static_files"</span>, except <span class="op">=</span> <span class="st">"/secret_files"</span><span class="op">)</span></span></code></pre></div>
 </div>
+</section></section><section class="level2"><h2 id="auth-guard-annotation">Auth guard annotation<a class="anchor" aria-label="anchor" href="#auth-guard-annotation"></a>
+</h2>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 17%">
+<col style="width: 53%">
+</colgroup>
+<thead><tr class="header">
+<th>Annotation</th>
+<th>Arguments</th>
+<th>Description/References</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td><code>@authGuard</code></td>
+<td><code>name</code></td>
+<td>Adds a new guard with the given name. The guard is given below the annotation as a <code><a href="https://thomasp85.github.io/fireproof/reference/Guard.html" class="external-link">fireproof::Guard</a></code> specification</td>
+</tr></tbody>
+</table>
+<section class="level5"><h5 id="annotations-example-7">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-7"></a>
+</h5>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#* @authGuard auth1</span></span>
+<span><span class="fu">fireproof</span><span class="fu">::</span><span class="fu"><a href="https://thomasp85.github.io/fireproof/reference/guard_key.html" class="external-link">guard_key</a></span><span class="op">(</span></span>
+<span>  key_name <span class="op">=</span> <span class="st">"plumber2_key"</span>,</span>
+<span>  validate <span class="op">=</span> <span class="st">"MY_VERY_SECRET_SECRET"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage-6">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-6"></a>
+</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/api_datastore.html">api_datastore</a></span><span class="op">(</span><span class="fu">storr</span><span class="fu">::</span><span class="fu"><a href="https://richfitz.github.io/storr/reference/storr_environment.html" class="external-link">driver_environment</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/api_auth_guard.html">api_auth_guard</a></span><span class="op">(</span></span>
+<span>    <span class="fu">fireproof</span><span class="fu">::</span><span class="fu"><a href="https://thomasp85.github.io/fireproof/reference/guard_key.html" class="external-link">guard_key</a></span><span class="op">(</span></span>
+<span>      key_name <span class="op">=</span> <span class="st">"plumber2_key"</span>,</span>
+<span>      validate <span class="op">=</span> <span class="st">"MY_VERY_SECRET_SECRET"</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="st">"auth1"</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+</div>
 </section></section><section class="level2"><h2 id="plumber-block-annotations">plumber2 annotation<a class="anchor" aria-label="anchor" href="#plumber-block-annotations"></a>
 </h2>
 <table class="table caption-top">
@@ -860,9 +935,9 @@ Dont generate OpenAPI documentation from this block
 <td>Modify plumber router from plumber file. If the function returns a plumber2 api object then this object will be used going forward, otherwise the return value is ignored. In most cases, anonymous functions are used following the <code>#* @plumber</code> annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses.</td>
 </tr></tbody>
 </table>
-<section class="level5"><h5 id="annotations-example-7">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-7"></a>
+<section class="level5"><h5 id="annotations-example-8">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-8"></a>
 </h5>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @plumber</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">api</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">api</span> <span class="op">%&gt;%</span></span>
@@ -877,10 +952,10 @@ Dont generate OpenAPI documentation from this block
 <span></span>
 <span><span class="co">#* @plumber</span></span>
 <span><span class="va">use_swagger</span></span></code></pre></div>
-</section><section class="level5"><h5 id="equivalent-programmatic-usage-6">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-6"></a>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage-7">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-7"></a>
 </h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_docs.html">api_doc_setting</a></span><span class="op">(</span><span class="st">"swagger"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -916,17 +991,17 @@ Dont generate OpenAPI documentation from this block
 </table>
 <section class="level5"><h5 id="annotation-example">Annotation example<a class="anchor" aria-label="anchor" href="#annotation-example"></a>
 </h5>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @redirect !any old/&lt;path&gt; new/&lt;path&gt;</span></span>
 <span><span class="co">#* @redirect get main/&lt;path&gt; temp/main/&lt;path&gt;</span></span>
 <span><span class="cn">NULL</span></span>
 <span></span>
 <span><span class="co">#* @forward proxy/server http://127.0.0.1:56789</span></span>
 <span><span class="cn">NULL</span></span></code></pre></div>
-</section><section class="level5"><h5 id="equivalent-programmatic-usage-7">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-7"></a>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage-8">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-8"></a>
 </h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_redirect.html">api_redirect</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"old/&lt;path&gt;"</span>, <span class="st">"new/&lt;path&gt;"</span>, permanent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_redirect.html">api_redirect</a></span><span class="op">(</span><span class="st">"get"</span>, <span class="st">"main/*"</span>, <span class="st">"temp/main/*"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -954,13 +1029,13 @@ Dont generate OpenAPI documentation from this block
 </table>
 <section class="level5"><h5 id="annotation-example-1">Annotation example<a class="anchor" aria-label="anchor" href="#annotation-example-1"></a>
 </h5>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @shiny app/</span></span>
 <span><span class="fu">shinyAppDir</span><span class="op">(</span><span class="st">"path/to/shiny/app"</span><span class="op">)</span></span></code></pre></div>
-</section><section class="level5"><h5 id="equivalent-programmatic-usage-8">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-8"></a>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage-9">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-9"></a>
 </h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_shiny.html">api_shiny</a></span><span class="op">(</span><span class="st">"app/"</span>, <span class="fu">shinyAppDir</span><span class="op">(</span><span class="st">"path/to/shiny/app"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -986,17 +1061,17 @@ Dont generate OpenAPI documentation from this block
 </table>
 <section class="level5"><h5 id="annotation-example-2">Annotation example<a class="anchor" aria-label="anchor" href="#annotation-example-2"></a>
 </h5>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* Access the quarterly report</span></span>
 <span><span class="co">#*</span></span>
 <span><span class="co">#* @query quarter:enum|spring, summer, autumn, winter| The quarter to generate the report for</span></span>
 <span><span class="co">#*</span></span>
 <span><span class="co">#* @report quarterly/</span></span>
 <span><span class="st">"my_amazing_report.qmd"</span></span></code></pre></div>
-</section><section class="level5"><h5 id="equivalent-programmatic-usage-9">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-9"></a>
+</section><section class="level5"><h5 id="equivalent-programmatic-usage-10">Equivalent programmatic usage<a class="anchor" aria-label="anchor" href="#equivalent-programmatic-usage-10"></a>
 </h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_add_route.html">api_add_route</a></span><span class="op">(</span><span class="fu">routr</span><span class="fu">::</span><span class="fu"><a href="https://routr.data-imaginist.com/reference/report_route.html" class="external-link">report_route</a></span><span class="op">(</span><span class="st">"quarterly/"</span>, <span class="st">"my_amazing_report.qmd"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>

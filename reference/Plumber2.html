@@ -184,6 +184,8 @@ not generating API docs)</p></dd>
 <li><p><a href="#method-Plumber2-add_shiny"><code>Plumber2$add_shiny()</code></a></p></li>
 <li><p><a href="#method-Plumber2-add_report"><code>Plumber2$add_report()</code></a></p></li>
 <li><p><a href="#method-Plumber2-forward"><code>Plumber2$forward()</code></a></p></li>
+<li><p><a href="#method-Plumber2-add_auth_guard"><code>Plumber2$add_auth_guard()</code></a></p></li>
+<li><p><a href="#method-Plumber2-add_auth"><code>Plumber2$add_auth()</code></a></p></li>
 <li><p><a href="#method-Plumber2-clone"><code>Plumber2$clone()</code></a></p></li>
 </ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="fiery" data-topic="Fire" data-id="async"><a href="https://fiery.data-imaginist.com/reference/Fire.html#method-async"><code>fiery::Fire$async()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="fiery" data-topic="Fire" data-id="attach"><a href="https://fiery.data-imaginist.com/reference/Fire.html#method-attach"><code>fiery::Fire$attach()</code></a></span></li>
@@ -265,7 +267,7 @@ the client of the implemented methods. Assigning a handler to <code>"any"</code>
 the same path at a later point will overwrite this functionality. Be
 aware that setting this to <code>TRUE</code> will prevent the request from falling
 through to other routes that might have a matching method and path. This
-setting anly affects handlers on the request router.</p></dd>
+setting only affects handlers on the request router.</p></dd>
 
 
 <dt><code>ignore_trailing_slash</code></dt>
@@ -420,6 +422,8 @@ detailed information</p><div class="section">
 <span>  <span class="va">serializers</span>,</span>
 <span>  parsers <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  use_strict_serializer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  auth_flow <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  auth_scope <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  download <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  then <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -461,6 +465,18 @@ selected is based on the request <code>Content-Type</code> header</p></dd>
 the requests <code>Accept</code> header cannot be found, then the first of the
 provided ones are used. Setting this to <code>TRUE</code> will instead send back a
 <code>406 Not Acceptable</code> response</p></dd>
+
+
+<dt><code>auth_flow</code></dt>
+<dd><p>The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names</p></dd>
+
+
+<dt><code>auth_scope</code></dt>
+<dd><p>The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be <code>NULL</code></p></dd>
 
 
 <dt><code>download</code></dt>
@@ -558,7 +574,7 @@ resolving any path parameters and wildcards it will be used in the
 
 <dt><code>permanent</code></dt>
 <dd><p>Logical. Is the redirect considered permanent or
-temporary? Determines the type of redirct status code to use</p></dd>
+temporary? Determines the type of redirect status code to use</p></dd>
 
 
 </dl><p></p></div>
@@ -617,7 +633,13 @@ docs to assign <code>doc</code> to</p></dd>
 <p>Add a shiny app to an api. See <code><a href="api_shiny.html">api_shiny()</a></code> for detailed
 information</p><div class="section">
 <h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">add_shiny</span><span class="op">(</span><span class="va">path</span>, <span class="va">app</span>, except <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">add_shiny</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  <span class="va">app</span>,</span>
+<span>  except <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  auth_flow <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  auth_scope <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -633,6 +655,18 @@ information</p><div class="section">
 <dt><code>except</code></dt>
 <dd><p>Subpaths to <code>path</code> that should not be forwarded to the
 shiny app. Be sure it doesn't contains paths that the shiny app needs</p></dd>
+
+
+<dt><code>auth_flow</code></dt>
+<dd><p>The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names</p></dd>
+
+
+<dt><code>auth_scope</code></dt>
+<dd><p>The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be <code>NULL</code></p></dd>
 
 
 </dl><p></p></div>
@@ -654,6 +688,8 @@ endpoint. See <code><a href="api_report.html">api_report()</a></code> for more i
 <span>  continue <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cache_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"plumber2_report"</span><span class="op">)</span>,</span>
 <span>  cache_by_id <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  auth_flow <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  auth_scope <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  route <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -711,6 +747,18 @@ rendering is dependent on user-level access to different data this is
 necessary to avoid data leakage.</p></dd>
 
 
+<dt><code>auth_flow</code></dt>
+<dd><p>The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names</p></dd>
+
+
+<dt><code>auth_scope</code></dt>
+<dd><p>The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be <code>NULL</code></p></dd>
+
+
 <dt><code>route</code></dt>
 <dd><p>The route this handler should be added to. Defaults to the
 last route in the stack. If the route does not exist it will be created
@@ -725,7 +773,7 @@ as the last route in the stack.</p></dd>
 <p>Add a reverse proxy from a path to a given URL. See
 <code><a href="api_forward.html">api_forward()</a></code> for more details</p><div class="section">
 <h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">forward</span><span class="op">(</span><span class="va">path</span>, <span class="va">url</span>, except <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">forward</span><span class="op">(</span><span class="va">path</span>, <span class="va">url</span>, except <span class="op">=</span> <span class="cn">NULL</span>, auth_flow <span class="op">=</span> <span class="cn">NULL</span>, auth_scope <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -742,18 +790,87 @@ as the last route in the stack.</p></dd>
 <dd><p>Subpaths to <code>path</code> that should be exempt from forwarding</p></dd>
 
 
+<dt><code>auth_flow</code></dt>
+<dd><p>The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names</p></dd>
+
+
+<dt><code>auth_scope</code></dt>
+<dd><p>The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be <code>NULL</code></p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-Plumber2-add_auth_guard"></a><div class="section">
+<h3 id="method-add-auth-guard-">Method <code>add_auth_guard()</code><a class="anchor" aria-label="anchor" href="#method-add-auth-guard-"></a></h3>
+<p>Adds an auth guard to your API which can then be
+referenced in auth flows.</p><div class="section">
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">add_auth_guard</span><span class="op">(</span><span class="va">guard</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-12">Arguments<a class="anchor" aria-label="anchor" href="#arguments-12"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>guard</code></dt>
+<dd><p>An <a href="https://thomasp85.github.io/fireproof/reference/Guard.html" class="external-link">Guard</a> subclass object defining the
+scheme</p></dd>
+
+
+<dt><code>name</code></dt>
+<dd><p>The name to use for referencing the scheme in an
+auth flow</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-Plumber2-add_auth"></a><div class="section">
+<h3 id="method-add-auth-">Method <code>add_auth()</code><a class="anchor" aria-label="anchor" href="#method-add-auth-"></a></h3>
+<p>Add an auth flow to an endpoint</p><div class="section">
+<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">add_auth</span><span class="op">(</span><span class="va">method</span>, <span class="va">path</span>, <span class="va">auth_flow</span>, auth_scope <span class="op">=</span> <span class="cn">NULL</span>, add_doc <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-13">Arguments<a class="anchor" aria-label="anchor" href="#arguments-13"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>method</code></dt>
+<dd><p>The HTTP method to add auth to</p></dd>
+
+
+<dt><code>path</code></dt>
+<dd><p>A string giving the path to be authenticated</p></dd>
+
+
+<dt><code>auth_flow</code></dt>
+<dd><p>A logical expression giving the auth flow the
+client must pass to get access to the resource</p></dd>
+
+
+<dt><code>auth_scope</code></dt>
+<dd><p>The scope requirements of the resource</p></dd>
+
+
+<dt><code>add_doc</code></dt>
+<dd><p>Should OpenAPI documentation be added for the
+authentication</p></dd>
+
+
 </dl><p></p></div>
 </div>
 
 </div><p></p><hr><a id="method-Plumber2-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Plumber2</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-12">Arguments<a class="anchor" aria-label="anchor" href="#arguments-12"></a></h4>
+<h4 id="arguments-14">Arguments<a class="anchor" aria-label="anchor" href="#arguments-14"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

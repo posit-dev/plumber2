@@ -7,7 +7,7 @@ of permanent the redirect will respond with a 307 Temporary Redirect or
 308 Permanent Redirect. from and to can contain path parameters and
 wildcards which will be matched between the two to construct the correct
 redirect path. Further, to can either be a path to the same server or a
-fully qualified URL to redirect requests to another server alltogether."><meta property="og:description" content="While it is optimal that an API remains stable over its lifetime it is often
+fully qualified URL to redirect requests to another server altogether."><meta property="og:description" content="While it is optimal that an API remains stable over its lifetime it is often
 not fully attainable. In order to direct requests for resources that has
 been moved to the new location you can add a redirect that ensures a smooth
 transition for clients still using the old path. Depending on the value
@@ -15,7 +15,7 @@ of permanent the redirect will respond with a 307 Temporary Redirect or
 308 Permanent Redirect. from and to can contain path parameters and
 wildcards which will be matched between the two to construct the correct
 redirect path. Further, to can either be a path to the same server or a
-fully qualified URL to redirect requests to another server alltogether."><meta property="og:image" content="https://plumber2.posit.co/logo.svg"></head><body>
+fully qualified URL to redirect requests to another server altogether."><meta property="og:image" content="https://plumber2.posit.co/logo.svg"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -76,7 +76,7 @@ of <code>permanent</code> the redirect will respond with a <code>307 Temporary R
 <code>308 Permanent Redirect</code>. <code>from</code> and <code>to</code> can contain path parameters and
 wildcards which will be matched between the two to construct the correct
 redirect path. Further, <code>to</code> can either be a path to the same server or a
-fully qualified URL to redirect requests to another server alltogether.</p>
+fully qualified URL to redirect requests to another server altogether.</p>
     </div>
 
     <div class="section level2">
@@ -108,7 +108,7 @@ resolving any path parameters and wildcards it will be used in the
 
 <dt id="arg-permanent">permanent<a class="anchor" aria-label="anchor" href="#arg-permanent"></a></dt>
 <dd><p>Logical. Is the redirect considered permanent or
-temporary? Determines the type of redirct status code to use</p></dd>
+temporary? Determines the type of redirect status code to use</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -119,7 +119,7 @@ with the pipe</p>
     <div class="section level2">
     <h2 id="using-annotation">Using annotation<a class="anchor" aria-label="anchor" href="#using-annotation"></a></h2>
     <p>You can specify redirects in an annotated plumber file using the <code>@redirect</code>
-tag. Preceed the method with a <code>!</code> to mark the redirect as permanent</p>
+tag. Precede the method with a <code>!</code> to mark the redirect as permanent</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#* @redirect !get /old/data/* /new/data/*</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#* @redirect any /unstable/endpoint /stable/endpoint</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="cn">NULL</span></span></code></pre><p></p></div>

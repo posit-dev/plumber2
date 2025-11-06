@@ -75,7 +75,7 @@ forwarded to the shiny process, and thus not end up in your normal route</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">api_shiny</span><span class="op">(</span><span class="va">api</span>, <span class="va">path</span>, <span class="va">app</span>, except <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">api_shiny</span><span class="op">(</span><span class="va">api</span>, <span class="va">path</span>, <span class="va">app</span>, except <span class="op">=</span> <span class="cn">NULL</span>, auth_flow <span class="op">=</span> <span class="cn">NULL</span>, auth_scope <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -97,6 +97,15 @@ forwarded to the shiny process, and thus not end up in your normal route</p>
 <dt id="arg-except">except<a class="anchor" aria-label="anchor" href="#arg-except"></a></dt>
 <dd><p>Subpaths to <code>path</code> that should not be forwarded to the
 shiny app. Be sure it doesn't contains paths that the shiny app needs</p></dd>
+
+
+<dt id="arg-auth-flow">auth_flow<a class="anchor" aria-label="anchor" href="#arg-auth-flow"></a></dt>
+<dd><p>A logical expression giving the authentication flow the
+client must pass to get access to the resource.</p></dd>
+
+
+<dt id="arg-auth-scope">auth_scope<a class="anchor" aria-label="anchor" href="#arg-auth-scope"></a></dt>
+<dd><p>The scope requirements of the resource</p></dd>
 
 </dl></div>
     <div class="section level2">
