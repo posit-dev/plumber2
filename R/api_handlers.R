@@ -269,7 +269,7 @@ handle_constructor <- function(method, header = FALSE) {
 #'
 #' # Authentication
 #' plumber2 supports various authentication schemas which can be added with
-#' [api_authenticator()]. An authentication flow for the handler can then be
+#' [api_auth_guard()]. An authentication flow for the handler can then be
 #' specified with the `auth_flow` argument and optional scopes can be set with
 #' the `auth_scope` argument. The flow is defined by a logical expression
 #' referencing the names of the authenticators part of the flow. Assuming two

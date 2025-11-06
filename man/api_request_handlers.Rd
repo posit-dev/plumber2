@@ -541,7 +541,7 @@ the next route.
 
 \section{Authentication}{
 plumber2 supports various authentication schemas which can be added with
-\code{\link[=api_authenticator]{api_authenticator()}}. An authentication flow for the handler can then be
+\code{\link[=api_auth_guard]{api_auth_guard()}}. An authentication flow for the handler can then be
 specified with the \code{auth_flow} argument and optional scopes can be set with
 the \code{auth_scope} argument. The flow is defined by a logical expression
 referencing the names of the authenticators part of the flow. Assuming two
