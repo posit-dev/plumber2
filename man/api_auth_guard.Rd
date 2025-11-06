@@ -45,6 +45,7 @@ guard <- fireproof::guard_key(
 )
 
 api() |>
+  api_datastore(storr::driver_environment()) |>
   api_auth_guard(guard, "cookie_key")
 
 }

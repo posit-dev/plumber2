@@ -36,6 +36,7 @@
 #' )
 #'
 #' api() |>
+#'   api_datastore(storr::driver_environment()) |>
 #'   api_auth_guard(guard, "cookie_key")
 #'
 api_auth_guard <- function(api, guard, name = NULL) {
@@ -87,6 +88,7 @@ api_auth_guard <- function(api, guard, name = NULL) {
 #' # We assume the guards `oauth`, `basic`, and `key` will be added
 #' # later
 #' api() |>
+#'   api_datastore(storr::driver_environment()) |>
 #'   api_auth(
 #'     method = "get",
 #'     path = "/user/<username>",

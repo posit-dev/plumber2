@@ -54,6 +54,7 @@ input and if given will add auth to the relevant endpoint.
 # We assume the guards `oauth`, `basic`, and `key` will be added
 # later
 api() |>
+  api_datastore(storr::driver_environment()) |>
   api_auth(
     method = "get",
     path = "/user/<username>",
