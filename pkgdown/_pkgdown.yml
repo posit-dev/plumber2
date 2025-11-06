@@ -95,6 +95,8 @@ reference:
       - api_on
       - api_session_cookie
       - api_datastore
+      - api_auth
+      - api_auth_guard
       - Next
       - add_plumber2_tag
       - apply_plumber2_block
