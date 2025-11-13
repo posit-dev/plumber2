@@ -61,6 +61,8 @@
 <li>Support for instrumentation with otel, along with a vignette describing said support.</li>
 <li>Support for authentication through the fireproof package. Authentication can be setup programmatically with <code><a href="../reference/api_auth_guard.html">api_auth_guard()</a></code> and <code><a href="../reference/api_auth.html">api_auth()</a></code> as well as directly in all functions creating endpoints. Further it can be added with annotation using the <code>@auth</code>, <code>@authScope</code> and <code>@authenticator</code> tags</li>
 <li>Added <code>@datastore</code> tag to set up persistent data storage natively in annotated files</li>
+<li>
+<code><a href="../reference/api_request_handlers.html">api_get()</a></code> and other endpoint functions now defaults to using the default serializers and parsers (<a href="https://github.com/posit-dev/plumber2/issues/57" class="external-link">#57</a>)</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="plumber2-010">plumber2 0.1.0<a class="anchor" aria-label="anchor" href="#plumber2-010"></a></h2><p class="text-muted">CRAN release: 2025-09-22</p>
@@ -75,7 +77,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

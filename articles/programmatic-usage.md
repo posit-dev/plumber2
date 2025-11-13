@@ -1,0 +1,159 @@
+# Programmatic Usage
+
+Typically, users define APIs using the “annotations,” or special
+comments in their API source code. It is possible to define a Plumber
+API programmatically using the same underlying R6 objects that get
+created automatically when you define your API using annotations.
+Interacting with Plumber2 at this level can offer more control and
+specificity about how you want your API to behave. It further opens you
+up to the full power of
+[fiery](https://fiery.data-imaginist.com/index.html), upon which
+plumber2 is build. However, using annotated files will automatically
+provide you with OpenAPI documentation so in many cases using annotated
+files will be the obvious starting point.
+
+## Creating and Controlling routers
+
+Most of the work you do on a plumber2 API will be related to the request
+router. A router is the entity that funnels requests to the correct
+handler based on their path. The router used by plumber2 is provided by
+the [routr](https://routr.data-imaginist.com) package and can be
+interacted with directly through the `request_router` field in your
+plumber API object. Often though, you will only interact with it
+indirectly through other functions and methods.
+
+A router can contain multiple routes and each route can contain multiple
+path handlers. When a request is received the router will pass it
+through each route in turn. Each route will then select a handler (if
+one exist) for the request and execute that handler on the request. It
+is possible for a handler to signal that no further processing should
+happen in which case any remaining routes in the router is skipped and
+the response is send immediately.
+
+When you create a plumber api based on multiple files each file will
+define their own route named after the file and the routes will be
+ordered by the order of the inputs. If you instead create your API
+programmatically you can create a new route by calling
+[`api_add_route()`](https://plumber2.posit.co/reference/api_add_route.md)
+or by naming a non-existing route when you add a handler. In the latter
+case the route will be placed in the end of the stack whereas adding it
+explicitly with the former approach allows you to insert it at any
+location in the router you wish. You may also use
+[`api_add_route()`](https://plumber2.posit.co/reference/api_add_route.md)
+to add an already defined routr route to your api.
+
+## Defining handlers
+
+You can add handlers to your router by using
+[`api_get()`](https://plumber2.posit.co/reference/api_request_handlers.md),
+[`api_post()`](https://plumber2.posit.co/reference/api_request_handlers.md),
+or one of the other handler functions. For instance, to define a Plumber
+API that responds to `GET` requests on `/` and `POST` requests on
+`/submit`, you could use the following code:
+
+``` r
+api() |>
+  api_get("/", function(req, res){
+    # ...
+  }) |>
+  api_post("/submit", function(req, res){
+    # ...
+  })
+```
+
+The handler functions that you define in these calls are identical to
+the code you would have defined in your annotated file if you were using
+annotations to define your API.
+
+The handler functions take additional arguments that allow you to
+control nuanced behavior of the handler like which serializer(s) it
+should use. For instance, the following endpoint would use the default
+HTML serializer from plumber2.
+
+``` r
+api() %>%
+  api_get(
+    path = "/",
+    handler = function(){
+      list(
+        body = list(
+          h1 = "Programmatic Plumber!"
+        )
+      )
+    },
+    serializers = get_serializers("html")
+  )
+```
+
+It is worth noting that there is a difference between adding handlers
+with the handler functions provided by plumber2 and
+`routr::Route$add_handler()` even though the former is based on the
+latter. With the latter approach the handler is added *as-is* and you’ll
+use routr’s syntax for path variables (prefixing the path element with
+`:` rather than enclosing it in `<>`). With the former the handler is
+wrapped in another function that talkes care of much of the plumber2
+“magic”, such as setting parsers and serializers, providing type
+casting, and supporting graphic output. Unless you specifically want to
+opt out of this you’d be best served using the plumber2 provided handler
+functions.
+
+One place where you may want to consider foregoing the plumber API
+altogether is if you are writing a plugin and you want that plugin to be
+usable by all fiery apps and not only plumber APIs.
+
+## Listening for and triggering events
+
+Plumber2 is build upon fiery which is an event-driven web server
+framework. During the course of running several events will fire and
+event handlers will be triggered (e.g. the router is listening for
+`"request"` events). While you should generally rely on the router for
+handling request event to ensure that requests are handled in a
+structured manner, you might want to attach handlers to other events,
+such as e.g. the `"start"` and `"end"` events. You can do this using the
+[`api_on()`](https://plumber2.posit.co/reference/api_on.md) function:
+
+``` r
+api() |>
+  api_on("start", function() {
+    print("Yay! I'm starting up")
+  })
+```
+
+You can read more about the event cycle of a fiery app on the [fiery
+website](https://fiery.data-imaginist.com/articles/events.html).
+
+You are not restricted to only listening for predefined events. You can
+add handlers to any event you wish, but you’ll need to trigger the event
+manually if it is not one of the predefined ones.
+
+``` r
+pa <- api() |>
+  api_on("hello", function(name) {
+    print("Hello", name)
+  })
+
+## Somewhere in your server code
+pa$trigger("hello", name = "Thomas")
+```
+
+## Static File Routers
+
+Static files can be served in two different manners. Either using a
+specialized route attached to the router, or by completely circumventing
+the R session and serving the files directly. The former approach is
+more flexible, while the latter is more performant
+
+``` r
+# Serving files as a standard route
+api() |>
+  api_assets("/assets", "./myfiles") |>
+  api_run()
+
+# Serving files directly
+api() |>
+  api_statics("/assets", "./myfiles") |>
+  api_run()
+```
+
+This will make the files and directories stored in the `./myfiles`
+directory available on your API under the `/assets/` path.

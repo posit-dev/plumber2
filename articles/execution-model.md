@@ -1,0 +1,228 @@
+# Runtime
+
+## Execution Model
+
+When you `plumb()` a file, plumber2 calls
+[`source()`](https://rdrr.io/r/base/source.html) on that file which will
+evaluate any top-level code that you have defined.
+
+``` r
+# Global code; gets executed at plumb() time.
+counter <- 0
+
+#* @get /
+function() {
+  # Only gets evaluated when this endpoint is requested.
+  counter <<- counter + 1
+}
+```
+
+If you include this file in a call to
+[`api()`](https://plumber2.posit.co/reference/api.md), the `counter`
+variable will be created and will live in the environment created for
+this API route. However, the endpoint defined will not be evaluated
+until it is invoked in response to an incoming request. Because the
+endpoint uses `<<-`, the “double-assignment” operator, it mutates the
+`counter` variable that was previously defined when the file was parsed.
+This technique allows all endpoints and filters to share some data
+defined at the top-level of your API.
+
+## Environments
+
+When you create a plumber API using
+[`api()`](https://plumber2.posit.co/reference/api.md) you can provide an
+environment to the `env` argument. By default the calling environment
+(often the global environment) is used. This environment will be used as
+the parent environment when parsing files, but each file will be parsed
+in it’s own environment to avoid interfering with each other. This means
+that you cannot share objects between files. If handlers from different
+files need to access the same data it is a sign that you need a more
+advanced data store than an object defined in the plumber file.
+
+## Performance & Request Processing
+
+R is a single-threaded programming language, meaning that it can only do
+one task at a time. This is still true when serving APIs using plumber2,
+so if you have a single endpoint that takes two seconds to generate a
+response, then every time that endpoint is requested, your R process
+will be unable to respond to any additional incoming requests for those
+two seconds.
+
+Incoming HTTP requests are serviced in the order in which they appeared,
+but if requests are coming in more quickly than they can be processed by
+the API, a backlog of requests will accrue. The common solutions to this
+problem are to do either or both of:
+
+1.  Keep your API performant. All filters and endpoints should complete
+    very quickly and any long-running or complicated tasks should be
+    done outside of the API process.
+2.  Run multiple R processes to redundantly host a single plumber2 API
+    and load-balance incoming requests between all available processes.
+
+## Managing State
+
+Often, plumber2 APIs will require coordination of some state. This state
+may need to be shared between multiple endpoints in the same API (e.g. a
+counter that increments every time an endpoint is invoked).
+Alternatively, it could be information that needs to be persisted across
+requests from a single client (e.g. storing a preference or setting for
+some user). Lastly, it might require coordinating between multiple
+plumber2 processes running independently behind a load-balancer. Each of
+these scenarios have unique properties that determine which solution
+might be appropriate.
+
+As previously discussed, R is single-threaded. Therefore it’s important
+that you consider the fact that you may eventually need multiple R
+processes running in parallel to handle the incoming traffic of your
+API. While this may not seem important initially, you may thank yourself
+later for designing a “horizontally scalable” API (or one that can be
+scaled by adding more R processes in parallel).
+
+The key to building a horizontally scalable API is to ensure that each
+plumber2 process is “stateless,” meaning that any persistent state lives
+outside of the plumber2 process. In any of the hosting environments that
+exist today, it is not guaranteed that two subsequent requests from a
+single client will be served by the same process. Thus it’s never safe
+to assume that information stored in-memory will be available between
+requests for a horizontally scaled app. Below are a few options to
+consider to coordinate state for a plumber2 API.
+
+### In-Memory
+
+As shown previous in the [Execution Model section](#execution-model), it
+is possible to share state using the environment associated with the
+plumber2 router.
+
+``` r
+# Global code; gets executed at plumb() time.
+counter <- 0
+
+#* @get /
+function() {
+  # Only gets evaluated when this endpoint is requested.
+  counter <<- counter + 1
+}
+```
+
+This is the one approach presented that does not allow your plumber2
+process to be stateless. The approach is sufficient for coordinating
+state within a single route in a single process, but as you scale your
+API by adding processes or routes, this state will no longer be
+coordinated between them.
+
+Therefore this approach can be effective for “read-only” data – such as
+if you were to load a single, large dataset into memory when the API
+starts, then allow all filters and endpoints to reference that dataset
+moving forward – but it will not allow you to share state across
+multiple processes as you scale. If you want to build a scalable,
+stateless application, you should avoid relying on the in-memory R
+environment to coordinate state between the pieces of your API.
+
+### File System
+
+Writing to files on disk is often the next most obvious choice for
+storing state. plumber2 APIs could modify a data frame then use
+[`write.csv()`](https://rdrr.io/r/utils/write.table.html) to save that
+data to disk, or use
+[`writeLines()`](https://rdrr.io/r/base/writeLines.html) to append some
+new data to an existing file. These approaches enable your R process to
+be stateless, but are not always resilient to concurrency issues. For
+instance, if you’ve horizontally scaled your API to five R processes and
+two go to [`write.csv()`](https://rdrr.io/r/utils/write.table.html)
+simultaneously, you will either see one process’s data get immediately
+overwritten by the other’s, or – even worse – you may end up with a
+corrupted CSV file which can’t be read. Unless otherwise stated, it’s
+safe to assume that any R function that writes data to disk is not
+resilient to concurrency contention, so you should not rely on the
+filesystem to coordinate shared state for any more than a single R
+process running concurrently.
+
+It’s also important to ask whether or not the hosting platform you’ll be
+using supports persistent storage on disk. For instance, Docker may
+insulate your R process from your hardware and not allow you to write
+outside of your container. RStudio Connect, too, will provision a new
+directory every time you deploy an updated version of your API which
+will discard any data you had written to disk up to that point. So if
+you’re considering writing your state to disk long-term, be sure that
+your hosting environment supports persistent on-disk storage and that
+you’ve considered the concurrency implications of your code.
+
+### Cookies
+
+HTTP cookies are a convention that allow web servers to send some state
+to a client with the expectation that the client would then include that
+state in future requests. See the [Setting Cookies
+section](https://plumber2.posit.co/articles/rendering-output.html#setting-cookies)
+for details on how to leverage cookies in plumber2.
+
+All modern web browsers support cookies (unless configured not to) and
+many other clients do, as well, though some clients require additional
+configuration in order to do so. If you’re confident that the intended
+clients for your API support cookies then you could consider storing
+some state in cookies. This approach mitigates concerns about horizontal
+scalability, as the state is written to each client independently and
+then included in subsequent requests from that client. This also
+minimizes the infrastructure requirements for hosting your plumber2 APIs
+since you don’t need to setup a system capable of storing all of this
+state; instead, you’ve commissioned your clients to store their own
+state.
+
+One issue with maintaining state in cookies is that their size should be
+kept to a minimum. Clients impose restrictions differently, but you
+should not plan to store more than 4kB of information in a cookie. And
+realize that whatever information gets placed in the cookie must be
+retransmitted by the client with *every* request. This can significantly
+increase the size of each HTTP request that your clients make.
+
+The most notable concern when considering using cookies to store state
+is that since your clients are responsible for storing and sending their
+state, you cannot expect that the state has not been tampered with.
+Thus, while it may be acceptable to store user preferences like
+`preferredColor="blue"`, you should *not* store authentication
+information like `userID=1493`, since the user could trivially change
+that cookie to another user’s ID to impersonate them.
+
+If you’d like to use cookies to store information with guarantees that
+the user cannot either read or modify the state, see the [Encrypted
+Cookies
+section](https://plumber2.posit.co/articles/rendering-output.html#encrypted-cookies)).
+
+### External Data Store
+
+The final option to consider when coordinating state for an API is
+leveraging an external data store. This could be a relational database
+(like MySQL or Amazon RedShift), a non-relational database (like
+MongoDB), or an transactional data store like Redis.
+
+One important consideration for any of these options is to ensure that
+they are “transactional,” meaning that two plumber2 processes trying to
+write at the same time won’t overwrite one another. If you’re interested
+in pursuing this option you should see
+[solutions.rstudio.com/db/](https://solutions.posit.co/connections/db/)
+or look at [some](https://shiny.posit.co/r/articles/build/overview/) of
+the [resources](https://shiny.posit.co/r/articles/build/sql-injections/)
+[put together](https://shiny.posit.co/r/articles/build/pool-basics/) for
+Shiny as pertains to dealing with databases in a web-accessible R
+platform.
+
+## Exit Handlers
+
+It may be useful to define a function that you want to run as your API
+is closing – for instance, if you have a pool of database connections
+that need to be cleaned up when your plumber2 process is being
+terminated. You can add a handler to the `"end"` event to do this.
+
+``` r
+api("plumber.R") |>
+  api_on("end", function(){
+    print("Bye bye!")
+  }) |>
+  api_run()
+```
+
+When you interrupt the API (for instance by pressing `Ctrl+C` (for
+blocking sessions) or calling
+[`api_stop()`](https://plumber2.posit.co/reference/api_run.md) (for
+non-blocking sessions)) you’ll see `Bye bye!` printed to the console.
+You can even register multiple `end` handlers and they’ll be run in the
+order in which they were registered.

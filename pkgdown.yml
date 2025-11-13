@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   annotations: annotations.html
@@ -16,7 +16,7 @@ articles:
   security: security.html
   server_yml: server_yml.html
   tips-and-tricks: tips-and-tricks.html
-last_built: 2025-11-06T15:12Z
+last_built: 2025-11-13T09:13Z
 urls:
   reference: https://plumber2.posit.co/reference
   article: https://plumber2.posit.co/articles

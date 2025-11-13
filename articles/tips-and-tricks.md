@@ -1,0 +1,157 @@
+# Tips & Tricks
+
+![](files/images/plumber_broken.png)
+
+## Debugging
+
+If you’ve historically used R interactively, you may find it difficult
+to define functions that get executed at once without your input as
+Plumber requires. There are a couple of debugging techniques to be aware
+of when working on your Plumber APIs; these techniques are equally
+transferable to debugging your R scripts, packages, or reports.
+
+### Print Debugging
+
+Most programmers first approach debugging by adding print statements to
+their code in order to inspect the state at some point. In R,
+[`print()`](https://rdrr.io/r/base/print.html) or
+[`cat()`](https://rdrr.io/r/base/cat.html) can be used to print out some
+state. For instance, `cat("i is currently: ", i)` could be inserted in
+your code to help you ensure that the variable `i` is what it should be
+at that point in your code.
+
+This approach is equally viable with Plumber. However, plumber comes
+with a dedicated logging infrastructure which can be leveraged for this
+as well. In your handler you can use `server$log()` to log messages for
+specific events. And if you use a logger backend like
+[logger](https://daroczig.github.io/logger/), you can set the log level
+allowing you to filter messages that are shown. Using
+[`warning()`](https://rdrr.io/r/base/warning.html) and
+[`message()`](https://rdrr.io/r/base/message.html) automatically ends up
+in your log as well so these are also valid logging calls.
+
+### Router Stage Debugging
+
+Similar to print debugging, we can output what plumber knows at various
+stages of the processing pipeline using event handlers. We could
+e.g. add logging calls to `before-request` and `after-request` that logs
+what comes in and what is send out.
+
+For example, we can add these lines to our route file:
+
+``` r
+#* @plumber
+function(api) {
+  api |>
+    api_on("before-request", function(request, ...) {
+      cli::cli_inform(request$as_message())
+    }) |>
+    api_on("after-request", function(response, ...) {
+      cli::cli_inform(response$as_message())
+    })
+}
+```
+
+If we were to execute a `GET` request on `/stage_debug`
+
+``` r
+#* @get /stage_debug
+function() {
+  return(42)
+}
+```
+
+we would expect to see output like:
+
+    GET /stage_debug HTTP/1.1
+    Host: localhost:8080
+    Cookie: fiery_id=e6a4290e84ddd3eb5c429275b24423c87fb8c9ffaee230008a1ae8863cb72760
+
+    <No Body>
+
+    HTTP/1.1 200 OK
+    Vary: Accept
+    Date: Fri, 21 Mar 2025 08:48:09 GMT
+    Content-Length: 4
+    Content-Type: application/json
+
+    [42]
+
+This output shows that the route `/stage_debug` calculated the value
+`42` and that the value was serialized using json. We should expect to
+see that the received response has a status of `200` and the body
+containing JSON matching `[42]`.
+
+### Interactive Debugging
+
+Print debugging is an obvious starting point, but most developers
+eventually wish for something more powerful. In R, this capacity is
+built in to the [`browser()`](https://rdrr.io/r/base/browser.html)
+function. If you’re unfamiliar,
+[`browser()`](https://rdrr.io/r/base/browser.html) pauses the execution
+of some function and gives you an interactive session in which you can
+inspect the current value of internal variables or even proceed through
+your function one statement at a time.
+
+You can leverage [`browser()`](https://rdrr.io/r/base/browser.html) when
+developing your APIs locally by adding a
+[`browser()`](https://rdrr.io/r/base/browser.html) call in one of more
+of your handlers. This offers a powerful technique to use when you want
+to inspect multiple different variables or interact with the current
+state of things inside of your function. This is also a good way to get
+your hands dirty with Plumber and get better acquainted with how things
+behave at a low level. Consider the following API endpoint:
+
+``` r
+#* @get /
+function(request, response){
+  browser()
+
+  list(a=123)
+}
+```
+
+If you run this API locally and then visit the API in a web browser,
+you’ll see your R session switch into debug mode when the request
+arrives, allowing you to look at the objects contained inside your `req`
+and `res` objects.
+
+While this *usually* works, the R session can become confused by
+entering debugging mode while running the server. Because of this it
+often better to mock the request. You can create a mocked request object
+using
+[`fiery::fake_request()`](https://fiery.data-imaginist.com/reference/fake_request.html)
+which you can populate with a path, method, headers, and body content.
+You can then take this object and send it through your API using the
+`test_request()` method in your Plumber API object:
+
+``` r
+pa <- api("plumber.R")
+
+req <- fiery::fake_request("http://localhost:8080/path/to/handler")
+
+res <- pa$test_request(req)
+```
+
+Be aware that the req and res objects above will not be those you are
+familiar with from the handlers, but rather the formats that plumber
+needs to use to interact with httpuv.
+
+## Port Range
+
+You can use \[httpuv::randomPort()\] to define a range of port for
+Plumber to pick from when running an API.
+
+``` r
+# plumber.R
+options("plumber2.port" = httpuv::randomPort(min = 4000, max = 7000, n = 100))
+
+### define the rest of your plumber router...
+```
+
+or more programmatically
+
+``` r
+api(port = httpuv::randomPort(min = 4000, max = 7000, n = 100)) |>
+  api_run()
+```
