@@ -30,7 +30,7 @@ readLines <- function(x) base::readLines(file.path(me, x))
 library(plumber2)
 ```
 
-plumber2 was from the inception build as a modular system meant for extension. In this article we'll go over the process of creating a plumber2 extension as well as talk a bit about the architecture of plumber2 and how it relates to extending it.
+plumber2 was from the inception built as a modular system meant for extension. In this article we'll go over the process of creating a plumber2 extension as well as talk a bit about the architecture of plumber2 and how it relates to extending it.
 
 ### What does it mean to extend plumber2
 Before we continue we should qualify what we mean by extending plumber2. It of course involves adding new functionality to plumber2 in some way, but more specifically it entails adding functionality in such a way that it *feels* native to plumber2. Consider this function:
