@@ -428,7 +428,7 @@ endpoint and we’ll see that the API defaults to a lower-case alphabet.
 ``` json
 {
   "letter": [
-    "e"
+    "k"
   ]
 }
 ```

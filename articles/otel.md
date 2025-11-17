@@ -11,15 +11,16 @@ such instrumentation which in R is available in the
 a huge and detailed set of semantics for how these should be formatted
 and which information to include.
 
-plumber2 provides expansive support for otel, though all the actual
-support is implemented in the underlying packages reqres, fiery, and
-routr (this also means that all we discuss here will translated to
+Plumber2 provides expansive support for OpenTelemetry, though all the
+actual support is implemented in the underlying packages reqres, fiery,
+and routr (this also means that all we discuss here will translated to
 barebone fiery servers). This document will detail the various ways in
 which instrumentation is supported and how you may add to it in your own
 servers, should you choose to.
 
-Understanding how to turn on otel instrumentation is not part of this
-document. You should consult the otel package for learning about this.
+Understanding how to turn on OpenTelemetry instrumentation is not part
+of this document. You should consult the otel package for learning about
+this.
 
 ## Traces
 
@@ -28,10 +29,11 @@ convention](https://opentelemetry.io/docs/specs/semconv/http/http-spans/#http-se
 for how servers should record their handling of HTTP requests, which has
 been fully implemented in reqres.
 
-Once a request is received a span is created and attached to the
-request. It is available in the `otel` field (e.g. `request$otel`) and
-will be `NULL` if instrumentation is not turned on. The span is
-automatically closed when the response is send back.
+Once a request is received an OpenTelemetry span is created and attached
+to the request. It is available in the `otel` field
+(e.g. `request$otel`) and will be `NULL` if instrumentation is not
+turned on. The span is automatically closed when the response is send
+back.
 
 To the extent possible, the span will capture all the attributes
 mentioned in the conventions and should be used as the parent span for
@@ -47,7 +49,7 @@ three attributes to this span:
   request. If you have multiple servers running in parallel each will
   have their own unique id.
 - `server.framework.name` will hold the name of the framework used to
-  create the server (“plumber2” for a plumber2 api, “fiery” for a
+  create the server (`"plumber2"` for a plumber2 api, `"fiery"` for a
   barebone fiery server, or something else if others choose to build a
   framework on top of fiery)
 - `server.framework.version` will hold the version of the framework (the
@@ -56,7 +58,7 @@ three attributes to this span:
 ### Subtraces
 
 You are often interested in what goes on during handling of the request.
-For plumber2 this usually means the different routes the request is
+For plumber2, this usually means the different routes the request is
 passed through. routr, which handles the routes, will automatically
 create a subspan for each of the routes a request goes through and
 activate that span (meaning that any spans created within the route
@@ -133,7 +135,7 @@ fiery and plumber2 comes with a `logger_otel` which you can use to
 collect the logs with OpenTelemetry.
 
 ``` r
-pa <- api() |> 
+pa <- api() |>
   api_logger(logger_otel())
 ```
 
