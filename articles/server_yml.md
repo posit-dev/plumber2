@@ -164,7 +164,7 @@ plumber2:::launch_server
     #>     }
     #>     api_run(pa)
     #> }
-    #> <bytecode: 0x5654d42d3470>
+    #> <bytecode: 0x55cf81364440>
     #> <environment: namespace:plumber2>
 
 ## Supported frameworks
