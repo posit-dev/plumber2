@@ -391,13 +391,21 @@ Plumber2 <- R6Class(
       has_doc <- !(header || is.null(doc) || inherits(doc, "plumber_noDoc"))
       if (has_doc) {
         doc$parameters <- doc$parameters %||% list()
-        true_path <- gsub("//", "/", paste0(route$root, path_info$path))
+        true_path <- sub(
+          "^\\^",
+          "",
+          gsub("//", "/", paste0(route$root, path_info$path))
+        )
         self$add_api_doc(doc, subset = c("paths", true_path, method))
       }
 
       auth_flow <- enquo(auth_flow)
       if (!quo_is_null(auth_flow)) {
-        real_path <- gsub("//", "/", paste0(route$root, path))
+        real_path <- sub(
+          "^\\^",
+          "",
+          gsub("//", "/", paste0(route$root, path))
+        )
         self$add_auth(
           method,
           real_path,
