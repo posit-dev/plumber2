@@ -137,7 +137,7 @@ api_datastore <- function(
   gc_interval = 3600,
   max_age = gc_interval
 ) {
-  if ("firesale" %in% api$plugins) {
+  if ("firesale" %in% names(api$plugins)) {
     cli::cli_warn("A datastore has already been added")
   } else {
     fs <- firesale::FireSale$new(
