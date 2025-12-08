@@ -86,7 +86,9 @@ and port used during the creation of the Plumber2 api will be used</p></dd>
 <dt id="arg-block">block<a class="anchor" aria-label="anchor" href="#arg-block"></a></dt>
 <dd><p>Should the console be blocked while running (alternative is
 to run in the background). Defaults to <code>FALSE</code> in interactive sessions and
-<code>TRUE</code> otherwise.</p></dd>
+<code>TRUE</code> otherwise. Note that while setting <code>block = FALSE</code> will allow you to
+continue interacting with the main session you will not be able to call the
+api from within the session since it is still executing in the same thread.</p></dd>
 
 
 <dt id="arg-showcase">showcase<a class="anchor" aria-label="anchor" href="#arg-showcase"></a></dt>

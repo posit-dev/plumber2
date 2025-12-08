@@ -16,7 +16,7 @@ articles:
   security: security.html
   server_yml: server_yml.html
   tips-and-tricks: tips-and-tricks.html
-last_built: 2025-12-08T08:15Z
+last_built: 2025-12-08T11:13Z
 urls:
   reference: https://plumber2.posit.co/reference
   article: https://plumber2.posit.co/articles

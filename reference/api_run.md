@@ -33,7 +33,10 @@ api_stop(api)
 
   Should the console be blocked while running (alternative is to run in
   the background). Defaults to `FALSE` in interactive sessions and
-  `TRUE` otherwise.
+  `TRUE` otherwise. Note that while setting `block = FALSE` will allow
+  you to continue interacting with the main session you will not be able
+  to call the api from within the session since it is still executing in
+  the same thread.
 
 - showcase:
 
