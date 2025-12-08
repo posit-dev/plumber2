@@ -36,7 +36,7 @@ the parsed data to a plumber api, and it is rarely necessary to call it
 directly.
 }
 \examples{
-\dontshow{if (file.exists("path/to/my/plumber/file.R")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (file.exists("path/to/my/plumber/file.R")) withAutoprint(\{ # examplesIf}
 # Parse a plumber file
 parse_plumber_file("path/to/my/plumber/file.R")
 \dontshow{\}) # examplesIf}

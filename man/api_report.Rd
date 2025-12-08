@@ -131,7 +131,7 @@ tag and proceeding the annotation block with the path to the report
 }
 
 \examples{
-\dontshow{if (file.exists("my/awesome/report.qmd")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (file.exists("my/awesome/report.qmd")) withAutoprint(\{ # examplesIf}
 api() |>
   api_report("/quarterly", "my/awesome/report.qmd")
 \dontshow{\}) # examplesIf}

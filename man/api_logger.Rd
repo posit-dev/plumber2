@@ -23,7 +23,7 @@ logger_file(file, format = "{time} - {event}: {message}")
 
 logger_logger(default_level = "INFO")
 
-logger_otel(format = "{time} - {event}: {message}")
+logger_otel(format = "{message}")
 
 logger_switch(..., default = logger_null())
 

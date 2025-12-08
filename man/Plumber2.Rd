@@ -279,7 +279,7 @@ detailed information
   method,
   path,
   handler,
-  serializers,
+  serializers = NULL,
   parsers = NULL,
   use_strict_serializer = FALSE,
   auth_flow = NULL,

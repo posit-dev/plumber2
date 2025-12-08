@@ -55,14 +55,11 @@ session specific data is purged once a certain amount of time has passed
 since the last request from that session.
 }
 \section{Using annotation}{
-Session cookie setup doesn't have a dedicated annotation tag, but you can set
-it up in a \verb{@plumber} block
+You can define a datastore backend using the \verb{@datastore} tag and provide the
+driver specification below the block
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @plumber
-function(api) \{
-  api |>
-    api_datastore(storr::driver_dbi(...))
-\}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* @datastore
+storr::driver_dbi(...)
 }\if{html}{\out{</div>}}
 }
 
