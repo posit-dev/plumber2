@@ -137,7 +137,7 @@ api <- function(
       env = env
     )
   }
-  api_parse(api, locations)
+  api_parse(api, !!!locations)
 }
 #' @rdname api
 #' @param x An object to test for whether it is a plumber api
