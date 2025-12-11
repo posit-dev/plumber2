@@ -107,7 +107,7 @@ A function accepting the response body
   `application/vnd.apache.parquet`
 
 - `format_yaml()` uses
-  [`yaml::as.yaml()`](https://rdrr.io/pkg/yaml/man/as.yaml.html) for
+  [`yaml::as.yaml()`](https://yaml.r-lib.org/reference/as.yaml.html) for
   formatting. It is registered as `"yaml"` to the mime type `text/yaml`
 
 - `format_htmlwidget()` uses

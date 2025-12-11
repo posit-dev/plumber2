@@ -130,16 +130,16 @@ expression. Instead of `@title` and `@description` you can also use the
 convention that the first line gives the title and any proceeding lines
 until the first tag gives the description.
 
-| Annotation     | Argument            | Description/References                                                                                                                                                  |
-|----------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@title`       | `Title`             | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
-| `@description` | `Description`       | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
-| `@tos`         | `TOS link`          | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
-| `@contact`     | `Contact object`    | [Contact Object](https://spec.openapis.org/oas/v3.0.3#contact-object)                                                                                                   |
-| `@license`     | `License object`    | [License Object](https://spec.openapis.org/oas/v3.0.3#license-object)                                                                                                   |
-| `@version`     | `Version`           | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
-| `@tag`         | `Tag` `Description` | Can be repeated to add multiple tags. Quote with ” or ’ to use non word character (like spaces) in `Tag`. [Tag Object](https://spec.openapis.org/oas/v3.0.3#tag-object) |
-| `@noDoc`       | None                | Don’t generate OpenAPI documentation from this block                                                                                                                    |
+| Annotation     | Argument                 | Description/References                                                                                                                                                  |
+|----------------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `@title`       | `Title`                  | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
+| `@description` | `Description`            | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
+| `@tos`         | `TOS link`               | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
+| `@contact`     | `Name` \[`URL` `Email`\] | [Contact Object](https://spec.openapis.org/oas/v3.0.3#contact-object)                                                                                                   |
+| `@license`     | `License` \[`URL`\]      | [License Object](https://spec.openapis.org/oas/v3.0.3#license-object)                                                                                                   |
+| `@version`     | `Version`                | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
+| `@tag`         | `Tag` `Description`      | Can be repeated to add multiple tags. Quote with ” or ’ to use non word character (like spaces) in `Tag`. [Tag Object](https://spec.openapis.org/oas/v3.0.3#tag-object) |
+| `@noDoc`       | None                     | Don’t generate OpenAPI documentation from this block                                                                                                                    |
 
 ##### Annotations example
 
@@ -149,8 +149,8 @@ until the first tag gives the description.
 #* This is a sample server for a pet store.
 #*
 #* @tos http://example.com/terms/
-#* @contact list(name = "API Support", url = "http://www.example.com/support", email = "support@example.com")
-#* @license list(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html")
+#* @contact API Support http://www.example.com/support support@example.com
+#* @license Apache 2.0 https://www.apache.org/licenses/LICENSE-2.0.html
 #* @version 1.0.1
 #* @tag pet Pets operations
 #* @tag toy Toys operations

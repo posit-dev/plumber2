@@ -68,8 +68,8 @@ device_formatter(png)
 #>     structure(identity, init = init_dev, close = close_dev, clean = clean_dev, 
 #>         with = with_dev, class = "device_formatter")
 #> }
-#> <bytecode: 0x5575c784a1c8>
-#> <environment: 0x5575c7322a98>
+#> <bytecode: 0x55ffa23d5650>
+#> <environment: 0x55ffa2795470>
 #> attr(,"class")
 #> [1] "device_constructor"
 ```

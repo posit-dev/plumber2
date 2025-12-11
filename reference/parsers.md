@@ -95,8 +95,8 @@ along
   `application/tab-separated-values` and `text/tab-separated-values`
 
 - `parse_yaml()` uses
-  [`yaml::yaml.load()`](https://rdrr.io/pkg/yaml/man/yaml.load.html) for
-  parsing. It is registered as `"yaml"` for the mime types
+  [`yaml::yaml.load()`](https://yaml.r-lib.org/reference/yaml.load.html)
+  for parsing. It is registered as `"yaml"` for the mime types
   `text/vnd.yaml`, `application/yaml`, `application/x-yaml`,
   `text/yaml`, and `text/x-yaml`
 

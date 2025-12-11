@@ -116,7 +116,7 @@
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu">file.exist</span><span class="op">(</span><span class="st">"_server.yml"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Figure out the engine for the server</span></span>
 <span>  <span class="co"># You could probably easily do this without the yaml package</span></span>
-<span>  <span class="va">engine</span> <span class="op">&lt;-</span> <span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/yaml/man/read_yaml.html" class="external-link">read_yaml</a></span><span class="op">(</span><span class="st">"_server.yml"</span><span class="op">)</span><span class="op">$</span><span class="va">engine</span></span>
+<span>  <span class="va">engine</span> <span class="op">&lt;-</span> <span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://yaml.r-lib.org/reference/read_yaml.html" class="external-link">read_yaml</a></span><span class="op">(</span><span class="st">"_server.yml"</span><span class="op">)</span><span class="op">$</span><span class="va">engine</span></span>
 <span></span>
 <span>  <span class="co"># Install the engine if not already available</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="va">engine</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -183,7 +183,7 @@
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     api_run(pa)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55661819f118&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x5624ec1cc420&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:plumber2&gt;</span></span></code></pre>
 </div>
 </div>
