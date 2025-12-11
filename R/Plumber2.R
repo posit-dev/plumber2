@@ -888,6 +888,8 @@ Plumber2 <- R6Class(
     #'
     add_auth_guard = function(guard, name = NULL) {
       fp <- self$plugins$fireproof
+      # Needed to initialize router in app
+      router <- self$request_router
       if (is.null(fp)) {
         fp <- fireproof::Fireproof$new()
         self$attach(fp)

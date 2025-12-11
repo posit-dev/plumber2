@@ -324,8 +324,8 @@ parse_asset_block <- function(call, tags, values, env, file_dir) {
 }
 
 parse_auth_guard_block <- function(call, tags, values, env) {
-  if (!is.function(call) || fireproof::is_guard(call)) {
-    stop_input_type(call, "an {.cls Guard} subclass object or a function")
+  if (!is.function(call) && !fireproof::is_guard(call)) {
+    stop_input_type(call, cli::format_inline("an {.cls Guard} subclass object or a function"))
   }
   name <- trimws(values[[which(tags == "authGuard")[1]]])
   structure(
@@ -819,7 +819,7 @@ parse_auth_tags <- function(tags, values) {
   if ("auth" %in% tags) {
     flow <- trimws(values[[which(tags == "auth")[1]]])
     flow <- parse_quo(flow, empty_env())
-    if ("authScope" %||% tags) {
+    if ("authScope" %in% tags) {
       scope <- unlist(values[tags == "authScope"])
       scope <- unlist(trimws(unlist(strsplit(scope, ","))))
     } else {
