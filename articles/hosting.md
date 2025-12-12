@@ -70,12 +70,10 @@ api("_server.yml") |>
 ## Posit Connect
 
 [Posit Connect](https://posit.co/products/enterprise/connect/) is an
-enterprise publishing platform from Posit. It supports push-button
-publishing from the RStudio IDE of a variety of R content types
-including plumber2 APIs. Unlike all the other options listed here, Posit
-Connect automatically manages the dependent packages and files your API
-has and recreates an environment closely mimicking your local
-development environment on the server.
+enterprise publishing platform from Posit. It supports automatic
+deployment of plumber 2 APIs from RStudio and Positron using the
+[rsconnect](https://rstudio.github.io/rsconnect/) package and from
+Positron using the Posit Publisher extension.
 
 Posit Connect automatically manages the number of R processes necessary
 to handle the current load and balances incoming traffic across all
