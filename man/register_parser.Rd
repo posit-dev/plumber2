@@ -59,7 +59,7 @@ from the request \code{Content-Type} header. All arguments to the factory functi
 should be optional.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # Register a parser that splits at a character and converts to number
 register_parser("comma", function(delim = ",") {
   function(raw, directive) {

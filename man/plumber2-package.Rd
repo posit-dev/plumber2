@@ -13,7 +13,7 @@ Automatically create a webserver from annotated 'R' files or by building it up p
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://posit-dev.github.io/plumber2/}
+  \item \url{https://plumber2.posit.co/}
   \item \url{https://github.com/posit-dev/plumber2}
   \item Report bugs at \url{https://github.com/posit-dev/plumber2/issues}
 }
@@ -24,7 +24,7 @@ Useful links:
 
 Other contributors:
 \itemize{
-  \item Posit Software, PBC (03wc8by49) [copyright holder, funder]
+  \item Posit Software, PBC (\href{https://ror.org/03wc8by49}{ROR}) [copyright holder, funder]
 }
 
 }

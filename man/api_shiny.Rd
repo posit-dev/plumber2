@@ -39,7 +39,7 @@ shiny::shinyAppDir("./shiny")
 }
 
 \examples{
-\dontshow{if (requireNamespace("shiny", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("shiny", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 blank_shiny <- shiny::shinyApp(
   ui = shiny::fluidPage(),
   server = shiny::shinyServer(function(...) {})

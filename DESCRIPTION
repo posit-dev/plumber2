@@ -13,7 +13,7 @@ Description: Automatically create a webserver from annotated 'R' files or by
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Depends:
     R (>= 4.1)
 Imports:
@@ -54,6 +54,6 @@ Suggests:
     swagger,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto
-URL: https://posit-dev.github.io/plumber2/, https://github.com/posit-dev/plumber2
+URL: https://plumber2.posit.co/, https://github.com/posit-dev/plumber2
 BugReports: https://github.com/posit-dev/plumber2/issues
 Config/testthat/edition: 3

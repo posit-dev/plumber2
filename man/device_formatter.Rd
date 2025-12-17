@@ -20,7 +20,7 @@ This internal function facilitates creating a formatter that uses a specific
 device for rendering.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # Create a png formatter using the default png device
 device_formatter(png)
 \dontshow{\}) # examplesIf}

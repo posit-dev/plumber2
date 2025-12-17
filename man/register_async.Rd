@@ -31,7 +31,7 @@ default evaluator is controlled by the \code{plumber2.async} option or the
 \code{PLUMBER2_ASYNC} environment variable.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # Register an async evaluator based on future (the provided mirai backend is
 # superior in every way so this is for illustrative purpose)
 future_async <- function(...) {
