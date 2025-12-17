@@ -347,7 +347,11 @@ Plumber2 <- R6Class(
       )
       if (!(header || is.null(doc) || inherits(doc, "plumber_noDoc"))) {
         doc$parameters <- doc$parameters %||% list()
-        true_path <- gsub("//", "/", paste0(route$root, path_info$path))
+        true_path <- sub(
+          "^\\^",
+          "",
+          gsub("//", "/", paste0(route$root, path_info$path))
+        )
         self$add_api_doc(doc, subset = c("paths", true_path, method))
       }
 
