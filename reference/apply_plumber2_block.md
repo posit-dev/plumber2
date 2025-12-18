@@ -48,6 +48,7 @@ apply_plumber2_block(block, api, route_name, root, ...)
 ## Examples
 
 ``` r
+if (FALSE) {
 # Add a method for a fictional "hello_block" that makes the api say hello when
 # it starts
 apply_plumber2_block.hello_block <- function(block, api, route_name, root, ...) {
@@ -55,5 +56,6 @@ apply_plumber2_block.hello_block <- function(block, api, route_name, root, ...) 
     message("Hello")
   })
   api
+}
 }
 ```

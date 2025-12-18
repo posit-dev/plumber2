@@ -1,9 +1,8 @@
-# plumber2: Easy and Powerful Web Servers
+# plumber2: Easy and Powerful Webservers
 
-Automatically create a web server from annotated 'R' files or by
-building it up programmatically. Provides automatic 'OpenAPI'
-documentation, input handling, asynchronous evaluation, and plugin
-support.
+Automatically create a webserver from annotated 'R' files or by building
+it up programmatically. Provides automatic 'OpenAPI' documentation,
+input handling, async support, and middleware support.
 
 ## See also
 

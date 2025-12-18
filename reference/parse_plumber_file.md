@@ -30,7 +30,7 @@ A list containing:
   as a named list of length one
 
 - `header_route` The route to be attached to header events (fires before
-  the body has been received and can be used to prematurely reject
+  the body has been recieved and can be used to prematurely reject
   requests based on their headers), as a named list of length one
 
 - `asset_routes` All the asset routes created by `@static` blocks as a
@@ -47,7 +47,7 @@ A list containing:
 ## Examples
 
 ``` r
-if (FALSE) { # file.exists("path/to/my/plumber/file.R")
+if (FALSE) {
 # Parse a plumber file
 parse_plumber_file("path/to/my/plumber/file.R")
 }

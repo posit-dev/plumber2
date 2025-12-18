@@ -9,7 +9,7 @@ Depending on the value of `permanent` the redirect will respond with a
 can contain path parameters and wildcards which will be matched between
 the two to construct the correct redirect path. Further, `to` can either
 be a path to the same server or a fully qualified URL to redirect
-requests to another server altogether.
+requests to another server alltogether.
 
 ## Usage
 
@@ -40,7 +40,7 @@ api_redirect(api, method, from, to, permanent = TRUE)
 - permanent:
 
   Logical. Is the redirect considered permanent or temporary? Determines
-  the type of redirect status code to use
+  the type of redirct status code to use
 
 ## Value
 
@@ -50,7 +50,7 @@ the pipe
 ## Using annotation
 
 You can specify redirects in an annotated plumber file using the
-`@redirect` tag. Precede the method with a `!` to mark the redirect as
+`@redirect` tag. Preceed the method with a `!` to mark the redirect as
 permanent
 
     #* @redirect !get /old/data/* /new/data/*

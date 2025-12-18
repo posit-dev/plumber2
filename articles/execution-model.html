@@ -13,10 +13,7 @@
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Schibsted_Grotesk-0.4.10/font.css" rel="stylesheet">
-<link href="../deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
-<link href="../deps/National_Park-0.4.10/font.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="execution-model_files/libs/quarto-html/popper.min.js"></script><script src="execution-model_files/libs/quarto-html/tippy.umd.min.js"></script><link href="execution-model_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="execution-model_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -31,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">plumber2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,20 +46,12 @@
     <li><a class="dropdown-item" href="../articles/routing-and-input.html">2. Routing &amp; Input</a></li>
     <li><a class="dropdown-item" href="../articles/rendering-output.html">3. Rendering output</a></li>
     <li><a class="dropdown-item" href="../articles/execution-model.html">4. Runtime</a></li>
-    <li><a class="dropdown-item" href="../articles/hosting.html">5. Hosting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>5. Hosting (TBD)</h6></li>
     <li><a class="dropdown-item" href="../articles/programmatic-usage.html">6. Programmatic usage</a></li>
     <li><a class="dropdown-item" href="../articles/annotations.html">7. Annotation Reference</a></li>
     <li><a class="dropdown-item" href="../articles/security.html">8. Security</a></li>
     <li><a class="dropdown-item" href="../articles/tips-and-tricks.html">9. Tips &amp; Tricks</a></li>
     <li><a class="dropdown-item" href="../articles/migration.html">10. Migration</a></li>
-  </ul>
-</li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-advanced" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Advanced</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-advanced">
-<li><a class="dropdown-item" href="../articles/extending.html">Extending plumber2</a></li>
-    <li><a class="dropdown-item" href="../articles/server_yml.html">The _server.yml standard</a></li>
-    <li><a class="dropdown-item" href="../articles/otel.html">OpenTelemetry instrumentation</a></li>
   </ul>
 </li>
       </ul>
@@ -84,7 +73,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/posit-dev/plumber2/blob/main/vignettes/execution-model.qmd" class="external-link"><code>vignettes/execution-model.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/posit-dev/plumber2/blob/v0.1.1/vignettes/execution-model.qmd" class="external-link"><code>vignettes/execution-model.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -117,7 +106,7 @@
 <p>Incoming HTTP requests are serviced in the order in which they appeared, but if requests are coming in more quickly than they can be processed by the API, a backlog of requests will accrue. The common solutions to this problem are to do either or both of:</p>
 <ol type="1">
 <li>Keep your API performant. All filters and endpoints should complete very quickly and any long-running or complicated tasks should be done outside of the API process.</li>
-<li>Run multiple R processes to redundantly host a single plumber2 API and load-balance incoming requests between all available processes.</li>
+<li>Run multiple R processes to redundantly host a single plumber2 API and load-balance incoming requests between all available processes. See the <a href="./hosting.html">hosting section</a> for details on which hosting environments support this feature.</li>
 </ol></section><section class="level2"><h2 id="managing-state">Managing State<a class="anchor" aria-label="anchor" href="#managing-state"></a>
 </h2>
 <p>Often, plumber2 APIs will require coordination of some state. This state may need to be shared between multiple endpoints in the same API (e.g. a counter that increments every time an endpoint is invoked). Alternatively, it could be information that needs to be persisted across requests from a single client (e.g. storing a preference or setting for some user). Lastly, it might require coordinating between multiple plumber2 processes running independently behind a load-balancer. Each of these scenarios have unique properties that determine which solution might be appropriate.</p>
@@ -142,7 +131,7 @@
 </section><section class="level3"><h3 id="file-system">File System<a class="anchor" aria-label="anchor" href="#file-system"></a>
 </h3>
 <p>Writing to files on disk is often the next most obvious choice for storing state. plumber2 APIs could modify a data frame then use <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv()</a></code> to save that data to disk, or use <code><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines()</a></code> to append some new data to an existing file. These approaches enable your R process to be stateless, but are not always resilient to concurrency issues. For instance, if you’ve horizontally scaled your API to five R processes and two go to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv()</a></code> simultaneously, you will either see one process’s data get immediately overwritten by the other’s, or – even worse – you may end up with a corrupted CSV file which can’t be read. Unless otherwise stated, it’s safe to assume that any R function that writes data to disk is not resilient to concurrency contention, so you should not rely on the filesystem to coordinate shared state for any more than a single R process running concurrently.</p>
-<p>It’s also important to ask whether or not the hosting platform you’ll be using supports persistent storage on disk. For instance, Docker may insulate your R process from your hardware and not allow you to write outside of your container. RStudio Connect, too, will provision a new directory every time you deploy an updated version of your API which will discard any data you had written to disk up to that point. So if you’re considering writing your state to disk long-term, be sure that your hosting environment supports persistent on-disk storage and that you’ve considered the concurrency implications of your code.</p>
+<p>It’s also important to ask whether or not the <a href="./hosting.html">hosting platform</a> you’ll be using supports persistent storage on disk. For instance, Docker may insulate your R process from your hardware and not allow you to write outside of your container. RStudio Connect, too, will provision a new directory every time you deploy an updated version of your API which will discard any data you had written to disk up to that point. So if you’re considering writing your state to disk long-term, be sure that your hosting environment supports persistent on-disk storage and that you’ve considered the concurrency implications of your code.</p>
 </section><section class="level3"><h3 id="state-cookies">Cookies<a class="anchor" aria-label="anchor" href="#state-cookies"></a>
 </h3>
 <p>HTTP cookies are a convention that allow web servers to send some state to a client with the expectation that the client would then include that state in future requests. See the <a href="./rendering-output.html#setting-cookies">Setting Cookies section</a> for details on how to leverage cookies in plumber2.</p>

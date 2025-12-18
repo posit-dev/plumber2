@@ -67,11 +67,14 @@ amount of time has passed since the last request from that session.
 
 ## Using annotation
 
-You can define a datastore backend using the `@datastore` tag and
-provide the driver specification below the block
+Session cookie setup doesn't have a dedicated annotation tag, but you
+can set it up in a `@plumber` block
 
-    #* @datastore
-    storr::driver_dbi(...)
+    #* @plumber
+    function(api) {
+      api |>
+        api_datastore(storr::driver_dbi(...))
+    }
 
 ## Examples
 

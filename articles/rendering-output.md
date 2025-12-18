@@ -154,6 +154,8 @@ and in other instances produces a vector.
 Visiting http://localhost:8080/boxed?letter=U or
 http://localhost:8080/unboxed?letter=U will return identical responses:
 
+    #> Creating 04-03-letters route in request router
+
 ``` json
 [
   "V",
@@ -359,6 +361,8 @@ Read more at the [reqres
 website](https://reqres.data-imaginist.com/reference/abort_http_problem.html).
 Visiting the second handler we can see it in action:
 
+    #> Creating 04-05-error route in request router
+
 ``` json
 {
   "type": "https://datatracker.ietf.org/doc/html/rfc9110#section-15.5.1",
@@ -425,10 +429,12 @@ API to use a `GET` request.) We can start by visiting the `/letter`
 endpoint and we’ll see that the API defaults to a lower-case alphabet.
 `curl http://localhost:8080/letter`
 
+    #> Creating 06-01-capitalize route in request router
+
 ``` json
 {
   "letter": [
-    "t"
+    "e"
   ]
 }
 ```

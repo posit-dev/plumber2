@@ -41,6 +41,7 @@ get_async(name = NULL, ...)
 ## Examples
 
 ``` r
+if (FALSE) {
 # Register an async evaluator based on future (the provided mirai backend is
 # superior in every way so this is for illustrative purpose)
 future_async <- function(...) {
@@ -54,4 +55,5 @@ future_async <- function(...) {
   }
 }
 register_async("future", future_async, c("promises", "future"))
+}
 ```

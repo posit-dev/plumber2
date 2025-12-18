@@ -18,8 +18,6 @@ api_assets(
   default_ext = "html",
   finalize = NULL,
   continue = FALSE,
-  auth_flow = NULL,
-  auth_scope = NULL,
   route = NULL
 )
 
@@ -73,15 +71,6 @@ api_statics(
 
   A logical that should be returned if a file is found. Defaults to
   `FALSE` indicating that the response should be send unmodified.
-
-- auth_flow:
-
-  A logical expression giving the authentication flow the client must
-  pass to get access to the resource.
-
-- auth_scope:
-
-  The scope requirements of the resource
 
 - route:
 

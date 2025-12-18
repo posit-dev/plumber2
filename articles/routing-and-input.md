@@ -246,6 +246,8 @@ function(query) {
 
 Visiting http://localhost:8080/?q=bread&pretty=1 will print:
 
+    #> Creating 03-03-search route in request router
+
 ``` json
 [
   "The q parameter is 'bread'. The pretty parameter is '1'."
@@ -364,6 +366,8 @@ Running
 `curl --data "id=123&name=Jennifer" -H "Content-Type: application/x-www-form-urlencoded" "http://localhost:8080/user"`
 will return:
 
+    #> Creating 03-04-body route in request router
+
 ``` json
 {
   "id": [
@@ -424,6 +428,8 @@ function(request) {
 Running `curl --header "Custom-Header: abc123" http://localhost:8080`
 will return:
 
+    #> Creating 03-05-headers route in request router
+
 ``` json
 {
   "val": [
@@ -483,6 +489,8 @@ function(id) {
 ```
 
 Visiting http://localhost:8080/type/14 will return:
+
+    #> Creating 03-02-types route in request router
 
 ``` json
 {

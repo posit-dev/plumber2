@@ -83,10 +83,12 @@ if a mix of graphics and non-graphics serializers are requested.
 ## Examples
 
 ``` r
+if (FALSE) {
 # Add a serializer that deparses the value
 register_serializer("deparse", function(...) {
   function(x) {
     deparse(x, ...)
   }
 }, mime_type = "text/plain")
+}
 ```

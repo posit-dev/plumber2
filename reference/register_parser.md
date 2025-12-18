@@ -79,10 +79,12 @@ factory function should be optional.
 ## Examples
 
 ``` r
+if (FALSE) {
 # Register a parser that splits at a character and converts to number
 register_parser("comma", function(delim = ",") {
   function(raw, directive) {
     as.numeric(strsplit(rawToChar(raw), delim)[[1]])
   }
 }, mime_types = "text/plain", default = FALSE)
+}
 ```

@@ -50,7 +50,11 @@ function(query) {
 This file defines two Plumber handlers. One is hosted at the path
 `/echo/{msg}` and simply echoes the message passed in as the second part
 of the path; the other is hosted at the path `/plot` and returns an
-image showing a simple R plot. You can use the
+image showing a simple R plot.
+
+If you haven’t installed `plumber2` yet, see the [installation
+section](https://plumber2.posit.co/articles/index.html#installation).
+Once you have `plumber2` installed, you can use the
 [`api()`](https://plumber2.posit.co/reference/api.md) function to
 translate this R file into a Plumber API:
 
@@ -83,6 +87,8 @@ endpoints.
 > for help with visiting your API.
 
 The `/echo/test` endpoint should show output resembling the following.
+
+    #> Creating 01-01-quickstart route in request router
 
 ``` json
 {
@@ -161,6 +167,8 @@ function() {
 ```
 
 This handler would always produce HTML when called.
+
+    #> Creating 01-02-html route in request router
 
 ``` html
 <html><body><h1>hello world</h1></body></html>
