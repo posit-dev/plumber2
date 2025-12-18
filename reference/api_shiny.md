@@ -12,7 +12,7 @@ end up in your normal route
 ## Usage
 
 ``` r
-api_shiny(api, path, app, except = NULL)
+api_shiny(api, path, app, except = NULL, auth_flow = NULL, auth_scope = NULL)
 ```
 
 ## Arguments
@@ -33,6 +33,15 @@ api_shiny(api, path, app, except = NULL)
 
   Subpaths to `path` that should not be forwarded to the shiny app. Be
   sure it doesn't contains paths that the shiny app needs
+
+- auth_flow:
+
+  A logical expression giving the authentication flow the client must
+  pass to get access to the resource.
+
+- auth_scope:
+
+  The scope requirements of the resource
 
 ## Value
 

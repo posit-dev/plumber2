@@ -157,6 +157,8 @@ handlers, but it is shown here as an example.
   : Redirect request to another resource
 - [`api_shiny()`](https://plumber2.posit.co/reference/api_shiny.md) :
   Serve a Shiny app from a plumber2 api
+- [`api_report()`](https://plumber2.posit.co/reference/api_report.md) :
+  Serve Quarto and Rmarkdown documents from a plumber2 api
 - [`api_forward()`](https://plumber2.posit.co/reference/api_forward.md)
   : Set up a plumber2 api to act as a reverse proxy
 
@@ -251,6 +253,7 @@ handlers, but it is shown here as an example.
   [`logger_console()`](https://plumber2.posit.co/reference/api_logger.md)
   [`logger_file()`](https://plumber2.posit.co/reference/api_logger.md)
   [`logger_logger()`](https://plumber2.posit.co/reference/api_logger.md)
+  [`logger_otel()`](https://plumber2.posit.co/reference/api_logger.md)
   [`logger_switch()`](https://plumber2.posit.co/reference/api_logger.md)
   [`common_log_format`](https://plumber2.posit.co/reference/api_logger.md)
   [`combined_log_format`](https://plumber2.posit.co/reference/api_logger.md)
@@ -262,6 +265,10 @@ handlers, but it is shown here as an example.
   : Turn on session cookie data storage for your API
 - [`api_datastore()`](https://plumber2.posit.co/reference/api_datastore.md)
   : Persistent server-side data storage
+- [`api_auth()`](https://plumber2.posit.co/reference/api_auth.md) : Add
+  auth to an endpoint
+- [`api_auth_guard()`](https://plumber2.posit.co/reference/api_auth_guard.md)
+  : Add an auth guard to your API
 - [`Next`](https://plumber2.posit.co/reference/Next.md)
   [`Break`](https://plumber2.posit.co/reference/Next.md)
   [`should_break()`](https://plumber2.posit.co/reference/Next.md) :
@@ -281,9 +288,13 @@ handlers, but it is shown here as an example.
 - [Annotations
   reference](https://plumber2.posit.co/articles/annotations.md):
 - [Runtime](https://plumber2.posit.co/articles/execution-model.md):
+- [Extending plumber2](https://plumber2.posit.co/articles/extending.md):
+- [Hosting](https://plumber2.posit.co/articles/hosting.md):
 - [Introduction](https://plumber2.posit.co/articles/introduction.md):
 - [Upgrading From
   Plumber](https://plumber2.posit.co/articles/migration.md):
+- [Instrumentation with
+  OpenTelemetry](https://plumber2.posit.co/articles/otel.md):
 - [Get Started](https://plumber2.posit.co/articles/plumber.md):
 - [Programmatic
   Usage](https://plumber2.posit.co/articles/programmatic-usage.md):
@@ -292,5 +303,7 @@ handlers, but it is shown here as an example.
 - [Routing &
   Input](https://plumber2.posit.co/articles/routing-and-input.md):
 - [Security](https://plumber2.posit.co/articles/security.md):
+- [\_server.yml for framework
+  developers](https://plumber2.posit.co/articles/server_yml.md):
 - [Tips &
   Tricks](https://plumber2.posit.co/articles/tips-and-tricks.md):

@@ -10,11 +10,13 @@ api_get(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -24,11 +26,13 @@ api_head(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -38,11 +42,13 @@ api_post(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -52,11 +58,13 @@ api_put(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -66,11 +74,13 @@ api_delete(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -80,11 +90,13 @@ api_connect(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -94,11 +106,13 @@ api_options(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -108,11 +122,13 @@ api_trace(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -122,11 +138,13 @@ api_patch(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -136,11 +154,13 @@ api_any(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -199,6 +219,15 @@ api_any(
   is used as the async evaluator. See the *Async* section for more
   detail
 
+- auth_flow:
+
+  A logical expression giving the authentication flow the client must
+  pass to get access to the resource.
+
+- auth_scope:
+
+  The scope requirements of the resource
+
 - then:
 
   A list of function to be called once the async handler is done. The
@@ -225,9 +254,9 @@ the pipe
 
 Handlers can be specified in an annotated route file using one of the
 method tags followed by the path it pertains to. You can use various
-tags to descripe the handler and these will automatically be converted
+tags to describe the handler and these will automatically be converted
 to OpenAPI documentation. Further, additional tags allow you to modify
-the behaviour of the handler, reflecting the arguments available in the
+the behavior of the handler, reflecting the arguments available in the
 functional approach.
 
     #* A handler for /user/<username>
@@ -245,9 +274,9 @@ functional approach.
 
 Handlers can be specified in an annotated route file using one of the
 method tags followed by the path it pertains to. You can use various
-tags to descripe the handler and these will automatically be converted
+tags to describe the handler and these will automatically be converted
 to OpenAPI documentation. Further, additional tags allow you to modify
-the behaviour of the handler, reflecting the arguments available in the
+the behavior of the handler, reflecting the arguments available in the
 functional approach.
 
     #* A handler for /user/<username>
@@ -286,6 +315,24 @@ through the `@async` and `@then` tags
       Next
     }
 
+You can add authentication using the `@auth` and `@authScope` tags
+
+    #* A handler for /user/<username>
+    #*
+    #* @param username:string The name of the user to provide information on
+    #*
+    #* @get /user/<username>
+    #*
+    #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+    #* information about the user such as their name, age, and hobbies
+    #*
+    #* @auth auth1 || auth2
+    #* @authScope read, write
+    #*
+    function(username) {
+      find_user_in_db(username)
+    }
+
 ## HTTP Methods
 
 The HTTP specs provide a selection of specific methods that clients can
@@ -313,7 +360,7 @@ acquainted with the HTTP spec in general
 - `PUT`: This method is used to update a specific resource on the
   server. In the context of a standard plumber2 server this is rarely
   relevant, though usage can come up. `PUT` is considered by clients to
-  be indemptotent meaning that sending the same `PUT` request multiple
+  be idempotent meaning that sending the same `PUT` request multiple
   times have no effect
 
 - `DELETE`: This method deletes a resource and is the opposite to `PUT`.
@@ -321,7 +368,7 @@ acquainted with the HTTP spec in general
   servers
 
 - `CONNECT`: This method request the establishment of a proxy tunnel. It
-  is considered advanced use and is very unlikely to have a usecase for
+  is considered advanced use and is very unlikely to have a use case for
   your plumber2 api
 
 - `OPTIONS`: This method is used by clients to query a server about what
@@ -396,7 +443,7 @@ specific than wildcards.
 A request made to `user/carl` will thus end up in the third handler,
 while a request made to `user/thomas` will end up in the second. This
 ordering makes it possible to both provide default handlers as well as
-specialisations for specific paths.
+specializations for specific paths.
 
 ## The Handler
 
@@ -524,7 +571,7 @@ async handler has finished. This can be done through the `then` argument
 of functions to chain to the promise using
 [`promises::then()`](https://rstudio.github.io/promises/reference/then.html).
 Before the `then` chain is executed the response will get the return
-value of the main handler asigned to the body. Each `then` call will
+value of the main handler assigned to the body. Each `then` call will
 receive the same arguments as a standard request handler as well as
 `result` which will hold the return value of the previous handler in the
 chain. For the first `then` call `result` will be a boolean signalling
@@ -532,6 +579,31 @@ if the async handler wants request handling to proceed to the next route
 or terminate early. The last call in the chain must return `Next` or
 `Break` to signal if processing should be allowed to continue to the
 next route.
+
+## Authentication
+
+plumber2 supports various authentication schemas which can be added with
+[`api_auth_guard()`](https://plumber2.posit.co/reference/api_auth_guard.md).
+An authentication flow for the handler can then be specified with the
+`auth_flow` argument and optional scopes can be set with the
+`auth_scope` argument. The flow is defined by a logical expression
+referencing the names of the authenticators part of the flow. Assuming
+two authenticators are available, `auth1` and `auth2`, then a flow could
+be `auth1 && auth2` to require the request passes both authenticators.
+Alternatively it could be `auth1 || auth2` to require the request
+passing either. Flows can be arbitrarily complex with nesting etc, but
+he OpenAPI spec has limits to what it can describe so if you want to
+have an OpenAPI compliant api you must limit yourself to at most two
+levels of nesting with the outer level being `||` (ie.
+`(auth1 && auth2) || (auth3 && auth4)` is ok, but
+`(auth1 || auth2) && (auth3 || auth4)` is not due to the outer level
+being `&&`, and `(auth1 && auth2) || (auth3 && (auth4 || auth5))` is not
+allowed because it has 3 nesting levels). This is only a limitation of
+OpenAPI and plumber2 itself can handle all of the above.
+
+plumber2 also supports requiring specific scopes to access resources. If
+you require these you must make sure the authenticator provides scopes
+upon a successful authentication, otherwise the request will be denied.
 
 ## See also
 

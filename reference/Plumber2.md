@@ -54,6 +54,10 @@ of a `Plumber2` object is desired, use the `clone()` method.
 
   The URL path to serve the api documentation from
 
+- `doc_args`:
+
+  Further arguments to the documentation UI
+
 ## Methods
 
 ### Public methods
@@ -78,7 +82,13 @@ of a `Plumber2` object is desired, use the `clone()` method.
 
 - [`Plumber2$add_shiny()`](#method-Plumber2-add_shiny)
 
+- [`Plumber2$add_report()`](#method-Plumber2-add_report)
+
 - [`Plumber2$forward()`](#method-Plumber2-forward)
+
+- [`Plumber2$add_auth_guard()`](#method-Plumber2-add_auth_guard)
+
+- [`Plumber2$add_auth()`](#method-Plumber2-add_auth)
 
 - [`Plumber2$clone()`](#method-Plumber2-clone)
 
@@ -169,7 +179,7 @@ Create a new `Plumber2` api
   at a later point will overwrite this functionality. Be aware that
   setting this to `TRUE` will prevent the request from falling through
   to other routes that might have a matching method and path. This
-  setting anly affects handlers on the request router.
+  setting only affects handlers on the request router.
 
 - `ignore_trailing_slash`:
 
@@ -321,9 +331,11 @@ for detailed information
       method,
       path,
       handler,
-      serializers,
+      serializers = NULL,
       parsers = NULL,
       use_strict_serializer = FALSE,
+      auth_flow = NULL,
+      auth_scope = NULL,
       download = FALSE,
       async = FALSE,
       then = NULL,
@@ -363,6 +375,18 @@ for detailed information
   By default, if a serializer that respects the requests `Accept` header
   cannot be found, then the first of the provided ones are used. Setting
   this to `TRUE` will instead send back a `406 Not Acceptable` response
+
+- `auth_flow`:
+
+  The authentication flow the request must be validated by to be allowed
+  into the handler, provided as a logical expression of authenticator
+  names
+
+- `auth_scope`:
+
+  The scope required to access this handler given a successful
+  authentication. Unless your authenticators provide scopes this should
+  be `NULL`
 
 - `download`:
 
@@ -461,7 +485,7 @@ redirect path.
 - `permanent`:
 
   Logical. Is the redirect considered permanent or temporary? Determines
-  the type of redirct status code to use
+  the type of redirect status code to use
 
 ------------------------------------------------------------------------
 
@@ -520,7 +544,13 @@ detailed information
 
 #### Usage
 
-    Plumber2$add_shiny(path, app, except = NULL)
+    Plumber2$add_shiny(
+      path,
+      app,
+      except = NULL,
+      auth_flow = NULL,
+      auth_scope = NULL
+    )
 
 #### Arguments
 
@@ -537,6 +567,118 @@ detailed information
   Subpaths to `path` that should not be forwarded to the shiny app. Be
   sure it doesn't contains paths that the shiny app needs
 
+- `auth_flow`:
+
+  The authentication flow the request must be validated by to be allowed
+  into the handler, provided as a logical expression of authenticator
+  names
+
+- `auth_scope`:
+
+  The scope required to access this handler given a successful
+  authentication. Unless your authenticators provide scopes this should
+  be `NULL`
+
+------------------------------------------------------------------------
+
+### Method `add_report()`
+
+Render and serve a Quarto or Rmarkdown document from an endpoint. See
+[`api_report()`](https://plumber2.posit.co/reference/api_report.md) for
+more information.
+
+#### Usage
+
+    Plumber2$add_report(
+      path,
+      report,
+      ...,
+      doc = NULL,
+      max_age = Inf,
+      async = TRUE,
+      finalize = NULL,
+      continue = FALSE,
+      cache_dir = tempfile(pattern = "plumber2_report"),
+      cache_by_id = FALSE,
+      auth_flow = NULL,
+      auth_scope = NULL,
+      route = NULL
+    )
+
+#### Arguments
+
+- `path`:
+
+  The base path to serve the report from. Additional endpoints will be
+  created in addition to this.
+
+- `report`:
+
+  The path to the report to serve
+
+- `...`:
+
+  Further arguments to
+  [`quarto::quarto_render()`](https://quarto-dev.github.io/quarto-r/reference/quarto_render.html)
+  or
+  [`rmarkdown::render()`](https://pkgs.rstudio.com/rmarkdown/reference/render.html)
+
+- `doc`:
+
+  An
+  [`openapi_operation()`](https://plumber2.posit.co/reference/openapi.md)
+  documentation for the report. Only `query` parameters will be used and
+  a request body will be generated from this for the POST methods.
+
+- `max_age`:
+
+  The maximum age in seconds to keep a rendered report before initiating
+  a re-render
+
+- `async`:
+
+  Should rendering happen asynchronously (using mirai)
+
+- `finalize`:
+
+  An optional function to run before sending the response back. The
+  function will receive the request as the first argument, the response
+  as the second, and the server as the third.
+
+- `continue`:
+
+  A logical that defines whether the response is returned directly after
+  rendering or should be made available to subsequent routes
+
+- `cache_dir`:
+
+  The location of the render cache. By default a temporary folder is
+  created for it.
+
+- `cache_by_id`:
+
+  Should caching be scoped by the user id. If the rendering is dependent
+  on user-level access to different data this is necessary to avoid data
+  leakage.
+
+- `auth_flow`:
+
+  The authentication flow the request must be validated by to be allowed
+  into the handler, provided as a logical expression of authenticator
+  names
+
+- `auth_scope`:
+
+  The scope required to access this handler given a successful
+  authentication. Unless your authenticators provide scopes this should
+  be `NULL`
+
+- `route`:
+
+  The route this handler should be added to. Defaults to the last route
+  in the stack. If the route does not exist it will be created as the
+  last route in the stack.
+
 ------------------------------------------------------------------------
 
 ### Method `forward()`
@@ -547,7 +689,7 @@ for more details
 
 #### Usage
 
-    Plumber2$forward(path, url, except = NULL)
+    Plumber2$forward(path, url, except = NULL, auth_flow = NULL, auth_scope = NULL)
 
 #### Arguments
 
@@ -562,6 +704,73 @@ for more details
 - `except`:
 
   Subpaths to `path` that should be exempt from forwarding
+
+- `auth_flow`:
+
+  The authentication flow the request must be validated by to be allowed
+  into the handler, provided as a logical expression of authenticator
+  names
+
+- `auth_scope`:
+
+  The scope required to access this handler given a successful
+  authentication. Unless your authenticators provide scopes this should
+  be `NULL`
+
+------------------------------------------------------------------------
+
+### Method `add_auth_guard()`
+
+Adds an auth guard to your API which can then be referenced in auth
+flows.
+
+#### Usage
+
+    Plumber2$add_auth_guard(guard, name = NULL)
+
+#### Arguments
+
+- `guard`:
+
+  An [Guard](https://thomasp85.github.io/fireproof/reference/Guard.html)
+  subclass object defining the scheme
+
+- `name`:
+
+  The name to use for referencing the scheme in an auth flow
+
+------------------------------------------------------------------------
+
+### Method `add_auth()`
+
+Add an auth flow to an endpoint
+
+#### Usage
+
+    Plumber2$add_auth(method, path, auth_flow, auth_scope = NULL, add_doc = TRUE)
+
+#### Arguments
+
+- `method`:
+
+  The HTTP method to add auth to
+
+- `path`:
+
+  A string giving the path to be authenticated
+
+- `auth_flow`:
+
+  A logical expression giving the auth flow the client must pass to get
+  access to the resource
+
+- `auth_scope`:
+
+  The scope requirements of the resource
+
+- `add_doc`:
+
+  Should OpenAPI documentation be added for the authentication
 
 ------------------------------------------------------------------------
 

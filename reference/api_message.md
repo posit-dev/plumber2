@@ -46,14 +46,14 @@ the pipe
 A handler for a websocket message is much simpler than for requests in
 general since it doesn't have to concern itself with methods, paths, and
 responses. Any message handler registered will get called in sequence
-when a websocket message is recieved from a client. Still, a few
+when a websocket message is received from a client. Still, a few
 expectations apply
 
 ### Handler Arguments
 
 The handler can take any of the following arguments:
 
-- `message`: Either a raw vector if the message recieved is in binary
+- `message`: Either a raw vector if the message received is in binary
   form or a single string, giving the message sent from the client
 
 - `server`: The

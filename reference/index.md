@@ -49,6 +49,8 @@
   : Redirect request to another resource
 - [`api_shiny()`](https://plumber2.posit.co/reference/api_shiny.md) :
   Serve a Shiny app from a plumber2 api
+- [`api_report()`](https://plumber2.posit.co/reference/api_report.md) :
+  Serve Quarto and Rmarkdown documents from a plumber2 api
 - [`api_forward()`](https://plumber2.posit.co/reference/api_forward.md)
   : Set up a plumber2 api to act as a reverse proxy
 
@@ -143,6 +145,7 @@
   [`logger_console()`](https://plumber2.posit.co/reference/api_logger.md)
   [`logger_file()`](https://plumber2.posit.co/reference/api_logger.md)
   [`logger_logger()`](https://plumber2.posit.co/reference/api_logger.md)
+  [`logger_otel()`](https://plumber2.posit.co/reference/api_logger.md)
   [`logger_switch()`](https://plumber2.posit.co/reference/api_logger.md)
   [`common_log_format`](https://plumber2.posit.co/reference/api_logger.md)
   [`combined_log_format`](https://plumber2.posit.co/reference/api_logger.md)
@@ -154,6 +157,10 @@
   : Turn on session cookie data storage for your API
 - [`api_datastore()`](https://plumber2.posit.co/reference/api_datastore.md)
   : Persistent server-side data storage
+- [`api_auth()`](https://plumber2.posit.co/reference/api_auth.md) : Add
+  auth to an endpoint
+- [`api_auth_guard()`](https://plumber2.posit.co/reference/api_auth_guard.md)
+  : Add an auth guard to your API
 - [`Next`](https://plumber2.posit.co/reference/Next.md)
   [`Break`](https://plumber2.posit.co/reference/Next.md)
   [`should_break()`](https://plumber2.posit.co/reference/Next.md) :

@@ -24,6 +24,8 @@ logger_file(file, format = "{time} - {event}: {message}")
 
 logger_logger(default_level = "INFO")
 
+logger_otel(format = "{message}")
+
 logger_switch(..., default = logger_null())
 
 common_log_format
@@ -51,8 +53,9 @@ combined_log_format
 
 - format:
 
-  A [glue](https://glue.tidyverse.org/reference/glue.html) string
-  specifying the format of the log entry
+  A [glue](https://glue.tidyverse.org/reference/glue.html)-like string
+  specifying the format of the log entry. Only the variables `time`,
+  `event`, and `message` are available and must be given verbatim
 
 - file:
 

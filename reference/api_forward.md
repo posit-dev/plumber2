@@ -18,7 +18,7 @@ instead (via
 ## Usage
 
 ``` r
-api_forward(api, path, url, except = NULL)
+api_forward(api, path, url, except = NULL, auth_flow = NULL, auth_scope = NULL)
 ```
 
 ## Arguments
@@ -38,6 +38,15 @@ api_forward(api, path, url, except = NULL)
 - except:
 
   Subpaths to `path` that should be exempt from forwarding
+
+- auth_flow:
+
+  A logical expression giving the authentication flow the client must
+  pass to get access to the resource.
+
+- auth_scope:
+
+  The scope requirements of the resource
 
 ## Value
 

@@ -15,7 +15,7 @@ argument), or with the `api_doc_add()` function
 ## Usage
 
 ``` r
-api_doc_setting(api, doc_type, doc_path)
+api_doc_setting(api, doc_type, doc_path, ...)
 
 api_doc_add(api, doc, overwrite = FALSE, subset = NULL)
 ```
@@ -36,9 +36,17 @@ api_doc_add(api, doc, overwrite = FALSE, subset = NULL)
 
   The URL path to serve the api documentation from
 
+- ...:
+
+  plumber files or directories containing plumber files to be parsed in
+  the given order. The order of parsing determines the final order of
+  the routes in the stack. If `...` contains a `_server.yml` file then
+  all other files in `...` will be ignored and the `_server.yml` file
+  will be used as the basis for the API
+
 - doc:
 
-  A list with the OpenAPI documentation, usually constrcuted with [one
+  A list with the OpenAPI documentation, usually constructed with [one
   of the helper
   functions](https://plumber2.posit.co/reference/openapi.md)
 

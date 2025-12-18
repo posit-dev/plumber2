@@ -58,9 +58,6 @@ problem are to do either or both of:
     done outside of the API process.
 2.  Run multiple R processes to redundantly host a single plumber2 API
     and load-balance incoming requests between all available processes.
-    See the [hosting
-    section](https://plumber2.posit.co/articles/hosting.md) for details
-    on which hosting environments support this feature.
 
 ## Managing State
 
@@ -140,16 +137,15 @@ resilient to concurrency contention, so you should not rely on the
 filesystem to coordinate shared state for any more than a single R
 process running concurrently.
 
-It’s also important to ask whether or not the [hosting
-platform](https://plumber2.posit.co/articles/hosting.md) you’ll be using
-supports persistent storage on disk. For instance, Docker may insulate
-your R process from your hardware and not allow you to write outside of
-your container. RStudio Connect, too, will provision a new directory
-every time you deploy an updated version of your API which will discard
-any data you had written to disk up to that point. So if you’re
-considering writing your state to disk long-term, be sure that your
-hosting environment supports persistent on-disk storage and that you’ve
-considered the concurrency implications of your code.
+It’s also important to ask whether or not the hosting platform you’ll be
+using supports persistent storage on disk. For instance, Docker may
+insulate your R process from your hardware and not allow you to write
+outside of your container. RStudio Connect, too, will provision a new
+directory every time you deploy an updated version of your API which
+will discard any data you had written to disk up to that point. So if
+you’re considering writing your state to disk long-term, be sure that
+your hosting environment supports persistent on-disk storage and that
+you’ve considered the concurrency implications of your code.
 
 ### Cookies
 

@@ -5,14 +5,18 @@
 <url><loc>https://plumber2.posit.co/LICENSE.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/annotations.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/execution-model.html</loc></url>
+<url><loc>https://plumber2.posit.co/articles/extending.html</loc></url>
+<url><loc>https://plumber2.posit.co/articles/hosting.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/index.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/introduction.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/migration.html</loc></url>
+<url><loc>https://plumber2.posit.co/articles/otel.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/plumber.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/programmatic-usage.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/rendering-output.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/routing-and-input.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/security.html</loc></url>
+<url><loc>https://plumber2.posit.co/articles/server_yml.html</loc></url>
 <url><loc>https://plumber2.posit.co/articles/tips-and-tricks.html</loc></url>
 <url><loc>https://plumber2.posit.co/authors.html</loc></url>
 <url><loc>https://plumber2.posit.co/index.html</loc></url>
@@ -23,6 +27,8 @@
 <url><loc>https://plumber2.posit.co/reference/api.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_add_route.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_assets.html</loc></url>
+<url><loc>https://plumber2.posit.co/reference/api_auth.html</loc></url>
+<url><loc>https://plumber2.posit.co/reference/api_auth_guard.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_datastore.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_docs.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_forward.html</loc></url>
@@ -31,6 +37,7 @@
 <url><loc>https://plumber2.posit.co/reference/api_on.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_package.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_redirect.html</loc></url>
+<url><loc>https://plumber2.posit.co/reference/api_report.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_request_handlers.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_request_header_handlers.html</loc></url>
 <url><loc>https://plumber2.posit.co/reference/api_run.html</loc></url>
