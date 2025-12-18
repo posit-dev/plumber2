@@ -41,7 +41,9 @@ plumber2 (through fiery) provides the predefined \code{common_log_format} and
 \code{combined_log_format}, but you can easily create your own. See
 \link[fiery:loggers]{fiery::loggers} for which variables the glue string has access to.}
 
-\item{format}{A \link[glue:glue]{glue} string specifying the format of the log entry}
+\item{format}{A \link[glue:glue]{glue}-like string specifying the format of the
+log entry. Only the variables \code{time}, \code{event}, and \code{message} are available
+and must be given verbatim}
 
 \item{file}{A file or connection to write to}
 

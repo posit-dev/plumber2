@@ -1,2 +1,1 @@
-This new package submission is contingent on the release of firesafety which has
-already been submitted.
+This is a small patch release to pave the way for routr 2.0.0

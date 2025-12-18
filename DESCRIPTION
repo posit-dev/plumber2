@@ -1,6 +1,6 @@
 Package: plumber2
 Title: Easy and Powerful Web Servers
-Version: 0.1.0.9000
+Version: 0.1.1.9000
 Authors@R: c(
     person("Thomas Lin", "Pedersen", , "thomas.pedersen@posit.co", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5147-4711")),
@@ -60,7 +60,7 @@ VignetteBuilder: quarto
 URL: https://plumber2.posit.co/, https://github.com/posit-dev/plumber2
 BugReports: https://github.com/posit-dev/plumber2/issues
 Config/testthat/edition: 3
-Remotes: 
+Remotes:
     thomasp85/routr,
     thomasp85/fiery,
     thomasp85/fireproof
