@@ -59,14 +59,13 @@ from the request \code{Content-Type} header. All arguments to the factory functi
 should be optional.
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # Register a parser that splits at a character and converts to number
 register_parser("comma", function(delim = ",") {
   function(raw, directive) {
     as.numeric(strsplit(rawToChar(raw), delim)[[1]])
   }
 }, mime_types = "text/plain", default = FALSE)
-\dontshow{\}) # examplesIf}
+
 }
 \seealso{
 \link{parsers}

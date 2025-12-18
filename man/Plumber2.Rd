@@ -46,6 +46,8 @@ will pass through this router prior to reading in the body)}
 not generating API docs)}
 
 \item{\code{doc_path}}{The URL path to serve the api documentation from}
+
+\item{\code{doc_args}}{Further arguments to the documentation UI}
 }
 \if{html}{\out{</div>}}
 }
@@ -62,7 +64,10 @@ not generating API docs)}
 \item \href{#method-Plumber2-parse_file}{\code{Plumber2$parse_file()}}
 \item \href{#method-Plumber2-add_api_doc}{\code{Plumber2$add_api_doc()}}
 \item \href{#method-Plumber2-add_shiny}{\code{Plumber2$add_shiny()}}
+\item \href{#method-Plumber2-add_report}{\code{Plumber2$add_report()}}
 \item \href{#method-Plumber2-forward}{\code{Plumber2$forward()}}
+\item \href{#method-Plumber2-add_auth_guard}{\code{Plumber2$add_auth_guard()}}
+\item \href{#method-Plumber2-add_auth}{\code{Plumber2$add_auth()}}
 \item \href{#method-Plumber2-clone}{\code{Plumber2$clone()}}
 }
 }
@@ -146,7 +151,7 @@ the client of the implemented methods. Assigning a handler to \code{"any"} for
 the same path at a later point will overwrite this functionality. Be
 aware that setting this to \code{TRUE} will prevent the request from falling
 through to other routes that might have a matching method and path. This
-setting anly affects handlers on the request router.}
+setting only affects handlers on the request router.}
 
 \item{\code{ignore_trailing_slash}}{Logical. Should the trailing slash of a path
 be ignored when adding handlers and handling requests. Setting this will
@@ -274,9 +279,11 @@ detailed information
   method,
   path,
   handler,
-  serializers,
+  serializers = NULL,
   parsers = NULL,
   use_strict_serializer = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   download = FALSE,
   async = FALSE,
   then = NULL,
@@ -308,6 +315,14 @@ selected is based on the request \code{Content-Type} header}
 the requests \code{Accept} header cannot be found, then the first of the
 provided ones are used. Setting this to \code{TRUE} will instead send back a
 \verb{406 Not Acceptable} response}
+
+\item{\code{auth_flow}}{The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names}
+
+\item{\code{auth_scope}}{The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be \code{NULL}}
 
 \item{\code{download}}{Should the response mark itself for download instead of
 being shown inline? Setting this to \code{TRUE} will set the
@@ -385,7 +400,7 @@ resolving any path parameters and wildcards it will be used in the
 \code{Location} header}
 
 \item{\code{permanent}}{Logical. Is the redirect considered permanent or
-temporary? Determines the type of redirct status code to use}
+temporary? Determines the type of redirect status code to use}
 }
 \if{html}{\out{</div>}}
 }
@@ -441,7 +456,13 @@ docs to assign \code{doc} to}
 Add a shiny app to an api. See \code{\link[=api_shiny]{api_shiny()}} for detailed
 information
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_shiny(path, app, except = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_shiny(
+  path,
+  app,
+  except = NULL,
+  auth_flow = NULL,
+  auth_scope = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -453,6 +474,87 @@ information
 
 \item{\code{except}}{Subpaths to \code{path} that should not be forwarded to the
 shiny app. Be sure it doesn't contains paths that the shiny app needs}
+
+\item{\code{auth_flow}}{The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names}
+
+\item{\code{auth_scope}}{The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be \code{NULL}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_report"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_report}{}}}
+\subsection{Method \code{add_report()}}{
+Render and serve a Quarto or Rmarkdown document from an
+endpoint. See \code{\link[=api_report]{api_report()}} for more information.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_report(
+  path,
+  report,
+  ...,
+  doc = NULL,
+  max_age = Inf,
+  async = TRUE,
+  finalize = NULL,
+  continue = FALSE,
+  cache_dir = tempfile(pattern = "plumber2_report"),
+  cache_by_id = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
+  route = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{The base path to serve the report from. Additional endpoints
+will be created in addition to this.}
+
+\item{\code{report}}{The path to the report to serve}
+
+\item{\code{...}}{Further arguments to \code{quarto::quarto_render()} or
+\code{rmarkdown::render()}}
+
+\item{\code{doc}}{An \code{\link[=openapi_operation]{openapi_operation()}} documentation for the report. Only
+\code{query} parameters will be used and a request body will be generated from
+this for the POST methods.}
+
+\item{\code{max_age}}{The maximum age in seconds to keep a rendered report
+before initiating a re-render}
+
+\item{\code{async}}{Should rendering happen asynchronously (using mirai)}
+
+\item{\code{finalize}}{An optional function to run before sending the response
+back. The function will receive the request as the first argument, the
+response as the second, and the server as the third.}
+
+\item{\code{continue}}{A logical that defines whether the response is returned
+directly after rendering or should be made available to subsequent routes}
+
+\item{\code{cache_dir}}{The location of the render cache. By default a temporary
+folder is created for it.}
+
+\item{\code{cache_by_id}}{Should caching be scoped by the user id. If the
+rendering is dependent on user-level access to different data this is
+necessary to avoid data leakage.}
+
+\item{\code{auth_flow}}{The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names}
+
+\item{\code{auth_scope}}{The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be \code{NULL}}
+
+\item{\code{route}}{The route this handler should be added to. Defaults to the
+last route in the stack. If the route does not exist it will be created
+as the last route in the stack.}
 }
 \if{html}{\out{</div>}}
 }
@@ -464,7 +566,7 @@ shiny app. Be sure it doesn't contains paths that the shiny app needs}
 Add a reverse proxy from a path to a given URL. See
 \code{\link[=api_forward]{api_forward()}} for more details
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plumber2$forward(path, url, except = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$forward(path, url, except = NULL, auth_flow = NULL, auth_scope = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -475,6 +577,63 @@ Add a reverse proxy from a path to a given URL. See
 \item{\code{url}}{The url to forward to}
 
 \item{\code{except}}{Subpaths to \code{path} that should be exempt from forwarding}
+
+\item{\code{auth_flow}}{The authentication flow the request must be validated by
+to be allowed into the handler, provided as a logical expression of
+authenticator names}
+
+\item{\code{auth_scope}}{The scope required to access this handler given a
+successful authentication. Unless your authenticators provide scopes this
+should be \code{NULL}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_auth_guard"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_auth_guard}{}}}
+\subsection{Method \code{add_auth_guard()}}{
+Adds an auth guard to your API which can then be
+referenced in auth flows.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_auth_guard(guard, name = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{guard}}{An \link[fireproof:Guard]{Guard} subclass object defining the
+scheme}
+
+\item{\code{name}}{The name to use for referencing the scheme in an
+auth flow}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Plumber2-add_auth"></a>}}
+\if{latex}{\out{\hypertarget{method-Plumber2-add_auth}{}}}
+\subsection{Method \code{add_auth()}}{
+Add an auth flow to an endpoint
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Plumber2$add_auth(method, path, auth_flow, auth_scope = NULL, add_doc = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{method}}{The HTTP method to add auth to}
+
+\item{\code{path}}{A string giving the path to be authenticated}
+
+\item{\code{auth_flow}}{A logical expression giving the auth flow the
+client must pass to get access to the resource}
+
+\item{\code{auth_scope}}{The scope requirements of the resource}
+
+\item{\code{add_doc}}{Should OpenAPI documentation be added for the
+authentication}
 }
 \if{html}{\out{</div>}}
 }

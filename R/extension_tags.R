@@ -8,18 +8,27 @@ tag_extensions$tag <- list()
 #' wish to add a new tag to be used when writing annotated plumber2 routes they
 #' can use this function. If so, it should be called when the package is loaded.
 #'
-#' The `handler` argument must be a function with the arguments `block`, `call`,
-#' `tags`, `values`, and `env`. `block` is a list with the currently parsed
-#' information from the block. You can add or modify the values within to suit
-#' your need as well as subclass it. You should not remove any values as others
-#' might need them. `call` is the parsed value of whatever expression was
-#' beneath the plumber2 block. `tags` is a character vector of all the tags in
-#' the block, and `values` is a list of all the values associated with the tags
-#' (that is, whatever comes after the tag in the block). The values are
-#' unparsed. You should assume that all tags not relevant for your extension has
-#' already been handled and incorporated into `block`. The function must return
-#' a modified version of `block`. If you add a subclass to `block` you should
-#' make sure that a method for [apply_plumber2_block()] for the subclass exists.
+#' The `handler` argument must be, if provided, a function with the arguments
+#' `block`, `call`, `tags`, `values`, and `env`. `block` is a list with the
+#' currently parsed information from the block. You can add or modify the values
+#' within to suit your need as well as subclass it. You should not remove any
+#' values as others might need them. `call` is the parsed value of whatever
+#' expression was beneath the plumber2 block. `tags` is a character vector of
+#' all the tags in the block, and `values` is a list of all the values
+#' associated with the tags (that is, whatever comes after the tag in the
+#' block). The values are unparsed. You should assume that all tags not relevant
+#' for your extension has already been handled and incorporated into `block`.
+#' The `env` argument contains the environment the annotation file is evaluated
+#' in. The function must return a modified version of `block` unless `block` is
+#' of the class `plumber2_empty_block` in which case it is allowed to construct
+#' a new object from scratch. If you add a subclass to `block` you should make
+#' sure that a method for [apply_plumber2_block()] for the subclass exists.
+#'
+#' If `handler` is `NULL` then the tag will be registered but no associated
+#' handler will be added. This can make sense if you have a new block type that
+#' consists of multiple tags but only want a single handler for it. In that case
+#' you register a handler for one of the required tags and register the
+#' remaining tags without a handler.
 #'
 #' @param tag The name of the tag
 #' @param handler A handler function for the tag. See *Details*
@@ -30,7 +39,7 @@ tag_extensions$tag <- list()
 #'
 #' @seealso [apply_plumber2_block()]
 #'
-#' @examplesIf FALSE
+#' @examples
 #' # Add a tag that says hello when used
 #' add_plumber2_tag("hello", function(block, call, tags, values, env) {
 #'   message("Hello")
@@ -39,21 +48,22 @@ tag_extensions$tag <- list()
 #' })
 #'
 #'
-add_plumber2_tag <- function(tag, handler) {
+add_plumber2_tag <- function(tag, handler = NULL) {
   check_string(tag)
-  check_function(handler)
-  if (
-    !identical(
-      c("block", "call", "tags", "values", "env"),
-      fn_fmls_names(handler)
-    )
-  ) {
-    cli::cli_abort(
-      "{.arg handler} must be a function with the following arguments: {.and {.arg {c('block', 'call', 'tags', 'values', 'env')}}}"
-    )
+  if (!is.null(handler)) {
+    check_function(handler)
+    if (
+      !identical(
+        c("block", "call", "tags", "values", "env"),
+        fn_fmls_names(handler)
+      )
+    ) {
+      cli::cli_abort(
+        "{.arg handler} must be a function with the following arguments: {.and {.arg {c('block', 'call', 'tags', 'values', 'env')}}}"
+      )
+    }
+    tag_extensions$tag[[tag]] <- c(tag_extensions$tag[[tag]], list(handler))
   }
-
-  tag_extensions$tag[[tag]] <- c(tag_extensions$tag[[tag]], list(handler))
   registerS3method(
     genname = "roxy_tag_parse",
     class = paste0("roxy_tag_", tag),
@@ -79,7 +89,8 @@ parse_extension <- function(tag, block, call, tags, values, env) {
       env = env
     )
     if (
-      any(inherits(block, old_class, TRUE) == 0) ||
+      (!identical(old_class, "plumber2_empty_block") &&
+        any(inherits(block, old_class, TRUE) == 0)) ||
         any(!old_names %in% names(block))
     ) {
       cli::cli_abort(
@@ -94,13 +105,17 @@ on_load({
   add_plumber2_tag("cors", function(block, call, tags, values, env) {
     class(block) <- c("plumber2_cors_block", class(block))
     block$cors <- trimws(strsplit(values[[which(tags == "cors")[1]]], ",")[[1]])
-    if (block$cors == "") block$cors <- "*"
+    if (block$cors == "") {
+      block$cors <- "*"
+    }
     block
   })
   add_plumber2_tag("rip", function(block, call, tags, values, env) {
     class(block) <- c("plumber2_rip_block", class(block))
     block$rip <- trimws(values[[which(tags == "rip")[1]]])
-    if (block$rip == "") block$rip <- "same-site"
+    if (block$rip == "") {
+      block$rip <- "same-site"
+    }
     block
   })
 })

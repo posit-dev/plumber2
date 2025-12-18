@@ -7,10 +7,10 @@
 ^[\.]?air\.toml$
 ^\.vscode$
 ^.*/_ex[^/]*.qmd$
-^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
 ^cran-comments\.md$
 vignettes/_ex-github.qmd
 vignettes/_ex-mailgun.qmd
 vignettes/_hosting.qmd
+^CRAN-SUBMISSION$

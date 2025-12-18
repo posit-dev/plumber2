@@ -62,14 +62,13 @@ provide the remaining non-graphics serializers. A warning is thrown if a mix
 of graphics and non-graphics serializers are requested.
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # Add a serializer that deparses the value
 register_serializer("deparse", function(...) {
   function(x) {
     deparse(x, ...)
   }
 }, mime_type = "text/plain")
-\dontshow{\}) # examplesIf}
+
 }
 \seealso{
 \link{serializers}

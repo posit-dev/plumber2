@@ -70,6 +70,10 @@ fiery::logger_file
 fiery::logger_logger
 #' @rdname api_logger
 #' @export
+#' @importFrom fiery logger_otel
+fiery::logger_otel
+#' @rdname api_logger
+#' @export
 #' @importFrom fiery logger_switch
 fiery::logger_switch
 #' @rdname api_logger

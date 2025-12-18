@@ -13,6 +13,8 @@ api_assets(
   default_ext = "html",
   finalize = NULL,
   continue = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   route = NULL
 )
 
@@ -49,6 +51,11 @@ value from the function is discarded. The function must accept \code{...}}
 
 \item{continue}{A logical that should be returned if a file is found.
 Defaults to \code{FALSE} indicating that the response should be send unmodified.}
+
+\item{auth_flow}{A logical expression giving the authentication flow the
+client must pass to get access to the resource.}
+
+\item{auth_scope}{The scope requirements of the resource}
 
 \item{route}{The name of the route in the header router to add the asset
 route to. Defaults to the last route in the stack. If the route does not

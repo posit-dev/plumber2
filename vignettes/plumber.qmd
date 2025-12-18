@@ -35,9 +35,7 @@ Plumber2 allows you to create APIs by merely decorating your existing R code wit
 #| code: !expr readLines("files/apis/01-01-quickstart.R")
 ```
 
-This file defines two Plumber handlers. One is hosted at the path `/echo/{msg}` and simply echoes the message passed in as the second part of the path; the other is hosted at the path `/plot` and returns an image showing a simple R plot.
-
-If you haven't installed `plumber2` yet, see the installation section. Once you have `plumber2` installed, you can use the `api()` function to translate this R file into a Plumber API:
+This file defines two Plumber handlers. One is hosted at the path `/echo/{msg}` and simply echoes the message passed in as the second part of the path; the other is hosted at the path `/plot` and returns an image showing a simple R plot. You can use the `api()` function to translate this R file into a Plumber API:
 
 ``` r
 pa <- api("plumber.R")
@@ -59,6 +57,7 @@ The `/echo/test` endpoint should show output resembling the following.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/01-01-quickstart.R"))
 
@@ -72,6 +71,7 @@ The `/plot` endpoint will show you a simple plot of some data from the palmerpen
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 if (packageVersion("base") < "4.5.0") {
   cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
@@ -92,6 +92,7 @@ You may have noticed that the functions that define our endpoints accept paramet
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 if (packageVersion("base") < "4.5.0") {
   cat("| The `plot/` endpoint requires the penguins dataset first introduced in R 4.5.0")
@@ -122,6 +123,7 @@ This handler would always produce HTML when called.
 
 ```{r}
 #| echo: false
+#| message: false
 #| results: asis
 pa <- api(file.path(me, "files/apis/01-02-html.R"))
 

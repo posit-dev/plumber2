@@ -94,7 +94,7 @@ combine_parameters <- function(path, doc, from_block = TRUE) {
         !identical(path[[param]]$schema, doc[[param]]$schema)
     ) {
       cli::cli_abort(
-        "The type information for {.arg {param}} provided in the path doens't match the information provided in {if (from_block) '@param' else '`doc`'}"
+        "The type information for {.arg {param}} provided in the path doesn't match the information provided in {if (from_block) '@param' else '`doc`'}"
       )
     }
   }

@@ -16,7 +16,7 @@ registry$async <- list()
 #'
 #' @export
 #'
-#' @examplesIf FALSE
+#' @examples
 #' # Register an async evaluator based on future (the provided mirai backend is
 #' # superior in every way so this is for illustrative purpose)
 #' future_async <- function(...) {

@@ -37,7 +37,7 @@
 #'
 #' @param api A plumber2 api object to add docs or doc settings to
 #' @inheritParams api
-#' @param doc A list with the OpenAPI documentation, usually constrcuted
+#' @param doc A list with the OpenAPI documentation, usually constructed
 #' with [one of the helper functions][openapi]
 #' @param overwrite Logical. Should already existing documentation be
 #' removed or should it be merged together with `doc`
@@ -86,13 +86,19 @@ NULL
 #' @rdname api_docs
 #' @export
 #'
-api_doc_setting <- function(api, doc_type, doc_path) {
+api_doc_setting <- function(api, doc_type, doc_path, ...) {
+  new_type <- FALSE
   if (!missing(doc_type)) {
+    new_type <- api$doc_type != doc_type
     api$doc_type <- doc_type
   }
   if (!missing(doc_path)) {
     api$doc_path <- doc_path
   }
+  if (new_type) {
+    api$doc_args <- lapply(api$doc_args, function(x) NULL)
+  }
+  api$doc_args <- list2(...)
   api
 }
 

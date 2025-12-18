@@ -14,7 +14,7 @@
 #' * `route` The main route handling requests according to the parsed file, as a
 #'   named list of length one
 #' * `header_route` The route to be attached to header events (fires before the
-#'   body has been recieved and can be used to prematurely reject requests based
+#'   body has been received and can be used to prematurely reject requests based
 #'   on their headers), as a named list of length one
 #' * `asset_routes` All the asset routes created by `@static` blocks as a named
 #'   list
@@ -28,7 +28,7 @@
 #' @importFrom roxygen2 parse_file block_has_tags block_get_tag_value
 #' @keywords internal
 #'
-#' @examplesIf FALSE
+#' @examplesIf file.exists("path/to/my/plumber/file.R")
 #' # Parse a plumber file
 #' parse_plumber_file("path/to/my/plumber/file.R")
 #'
@@ -116,6 +116,10 @@ parse_block <- function(
     parse_asset_block(call, tags, values, env, file_dir)
   } else if (block_has_tags(block, "statics")) {
     parse_static_block(call, tags, values, env, file_dir)
+  } else if (block_has_tags(block, "authGuard")) {
+    parse_auth_guard_block(call, tags, values, env)
+  } else if (block_has_tags(block, "datastore")) {
+    parse_datastore_block(call, tags, values, env)
   } else if (block_has_tags(block, "message")) {
     parse_message_block(call, tags, values, env)
   } else if (block_has_tags(block, "then")) {
@@ -151,7 +155,7 @@ parse_block <- function(
   } else if (identical(call, "_API")) {
     parse_api_block(call, tags, values, env)
   } else {
-    structure(list(), "plumber2_empty_block")
+    structure(list(), class = "plumber2_empty_block")
   }
   for (tag in tags) {
     if (is_extension_tag(tag)) {
@@ -251,7 +255,8 @@ parse_handler_block <- function(call, tags, values, env) {
       download = download,
       doc = doc,
       async = async,
-      header = any(tags == "header")
+      header = any(tags == "header"),
+      auth = parse_auth_tags(tags, values)
     ),
     class = "plumber2_handler_block"
   )
@@ -263,12 +268,6 @@ parse_static_block <- function(call, tags, values, env, file_dir) {
   }
   if (!(is.null(call) || identical(call, list()))) {
     cli::cli_warn("Expression ignored for {.field @statics} blocks")
-  }
-  extra_tags <- setdiff(tags, c("statics", "except", "backref"))
-  if (length(extra_tags) != 0) {
-    cli::cli_warn(
-      "Ignoring {.field {paste0('@', extra_tags)}} tag{?s} when parsing {.field @statics} tag"
-    )
   }
   mapping <- trimws(strsplit(
     values[[which(tags == "statics")]],
@@ -300,12 +299,6 @@ parse_asset_block <- function(call, tags, values, env, file_dir) {
   if (!(is.null(call) || identical(call, list()))) {
     cli::cli_warn("Expression ignored for {.field @assets} blocks")
   }
-  extra_tags <- setdiff(tags, c("assets", "backref"))
-  if (length(extra_tags) != 0) {
-    cli::cli_warn(
-      "Ignoring {.field {paste0('@', extra_tags)}} tag{?s} when parsing {.field @assets} tag"
-    )
-  }
   mapping <- trimws(strsplit(
     values[[which(tags == "assets")]],
     " ",
@@ -315,13 +308,46 @@ parse_asset_block <- function(call, tags, values, env, file_dir) {
     mapping <- c(mapping, "/")
   }
   mapping[1] <- fs::path_abs(mapping[1], file_dir)
+  path <- mapping[2]
+  if (grepl("/$", path)) {
+    path <- paste0(path, "*")
+  }
   structure(
     list(
       route = routr::resource_route(!!mapping[2] := mapping[1]),
       header = FALSE,
-      endpoints = list(list(method = "get", path = mapping[2]))
+      endpoints = list(list(method = "get", path = path)),
+      auth = parse_auth_tags(tags, values)
     ),
     class = "plumber2_route_block"
+  )
+}
+
+parse_auth_guard_block <- function(call, tags, values, env) {
+  if (!is.function(call) && !fireproof::is_guard(call)) {
+    stop_input_type(call, cli::format_inline("an {.cls Guard} subclass object or a function"))
+  }
+  name <- trimws(values[[which(tags == "authGuard")[1]]])
+  structure(
+    list(
+      guard = call,
+      name = name
+    ),
+    class = "plumber2_auth_guard_block"
+  )
+}
+
+parse_datastore_block <- function(call, tags, values, env) {
+  name <- trimws(values[[which(tags == "datastore")[1]]])
+  if (length(name) == 0 || name[1] == "") {
+    name <- "datastore"
+  }
+  structure(
+    list(
+      driver = call,
+      name = name
+    ),
+    class = "plumber2_datastore_block"
   )
 }
 
@@ -394,7 +420,8 @@ parse_shiny_block <- function(call, tags, values, env) {
     list(
       shiny_app = call,
       path = values[[which(tags == "shiny")]],
-      except = unlist(values[except])
+      except = unlist(values[except]),
+      auth = parse_auth_tags(tags, values)
     ),
     class = "plumber2_proxy_block"
   )
@@ -422,7 +449,8 @@ parse_forward_block <- function(call, tags, values, env) {
     list(
       path = vapply(res, `[[`, character(1), "path"),
       url = vapply(res, `[[`, character(1), "url"),
-      except = unlist(values[except])
+      except = unlist(values[except]),
+      auth = parse_auth_tags(tags, values)
     ),
     class = "plumber2_proxy_block"
   )
@@ -432,30 +460,37 @@ parse_report_block <- function(call, tags, values, env, file_dir) {
   if (sum(tags == "report") != 1) {
     cli::cli_abort("Only one {.field @report} tag allowed per block")
   }
-  x <- values[[which(tags == "report")]]
+  x <- trimws(values[[which(tags == "report")]])
   call <- fs::path_abs(call, file_dir)
-  route <- routr::report_route(x, call)
 
   info <- routr::report_info(call)
 
-  for (query in info$query_params) {
-    if (!any(grepl(paste0("^", query), unlist(values[tags == "query"])))) {
-      values <- c(values, query)
-      tags <- c(tags, "query")
-    }
-  }
+  paths <- c(
+    x,
+    paste0(sub("/?$", "/", x), info$format),
+    unique(paste0(sub("/?$", ".", x), info$ext))
+  )
+
+  endpoints <- unlist(
+    lapply(paths, function(x) {
+      list(list(method = "get", path = x), list(method = "post", path = x))
+    }),
+    recursive = FALSE
+  )
 
   doc <- list(
-    paths = parse_block_api(tags, values, character(0), info$mime_types)
+    paths = parse_block_api(tags, values, character(0), character(0))
   )
+
   structure(
     list(
-      route = route,
+      path = x,
+      report = call,
       doc = doc,
-      header = FALSE,
-      endpoints = list(list(method = "get", path = x))
+      endpoints = endpoints,
+      auth = parse_auth_tags(tags, values)
     ),
-    class = "plumber2_route_block"
+    class = "plumber2_report_block"
   )
 }
 
@@ -484,7 +519,7 @@ parse_report_block <- function(call, tags, values, env, file_dir) {
 #' @export
 #' @keywords internal
 #'
-#' @examplesIf FALSE
+#' @examples
 #' # Add a method for a fictional "hello_block" that makes the api say hello when
 #' # it starts
 #' apply_plumber2_block.hello_block <- function(block, api, route_name, root, ...) {
@@ -510,14 +545,18 @@ apply_plumber2_block.plumber2_proxy_block <- function(
     api$add_shiny(
       paste0(root, block$path),
       block$shiny_app,
-      except = block$except
+      except = block$except,
+      auth_flow = !!block$auth$flow,
+      auth_scope = block$auth$scope
     )
   } else if (!is.null(block$url)) {
     for (i in seq_along(block$path)) {
       api$forward(
         paste0(root, block$path[i]),
         block$url[i],
-        except = block$except
+        except = block$except,
+        auth_flow = !!block$auth$flow,
+        auth_scope = block$auth$scope
       )
     }
   }
@@ -575,6 +614,19 @@ apply_plumber2_block.plumber2_route_block <- function(
   if (!is.null(block$doc)) {
     api$add_api_doc(block$doc)
   }
+  if (!is.null(block$auth)) {
+    for (i in seq_along(block$endpoints)) {
+      for (path in block$endpoints[[i]]$path) {
+        api$add_auth(
+          method = block$endpoints[[i]]$method,
+          path = paste0(root, path),
+          auth_flow = !!block$auth$flow,
+          auth_scope = block$auth$scope,
+          add_doc = FALSE
+        )
+      }
+    }
+  }
   api
 }
 #' @export
@@ -618,7 +670,7 @@ apply_plumber2_block.plumber2_handler_block <- function(
     } else {
       route <- router$get_route(route_name)
       if (route$root == "/") {
-        route$root <- route_name
+        route$root <- root
       } else {
         cli::cli_warn(
           "Ignoring {.field @root {route_name}} as the route already has a root set",
@@ -638,6 +690,8 @@ apply_plumber2_block.plumber2_handler_block <- function(
       serializers = block$serializers,
       parsers = block$parsers,
       use_strict_serialize = block$use_strict_serializer,
+      auth_flow = !!block$auth$flow,
+      auth_scope = block$auth$scope,
       download = block$download,
       async = block$async,
       then = block$then,
@@ -646,6 +700,49 @@ apply_plumber2_block.plumber2_handler_block <- function(
       header = block$header
     )
   }
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_report_block <- function(
+  block,
+  api,
+  route_name,
+  root,
+  ...
+) {
+  api$add_report(
+    block$path,
+    block$report,
+    doc = block$doc,
+    auth_flow = !!block$auth$flow,
+    auth_scope = block$auth$scope
+  )
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_auth_guard_block <- function(
+  block,
+  api,
+  route_name,
+  root,
+  ...
+) {
+  api$add_auth_guard(
+    block$guard,
+    block$name
+  )
+  api
+}
+#' @export
+apply_plumber2_block.plumber2_datastore_block <- function(
+  block,
+  api,
+  route_name,
+  root,
+  ...
+) {
+  api |>
+    api_datastore(driver = block$driver, store_name = block$name)
   api
 }
 #' @export
@@ -713,4 +810,26 @@ apply_plumber2_block.plumber2_rip_block <- function(
     }
   }
   api
+}
+
+
+# Helpers ----------------------------------------------------------------
+
+parse_auth_tags <- function(tags, values) {
+  if ("auth" %in% tags) {
+    flow <- trimws(values[[which(tags == "auth")[1]]])
+    flow <- parse_quo(flow, empty_env())
+    if ("authScope" %in% tags) {
+      scope <- unlist(values[tags == "authScope"])
+      scope <- unlist(trimws(unlist(strsplit(scope, ","))))
+    } else {
+      scope <- NULL
+    }
+    list(
+      flow = flow,
+      scope = scope
+    )
+  } else {
+    NULL
+  }
 }

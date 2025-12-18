@@ -7,7 +7,9 @@
 #' and port used during the creation of the Plumber2 api will be used
 #' @param block Should the console be blocked while running (alternative is
 #' to run in the background). Defaults to `FALSE` in interactive sessions and
-#' `TRUE` otherwise.
+#' `TRUE` otherwise. Note that while setting `block = FALSE` will allow you to
+#' continue interacting with the main session you will not be able to call the
+#' api from within the session since it is still executing in the same thread.
 #' @param showcase Should the default browser open up at the server address.
 #' If `TRUE` then a browser opens at the root of the api, unless the api
 #' contains OpenAPI documentation in which case it will open at that

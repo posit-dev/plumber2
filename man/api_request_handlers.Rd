@@ -18,11 +18,13 @@ api_get(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -32,11 +34,13 @@ api_head(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -46,11 +50,13 @@ api_post(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -60,11 +66,13 @@ api_put(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -74,11 +82,13 @@ api_delete(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -88,11 +98,13 @@ api_connect(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -102,11 +114,13 @@ api_options(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -116,11 +130,13 @@ api_trace(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -130,11 +146,13 @@ api_patch(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -144,11 +162,13 @@ api_any(
   api,
   path,
   handler,
-  serializers = NULL,
-  parsers = NULL,
+  serializers = get_serializers(),
+  parsers = get_parsers(),
   use_strict_serializer = FALSE,
   download = FALSE,
   async = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   then = NULL,
   doc = NULL,
   route = NULL
@@ -188,6 +208,11 @@ async evaluator to create an async handler. If a string, the async evaluator
 registered to that name is used. If a function is provided then this is used
 as the async evaluator. See the \emph{Async} section for more detail}
 
+\item{auth_flow}{A logical expression giving the authentication flow the
+client must pass to get access to the resource.}
+
+\item{auth_scope}{The scope requirements of the resource}
+
 \item{then}{A list of function to be called once the async handler is done.
 The functions will be chained using \code{\link[promises:then]{promises::then()}}. See the \emph{Async}
 section for more detail}
@@ -209,8 +234,8 @@ HTTP method and path.
 \section{Using annotation}{
 Handlers can be specified in an annotated route file using one of the method
 tags followed by the path it pertains to. You can use various tags to
-descripe the handler and these will automatically be converted to OpenAPI
-documentation. Further, additional tags allow you to modify the behaviour of
+describe the handler and these will automatically be converted to OpenAPI
+documentation. Further, additional tags allow you to modify the behavior of
 the handler, reflecting the arguments available in the functional approach.
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
@@ -229,8 +254,8 @@ function(username) \{
 
 Handlers can be specified in an annotated route file using one of the method
 tags followed by the path it pertains to. You can use various tags to
-descripe the handler and these will automatically be converted to OpenAPI
-documentation. Further, additional tags allow you to modify the behaviour of
+describe the handler and these will automatically be converted to OpenAPI
+documentation. Further, additional tags allow you to modify the behavior of
 the handler, reflecting the arguments available in the functional approach.
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
@@ -270,6 +295,25 @@ function(server, response) \{
   Next
 \}
 }\if{html}{\out{</div>}}
+
+You can add authentication using the \verb{@auth} and \verb{@authScope} tags
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#* A handler for /user/<username>
+#*
+#* @param username:string The name of the user to provide information on
+#*
+#* @get /user/<username>
+#*
+#* @response 200:\{name:string, age:integer, hobbies:[string]\} Important
+#* information about the user such as their name, age, and hobbies
+#*
+#* @auth auth1 || auth2
+#* @authScope read, write
+#*
+function(username) \{
+  find_user_in_db(username)
+\}
+}\if{html}{\out{</div>}}
 }
 
 \section{HTTP Methods}{
@@ -293,12 +337,12 @@ plumber2 it is often used to call functions that require input larger than
 what can be put in the URL
 \item \code{PUT}: This method is used to update a specific resource on the server. In
 the context of a standard plumber2 server this is rarely relevant, though
-usage can come up. \code{PUT} is considered by clients to be indemptotent meaning
+usage can come up. \code{PUT} is considered by clients to be idempotent meaning
 that sending the same \code{PUT} request multiple times have no effect
 \item \code{DELETE}: This method deletes a resource and is the opposite to \code{PUT}. As
 with \code{PUT} this method has limited use in most standard plumber2 servers
 \item \code{CONNECT}: This method request the establishment of a proxy tunnel. It is
-considered advanced use and is very unlikely to have a usecase for your
+considered advanced use and is very unlikely to have a use case for your
 plumber2 api
 \item \code{OPTIONS}: This method is used by clients to query a server about what
 methods and other settings are supported on a server
@@ -369,7 +413,7 @@ wildcards.
 
 A request made to \code{user/carl} will thus end up in the third handler, while a
 request made to \code{user/thomas} will end up in the second. This ordering makes
-it possible to both provide default handlers as well as specialisations for
+it possible to both provide default handlers as well as specializations for
 specific paths.
 }
 }
@@ -484,7 +528,7 @@ handler it may be needed to add operations to perform once the async handler
 has finished. This can be done through the \code{then} argument (or using the
 \verb{@then} tag in annotated route files). This takes a list of functions to
 chain to the promise using \code{\link[promises:then]{promises::then()}}. Before the \code{then} chain is
-executed the response will get the return value of the main handler asigned
+executed the response will get the return value of the main handler assigned
 to the body. Each \code{then} call will receive the same arguments as a standard
 request handler as well as \code{result} which will hold the return value of the
 previous handler in the chain. For the first \code{then} call \code{result} will be a
@@ -493,6 +537,29 @@ the next route or terminate early. The last call in the chain must return
 \code{Next} or \code{Break} to signal if processing should be allowed to continue to
 the next route.
 }
+}
+
+\section{Authentication}{
+plumber2 supports various authentication schemas which can be added with
+\code{\link[=api_auth_guard]{api_auth_guard()}}. An authentication flow for the handler can then be
+specified with the \code{auth_flow} argument and optional scopes can be set with
+the \code{auth_scope} argument. The flow is defined by a logical expression
+referencing the names of the authenticators part of the flow. Assuming two
+authenticators are available, \code{auth1} and \code{auth2}, then a flow could be
+\code{auth1 && auth2} to require the request passes both authenticators.
+Alternatively it could be \code{auth1 || auth2} to require the request passing
+either. Flows can be arbitrarily complex with nesting etc, but he OpenAPI
+spec has limits to what it can describe so if you want to have an OpenAPI
+compliant api you must limit yourself to at most two levels of nesting with
+the outer level being \code{||} (ie. \code{(auth1 && auth2) || (auth3 && auth4)} is ok,
+but \code{(auth1 || auth2) && (auth3 || auth4)} is not due to the outer level
+being \code{&&}, and \code{(auth1 && auth2) || (auth3 && (auth4 || auth5))} is not
+allowed because it has 3 nesting levels). This is only a limitation of
+OpenAPI and plumber2 itself can handle all of the above.
+
+plumber2 also supports requiring specific scopes to access resources. If you
+require these you must make sure the authenticator provides scopes upon a
+successful authentication, otherwise the request will be denied.
 }
 
 \examples{

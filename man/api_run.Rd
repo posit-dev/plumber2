@@ -25,7 +25,9 @@ and port used during the creation of the Plumber2 api will be used}
 
 \item{block}{Should the console be blocked while running (alternative is
 to run in the background). Defaults to \code{FALSE} in interactive sessions and
-\code{TRUE} otherwise.}
+\code{TRUE} otherwise. Note that while setting \code{block = FALSE} will allow you to
+continue interacting with the main session you will not be able to call the
+api from within the session since it is still executing in the same thread.}
 
 \item{showcase}{Should the default browser open up at the server address.
 If \code{TRUE} then a browser opens at the root of the api, unless the api

@@ -2,15 +2,19 @@ handle_constructor <- function(method, header = FALSE) {
   force(method)
   force(header)
   doc <- NULL
+  auth_flow <- NULL
+  auth_scope <- NULL
   fun <- function(
     api,
     path,
     handler,
-    serializers = NULL,
-    parsers = NULL,
+    serializers = get_serializers(),
+    parsers = get_parsers(),
     use_strict_serializer = FALSE,
     download = FALSE,
     async = FALSE,
+    auth_flow = NULL,
+    auth_scope = NULL,
     then = NULL,
     doc = NULL,
     route = NULL
@@ -22,6 +26,8 @@ handle_constructor <- function(method, header = FALSE) {
       serializers = serializers,
       parsers = parsers,
       use_strict_serializer = use_strict_serializer,
+      auth_flow = {{ auth_flow }},
+      auth_scope = auth_scope,
       download = download,
       async = async,
       then = then,
@@ -32,7 +38,9 @@ handle_constructor <- function(method, header = FALSE) {
     api
   }
   if (header) {
-    fn_fmls(fun) <- fn_fmls(fun)[fn_fmls_names(fun) != "doc"]
+    fn_fmls(fun) <- fn_fmls(fun)[
+      !fn_fmls_names(fun) %in% c("auth_flow", "auth_scope", "doc")
+    ]
   }
   fun
 }
@@ -45,8 +53,8 @@ handle_constructor <- function(method, header = FALSE) {
 #' # Using annotation
 #' Handlers can be specified in an annotated route file using one of the method
 #' tags followed by the path it pertains to. You can use various tags to
-#' descripe the handler and these will automatically be converted to OpenAPI
-#' documentation. Further, additional tags allow you to modify the behaviour of
+#' describe the handler and these will automatically be converted to OpenAPI
+#' documentation. Further, additional tags allow you to modify the behavior of
 #' the handler, reflecting the arguments available in the functional approach.
 #'
 #' ```
@@ -85,12 +93,12 @@ handle_constructor <- function(method, header = FALSE) {
 #'   what can be put in the URL
 #' * `PUT`: This method is used to update a specific resource on the server. In
 #'   the context of a standard plumber2 server this is rarely relevant, though
-#'   usage can come up. `PUT` is considered by clients to be indemptotent meaning
+#'   usage can come up. `PUT` is considered by clients to be idempotent meaning
 #'   that sending the same `PUT` request multiple times have no effect
 #' * `DELETE`: This method deletes a resource and is the opposite to `PUT`. As
 #'   with `PUT` this method has limited use in most standard plumber2 servers
 #' * `CONNECT`: This method request the establishment of a proxy tunnel. It is
-#'   considered advanced use and is very unlikely to have a usecase for your
+#'   considered advanced use and is very unlikely to have a use case for your
 #'   plumber2 api
 #' * `OPTIONS`: This method is used by clients to query a server about what
 #'   methods and other settings are supported on a server
@@ -154,7 +162,7 @@ handle_constructor <- function(method, header = FALSE) {
 #'
 #' A request made to `user/carl` will thus end up in the third handler, while a
 #' request made to `user/thomas` will end up in the second. This ordering makes
-#' it possible to both provide default handlers as well as specialisations for
+#' it possible to both provide default handlers as well as specializations for
 #' specific paths.
 #'
 #' # The Handler
@@ -250,7 +258,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' has finished. This can be done through the `then` argument (or using the
 #' `@then` tag in annotated route files). This takes a list of functions to
 #' chain to the promise using [promises::then()]. Before the `then` chain is
-#' executed the response will get the return value of the main handler asigned
+#' executed the response will get the return value of the main handler assigned
 #' to the body. Each `then` call will receive the same arguments as a standard
 #' request handler as well as `result` which will hold the return value of the
 #' previous handler in the chain. For the first `then` call `result` will be a
@@ -259,11 +267,33 @@ handle_constructor <- function(method, header = FALSE) {
 #' `Next` or `Break` to signal if processing should be allowed to continue to
 #' the next route.
 #'
+#' # Authentication
+#' plumber2 supports various authentication schemas which can be added with
+#' [api_auth_guard()]. An authentication flow for the handler can then be
+#' specified with the `auth_flow` argument and optional scopes can be set with
+#' the `auth_scope` argument. The flow is defined by a logical expression
+#' referencing the names of the authenticators part of the flow. Assuming two
+#' authenticators are available, `auth1` and `auth2`, then a flow could be
+#' `auth1 && auth2` to require the request passes both authenticators.
+#' Alternatively it could be `auth1 || auth2` to require the request passing
+#' either. Flows can be arbitrarily complex with nesting etc, but he OpenAPI
+#' spec has limits to what it can describe so if you want to have an OpenAPI
+#' compliant api you must limit yourself to at most two levels of nesting with
+#' the outer level being `||` (ie. `(auth1 && auth2) || (auth3 && auth4)` is ok,
+#' but `(auth1 || auth2) && (auth3 || auth4)` is not due to the outer level
+#' being `&&`, and `(auth1 && auth2) || (auth3 && (auth4 || auth5))` is not
+#' allowed because it has 3 nesting levels). This is only a limitation of
+#' OpenAPI and plumber2 itself can handle all of the above.
+#'
+#' plumber2 also supports requiring specific scopes to access resources. If you
+#' require these you must make sure the authenticator provides scopes upon a
+#' successful authentication, otherwise the request will be denied.
+#'
 #' # Using annotation
 #' Handlers can be specified in an annotated route file using one of the method
 #' tags followed by the path it pertains to. You can use various tags to
-#' descripe the handler and these will automatically be converted to OpenAPI
-#' documentation. Further, additional tags allow you to modify the behaviour of
+#' describe the handler and these will automatically be converted to OpenAPI
+#' documentation. Further, additional tags allow you to modify the behavior of
 #' the handler, reflecting the arguments available in the functional approach.
 #'
 #' ```
@@ -306,6 +336,26 @@ handle_constructor <- function(method, header = FALSE) {
 #' }
 #' ```
 #'
+#' You can add authentication using the `@auth` and `@authScope` tags
+#'
+#' ```
+#' #* A handler for /user/<username>
+#' #*
+#' #* @param username:string The name of the user to provide information on
+#' #*
+#' #* @get /user/<username>
+#' #*
+#' #* @response 200:{name:string, age:integer, hobbies:[string]} Important
+#' #* information about the user such as their name, age, and hobbies
+#' #*
+#' #* @auth auth1 || auth2
+#' #* @authScope read, write
+#' #*
+#' function(username) {
+#'   find_user_in_db(username)
+#' }
+#' ```
+#'
 #' @param api A plumber2 api object to add the handler to
 #' @param path A string giving the path the handler responds to. See Details
 #' @param handler A handler function to call when a request is matched to the
@@ -338,6 +388,7 @@ handle_constructor <- function(method, header = FALSE) {
 #' @param route The route this handler should be added to. Defaults to the last
 #' route in the stack. If the route does not exist it will be created as the
 #' last route in the stack
+#' @inheritParams api_auth
 #'
 #' @return These functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -425,8 +476,8 @@ api_any <- handle_constructor("any")
 
 #' Add a handler for a request header
 #'
-#' These handlers are called before the request body has been recieved and lets
-#' you preemptively reject requests before recieving their full content. If the
+#' These handlers are called before the request body has been received and lets
+#' you preemptively reject requests before receiving their full content. If the
 #' handler does not return [Next] then the request will be returned at once.
 #' Most of your logic, however, will be in the main handlers and you are asked to
 #' consult the [api_request_handlers] docs for in-depth details on how to use
@@ -584,7 +635,13 @@ api_add_route <- function(
   after = NULL,
   root = ""
 ) {
-  api$add_route(name = name, route = route, header = header, after = after, root = root)
+  api$add_route(
+    name = name,
+    route = route,
+    header = header,
+    after = after,
+    root = root
+  )
   api
 }
 
@@ -598,11 +655,11 @@ api_add_route <- function(
 #' A handler for a websocket message is much simpler than for requests in
 #' general since it doesn't have to concern itself with methods, paths, and
 #' responses. Any message handler registered will get called in sequence when a
-#' websocket message is recieved from a client. Still, a few expectations apply
+#' websocket message is received from a client. Still, a few expectations apply
 #'
 #' ## Handler Arguments
 #' The handler can take any of the following arguments:
-#' * `message`: Either a raw vector if the message recieved is in binary form or
+#' * `message`: Either a raw vector if the message received is in binary form or
 #'   a single string, giving the message sent from the client
 #' * `server`: The [Plumber2] object representing your server implementation
 #' * `client_id`: A string uniquely identifying the session the request comes
@@ -709,11 +766,11 @@ api_message <- function(api, handler, async = NULL, then = NULL) {
 #' `308 Permanent Redirect`. `from` and `to` can contain path parameters and
 #' wildcards which will be matched between the two to construct the correct
 #' redirect path. Further, `to` can either be a path to the same server or a
-#' fully qualified URL to redirect requests to another server alltogether.
+#' fully qualified URL to redirect requests to another server altogether.
 #'
 #' # Using annotation
 #' You can specify redirects in an annotated plumber file using the `@redirect`
-#' tag. Preceed the method with a `!` to mark the redirect as permanent
+#' tag. Precede the method with a `!` to mark the redirect as permanent
 #'
 #' ```
 #' #* @redirect !get /old/data/* /new/data/*
@@ -728,7 +785,7 @@ api_message <- function(api, handler, async = NULL, then = NULL) {
 #' resolving any path parameters and wildcards it will be used in the
 #' `Location` header
 #' @param permanent Logical. Is the redirect considered permanent or
-#' temporary? Determines the type of redirct status code to use
+#' temporary? Determines the type of redirect status code to use
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -768,6 +825,7 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' @param app A shiny app object
 #' @param except Subpaths to `path` that should not be forwarded to the
 #' shiny app. Be sure it doesn't contains paths that the shiny app needs
+#' @inheritParams api_auth
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -783,8 +841,143 @@ api_redirect <- function(api, method, from, to, permanent = TRUE) {
 #' api() |>
 #'   api_shiny("my_app/", blank_shiny)
 #'
-api_shiny <- function(api, path, app, except = NULL) {
-  api$add_shiny(path, app, except)
+api_shiny <- function(
+  api,
+  path,
+  app,
+  except = NULL,
+  auth_flow = NULL,
+  auth_scope = NULL
+) {
+  api$add_shiny(path, app, except, {{ auth_flow }}, auth_scope)
+  api
+}
+
+#' Serve Quarto and Rmarkdown documents from a plumber2 api
+#'
+#' You can serve Quarto and Rmarkdown documents from a plumber2 api and have it
+#' automatically render the report when requested. Reports are automatically
+#' cached to reduce overhead. Parameterized reports are supported and parameters
+#' can be provided either with the query string for GET requests or in the
+#' request body for POST request. It is also possible to delete the cached
+#' render using a DELETE request. See **Details** for more information
+#'
+#' @details
+#'
+#' ## Parameterized reports
+#' Parameters provided to parameterized reports are automatically type checked
+#' and casted based on the default values in the report and the schema provided
+#' in the `doc`. Only the `query` parameters will be used as the request body is
+#' inferred from that. It is important to understand that for Quarto documents,
+#' the parameters are passed through as a yaml file and thus any type not
+#' supported by yaml will not arrive unchanged to the document. Python reports
+#' are supported, but the type of parameters cannot be inferred from the
+#' document so if you want type checking you will have to provided schemas for
+#' them in the `doc`. For POST request where the parameters are provided in the
+#' body, you must use JSON format.
+#'
+#' ## Multiple outputs
+#' If a report has multiple different output formats then each format is
+#' accessible through a subpath with the name of the format. The path provided
+#' in `path` will use content negotiation through the `Content-Type` header to
+#' select a format. In addition, a path with the file extension added to `path`
+#' can also be used to select the specific format. For the last two, if multiple
+#' formats share the same mime type/file extension then only the first one can
+#' be selected.
+#'
+#' ## Caching
+#' Reports are cached, by default in a temporary folder. You can chose a
+#' different folder with the `cache_dir` argument. Cached versions can be
+#' deleted, thus forcing a rerender upon next request, by sending a DELETE
+#' request. A DELETE request to the main path will delete all versions of the
+#' report, whereas a DELETE request to one of the subpaths (see above) will only
+#' delete versions of the specific output format. All different parameterized
+#' versions will always be deleted together. Instead of sending DELETE requests
+#' you can also set a `max_age` which will force a rerender if the render is
+#' older than the given argument.
+#'
+#' If the content of the report is dependent on different credentials given by
+#' the user you can cache the reports by session id so that every user will have
+#' it rendered uniquely for them. This is important to prevent leakage of
+#' confidential data, but also ensures that the report looks as expected for
+#' each user.
+#'
+#' # Using annotation
+#' A report can be served using an annotated route file by using the `@report`
+#' tag and proceeding the annotation block with the path to the report
+#'
+#' ```
+#' #* @report /quarterly
+#' "my/awesome/report.qmd"
+#' ```
+#'
+#' @param api A plumber2 api to serve the report with.
+#' @param path The base path to serve the report from. Additional endpoints
+#' will be created in addition to this.
+#' @param report The path to the report to serve
+#' @param ... Further arguments to `quarto::quarto_render()` or
+#' `rmarkdown::render()`
+#' @param doc An [openapi_operation()] documentation for the report. Only
+#' `query` parameters will be used and a request body will be generated from
+#' this for the POST methods.
+#' @param max_age The maximum age in seconds to keep a rendered report
+#' before initiating a re-render
+#' @param async Should rendering happen asynchronously (using mirai)
+#' @param finalize An optional function to run before sending the response
+#' back. The function will receive the request as the first argument, the
+#' response as the second, and the server as the third.
+#' @param continue A logical that defines whether the response is returned
+#' directly after rendering or should be made available to subsequent routes
+#' @param cache_dir The location of the render cache. By default a temporary
+#' folder is created for it.
+#' @param cache_by_id Should caching be scoped by the user id. If the
+#' rendering is dependent on user-level access to different data this is
+#' necessary to avoid data leakage.
+#' @param route The route this handler should be added to. Defaults to the
+#' last route in the stack. If the route does not exist it will be created
+#' as the last route in the stack.
+#' @inheritParams api_auth
+#'
+#' @return This functions return the `api` object allowing for easy chaining
+#' with the pipe
+#'
+#' @export
+#'
+#' @examplesIf file.exists("my/awesome/report.qmd")
+#' api() |>
+#'   api_report("/quarterly", "my/awesome/report.qmd")
+#'
+api_report <- function(
+  api,
+  path,
+  report,
+  ...,
+  doc = NULL,
+  max_age = Inf,
+  async = TRUE,
+  finalize = NULL,
+  continue = FALSE,
+  cache_dir = tempfile(pattern = "plumber2_report"),
+  cache_by_id = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
+  route = NULL
+) {
+  api$add_report(
+    path = path,
+    report = report,
+    ...,
+    doc = doc,
+    max_age = max_age,
+    async = async,
+    finalize = finalize,
+    continue = continue,
+    cache_dir = cache_dir,
+    cache_by_id = cache_by_id,
+    auth_flow = {{ auth_flow }},
+    auth_scope = auth_scope,
+    route = route
+  )
   api
 }
 
@@ -815,6 +1008,7 @@ api_shiny <- function(api, path, app, except = NULL) {
 #' @param path The path to serve the shiny app from
 #' @param url The url to forward to
 #' @param except Subpaths to `path` that should be exempt from forwarding
+#' @inheritParams api_auth
 #'
 #' @return This functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -826,7 +1020,20 @@ api_shiny <- function(api, path, app, except = NULL) {
 #' api() |>
 #'   api_forward("my_wiki/", "https://www.wikipedia.org")
 #'
-api_forward <- function(api, path, url, except = NULL) {
-  api$forward(path, url)
+api_forward <- function(
+  api,
+  path,
+  url,
+  except = NULL,
+  auth_flow = NULL,
+  auth_scope = NULL
+) {
+  api$forward(
+    path,
+    url,
+    except = except,
+    auth_flow = {{ auth_flow }},
+    auth_scope = auth_scope
+  )
   api
 }

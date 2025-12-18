@@ -1,10 +1,19 @@
 url: https://plumber2.posit.co
 template:
   bootstrap: 5
+  bslib:
+    bg: "#212121"
+    fg: "#CCFFED" # "#B4FFE4"
+    primary: "#FFB4E4" # "#FF81D2"
+    secondary: "#99FFDA" # "#00FFA3"
+    code_bg: "#494949"
+    base_font: {google: "Schibsted Grotesk"}
+    heading_font: {google: "National Park"}
+    code_font: {google: "Fira Code"}
 
 navbar:
   structure:
-    left: [get_started, reference, articles]
+    left: [get_started, reference, articles, advanced]
   components:
     get_started:
       text: Get Started
@@ -20,7 +29,8 @@ navbar:
           href: articles/rendering-output.html
         - text: 4. Runtime
           href: articles/execution-model.html
-        - text: 5. Hosting (TBD)
+        - text: 5. Hosting
+          href: articles/hosting.html
         - text: 6. Programmatic usage
           href: articles/programmatic-usage.html
         - text: 7. Annotation Reference
@@ -31,6 +41,15 @@ navbar:
           href: articles/tips-and-tricks.html
         - text: 10. Migration
           href: articles/migration.html
+    advanced:
+      text: Advanced
+      menu:
+        - text: Extending plumber2
+          href: articles/extending.html
+        - text: The _server.yml standard
+          href: articles/server_yml.html
+        - text: OpenTelemetry instrumentation
+          href: articles/otel.html
 
 reference:
   - title: "Create an run an API"
@@ -48,6 +67,7 @@ reference:
       - api_add_route
       - api_redirect
       - api_shiny
+      - api_report
       - api_forward
   - title: "Parsers"
     contents:
@@ -75,7 +95,14 @@ reference:
       - api_on
       - api_session_cookie
       - api_datastore
+      - api_auth
+      - api_auth_guard
       - Next
       - add_plumber2_tag
       - apply_plumber2_block
       - get_opts
+
+news:
+  releases:
+    - text: "Version 0.1.0"
+      href: "https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/"

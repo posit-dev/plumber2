@@ -33,6 +33,7 @@
 #' exist it will be created as the last route in the stack
 #' @inheritParams routr::resource_route
 #' @inheritParams routr::asset_route
+#' @inheritParams api_auth
 #'
 #' @return These functions return the `api` object allowing for easy chaining
 #' with the pipe
@@ -56,6 +57,8 @@ api_assets <- function(
   default_ext = "html",
   finalize = NULL,
   continue = FALSE,
+  auth_flow = NULL,
+  auth_scope = NULL,
   route = NULL
 ) {
   asset_route <- routr::resource_route(
@@ -79,6 +82,21 @@ api_assets <- function(
     api$add_route(route, header = TRUE)
   }
   api$add_route(route, asset_route, header = TRUE)
+
+  auth_flow <- enquo(auth_flow)
+  if (!quo_is_null(auth_flow)) {
+    if (grepl("/$", path)) {
+      path <- paste0(path, "*")
+    }
+    api$add_authentication(
+      "get",
+      path,
+      !!auth_flow,
+      auth_scope,
+      add_doc = FALSE
+    )
+  }
+
   api
 }
 

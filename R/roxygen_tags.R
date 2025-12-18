@@ -132,6 +132,16 @@ roxy_tag_parse.roxy_tag_async <- function(x) {
 roxy_tag_parse.roxy_tag_then <- function(x) {
   x
 }
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_auth <- function(x) {
+  x
+}
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_authScope <- function(x) {
+  x
+}
 
 ## Asset annotations -----------------------------------------------------------
 
@@ -207,5 +217,15 @@ roxy_tag_parse.roxy_tag_root <- function(x) {
 #' @export
 #' @importFrom roxygen2 roxy_tag_parse
 roxy_tag_parse.roxy_tag_roxygenPrefix <- function(x) {
+  x
+}
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_authGuard <- function(x) {
+  x
+}
+#' @export
+#' @importFrom roxygen2 roxy_tag_parse
+roxy_tag_parse.roxy_tag_datastore <- function(x) {
   x
 }

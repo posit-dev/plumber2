@@ -4,11 +4,11 @@
 \name{plumber2-package}
 \alias{plumber2}
 \alias{plumber2-package}
-\title{plumber2: Easy and Powerful Webservers}
+\title{plumber2: Easy and Powerful Web Servers}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Automatically create a webserver from annotated 'R' files or by building it up programmatically. Provides automatic 'OpenAPI' documentation, input handling, async support, and middleware support.
+Automatically create a web server from annotated 'R' files or by building it up programmatically. Provides automatic 'OpenAPI' documentation, input handling, asynchronous evaluation, and plugin support.
 }
 \seealso{
 Useful links:

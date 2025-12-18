@@ -214,8 +214,8 @@ openapi_operation <- function(
     responses = responses,
     tags = as.list(tags)
   ))
-  if (length(op) != 0 && is.null(op$response)) {
-    op$response <- list()
+  if (length(op) != 0 && is.null(op$responses)) {
+    op$responses <- list()
   }
   op
 }

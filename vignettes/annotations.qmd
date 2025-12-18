@@ -126,8 +126,8 @@ Global annotations are not related to any handler and should be placed in their 
 | `@title` | `Title` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
 | `@description` | `Description` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
 | `@tos` | `TOS link` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
-| `@contact` | `Contact object` | [Contact Object](https://spec.openapis.org/oas/v3.0.3#contact-object) |
-| `@license` | `License object` | [License Object](https://spec.openapis.org/oas/v3.0.3#license-object) |
+| `@contact` | `Name` \[`URL` `Email`\] | [Contact Object](https://spec.openapis.org/oas/v3.0.3#contact-object) |
+| `@license` | `License` \[`URL`\] | [License Object](https://spec.openapis.org/oas/v3.0.3#license-object) |
 | `@version` | `Version` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
 | `@tag` | `Tag` `Description` | Can be repeated to add multiple tags. Quote with " or ' to use non word character (like spaces) in `Tag`. [Tag Object](https://spec.openapis.org/oas/v3.0.3#tag-object) |
 | `@noDoc` | None | Don't generate OpenAPI documentation from this block |
@@ -140,8 +140,8 @@ Global annotations are not related to any handler and should be placed in their 
 #* This is a sample server for a pet store.
 #*
 #* @tos http://example.com/terms/
-#* @contact list(name = "API Support", url = "http://www.example.com/support", email = "support@example.com")
-#* @license list(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html")
+#* @contact API Support http://www.example.com/support support@example.com
+#* @license Apache 2.0 https://www.apache.org/licenses/LICENSE-2.0.html
 #* @version 1.0.1
 #* @tag pet Pets operations
 #* @tag toy Toys operations
@@ -254,6 +254,16 @@ Handler annotation describe all aspects of a request handler and always proceeds
 <td><p><code>@then</code></p></td>
 <td><p>None</p></td>
 <td><p>Chains the handler to the preceeding message or request handler if that handler is asynchronous</p></td>
+</tr>
+<tr>
+<td><p><code>@auth</code></p></td>
+<td><p><code>flow</code></p></td>
+<td><p>Sets an authentication flow for the endpoint, referencing one or more authenticators added to the api</p></td>
+</tr>
+<tr>
+<td><p><code>@authScope</code></p></td>
+<td><p><code>scopes</code></p></td>
+<td><p>Sets one or more scopes required for visiting the endpoint. Multiple scopes can be set either as a comma-separated list or with multiple tags</p></td>
 </tr>
 <tr>
 <td><p><code>@cors</code></p></td>
@@ -460,6 +470,63 @@ api() %>%
   api_statics("/", "./assets/static_files", except = "/secret_files")
 ```
 
+## Auth guard annotation
+
+| Annotation       | Arguments | Description/References |
+|------------------|-----------|----------------------------------|
+| `@authGuard`     | `name`    | Adds a new guard with the given name. The guard is given below the annotation as a `fireproof::Guard` specification |
+
+##### Annotations example
+
+```r
+#* @authGuard auth1
+fireproof::guard_key(
+  key_name = "plumber2_key",
+  validate = "MY_VERY_SECRET_SECRET"
+)
+```
+
+##### Equivalent programmatic usage
+
+```{r}
+#| output: false
+#| eval: !expr R.Version()$minor > package_version("4.0")
+api() |>
+  api_datastore(storr::driver_environment()) |> 
+  api_auth_guard(
+    fireproof::guard_key(
+      key_name = "plumber2_key",
+      validate = "MY_VERY_SECRET_SECRET"
+    ),
+    "auth1"
+  )
+```
+
+## Datastore annotation
+
+| Annotation       | Arguments | Description/References |
+|------------------|-----------|----------------------------------|
+| `@datastore`     | `[name]`    | Adds a new datastore backend optionally setting a different store name. The driver for the backend is provided below the block |
+
+##### Annotations example
+
+```r
+#* @datastore persistent_data
+storr::driver_environment()
+```
+
+##### Equivalent programmatic usage
+
+```{r}
+#| output: false
+#| eval: !expr R.Version()$minor > package_version("4.0")
+api() |>
+  api_datastore(
+    driver = storr::driver_environment(),
+    store_name = "persistent_data"
+  )
+```
+
 ## plumber2 annotation {#plumber-block-annotations}
 
 | Annotation | Arguments | Description/References |
@@ -468,7 +535,7 @@ api() %>%
 
 ##### Annotations example
 
-``` r
+```r
 #* @plumber
 function(api) {
   api %>%

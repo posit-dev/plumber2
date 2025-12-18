@@ -30,7 +30,6 @@ provide your own methods for how to apply information from a plumber2 block
 to an api.
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # Add a method for a fictional "hello_block" that makes the api say hello when
 # it starts
 apply_plumber2_block.hello_block <- function(block, api, route_name, root, ...) {
@@ -39,7 +38,7 @@ apply_plumber2_block.hello_block <- function(block, api, route_name, root, ...) 
   })
   api
 }
-\dontshow{\}) # examplesIf}
+
 }
 \seealso{
 \code{\link[=add_plumber2_tag]{add_plumber2_tag()}}

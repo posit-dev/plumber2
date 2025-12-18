@@ -17,7 +17,7 @@ A list containing:
 \item \code{route} The main route handling requests according to the parsed file, as a
 named list of length one
 \item \code{header_route} The route to be attached to header events (fires before the
-body has been recieved and can be used to prematurely reject requests based
+body has been received and can be used to prematurely reject requests based
 on their headers), as a named list of length one
 \item \code{asset_routes} All the asset routes created by \verb{@static} blocks as a named
 list
@@ -36,7 +36,7 @@ the parsed data to a plumber api, and it is rarely necessary to call it
 directly.
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+\dontshow{if (file.exists("path/to/my/plumber/file.R")) withAutoprint(\{ # examplesIf}
 # Parse a plumber file
 parse_plumber_file("path/to/my/plumber/file.R")
 \dontshow{\}) # examplesIf}

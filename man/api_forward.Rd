@@ -4,7 +4,7 @@
 \alias{api_forward}
 \title{Set up a plumber2 api to act as a reverse proxy}
 \usage{
-api_forward(api, path, url, except = NULL)
+api_forward(api, path, url, except = NULL, auth_flow = NULL, auth_scope = NULL)
 }
 \arguments{
 \item{api}{A plumber2 api to add the shiny app to}
@@ -14,6 +14,11 @@ api_forward(api, path, url, except = NULL)
 \item{url}{The url to forward to}
 
 \item{except}{Subpaths to \code{path} that should be exempt from forwarding}
+
+\item{auth_flow}{A logical expression giving the authentication flow the
+client must pass to get access to the resource.}
+
+\item{auth_scope}{The scope requirements of the resource}
 }
 \value{
 This functions return the \code{api} object allowing for easy chaining

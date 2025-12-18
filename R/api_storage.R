@@ -94,15 +94,12 @@ api_session_cookie <- function(
 #' since the last request from that session.
 #'
 #' # Using annotation
-#' Session cookie setup doesn't have a dedicated annotation tag, but you can set
-#' it up in a `@plumber` block
+#' You can define a datastore backend using the `@datastore` tag and provide the
+#' driver specification below the block
 #'
 #' ```
-#' #* @plumber
-#' function(api) {
-#'   api |>
-#'     api_datastore(storr::driver_dbi(...))
-#' }
+#' #* @datastore
+#' storr::driver_dbi(...)
 #' ```
 #'
 #' @param api A plumber2 api object to add the datastore setup to
@@ -140,7 +137,7 @@ api_datastore <- function(
   gc_interval = 3600,
   max_age = gc_interval
 ) {
-  if ("firesale" %in% api$plugins) {
+  if ("firesale" %in% names(api$plugins)) {
     cli::cli_warn("A datastore has already been added")
   } else {
     fs <- firesale::FireSale$new(

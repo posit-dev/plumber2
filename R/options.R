@@ -9,6 +9,27 @@
 #' value is cast to the type giving in `default`. See the docs for [api()] for
 #' the default values of the different options.
 #'
+#' # plumber2 options
+#' The following options are currently recognized by plumber2. They are all read
+#' at creation time and have a parallel argument in [api()] where you can also
+#' see their default values. This means that changing an option after
+#' creation/during running will have no effect.
+#'
+#' * **host**: The address to serve the server from
+#' * **port**: The port to use for the server
+#' * **docType**: The ui to use for serving OpenAPI documentation
+#' * **docPath**: The path to serve the documentation from
+#' * **rejectMissingMethods**: Should requests to paths that doesn't have a
+#' handler for the specific method automatically be rejected with a 405 Method
+#' Not Allowed response
+#' * **ignoreTrailingSlash**: Should the trailing slash of a path be ignored
+#' when adding handlers and handling requests
+#' * **maxRequestSize**: The maximum allowed size of request bodies
+#' * **sharedSecret**: A shared secret the request must contain to be permitted
+#' * **compressionLimit**: The threshold for response size before automatic
+#' compression is used
+#' * **async**: The default async engine to use
+#'
 #' @param x The name of the option
 #' @param default The default value, if `x` is not set
 #'
@@ -61,6 +82,7 @@ all_opts <- function() {
     rejectMissingMethods = get_opts("rejectMissingMethods"),
     ignoreTrailingSlash = get_opts("ignoreTrailingSlash"),
     maxRequestSize = get_opts("maxRequestSize"),
+    sharedSecret = get_opts("sharedSecret"),
     compressionLimit = get_opts("compressionLimit"),
     async = get_opts("async"),
     roxygenPrefix = get_opts("roxygenPrefix")

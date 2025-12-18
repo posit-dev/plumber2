@@ -31,6 +31,7 @@
 #' @importFrom jsonlite write_json
 #' @importFrom routr RouteStack Route openapi_route
 #' @importFrom stringi stri_replace_all_regex
+#' @importFrom fireproof Fireproof
 #'
 #' @export
 #'
@@ -52,7 +53,7 @@ Plumber2 <- R6Class(
     #' the same path at a later point will overwrite this functionality. Be
     #' aware that setting this to `TRUE` will prevent the request from falling
     #' through to other routes that might have a matching method and path. This
-    #' setting anly affects handlers on the request router.
+    #' setting only affects handlers on the request router.
     #' @param ignore_trailing_slash Logical. Should the trailing slash of a path
     #' be ignored when adding handlers and handling requests. Setting this will
     #' not change the request or the path associated with but just ensure that
@@ -115,10 +116,13 @@ Plumber2 <- R6Class(
         private$HEADER_ROUTER <- header_router
       }
 
-      private$ASYNC_EVALUATER <- get_async(default_async)
+      private$ASYNC_EVALUATOR <- get_async(default_async)
 
       check_environment(env)
       private$PARENT_ENV <- env
+
+      private$SESSION_FRAMEWORK <- "plumber2"
+      private$SESSION_FRAMEWORK_VERSION <- utils::packageVersion("plumber2")
     },
     #' @description Human readable description of the api object
     #' @param ... ignored
@@ -154,11 +158,36 @@ Plumber2 <- R6Class(
           private$DOC_TYPE != ""
       ) {
         openapi_file <- tempfile(fileext = ".json")
-        write_json(private$OPENAPI, openapi_file, auto_unbox = TRUE)
-        api_route <- openapi_route(
+        openapi <- private$OPENAPI
+        openapi$servers <- c(
+          openapi$servers,
+          list(list(url = ""))
+        )
+        openapi <- fireproof::prune_openapi(openapi)
+        write_json(openapi, openapi_file, auto_unbox = TRUE)
+        api_route <- inject(openapi_route(
           openapi_file,
           root = private$DOC_PATH,
-          ui = private$DOC_TYPE
+          ui = private$DOC_TYPE,
+          !!!private$DOC_ARGS
+        ))
+        logo <- system.file("help", "figures", "logo.svg", package = "plumber2")
+        if (logo == "") {
+          logo <- system.file(
+            "man",
+            "figures",
+            "logo.svg",
+            package = "plumber2"
+          )
+        }
+        api_route$add_handler(
+          "get",
+          paste0(sub("/?$", "/", private$DOC_PATH), "logo.svg"),
+          function(request, response, keys, ...) {
+            response$file <- logo
+            response$status <- 200L
+            FALSE
+          }
         )
         self$request_router$add_route(api_route, "openapi")
 
@@ -194,7 +223,13 @@ Plumber2 <- R6Class(
     #' will place it at the end. Will not have an effect if a route with the
     #' given name already exists.
     #' @param root The root path to serve this route from.
-    add_route = function(name, route = NULL, header = FALSE, after = NULL, root = "") {
+    add_route = function(
+      name,
+      route = NULL,
+      header = FALSE,
+      after = NULL,
+      root = ""
+    ) {
       route <- route %||%
         Route$new(ignore_trailing_slash = private$IGNORE_TRAILING_SLASH)
       route$root <- paste0(root, route$root)
@@ -227,6 +262,12 @@ Plumber2 <- R6Class(
     #' the requests `Accept` header cannot be found, then the first of the
     #' provided ones are used. Setting this to `TRUE` will instead send back a
     #' `406 Not Acceptable` response
+    #' @param auth_flow The authentication flow the request must be validated by
+    #' to be allowed into the handler, provided as a logical expression of
+    #' authenticator names
+    #' @param auth_scope The scope required to access this handler given a
+    #' successful authentication. Unless your authenticators provide scopes this
+    #' should be `NULL`
     #' @param download Should the response mark itself for download instead of
     #' being shown inline? Setting this to `TRUE` will set the
     #' `Content-Disposition` header in the response to `attachment`. Setting it
@@ -248,9 +289,11 @@ Plumber2 <- R6Class(
       method,
       path,
       handler,
-      serializers,
+      serializers = NULL,
       parsers = NULL,
       use_strict_serializer = FALSE,
+      auth_flow = NULL,
+      auth_scope = NULL,
       download = FALSE,
       async = FALSE,
       then = NULL,
@@ -325,7 +368,7 @@ Plumber2 <- R6Class(
       route <- router$get_route(route)
 
       if (isTRUE(async)) {
-        async <- private$ASYNC_EVALUATER
+        async <- private$ASYNC_EVALUATOR
       } else if (isFALSE(async)) {
         async <- NULL
       }
@@ -345,7 +388,8 @@ Plumber2 <- R6Class(
         ),
         reject_missing_methods = !header && private$REJECT_MISSING_METHODS
       )
-      if (!(header || is.null(doc) || inherits(doc, "plumber_noDoc"))) {
+      has_doc <- !(header || is.null(doc) || inherits(doc, "plumber_noDoc"))
+      if (has_doc) {
         doc$parameters <- doc$parameters %||% list()
         true_path <- sub(
           "^\\^",
@@ -353,6 +397,22 @@ Plumber2 <- R6Class(
           gsub("//", "/", paste0(route$root, path_info$path))
         )
         self$add_api_doc(doc, subset = c("paths", true_path, method))
+      }
+
+      auth_flow <- enquo(auth_flow)
+      if (!quo_is_null(auth_flow)) {
+        real_path <- sub(
+          "^\\^",
+          "",
+          gsub("//", "/", paste0(route$root, path))
+        )
+        self$add_auth(
+          method,
+          real_path,
+          !!auth_flow,
+          auth_scope,
+          add_doc = has_doc
+        )
       }
 
       invisible(self)
@@ -368,7 +428,7 @@ Plumber2 <- R6Class(
     #' @param then A function to call at the completion of an async handler
     message_handler = function(handler, async = FALSE, then = NULL) {
       if (isTRUE(async)) {
-        async <- private$ASYNC_EVALUATER
+        async <- private$ASYNC_EVALUATOR
       } else if (isFALSE(async)) {
         async <- NULL
       }
@@ -388,7 +448,7 @@ Plumber2 <- R6Class(
     #' resolving any path parameters and wildcards it will be used in the
     #' `Location` header
     #' @param permanent Logical. Is the redirect considered permanent or
-    #' temporary? Determines the type of redirct status code to use
+    #' temporary? Determines the type of redirect status code to use
     redirect = function(method, from, to, permanent = TRUE) {
       method <- arg_match0(
         tolower(method),
@@ -446,9 +506,6 @@ Plumber2 <- R6Class(
     #' docs to assign `doc` to
     add_api_doc = function(doc, overwrite = FALSE, subset = NULL) {
       check_character(subset, allow_null = TRUE)
-      if (!(is_list(doc) && is_named2(doc))) {
-        stop_input_type(doc, "a named list")
-      }
 
       doc <- subset_to_list(subset, doc)
       if (overwrite) {
@@ -468,8 +525,20 @@ Plumber2 <- R6Class(
     #' @param app A shiny app object
     #' @param except Subpaths to `path` that should not be forwarded to the
     #' shiny app. Be sure it doesn't contains paths that the shiny app needs
+    #' @param auth_flow The authentication flow the request must be validated by
+    #' to be allowed into the handler, provided as a logical expression of
+    #' authenticator names
+    #' @param auth_scope The scope required to access this handler given a
+    #' successful authentication. Unless your authenticators provide scopes this
+    #' should be `NULL`
     #'
-    add_shiny = function(path, app, except = NULL) {
+    add_shiny = function(
+      path,
+      app,
+      except = NULL,
+      auth_flow = NULL,
+      auth_scope = NULL
+    ) {
       check_installed("callr")
       check_installed("shiny")
       if (!shiny::is.shiny.appobj(app)) {
@@ -512,6 +581,267 @@ Plumber2 <- R6Class(
         if (inherits(proc, "r_process")) proc$kill()
       })
 
+      auth_flow <- enquo(auth_flow)
+      if (!quo_is_null(auth_flow)) {
+        self$add_auth(
+          "get",
+          path,
+          !!auth_flow,
+          auth_scope,
+          add_doc = FALSE
+        )
+      }
+
+      invisible(self)
+    },
+    #' @description Render and serve a Quarto or Rmarkdown document from an
+    #' endpoint. See [api_report()] for more information.
+    #'
+    #' @param path The base path to serve the report from. Additional endpoints
+    #' will be created in addition to this.
+    #' @param report The path to the report to serve
+    #' @param ... Further arguments to `quarto::quarto_render()` or
+    #' `rmarkdown::render()`
+    #' @param doc An [openapi_operation()] documentation for the report. Only
+    #' `query` parameters will be used and a request body will be generated from
+    #' this for the POST methods.
+    #' @param max_age The maximum age in seconds to keep a rendered report
+    #' before initiating a re-render
+    #' @param async Should rendering happen asynchronously (using mirai)
+    #' @param finalize An optional function to run before sending the response
+    #' back. The function will receive the request as the first argument, the
+    #' response as the second, and the server as the third.
+    #' @param continue A logical that defines whether the response is returned
+    #' directly after rendering or should be made available to subsequent routes
+    #' @param cache_dir The location of the render cache. By default a temporary
+    #' folder is created for it.
+    #' @param cache_by_id Should caching be scoped by the user id. If the
+    #' rendering is dependent on user-level access to different data this is
+    #' necessary to avoid data leakage.
+    #' @param auth_flow The authentication flow the request must be validated by
+    #' to be allowed into the handler, provided as a logical expression of
+    #' authenticator names
+    #' @param auth_scope The scope required to access this handler given a
+    #' successful authentication. Unless your authenticators provide scopes this
+    #' should be `NULL`
+    #' @param route The route this handler should be added to. Defaults to the
+    #' last route in the stack. If the route does not exist it will be created
+    #' as the last route in the stack.
+    #'
+    add_report = function(
+      path,
+      report,
+      ...,
+      doc = NULL,
+      max_age = Inf,
+      async = TRUE,
+      finalize = NULL,
+      continue = FALSE,
+      cache_dir = tempfile(pattern = "plumber2_report"),
+      cache_by_id = FALSE,
+      auth_flow = NULL,
+      auth_scope = NULL,
+      route = NULL
+    ) {
+      if (!is_bool(async) && !identical(async, "mirai")) {
+        cli::cli_warn("report serving can only be done with the mirai backend")
+        async <- TRUE
+      }
+
+      info <- routr::report_info(report)
+      paths <- c(
+        path,
+        paste0(sub("/?$", "/", path), info$format),
+        unique(paste0(sub("/?$", ".", path), info$ext))
+      )
+      formats <- c(
+        list(info$formats[!duplicated(info$mime_types)]),
+        as.list(info$formats),
+        as.list(info$formats[!duplicated(info$mime_types)])
+      )
+      response <- c(
+        list(unique(info$mime_types)),
+        as.list(info$mime_types),
+        as.list(unique(info$mime_types))
+      )
+      if (!is.null(doc$parameters)) {
+        doc$parameters <- set_names(
+          doc$parameters,
+          vapply(doc$parameters, `[[`, character(1), "name")
+        )
+      }
+      get_doc <- openapi_operation(
+        summary = doc$summary,
+        description = doc$description,
+        operation_id = doc$operationId %||% character(),
+        parameters = lapply(
+          names(info$query_params),
+          function(param) {
+            if (length(doc$parameters[[param]]$schema) == 0) {
+              schema <- openapi_schema(info$query_params[[param]])
+            } else {
+              schema <- doc$parameters[[param]]$schema
+            }
+            openapi_parameter(
+              name = param,
+              location = "query",
+              required = FALSE,
+              schema = schema
+            )
+          }
+        ),
+        responses = doc$response %||% list(),
+        tags = doc$tags %||% character()
+      )
+      post_doc <- get_doc
+      delete_doc <- get_doc
+      post_doc$requestBody <- openapi_request_body(
+        content = openapi_content(
+          "application/json" = openapi_schema(
+            I("object"),
+            properties = set_names(
+              lapply(get_doc$parameters, `[[`, "schema"),
+              vapply(get_doc$parameters, `[[`, character(1), "name")
+            )
+          )
+        )
+      )
+      post_doc$parameters <- NULL
+      delete_doc$parameters <- NULL
+
+      type_caster <- create_type_casters(doc)
+
+      rr <- routr::report_route(
+        path,
+        file = report,
+        ...,
+        max_age = max_age,
+        async = async,
+        finalize = finalize,
+        ignore_trailing_slash = private$IGNORE_TRAILING_SLASH,
+        continue = continue,
+        cache_dir = cache_dir,
+        cache_by_id = cache_by_id,
+        param_caster = type_caster
+      )
+
+      if (is.null(route)) {
+        if (length(self$request_router$routes) == 0) {
+          route <- "default"
+        } else {
+          route <- self$request_router$routes[length(
+            self$request_router$routes
+          )]
+        }
+      }
+      if (!self$request_router$has_route(route)) {
+        cli::cli_inform(
+          "Creating {.field {route}} route in request router"
+        )
+        self$add_route(route)
+      }
+      route <- self$request_router$get_route(route)
+      route$merge_route(rr)
+      paths <- gsub("/+", "/", paste0(route$root, "/", paths))
+      if (!inherits(doc, "plumber_noDoc")) {
+        for (i in seq_along(paths)) {
+          format <- paste0(
+            "*",
+            formats[[i]],
+            "* (",
+            response[[i]],
+            ")"
+          )
+          if (length(format) > 1) {
+            pg_summary <- cli::format_inline(
+              "Render and serve \"{info$title}\""
+            )
+            pg_description <- cli::format_inline(
+              "This path allows you to access *{info$title}* in one of the
+              following formats: {format} through content negotiation.",
+              keep_whitespace = FALSE
+            )
+            d_summary <- cli::format_inline(
+              "Clear render cache of \"{info$title}\""
+            )
+            d_description <- cli::format_inline(
+              "This will delete *all* cached versions of the rendered report."
+            )
+          } else {
+            pg_summary <- cli::format_inline(
+              "Render and serve \"{info$title}\" as {formats[[i]]}"
+            )
+            pg_description <- cli::format_inline(
+              "This path allows you to access *{info$title}* in the {format} format."
+            )
+            d_summary <- cli::format_inline(
+              "Clear render cache of the {formats[[i]]} version of \"{info$title}\""
+            )
+            d_description <- cli::format_inline(
+              "This will delete cached versions of the {format} format."
+            )
+          }
+          get_doc$responses <- post_doc$responses <- list(
+            "200" = openapi_response(
+              description = "The rendered report",
+              content = openapi_content(
+                !!!set_names(
+                  rep_along(
+                    response[[i]],
+                    list(set_names(list(), character()))
+                  ),
+                  response[[i]]
+                )
+              )
+            ),
+            "400" = openapi_response(
+              description = "Supplied parameters were not acceptable"
+            ),
+            "500" = openapi_response(
+              description = "Issues during rendering"
+            )
+          )
+          delete_doc$responses <- list(
+            "204" = openapi_response(
+              description = "The render cache was cleared"
+            )
+          )
+          if (i == 1) {
+            get_doc$summary <- post_doc$summary <- get_doc$summary %||%
+              pg_summary
+            get_doc$description <- post_doc$description <- get_doc$description %||%
+              pg_description
+          } else {
+            get_doc$summary <- post_doc$summary <- pg_summary
+            get_doc$description <- post_doc$description <- pg_description
+          }
+          delete_doc$summary <- d_summary
+          delete_doc$description <- d_description
+          path_doc <- openapi_path(
+            get = get_doc,
+            post = post_doc,
+            delete = delete_doc
+          )
+          self$add_api_doc(path_doc, subset = c("paths", paths[i]))
+        }
+      }
+
+      auth_flow <- enquo(auth_flow)
+      if (!quo_is_null(auth_flow)) {
+        add_doc <- !inherits(doc, "plumber_noDoc")
+        for (path in paths) {
+          for (method in c("get", "post", "delete")) {
+            self$add_auth(
+              method,
+              path,
+              !!auth_flow,
+              auth_scope,
+              add_doc = add_doc
+            )
+          }
+        }
+      }
+
       invisible(self)
     },
     #' @description Add a reverse proxy from a path to a given URL. See
@@ -519,11 +849,95 @@ Plumber2 <- R6Class(
     #' @param path The root to forward from
     #' @param url The url to forward to
     #' @param except Subpaths to `path` that should be exempt from forwarding
+    #' @param auth_flow The authentication flow the request must be validated by
+    #' to be allowed into the handler, provided as a logical expression of
+    #' authenticator names
+    #' @param auth_scope The scope required to access this handler given a
+    #' successful authentication. Unless your authenticators provide scopes this
+    #' should be `NULL`
     #'
-    forward = function(path, url, except = NULL) {
+    forward = function(
+      path,
+      url,
+      except = NULL,
+      auth_flow = NULL,
+      auth_scope = NULL
+    ) {
       revprox <- firestorm::ReverseProxy$new(url, path, except)
       self$attach(revprox)
 
+      auth_flow <- enquo(auth_flow)
+      if (!quo_is_null(auth_flow)) {
+        self$add_auth(
+          "all",
+          path,
+          !!auth_flow,
+          auth_scope,
+          add_doc = FALSE
+        )
+      }
+
+      invisible(self)
+    },
+    #' @description Adds an auth guard to your API which can then be
+    #' referenced in auth flows.
+    #' @param guard An [Guard][fireproof::Guard] subclass object defining the
+    #' scheme
+    #' @param name The name to use for referencing the scheme in an
+    #' auth flow
+    #'
+    add_auth_guard = function(guard, name = NULL) {
+      fp <- self$plugins$fireproof
+      # Needed to initialize router in app
+      router <- self$request_router
+      if (is.null(fp)) {
+        fp <- fireproof::Fireproof$new()
+        self$attach(fp)
+      }
+      fp$add_guard(
+        guard = guard,
+        name = name
+      )
+      self$add_api_doc(
+        guard$open_api,
+        subset = c("components", "securitySchemes", guard$name)
+      )
+      invisible(self)
+    },
+    #' @description Add an auth flow to an endpoint
+    #' @param method The HTTP method to add auth to
+    #' @param path A string giving the path to be authenticated
+    #' @param auth_flow A logical expression giving the auth flow the
+    #' client must pass to get access to the resource
+    #' @param auth_scope The scope requirements of the resource
+    #' @param add_doc Should OpenAPI documentation be added for the
+    #' authentication
+    #'
+    add_auth = function(
+      method,
+      path,
+      auth_flow,
+      auth_scope = NULL,
+      add_doc = TRUE
+    ) {
+      fp <- self$plugins$fireproof
+      if (is.null(fp)) {
+        fp <- fireproof::Fireproof$new()
+        self$attach(fp)
+      }
+      flow <- fp$add_auth(
+        method = method,
+        path = path,
+        flow = {{ auth_flow }},
+        scope = auth_scope
+      )
+
+      if (add_doc) {
+        self$add_api_doc(
+          fp$flow_to_openapi(flow, auth_scope),
+          subset = c("paths", as_openapi_path(path), method)
+        )
+      }
       invisible(self)
     }
   ),
@@ -566,6 +980,16 @@ Plumber2 <- R6Class(
       }
       check_string(value)
       private$DOC_PATH <- value
+    },
+    #' @field doc_args Further arguments to the documentation UI
+    doc_args = function(value) {
+      if (missing(value)) {
+        return(private$DOC_ARGS)
+      }
+      if (!is_bare_list(value)) {
+        stop_input_type(value, "a bare list")
+      }
+      private$DOC_ARGS <- modifyList(private$DOC_ARGS, value)
     }
   ),
   private = list(
@@ -578,9 +1002,16 @@ Plumber2 <- R6Class(
     MESSAGE_ROUTER = NULL,
     DOC_TYPE = "rapidoc",
     DOC_PATH = "__docs__",
+    DOC_ARGS = list(
+      slots = "<img slot=\"logo\" src=\"./logo.svg\" width=36px style=\"margin-left:7px\"/>",
+      heading_text = paste0("plumber2 ", packageVersion("plumber2")),
+      primary_color = "#FF81D2",
+      text_color = "#B4FFE4",
+      bg_color = "#212121"
+    ),
     REJECT_MISSING_METHODS = FALSE,
     IGNORE_TRAILING_SLASH = TRUE,
-    ASYNC_EVALUATER = NULL,
+    ASYNC_EVALUATOR = NULL,
     PARENT_ENV = NULL
   )
 )

@@ -18,7 +18,7 @@ resolving any path parameters and wildcards it will be used in the
 \code{Location} header}
 
 \item{permanent}{Logical. Is the redirect considered permanent or
-temporary? Determines the type of redirct status code to use}
+temporary? Determines the type of redirect status code to use}
 }
 \value{
 This functions return the \code{api} object allowing for easy chaining
@@ -33,11 +33,11 @@ of \code{permanent} the redirect will respond with a \verb{307 Temporary Redirec
 \verb{308 Permanent Redirect}. \code{from} and \code{to} can contain path parameters and
 wildcards which will be matched between the two to construct the correct
 redirect path. Further, \code{to} can either be a path to the same server or a
-fully qualified URL to redirect requests to another server alltogether.
+fully qualified URL to redirect requests to another server altogether.
 }
 \section{Using annotation}{
 You can specify redirects in an annotated plumber file using the \verb{@redirect}
-tag. Preceed the method with a \code{!} to mark the redirect as permanent
+tag. Precede the method with a \code{!} to mark the redirect as permanent
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{#* @redirect !get /old/data/* /new/data/*
 #* @redirect any /unstable/endpoint /stable/endpoint

@@ -35,12 +35,12 @@ with one.
 A handler for a websocket message is much simpler than for requests in
 general since it doesn't have to concern itself with methods, paths, and
 responses. Any message handler registered will get called in sequence when a
-websocket message is recieved from a client. Still, a few expectations apply
+websocket message is received from a client. Still, a few expectations apply
 \subsection{Handler Arguments}{
 
 The handler can take any of the following arguments:
 \itemize{
-\item \code{message}: Either a raw vector if the message recieved is in binary form or
+\item \code{message}: Either a raw vector if the message received is in binary form or
 a single string, giving the message sent from the client
 \item \code{server}: The \link{Plumber2} object representing your server implementation
 \item \code{client_id}: A string uniquely identifying the session the request comes

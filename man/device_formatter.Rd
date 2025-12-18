@@ -20,9 +20,8 @@ This internal function facilitates creating a formatter that uses a specific
 device for rendering.
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # Create a png formatter using the default png device
 device_formatter(png)
-\dontshow{\}) # examplesIf}
+
 }
 \keyword{internal}
