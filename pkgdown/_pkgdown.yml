@@ -51,11 +51,6 @@ navbar:
         - text: OpenTelemetry instrumentation
           href: articles/otel.html
 
-news:
- releases:
- - text: "plumber2 0.1.0"
-   href: https://tidyverse.org/blog/2025/09/plumber2-0-1-0/
-
 reference:
   - title: "Create an run an API"
     contents:
