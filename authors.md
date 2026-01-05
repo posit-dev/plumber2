@@ -13,13 +13,13 @@
 Source:
 [`DESCRIPTION`](https://github.com/posit-dev/plumber2/blob/main/DESCRIPTION)
 
-Pedersen T (2025). *plumber2: Easy and Powerful Web Servers*. R package
+Pedersen T (2026). *plumber2: Easy and Powerful Web Servers*. R package
 version 0.1.1.9000, <https://plumber2.posit.co/>.
 
     @Manual{,
       title = {plumber2: Easy and Powerful Web Servers},
       author = {Thomas Lin Pedersen},
-      year = {2025},
+      year = {2026},
       note = {R package version 0.1.1.9000},
       url = {https://plumber2.posit.co/},
     }
