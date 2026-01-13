@@ -902,14 +902,14 @@ Dont generate OpenAPI documentation from this block
 <tbody><tr class="odd">
 <td><code>@authGuard</code></td>
 <td><code>name</code></td>
-<td>Adds a new guard with the given name. The guard is given below the annotation as a <code><a href="https://thomasp85.github.io/fireproof/reference/Guard.html" class="external-link">fireproof::Guard</a></code> specification</td>
+<td>Adds a new guard with the given name. The guard is given below the annotation as a <code><a href="https://fireproof.data-imaginist.com/reference/Guard.html" class="external-link">fireproof::Guard</a></code> specification</td>
 </tr></tbody>
 </table>
 <section class="level5"><h5 id="annotations-example-7">Annotations example<a class="anchor" aria-label="anchor" href="#annotations-example-7"></a>
 </h5>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @authGuard auth1</span></span>
-<span><span class="fu">fireproof</span><span class="fu">::</span><span class="fu"><a href="https://thomasp85.github.io/fireproof/reference/guard_key.html" class="external-link">guard_key</a></span><span class="op">(</span></span>
+<span><span class="fu">fireproof</span><span class="fu">::</span><span class="fu"><a href="https://fireproof.data-imaginist.com/reference/guard_key.html" class="external-link">guard_key</a></span><span class="op">(</span></span>
 <span>  key_name <span class="op">=</span> <span class="st">"plumber2_key"</span>,</span>
 <span>  validate <span class="op">=</span> <span class="st">"MY_VERY_SECRET_SECRET"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -920,7 +920,7 @@ Dont generate OpenAPI documentation from this block
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_datastore.html">api_datastore</a></span><span class="op">(</span><span class="fu">storr</span><span class="fu">::</span><span class="fu"><a href="https://richfitz.github.io/storr/reference/storr_environment.html" class="external-link">driver_environment</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/api_auth_guard.html">api_auth_guard</a></span><span class="op">(</span></span>
-<span>    <span class="fu">fireproof</span><span class="fu">::</span><span class="fu"><a href="https://thomasp85.github.io/fireproof/reference/guard_key.html" class="external-link">guard_key</a></span><span class="op">(</span></span>
+<span>    <span class="fu">fireproof</span><span class="fu">::</span><span class="fu"><a href="https://fireproof.data-imaginist.com/reference/guard_key.html" class="external-link">guard_key</a></span><span class="op">(</span></span>
 <span>      key_name <span class="op">=</span> <span class="st">"plumber2_key"</span>,</span>
 <span>      validate <span class="op">=</span> <span class="st">"MY_VERY_SECRET_SECRET"</span></span>
 <span>    <span class="op">)</span>,</span>

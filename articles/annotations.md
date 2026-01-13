@@ -417,9 +417,9 @@ api() %>%
 
 ## Auth guard annotation
 
-| Annotation   | Arguments | Description/References                                                                                                                                                            |
-|--------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@authGuard` | `name`    | Adds a new guard with the given name. The guard is given below the annotation as a [`fireproof::Guard`](https://thomasp85.github.io/fireproof/reference/Guard.html) specification |
+| Annotation   | Arguments | Description/References                                                                                                                                                           |
+|--------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `@authGuard` | `name`    | Adds a new guard with the given name. The guard is given below the annotation as a [`fireproof::Guard`](https://fireproof.data-imaginist.com/reference/Guard.html) specification |
 
 ##### Annotations example
 

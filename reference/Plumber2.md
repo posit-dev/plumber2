@@ -732,7 +732,7 @@ flows.
 
 - `guard`:
 
-  An [Guard](https://thomasp85.github.io/fireproof/reference/Guard.html)
+  An [Guard](https://fireproof.data-imaginist.com/reference/Guard.html)
   subclass object defining the scheme
 
 - `name`:

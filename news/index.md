@@ -7,10 +7,9 @@
   [`api_doc_setting()`](https://plumber2.posit.co/reference/api_docs.md)
 - More powerful report support. Added
   [`api_report()`](https://plumber2.posit.co/reference/api_report.md) as
-  a parallel to \`@report\`\` but with even more settings. Parameters
-  are now type checked using the same facilities as the request
-  handlers, and much more comprehensive OpenAPI documentation is
-  provided.
+  a parallel to `@report` but with even more settings. Parameters are
+  now type checked using the same facilities as the request handlers,
+  and much more comprehensive OpenAPI documentation is provided.
 - Fixed a bug in the documentation UI when serving the api through a
   proxy, affecting e.g. Posit Workbench users
 - Default styling of docs ui now reflect plumber2 aesthetics

@@ -21,7 +21,7 @@ api_auth_guard(api, guard, name = NULL)
 
 - guard:
 
-  A [Guard](https://thomasp85.github.io/fireproof/reference/Guard.html)
+  A [Guard](https://fireproof.data-imaginist.com/reference/Guard.html)
   subclass object defining an authentication scheme
 
 - name:
