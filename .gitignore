@@ -6,3 +6,5 @@
 .quarto
 inst/doc
 docs
+.claude
+_dev/
