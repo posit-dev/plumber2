@@ -23,7 +23,8 @@ me <- normalizePath(
     "articles"
   } else {
     "vignettes/articles"
-  })
+  }
+)
 source(file.path(me, "_helpers.R"))
 readLines <- function(x) base::readLines(file.path(me, x))
 ```
@@ -39,26 +40,487 @@ Once you have developed your plumber2 API, the next step is to find a way to hos
 
 For these reasons and more, you should consider setting up a separate server on which you can host your plumber2 APIs. There are a variety of options that you can consider.
 
-## The `_server.yml` file
+## The `_server.yml` file {#server-yml}
 
 Since plumber2 API specifications can be spread out over multiple files we need a single file that is the source of truth for what the API is based on. plumber2 uses the `_server.yml` specification for this and you can create a scaffold of such a file using `create_server_yml()`.
 
 The `_server.yml` file not only contains the R files that make up your API, but can also holds options that modify how the API is constructed (see `get_opts()`).
 
-Once you have a `_server.yml` file you can verify that it works as it should by passing it in to `api()` and testing out the constructed API:
+### Creating a `_server.yml` file
+
+At minimum, your `_server.yml` file needs to specify the engine:
+
+```yaml
+engine: plumber2
+```
+
+A more complete example might look like:
+
+```yaml
+engine: plumber2
+routes:
+  - api.R
+  - routes/users.R
+  - routes/data.R
+options:
+  host: 0.0.0.0
+  port: 8000
+  docs: true
+```
+
+You can create a scaffold of this file programmatically:
 
 ```{r}
 #| eval: false
 # Create _server.yml in the working directory
-create_server_yml(...) # Various settings to capture your server
+create_server_yml(
+  "api.R",
+  "routes/users.R",
+  "routes/data.R",
+  options = list(docs = TRUE, port = 8000, host = "0.0.0.0")
+)
+```
 
+### Testing your `_server.yml` file
+
+Once you have a `_server.yml` file you should verify that it works as expected before deploying. You can do this by passing it to `api()` and testing the constructed API locally:
+
+```{r}
+#| eval: false
 # Test that it works
-api("_server.yml") |> 
+api("_server.yml") |>
   api_run()
 ```
 
+This will start your API locally using the same configuration that will be used in production. Make sure to test all your endpoints and verify the behavior matches your expectations.
+
+For more details on the `_server.yml` specification, see the [dedicated article](server_yml.html).
+
 ## Posit Connect {#posit-connect}
 
-[Posit Connect](https://posit.co/products/enterprise/connect/) is an enterprise publishing platform from Posit. It supports automatic deployment of plumber 2 APIs from RStudio and Positron using the [rsconnect](https://rstudio.github.io/rsconnect/) package and from Positron using the Posit Publisher extension.
+[Posit Connect](https://posit.co/products/enterprise/connect/) is an enterprise publishing platform from Posit. It supports automatic deployment of plumber2 APIs from RStudio and Positron using the [rsconnect](https://rstudio.github.io/rsconnect/) package and from Positron using the Posit Publisher extension.
 
 Posit Connect automatically manages the number of R processes necessary to handle the current load and balances incoming traffic across all available processes. It can also shut down idle processes when they're not in use. This allows you to run the appropriate number of R processes to scale your capacity to accommodate the current load.
+
+## DigitalOcean {#digitalocean}
+
+[DigitalOcean](https://www.digitalocean.com/) is a cloud infrastructure provider that makes it easy to deploy and scale web applications. The [buoyant](https://posit-dev.github.io/buoyant/) R package provides a streamlined way to deploy plumber2 APIs (and any other `_server.yml` compliant application) to DigitalOcean.
+
+### Prerequisites
+
+Before deploying to DigitalOcean, you'll need:
+
+1. A DigitalOcean account ([sign up here](https://www.digitalocean.com?refcode=6119f0430dad&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=CopyPaste))
+2. The `buoyant` and `analogsea` packages installed:
+
+```{r}
+#| eval: false
+install.packages("pak")
+pak::pak(c("buoyant", "analogsea"))
+```
+
+3. A working `_server.yml` file for your API (see [The `_server.yml` file](#server-yml) section above)
+
+### Basic Deployment
+
+Here's how to deploy a plumber2 API to DigitalOcean:
+
+```{r}
+#| eval: false
+library(buoyant)
+library(analogsea)
+
+# Authenticate with DigitalOcean (opens browser for OAuth)
+do_oauth()
+
+# Provision a new droplet (virtual server)
+droplet <- do_provision(region = "sfo3")
+
+# Deploy your application
+do_deploy_server(
+  droplet = droplet,
+  path = "myapi",
+  local_path = "path/to/my-api",
+  port = 8000
+)
+
+# Get the URL to access your API
+do_ip(droplet, "/myapi")
+#> [1] "http://165.232.143.22/myapi"
+```
+
+Your API is now live! The `do_deploy_server()` function automatically:
+
+- Uploads your application files
+- Creates a systemd service for process management
+- Configures nginx as a reverse proxy
+- Starts your API
+
+### Learn More
+
+For more detailed information about deploying with buoyant, see the [buoyant package documentation](https://posit-dev.github.io/buoyant/).
+
+## Docker {#docker}
+
+[Docker](https://www.docker.com/) is a containerization platform that allows you to package your API with all its dependencies into a portable container. This ensures consistent behavior across different environments (development, staging, production).
+
+To run a plumber2 API in Docker, create a Dockerfile that:
+
+1. Installs R and required packages
+2. Copies your application files
+3. Exposes the port your API will use
+4. Runs the API using the `_server.yml` file
+
+### Choosing a Base Image
+
+We recommend using the [Rocker Project's](https://rocker-project.org/) `rocker/r-ver` images as your base. These images provide versioned, minimal R installations optimized for reproducibility. Key benefits include:
+
+- Smaller image sizes compared to full R installations
+- Better layer caching for faster rebuilds
+- Pre-configured integration with Posit Package Manager for faster package installation
+- Stable, versioned R releases for reproducible builds
+
+Learn more about the rocker/r-ver images at <https://rocker-project.org/images/versioned/r-ver.html>.
+
+### System Dependencies
+
+To determine which system packages are required for plumber2 and its dependencies, use `pak::pkg_sysreqs()`:
+
+```{.r}
+#| eval: false
+pak::pkg_sysreqs(c("plumber2"), sysreqs_platform = "ubuntu")
+#> ── Install scripts ─────────────────────────────────────────── Ubuntu NA ──
+#> apt-get -y update
+#> apt-get -y install libx11-dev libcurl4-openssl-dev libssl-dev make \
+#>   zlib1g-dev pandoc cmake xz-utils libfreetype6-dev libjpeg-dev \
+#>   libpng-dev libtiff-dev libwebp-dev libsodium-dev libicu-dev \
+#>   libfontconfig1-dev libfribidi-dev libharfbuzz-dev rustc cargo \
+#>   libxml2-dev
+#>
+#> ── Packages and their system dependencies ─────────────────────────────────
+#> clipr       – libx11-dev
+#> curl        – libcurl4-openssl-dev, libssl-dev
+#> fs          – make
+#> httpuv      – make, zlib1g-dev
+#> knitr       – pandoc
+#> nanonext    – cmake, xz-utils
+#> ragg        – libfreetype6-dev, libjpeg-dev, libpng-dev, libtiff-dev, libwebp-dev
+#> sodium      – libsodium-dev
+#> stringi     – libicu-dev
+#> svglite     – libpng-dev
+#> systemfonts – libfontconfig1-dev, libfreetype6-dev
+#> textshaping – libfreetype6-dev, libfribidi-dev, libharfbuzz-dev
+#> waysign     – cargo, rustc, xz-utils
+#> websocket   – libssl-dev, make
+#> xml2        – libxml2-dev
+```
+
+### Example Dockerfile
+
+Here's an example Dockerfile for a plumber2 API:
+
+```dockerfile
+FROM rocker/r-ver:4
+
+RUN apt-get update && apt-get install -y \
+    libx11-dev libcurl4-openssl-dev libssl-dev make \
+    zlib1g-dev pandoc cmake xz-utils libfreetype6-dev libjpeg-dev libpng-dev \
+    libtiff-dev libwebp-dev libsodium-dev libicu-dev libfontconfig1-dev \
+    libfribidi-dev libharfbuzz-dev rustc cargo libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN R -q -e 'install.packages(c("plumber2"))'
+
+WORKDIR /app
+COPY . /app
+
+EXPOSE 8000
+
+CMD ["R", "-e", "plumber2::api('_server.yml') |> plumber2::api_run(host='0.0.0.0', port=8000)"]
+```
+
+Build and run your container:
+
+```bash
+# Build the image
+docker build -t my-plumber2-api .
+
+# Run the container
+docker run -p 8000:8000 my-plumber2-api
+
+# Your API is now available at http://localhost:8000
+```
+
+## pm2 {#pm2}
+
+[pm2](https://pm2.keymetrics.io/) is a production process manager for Node.js applications, but it can also be used to manage R processes. While not specifically designed for R, pm2 provides useful features like automatic restarts, logging, and startup scripts. This is a good option if you already have Node.js infrastructure or prefer a cross-platform process manager.
+
+### Prerequisites
+
+Install pm2 (requires Node.js):
+
+```bash
+npm install -g pm2
+```
+
+### Setting up pm2 for plumber2
+
+First, create a wrapper script that pm2 can execute. Create a file called `run-api.R`:
+
+```r
+#!/usr/bin/env Rscript
+
+# Load the API and run it
+plumber2::api("_server.yml") |>
+  plumber2::api_run(host = "0.0.0.0", port = 8000)
+```
+
+Make it executable:
+
+```bash
+chmod +x run-api.R
+```
+
+### Starting Your API with pm2
+
+Start your API using pm2:
+
+```bash
+pm2 start run-api.R --interpreter="Rscript" --name="my-plumber2-api"
+```
+
+### Managing Your API
+
+pm2 provides several commands for managing your application:
+
+```bash
+# View status of all applications
+pm2 status
+
+# View logs (combined stdout and stderr)
+pm2 logs my-plumber2-api
+
+# View only error logs
+pm2 logs my-plumber2-api --err
+
+# Restart the application
+pm2 restart my-plumber2-api
+
+# Stop the application
+pm2 stop my-plumber2-api
+
+# Delete the application from pm2
+pm2 delete my-plumber2-api
+```
+
+### Running Multiple Instances
+
+pm2 can run multiple instances of your API for load balancing:
+
+```bash
+# Start 4 instances of your API
+pm2 start run-api.R --interpreter="Rscript" --name="my-api" -i 4
+
+# Or use max (number of CPU cores)
+pm2 start run-api.R --interpreter="Rscript" --name="my-api" -i max
+```
+
+Note: Each instance needs to run on a different port, so you'll need to either:
+1. Use a load balancer (like nginx) in front of pm2 instances
+2. Modify your script to accept port as an argument
+
+Here's an improved `run-api.R` that accepts a port argument:
+
+```r
+#!/usr/bin/env Rscript
+
+# Get port from command line argument or environment variable
+args <- commandArgs(trailingOnly = TRUE)
+port <- if (length(args) > 0) {
+  as.integer(args[1])
+} else {
+  as.integer(Sys.getenv("PORT", "8000"))
+}
+
+# Load the API and run it
+plumber2::api("_server.yml") |>
+  plumber2::api_run(host = "0.0.0.0", port = port)
+```
+
+### Automatic Startup on Boot
+
+Configure pm2 to start your API automatically when the server boots:
+
+```bash
+# Save the current pm2 process list
+pm2 save
+
+# Generate and configure startup script
+pm2 startup
+
+# This will output a command like:
+# sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u youruser --hp /home/youruser
+# Run that command to enable startup on boot
+```
+
+### Using an Ecosystem File
+
+For more complex configurations, create a `ecosystem.config.js` file:
+
+```javascript
+module.exports = {
+  apps: [{
+    name: 'plumber2-api',
+    script: './run-api.R',
+    interpreter: 'Rscript',
+    instances: 4,
+    exec_mode: 'cluster',
+    env: {
+      PORT: 8000,
+      NODE_ENV: 'production'
+    },
+    error_file: './logs/err.log',
+    out_file: './logs/out.log',
+    log_date_format: 'YYYY-MM-DD HH:mm Z',
+    merge_logs: true
+  }]
+};
+```
+
+Start it with:
+
+```bash
+pm2 start ecosystem.config.js
+```
+
+### Monitoring and Logs
+
+pm2 provides built-in monitoring:
+
+```bash
+# Real-time dashboard
+pm2 monit
+
+# View resource usage
+pm2 list
+```
+
+Logs are automatically rotated and can be configured with [pm2-logrotate](https://github.com/keymetrics/pm2-logrotate):
+
+```bash
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 10M
+pm2 set pm2-logrotate:retain 7
+```
+
+## systemd {#systemd}
+
+[systemd](https://systemd.io/) is the standard service manager for modern Linux distributions (Ubuntu 16.04+, CentOS 7+, Debian 8+, etc.). It provides robust process management without requiring Docker or Node.js. This is a good option for Linux servers where you want native system integration and simple process management.
+
+### Creating a systemd Service
+
+First, create a service file at `/etc/systemd/system/plumber2-api.service`:
+
+```ini
+[Unit]
+Description=Plumber2 API Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/plumber2-api
+Environment="PATH=/usr/bin:/usr/local/bin"
+
+# Run the API using _server.yml
+ExecStart=/usr/bin/Rscript -e "plumber2::api('_server.yml') |> plumber2::api_run(host='0.0.0.0', port=8000)"
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=plumber2-api
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Setting Up Your Application
+
+Place your API files in the working directory specified in the service file:
+
+```bash
+# Create directory
+sudo mkdir -p /var/www/plumber2-api
+
+# Copy your API files
+sudo cp -r /path/to/your/api/* /var/www/plumber2-api/
+
+# Set ownership
+sudo chown -R www-data:www-data /var/www/plumber2-api
+```
+
+### Managing the Service
+
+Enable and start your service:
+
+```bash
+# Reload systemd to recognize the new service
+sudo systemctl daemon-reload
+
+# Enable the service to start on boot
+sudo systemctl enable plumber2-api
+
+# Start the service
+sudo systemctl start plumber2-api
+
+# Check status
+sudo systemctl status plumber2-api
+```
+
+### Viewing Logs
+
+systemd logs can be viewed with `journalctl`:
+
+```bash
+# View all logs for your service
+sudo journalctl -u plumber2-api
+
+# Follow logs in real-time
+sudo journalctl -u plumber2-api -f
+
+# View logs from the last hour
+sudo journalctl -u plumber2-api --since "1 hour ago"
+
+# View logs with specific priority (error and above)
+sudo journalctl -u plumber2-api -p err
+```
+
+### Service Management Commands
+
+```bash
+# Start the service
+sudo systemctl start plumber2-api
+
+# Stop the service
+sudo systemctl stop plumber2-api
+
+# Restart the service
+sudo systemctl restart plumber2-api
+
+# Reload configuration without stopping
+sudo systemctl reload plumber2-api
+
+# Check if service is running
+sudo systemctl is-active plumber2-api
+
+# Check if service is enabled on boot
+sudo systemctl is-enabled plumber2-api
+
+# Disable auto-start on boot
+sudo systemctl disable plumber2-api
+```

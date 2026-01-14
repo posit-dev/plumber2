@@ -14,3 +14,5 @@ vignettes/_ex-github.qmd
 vignettes/_ex-mailgun.qmd
 vignettes/_hosting.qmd
 ^CRAN-SUBMISSION$
+^\.claude$
+^_dev/$
