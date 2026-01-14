@@ -171,29 +171,71 @@ To run a plumber2 API in Docker, create a Dockerfile that:
 3. Exposes the port your API will use
 4. Runs the API using the `_server.yml` file
 
-Here's a basic Dockerfile:
+### Choosing a Base Image
+
+We recommend using the [Rocker Project's](https://rocker-project.org/) `rocker/r-ver` images as your base. These images provide versioned, minimal R installations optimized for reproducibility. Key benefits include:
+
+- Smaller image sizes compared to full R installations
+- Better layer caching for faster rebuilds
+- Pre-configured integration with Posit Package Manager for faster package installation
+- Stable, versioned R releases for reproducible builds
+
+Learn more about the rocker/r-ver images at <https://rocker-project.org/images/versioned/r-ver.html>.
+
+### System Dependencies
+
+To determine which system packages are required for plumber2 and its dependencies, use `pak::pkg_sysreqs()`:
+
+```{.r}
+#| eval: false
+pak::pkg_sysreqs(c("plumber2"), sysreqs_platform = "ubuntu")
+#> ── Install scripts ─────────────────────────────────────────── Ubuntu NA ──
+#> apt-get -y update
+#> apt-get -y install libx11-dev libcurl4-openssl-dev libssl-dev make \
+#>   zlib1g-dev pandoc cmake xz-utils libfreetype6-dev libjpeg-dev \
+#>   libpng-dev libtiff-dev libwebp-dev libsodium-dev libicu-dev \
+#>   libfontconfig1-dev libfribidi-dev libharfbuzz-dev rustc cargo \
+#>   libxml2-dev
+#>
+#> ── Packages and their system dependencies ─────────────────────────────────
+#> clipr       – libx11-dev
+#> curl        – libcurl4-openssl-dev, libssl-dev
+#> fs          – make
+#> httpuv      – make, zlib1g-dev
+#> knitr       – pandoc
+#> nanonext    – cmake, xz-utils
+#> ragg        – libfreetype6-dev, libjpeg-dev, libpng-dev, libtiff-dev, libwebp-dev
+#> sodium      – libsodium-dev
+#> stringi     – libicu-dev
+#> svglite     – libpng-dev
+#> systemfonts – libfontconfig1-dev, libfreetype6-dev
+#> textshaping – libfreetype6-dev, libfribidi-dev, libharfbuzz-dev
+#> waysign     – cargo, rustc, xz-utils
+#> websocket   – libssl-dev, make
+#> xml2        – libxml2-dev
+```
+
+### Example Dockerfile
+
+Here's an example Dockerfile for a plumber2 API:
 
 ```dockerfile
-FROM r-base:latest
+FROM rocker/r-ver:4
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libxml2-dev \
+    libx11-dev libcurl4-openssl-dev libssl-dev make \
+    zlib1g-dev pandoc cmake xz-utils libfreetype6-dev libjpeg-dev libpng-dev \
+    libtiff-dev libwebp-dev libsodium-dev libicu-dev libfontconfig1-dev \
+    libfribidi-dev libharfbuzz-dev rustc cargo libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install R packages
-RUN R -e "install.packages(c('plumber2', 'jsonlite'), repos='https://cloud.r-project.org/')"
+RUN R -q -e 'install.packages(c("plumber2"))'
 
-# Copy API files
 WORKDIR /app
 COPY . /app
 
-# Expose port
 EXPOSE 8000
 
-# Run the API
 CMD ["R", "-e", "plumber2::api('_server.yml') |> plumber2::api_run(host='0.0.0.0', port=8000)"]
 ```
 
