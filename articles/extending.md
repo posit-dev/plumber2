@@ -362,8 +362,8 @@ get_serializers("geojson")
     #>     }
     #>     cli::cli_abort("{.fun format_geojson} did not receive an `sf` or `sfc` object.")
     #> }
-    #> <bytecode: 0x55dffd9ca638>
-    #> <environment: 0x55dffaf70618>
+    #> <bytecode: 0x55a2d7f0c638>
+    #> <environment: 0x55a2d54b0730>
 
 While you can always pass in a function directly as a serializer,
 registering them by name makes it much easier to reuse, and making it a
@@ -405,7 +405,7 @@ print(format_rds)
     #>             ...)
     #>     }
     #> }
-    #> <bytecode: 0x55dffd999330>
+    #> <bytecode: 0x55a2d7edb330>
     #> <environment: namespace:plumber2>
 
 With our serializer in hand we can now proceed to registering it. For
@@ -435,7 +435,7 @@ get_serializers("toml")
     #> {
     #>     tomledit::to_toml(x)
     #> }
-    #> <environment: 0x55dffc7f7290>
+    #> <environment: 0x55a2d6d381f0>
 
 We can also see that it is part of the defaults:
 

@@ -112,25 +112,385 @@
 <li>Most importantly, serving public requests from your development environment can be a security hazard. Ideally, you should separate your development instances from the servers that are accessible by others.</li>
 </ol>
 <p>For these reasons and more, you should consider setting up a separate server on which you can host your plumber2 APIs. There are a variety of options that you can consider.</p>
-<section class="level2"><h2 id="the-_server-yml-file">The <code>_server.yml</code> file<a class="anchor" aria-label="anchor" href="#the-_server-yml-file"></a>
+<section class="level2"><h2 id="server-yml">The <code>_server.yml</code> file<a class="anchor" aria-label="anchor" href="#server-yml"></a>
 </h2>
 <p>Since plumber2 API specifications can be spread out over multiple files we need a single file that is the source of truth for what the API is based on. plumber2 uses the <code>_server.yml</code> specification for this and you can create a scaffold of such a file using <code><a href="../reference/create_server_yml.html">create_server_yml()</a></code>.</p>
 <p>The <code>_server.yml</code> file not only contains the R files that make up your API, but can also holds options that modify how the API is constructed (see <code><a href="../reference/get_opts.html">get_opts()</a></code>).</p>
-<p>Once you have a <code>_server.yml</code> file you can verify that it works as it should by passing it in to <code><a href="../reference/api.html">api()</a></code> and testing out the constructed API:</p>
+<section class="level3"><h3 id="creating-a-_server-yml-file">Creating a <code>_server.yml</code> file<a class="anchor" aria-label="anchor" href="#creating-a-_server-yml-file"></a>
+</h3>
+<p>At minimum, your <code>_server.yml</code> file needs to specify the engine:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">engine</span><span class="kw">:</span><span class="at"> plumber2</span></span></code></pre></div>
+<p>A more complete example might look like:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">engine</span><span class="kw">:</span><span class="at"> plumber2</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">routes</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> api.R</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> routes/users.R</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> routes/data.R</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span><span class="kw">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">host</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.0.0.0</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">port</span><span class="kw">:</span><span class="at"> </span><span class="dv">8000</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">docs</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div>
+<p>You can create a scaffold of this file programmatically:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create _server.yml in the working directory</span></span>
-<span><span class="fu"><a href="../reference/create_server_yml.html">create_server_yml</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="co"># Various settings to capture your server</span></span>
-<span></span>
-<span><span class="co"># Test that it works</span></span>
-<span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"_server.yml"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="fu"><a href="../reference/create_server_yml.html">create_server_yml</a></span><span class="op">(</span></span>
+<span>  <span class="st">"api.R"</span>,</span>
+<span>  <span class="st">"routes/users.R"</span>,</span>
+<span>  <span class="st">"routes/data.R"</span>,</span>
+<span>  options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>docs <span class="op">=</span> <span class="cn">TRUE</span>, port <span class="op">=</span> <span class="fl">8000</span>, host <span class="op">=</span> <span class="st">"0.0.0.0"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+</section><section class="level3"><h3 id="testing-your-_server-yml-file">Testing your <code>_server.yml</code> file<a class="anchor" aria-label="anchor" href="#testing-your-_server-yml-file"></a>
+</h3>
+<p>Once you have a <code>_server.yml</code> file you should verify that it works as expected before deploying. You can do this by passing it to <code><a href="../reference/api.html">api()</a></code> and testing the constructed API locally:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Test that it works</span></span>
+<span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"_server.yml"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_run.html">api_run</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="level2"><h2 id="posit-connect">Posit Connect<a class="anchor" aria-label="anchor" href="#posit-connect"></a>
+<p>This will start your API locally using the same configuration that will be used in production. Make sure to test all your endpoints and verify the behavior matches your expectations.</p>
+<p>For more details on the <code>_server.yml</code> specification, see the <a href="server_yml.html">dedicated article</a>.</p>
+</section></section><section class="level2"><h2 id="posit-connect">Posit Connect<a class="anchor" aria-label="anchor" href="#posit-connect"></a>
 </h2>
-<p><a href="https://posit.co/products/enterprise/connect/" class="external-link">Posit Connect</a> is an enterprise publishing platform from Posit. It supports automatic deployment of plumber 2 APIs from RStudio and Positron using the <a href="https://rstudio.github.io/rsconnect/" class="external-link">rsconnect</a> package and from Positron using the Posit Publisher extension.</p>
+<p><a href="https://posit.co/products/enterprise/connect/" class="external-link">Posit Connect</a> is an enterprise publishing platform from Posit. It supports automatic deployment of plumber2 APIs from RStudio and Positron using the <a href="https://rstudio.github.io/rsconnect/" class="external-link">rsconnect</a> package and from Positron using the Posit Publisher extension.</p>
 <p>Posit Connect automatically manages the number of R processes necessary to handle the current load and balances incoming traffic across all available processes. It can also shut down idle processes when they’re not in use. This allows you to run the appropriate number of R processes to scale your capacity to accommodate the current load.</p>
-</section><script id="quarto-html-after-body" type="application/javascript">
+</section><section class="level2"><h2 id="digitalocean">DigitalOcean<a class="anchor" aria-label="anchor" href="#digitalocean"></a>
+</h2>
+<p><a href="https://www.digitalocean.com/" class="external-link">DigitalOcean</a> is a cloud infrastructure provider that makes it easy to deploy and scale web applications. The <a href="https://posit-dev.github.io/buoyant/" class="external-link">buoyant</a> R package provides a streamlined way to deploy plumber2 APIs (and any other <code>_server.yml</code> compliant application) to DigitalOcean.</p>
+<section class="level3"><h3 id="prerequisites">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
+</h3>
+<p>Before deploying to DigitalOcean, you’ll need:</p>
+<ol type="1">
+<li>A DigitalOcean account (<a href="https://www.digitalocean.com?refcode=6119f0430dad&amp;utm_campaign=Referral_Invite&amp;utm_medium=Referral_Program&amp;utm_source=CopyPaste" class="external-link">sign up here</a>)</li>
+<li>The <code>buoyant</code> and <code>analogsea</code> packages installed:</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"buoyant"</span>, <span class="st">"analogsea"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<ol start="3" type="1">
+<li>A working <code>_server.yml</code> file for your API (see <a href="#server-yml">The <code>_server.yml</code> file</a> section above)</li>
+</ol></section><section class="level3"><h3 id="basic-deployment">Basic Deployment<a class="anchor" aria-label="anchor" href="#basic-deployment"></a>
+</h3>
+<p>Here’s how to deploy a plumber2 API to DigitalOcean:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">buoyant</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pachadotdev/analogsea" class="external-link">analogsea</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Authenticate with DigitalOcean (opens browser for OAuth)</span></span>
+<span><span class="fu">do_oauth</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Provision a new droplet (virtual server)</span></span>
+<span><span class="va">droplet</span> <span class="op">&lt;-</span> <span class="fu">do_provision</span><span class="op">(</span>region <span class="op">=</span> <span class="st">"sfo3"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Deploy your application</span></span>
+<span><span class="fu">do_deploy_server</span><span class="op">(</span></span>
+<span>  droplet <span class="op">=</span> <span class="va">droplet</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"myapi"</span>,</span>
+<span>  local_path <span class="op">=</span> <span class="st">"path/to/my-api"</span>,</span>
+<span>  port <span class="op">=</span> <span class="fl">8000</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get the URL to access your API</span></span>
+<span><span class="fu">do_ip</span><span class="op">(</span><span class="va">droplet</span>, <span class="st">"/myapi"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "http://165.232.143.22/myapi"</span></span></code></pre></div>
+</div>
+<p>Your API is now live! The <code>do_deploy_server()</code> function automatically:</p>
+<ul>
+<li>Uploads your application files</li>
+<li>Creates a systemd service for process management</li>
+<li>Configures nginx as a reverse proxy</li>
+<li>Starts your API</li>
+</ul></section><section class="level3"><h3 id="learn-more">Learn More<a class="anchor" aria-label="anchor" href="#learn-more"></a>
+</h3>
+<p>For more detailed information about deploying with buoyant, see the <a href="https://posit-dev.github.io/buoyant/" class="external-link">buoyant package documentation</a>.</p>
+</section></section><section class="level2"><h2 id="docker">Docker<a class="anchor" aria-label="anchor" href="#docker"></a>
+</h2>
+<p><a href="https://www.docker.com/" class="external-link">Docker</a> is a containerization platform that allows you to package your API with all its dependencies into a portable container. This ensures consistent behavior across different environments (development, staging, production).</p>
+<p>To run a plumber2 API in Docker, create a Dockerfile that:</p>
+<ol type="1">
+<li>Installs R and required packages</li>
+<li>Copies your application files</li>
+<li>Exposes the port your API will use</li>
+<li>Runs the API using the <code>_server.yml</code> file</li>
+</ol>
+<section class="level3"><h3 id="choosing-a-base-image">Choosing a Base Image<a class="anchor" aria-label="anchor" href="#choosing-a-base-image"></a>
+</h3>
+<p>We recommend using the <a href="https://rocker-project.org/" class="external-link">Rocker Project’s</a> <code>rocker/r-ver</code> images as your base. These images provide versioned, minimal R installations optimized for reproducibility. Key benefits include:</p>
+<ul>
+<li>Smaller image sizes compared to full R installations</li>
+<li>Better layer caching for faster rebuilds</li>
+<li>Pre-configured integration with Posit Package Manager for faster package installation</li>
+<li>Stable, versioned R releases for reproducible builds</li>
+</ul>
+<p>Learn more about the rocker/r-ver images at <a href="https://rocker-project.org/images/versioned/r-ver.html" class="external-link uri">https://rocker-project.org/images/versioned/r-ver.html</a>.</p>
+</section><section class="level3"><h3 id="system-dependencies">System Dependencies<a class="anchor" aria-label="anchor" href="#system-dependencies"></a>
+</h3>
+<p>To determine which system packages are required for plumber2 and its dependencies, use <code><a href="https://pak.r-lib.org/reference/pkg_sysreqs.html" class="external-link">pak::pkg_sysreqs()</a></code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#| eval: false</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_sysreqs.html" class="external-link">pkg_sysreqs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plumber2"</span><span class="op">)</span>, sysreqs_platform <span class="op">=</span> <span class="st">"ubuntu"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ── Install scripts ─────────────────────────────────────────── Ubuntu NA ──</span></span>
+<span><span class="co">#&gt; apt-get -y update</span></span>
+<span><span class="co">#&gt; apt-get -y install libx11-dev libcurl4-openssl-dev libssl-dev make \</span></span>
+<span><span class="co">#&gt;   zlib1g-dev pandoc cmake xz-utils libfreetype6-dev libjpeg-dev \</span></span>
+<span><span class="co">#&gt;   libpng-dev libtiff-dev libwebp-dev libsodium-dev libicu-dev \</span></span>
+<span><span class="co">#&gt;   libfontconfig1-dev libfribidi-dev libharfbuzz-dev rustc cargo \</span></span>
+<span><span class="co">#&gt;   libxml2-dev</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; ── Packages and their system dependencies ─────────────────────────────────</span></span>
+<span><span class="co">#&gt; clipr       – libx11-dev</span></span>
+<span><span class="co">#&gt; curl        – libcurl4-openssl-dev, libssl-dev</span></span>
+<span><span class="co">#&gt; fs          – make</span></span>
+<span><span class="co">#&gt; httpuv      – make, zlib1g-dev</span></span>
+<span><span class="co">#&gt; knitr       – pandoc</span></span>
+<span><span class="co">#&gt; nanonext    – cmake, xz-utils</span></span>
+<span><span class="co">#&gt; ragg        – libfreetype6-dev, libjpeg-dev, libpng-dev, libtiff-dev, libwebp-dev</span></span>
+<span><span class="co">#&gt; sodium      – libsodium-dev</span></span>
+<span><span class="co">#&gt; stringi     – libicu-dev</span></span>
+<span><span class="co">#&gt; svglite     – libpng-dev</span></span>
+<span><span class="co">#&gt; systemfonts – libfontconfig1-dev, libfreetype6-dev</span></span>
+<span><span class="co">#&gt; textshaping – libfreetype6-dev, libfribidi-dev, libharfbuzz-dev</span></span>
+<span><span class="co">#&gt; waysign     – cargo, rustc, xz-utils</span></span>
+<span><span class="co">#&gt; websocket   – libssl-dev, make</span></span>
+<span><span class="co">#&gt; xml2        – libxml2-dev</span></span></code></pre></div>
+</section><section class="level3"><h3 id="example-dockerfile">Example Dockerfile<a class="anchor" aria-label="anchor" href="#example-dockerfile"></a>
+</h3>
+<p>Here’s an example Dockerfile for a plumber2 API:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> rocker/r-ver:4</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> install <span class="at">-y</span> <span class="dt">\</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    libx11-dev libcurl4-openssl-dev libssl-dev make <span class="dt">\</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    zlib1g-dev pandoc cmake xz-utils libfreetype6-dev libjpeg-dev libpng-dev <span class="dt">\</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    libtiff-dev libwebp-dev libsodium-dev libicu-dev libfontconfig1-dev <span class="dt">\</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    libfribidi-dev libharfbuzz-dev rustc cargo libxml2-dev <span class="dt">\</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">R</span> <span class="at">-q</span> <span class="at">-e</span> <span class="st">'install.packages(c("plumber2"))'</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> . /app</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 8000</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> [<span class="st">"R"</span>, <span class="st">"-e"</span>, <span class="st">"plumber2::api('_server.yml') |&gt; plumber2::api_run(host='0.0.0.0', port=8000)"</span>]</span></code></pre></div>
+<p>Build and run your container:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build the image</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> my-plumber2-api .</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the container</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-p</span> 8000:8000 my-plumber2-api</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Your API is now available at http://localhost:8000</span></span></code></pre></div>
+</section></section><section class="level2"><h2 id="pm2">pm2<a class="anchor" aria-label="anchor" href="#pm2"></a>
+</h2>
+<p><a href="https://pm2.keymetrics.io/" class="external-link">pm2</a> is a production process manager for Node.js applications, but it can also be used to manage R processes. While not specifically designed for R, pm2 provides useful features like automatic restarts, logging, and startup scripts. This is a good option if you already have Node.js infrastructure or prefer a cross-platform process manager.</p>
+<section class="level3"><h3 id="prerequisites-1">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites-1"></a>
+</h3>
+<p>Install pm2 (requires Node.js):</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install <span class="at">-g</span> pm2</span></code></pre></div>
+</section><section class="level3"><h3 id="setting-up-pm2-for-plumber2">Setting up pm2 for plumber2<a class="anchor" aria-label="anchor" href="#setting-up-pm2-for-plumber2"></a>
+</h3>
+<p>First, create a wrapper script that pm2 can execute. Create a file called <code>run-api.R</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#!/usr/bin/env Rscript</span></span>
+<span></span>
+<span><span class="co"># Load the API and run it</span></span>
+<span><span class="fu">plumber2</span><span class="fu">::</span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"_server.yml"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">plumber2</span><span class="fu">::</span><span class="fu"><a href="../reference/api_run.html">api_run</a></span><span class="op">(</span>host <span class="op">=</span> <span class="st">"0.0.0.0"</span>, port <span class="op">=</span> <span class="fl">8000</span><span class="op">)</span></span></code></pre></div>
+<p>Make it executable:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x run-api.R</span></code></pre></div>
+</section><section class="level3"><h3 id="starting-your-api-with-pm2">Starting Your API with pm2<a class="anchor" aria-label="anchor" href="#starting-your-api-with-pm2"></a>
+</h3>
+<p>Start your API using pm2:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> start run-api.R <span class="at">--interpreter</span><span class="op">=</span><span class="st">"Rscript"</span> <span class="at">--name</span><span class="op">=</span><span class="st">"my-plumber2-api"</span></span></code></pre></div>
+</section><section class="level3"><h3 id="managing-your-api">Managing Your API<a class="anchor" aria-label="anchor" href="#managing-your-api"></a>
+</h3>
+<p>pm2 provides several commands for managing your application:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View status of all applications</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> status</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># View logs (combined stdout and stderr)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> logs my-plumber2-api</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># View only error logs</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> logs my-plumber2-api <span class="at">--err</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Restart the application</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> restart my-plumber2-api</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop the application</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> stop my-plumber2-api</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Delete the application from pm2</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> delete my-plumber2-api</span></code></pre></div>
+</section><section class="level3"><h3 id="running-multiple-instances">Running Multiple Instances<a class="anchor" aria-label="anchor" href="#running-multiple-instances"></a>
+</h3>
+<p>pm2 can run multiple instances of your API for load balancing:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start 4 instances of your API</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> start run-api.R <span class="at">--interpreter</span><span class="op">=</span><span class="st">"Rscript"</span> <span class="at">--name</span><span class="op">=</span><span class="st">"my-api"</span> <span class="at">-i</span> 4</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Or use max (number of CPU cores)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> start run-api.R <span class="at">--interpreter</span><span class="op">=</span><span class="st">"Rscript"</span> <span class="at">--name</span><span class="op">=</span><span class="st">"my-api"</span> <span class="at">-i</span> max</span></code></pre></div>
+<p>Note: Each instance needs to run on a different port, so you’ll need to either: 1. Use a load balancer (like nginx) in front of pm2 instances 2. Modify your script to accept port as an argument</p>
+<p>Here’s an improved <code>run-api.R</code> that accepts a port argument:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#!/usr/bin/env Rscript</span></span>
+<span></span>
+<span><span class="co"># Get port from command line argument or environment variable</span></span>
+<span><span class="va">args</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/commandArgs.html" class="external-link">commandArgs</a></span><span class="op">(</span>trailingOnly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">port</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">args</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">args</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PORT"</span>, <span class="st">"8000"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Load the API and run it</span></span>
+<span><span class="fu">plumber2</span><span class="fu">::</span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="st">"_server.yml"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">plumber2</span><span class="fu">::</span><span class="fu"><a href="../reference/api_run.html">api_run</a></span><span class="op">(</span>host <span class="op">=</span> <span class="st">"0.0.0.0"</span>, port <span class="op">=</span> <span class="va">port</span><span class="op">)</span></span></code></pre></div>
+</section><section class="level3"><h3 id="automatic-startup-on-boot">Automatic Startup on Boot<a class="anchor" aria-label="anchor" href="#automatic-startup-on-boot"></a>
+</h3>
+<p>Configure pm2 to start your API automatically when the server boots:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the current pm2 process list</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> save</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate and configure startup script</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> startup</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># This will output a command like:</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u youruser --hp /home/youruser</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Run that command to enable startup on boot</span></span></code></pre></div>
+</section><section class="level3"><h3 id="using-an-ecosystem-file">Using an Ecosystem File<a class="anchor" aria-label="anchor" href="#using-an-ecosystem-file"></a>
+</h3>
+<p>For more complex configurations, create a <code>ecosystem.config.js</code> file:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">apps</span><span class="op">:</span> [{</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">name</span><span class="op">:</span> <span class="st">'plumber2-api'</span><span class="op">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">script</span><span class="op">:</span> <span class="st">'./run-api.R'</span><span class="op">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">interpreter</span><span class="op">:</span> <span class="st">'Rscript'</span><span class="op">,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">instances</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">exec_mode</span><span class="op">:</span> <span class="st">'cluster'</span><span class="op">,</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">env</span><span class="op">:</span> {</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">PORT</span><span class="op">:</span> <span class="dv">8000</span><span class="op">,</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">NODE_ENV</span><span class="op">:</span> <span class="st">'production'</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">error_file</span><span class="op">:</span> <span class="st">'./logs/err.log'</span><span class="op">,</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">out_file</span><span class="op">:</span> <span class="st">'./logs/out.log'</span><span class="op">,</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">log_date_format</span><span class="op">:</span> <span class="st">'YYYY-MM-DD HH:mm Z'</span><span class="op">,</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">merge_logs</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  }]</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+<p>Start it with:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> start ecosystem.config.js</span></code></pre></div>
+</section><section class="level3"><h3 id="monitoring-and-logs">Monitoring and Logs<a class="anchor" aria-label="anchor" href="#monitoring-and-logs"></a>
+</h3>
+<p>pm2 provides built-in monitoring:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Real-time dashboard</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> monit</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># View resource usage</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> list</span></code></pre></div>
+<p>Logs are automatically rotated and can be configured with <a href="https://github.com/keymetrics/pm2-logrotate" class="external-link">pm2-logrotate</a>:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> install pm2-logrotate</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> set pm2-logrotate:max_size 10M</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pm2</span> set pm2-logrotate:retain 7</span></code></pre></div>
+</section></section><section class="level2"><h2 id="systemd">systemd<a class="anchor" aria-label="anchor" href="#systemd"></a>
+</h2>
+<p><a href="https://systemd.io/" class="external-link">systemd</a> is the standard service manager for modern Linux distributions (Ubuntu 16.04+, CentOS 7+, Debian 8+, etc.). It provides robust process management without requiring Docker or Node.js. This is a good option for Linux servers where you want native system integration and simple process management.</p>
+<section class="level3"><h3 id="creating-a-systemd-service">Creating a systemd Service<a class="anchor" aria-label="anchor" href="#creating-a-systemd-service"></a>
+</h3>
+<p>First, create a service file at <code>/etc/systemd/system/plumber2-api.service</code>:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode ini"><code class="sourceCode ini"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[Unit]</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Description</span><span class="ot">=</span><span class="st">Plumber2 API Service</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="dt">After</span><span class="ot">=</span><span class="st">network.target</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[Service]</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="dt">Type</span><span class="ot">=</span><span class="st">simple</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="dt">User</span><span class="ot">=</span><span class="st">www-data</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="dt">Group</span><span class="ot">=</span><span class="st">www-data</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="dt">WorkingDirectory</span><span class="ot">=</span><span class="st">/var/www/plumber2-api</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="dt">Environment</span><span class="ot">=</span><span class="st">"PATH=/usr/bin:/usr/local/bin"</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the API using _server.yml</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="dt">ExecStart</span><span class="ot">=</span><span class="st">/usr/bin/Rscript -e "plumber2::api('_server.yml') |&gt; plumber2::api_run(host='0.0.0.0', port=8000)"</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Restart policy</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="dt">Restart</span><span class="ot">=</span><span class="st">always</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="dt">RestartSec</span><span class="ot">=</span><span class="dv">10</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Logging</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="dt">StandardOutput</span><span class="ot">=</span><span class="st">journal</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="dt">StandardError</span><span class="ot">=</span><span class="st">journal</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="dt">SyslogIdentifier</span><span class="ot">=</span><span class="st">plumber2-api</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[Install]</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="dt">WantedBy</span><span class="ot">=</span><span class="st">multi-user.target</span></span></code></pre></div>
+</section><section class="level3"><h3 id="setting-up-your-application">Setting Up Your Application<a class="anchor" aria-label="anchor" href="#setting-up-your-application"></a>
+</h3>
+<p>Place your API files in the working directory specified in the service file:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create directory</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> mkdir <span class="at">-p</span> /var/www/plumber2-api</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy your API files</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cp <span class="at">-r</span> /path/to/your/api/<span class="pp">*</span> /var/www/plumber2-api/</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Set ownership</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> chown <span class="at">-R</span> www-data:www-data /var/www/plumber2-api</span></code></pre></div>
+</section><section class="level3"><h3 id="managing-the-service">Managing the Service<a class="anchor" aria-label="anchor" href="#managing-the-service"></a>
+</h3>
+<p>Enable and start your service:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reload systemd to recognize the new service</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl daemon-reload</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Enable the service to start on boot</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable plumber2-api</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Start the service</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl start plumber2-api</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Check status</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status plumber2-api</span></code></pre></div>
+</section><section class="level3"><h3 id="viewing-logs">Viewing Logs<a class="anchor" aria-label="anchor" href="#viewing-logs"></a>
+</h3>
+<p>systemd logs can be viewed with <code>journalctl</code>:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View all logs for your service</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> journalctl <span class="at">-u</span> plumber2-api</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Follow logs in real-time</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> journalctl <span class="at">-u</span> plumber2-api <span class="at">-f</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># View logs from the last hour</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> journalctl <span class="at">-u</span> plumber2-api <span class="at">--since</span> <span class="st">"1 hour ago"</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co"># View logs with specific priority (error and above)</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> journalctl <span class="at">-u</span> plumber2-api <span class="at">-p</span> err</span></code></pre></div>
+</section><section class="level3"><h3 id="service-management-commands">Service Management Commands<a class="anchor" aria-label="anchor" href="#service-management-commands"></a>
+</h3>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start the service</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl start plumber2-api</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop the service</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl stop plumber2-api</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Restart the service</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart plumber2-api</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Reload configuration without stopping</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl reload plumber2-api</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if service is running</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl is-active plumber2-api</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if service is enabled on boot</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl is-enabled plumber2-api</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Disable auto-start on boot</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl disable plumber2-api</span></code></pre></div>
+</section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
