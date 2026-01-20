@@ -1,6 +1,8 @@
 # Changelog
 
-## plumber2 (development version)
+## plumber2 0.2.0
+
+CRAN release: 2026-01-20
 
 - Fix a bug in constructing empty blocks for extending
 - You can now pass in additional arguments to the OpenAPI doc UI with
