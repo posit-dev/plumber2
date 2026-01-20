@@ -28,6 +28,8 @@
   and other endpoint functions now defaults to using the default
   serializers and parsers
   ([\#57](https://github.com/posit-dev/plumber2/issues/57))
+- Fixed a bug when setting serializers to `NULL`
+  ([\#73](https://github.com/posit-dev/plumber2/issues/73))
 
 ## plumber2 0.1.1
 
