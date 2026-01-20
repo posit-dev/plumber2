@@ -14,12 +14,12 @@ Source:
 [`DESCRIPTION`](https://github.com/posit-dev/plumber2/blob/main/DESCRIPTION)
 
 Pedersen T (2026). *plumber2: Easy and Powerful Web Servers*. R package
-version 0.2.0, <https://plumber2.posit.co/>.
+version 0.2.0.9000, <https://plumber2.posit.co/>.
 
     @Manual{,
       title = {plumber2: Easy and Powerful Web Servers},
       author = {Thomas Lin Pedersen},
       year = {2026},
-      note = {R package version 0.2.0},
+      note = {R package version 0.2.0.9000},
       url = {https://plumber2.posit.co/},
     }
