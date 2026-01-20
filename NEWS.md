@@ -21,6 +21,7 @@
   files
 * `api_get()` and other endpoint functions now defaults to using the default
   serializers and parsers (#57)
+* Fixed a bug when setting serializers to `NULL` (#73)
 
 # plumber2 0.1.1
 

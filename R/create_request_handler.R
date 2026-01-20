@@ -103,13 +103,15 @@ create_sequential_request_handler <- function(
     }
 
     # Add serializers for the finalizing route
-    success <- response$set_formatter(
-      !!!serializers,
-      default = if (use_strict_serializer) NULL else names(serializers)[1]
-    )
-    if (!success) {
-      # Short-circuit evaluation if we cannot serve the requested content type
-      return(Break)
+    if (length(serializers) > 0) {
+      success <- response$set_formatter(
+        !!!serializers,
+        default = if (use_strict_serializer) NULL else names(serializers)[1]
+      )
+      if (!success) {
+        # Short-circuit evaluation if we cannot serve the requested content type
+        return(Break)
+      }
     }
 
     # Mark body as download if requested
@@ -228,13 +230,15 @@ create_async_request_handler <- function(
     }
 
     # Add serializers for the finalizing route
-    success <- response$set_formatter(
-      !!!serializers,
-      default = if (use_strict_serializer) NULL else names(serializers)[1]
-    )
-    if (!success) {
-      # Short-circuit evaluation if we cannot serve the requested content type
-      return(Break)
+    if (length(serializers) > 0) {
+      success <- response$set_formatter(
+        !!!serializers,
+        default = if (use_strict_serializer) NULL else names(serializers)[1]
+      )
+      if (!success) {
+        # Short-circuit evaluation if we cannot serve the requested content type
+        return(Break)
+      }
     }
 
     # Mark body as download if requested
