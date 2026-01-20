@@ -104,5 +104,7 @@ reference:
 
 news:
   releases:
+    - text: "Version 0.2.0"
+      href: "https://tidyverse.org/blog/2026/01/plumber2-0-2-0/"
     - text: "Version 0.1.0"
-      href: "https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/"
+      href: "https://tidyverse.org/blog/2025/09/plumber2-0-1-0/"
