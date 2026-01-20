@@ -1,1 +1,2 @@
-This is a small patch release to pave the way for routr 2.0.0
+This is a minor release with foundational support for OpenTelemetry and
+authentication
