@@ -371,7 +371,7 @@
 </section><section class="level4"><h4 id="request">
 <code>request</code><a class="anchor" aria-label="anchor" href="#request"></a>
 </h4>
-<p>The <code>request</code> argument contains the request object. In plumber2 this object is provided by the reqres package and the<a href="https://reqres.data-imaginist.com/reference/Request.html" class="external-link">documentation there</a> gives a great overview of the information it contains. Of special interest is the <code>headers</code>, <code>cookies</code>, and <code>session</code> field which gives access to additional input that are otherwise not available through handler arguments.</p>
+<p>The <code>request</code> argument contains the request object. In plumber2 this object is provided by the reqres package and the <a href="https://reqres.data-imaginist.com/reference/Request.html" class="external-link">documentation there</a> gives a great overview of the information it contains. Of special interest is the <code>headers</code>, <code>cookies</code>, and <code>session</code> field which gives access to additional input that are otherwise not available through handler arguments.</p>
 <section class="level5"><h5 id="read-cookies">Cookies<a class="anchor" aria-label="anchor" href="#read-cookies"></a>
 </h5>
 <p>If cookies are attached to the incoming request, they’ll be made available via <code>request$cookies</code>. This will contain a list of all the cookies that were included with the request. The names of the list correspond to the names of the cookies and the value for each element will be a character string that has been URL-decoded. See the <a href="./rendering-output.html#setting-cookies">Setting Cookies section</a> for details on how to set cookies from Plumber.</p>

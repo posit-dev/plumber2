@@ -382,7 +382,7 @@ Alternatively,
 #### `request`
 
 The `request` argument contains the request object. In plumber2 this
-object is provided by the reqres package and the[documentation
+object is provided by the reqres package and the [documentation
 there](https://reqres.data-imaginist.com/reference/Request.html) gives a
 great overview of the information it contains. Of special interest is
 the `headers`, `cookies`, and `session` field which gives access to
