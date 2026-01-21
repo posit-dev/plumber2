@@ -247,7 +247,7 @@ Alternatively, `echo {"id":123, "name": "Jennifer"} > call.json & curl --data @c
 
 #### `request`
 
-The `request` argument contains the request object. In plumber2 this object is provided by the reqres package and the[documentation there](https://reqres.data-imaginist.com/reference/Request.html) gives a great overview of the information it contains. Of special interest is the `headers`, `cookies`, and `session` field which gives access to additional input that are otherwise not available through handler arguments.
+The `request` argument contains the request object. In plumber2 this object is provided by the reqres package and the [documentation there](https://reqres.data-imaginist.com/reference/Request.html) gives a great overview of the information it contains. Of special interest is the `headers`, `cookies`, and `session` field which gives access to additional input that are otherwise not available through handler arguments.
 
 ##### Cookies {#read-cookies}
 
