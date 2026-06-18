@@ -325,7 +325,10 @@ parse_asset_block <- function(call, tags, values, env, file_dir) {
 
 parse_auth_guard_block <- function(call, tags, values, env) {
   if (!is.function(call) && !fireproof::is_guard(call)) {
-    stop_input_type(call, cli::format_inline("an {.cls Guard} subclass object or a function"))
+    stop_input_type(
+      call,
+      cli::format_inline("an {.cls Guard} subclass object or a function")
+    )
   }
   name <- trimws(values[[which(tags == "authGuard")[1]]])
   structure(

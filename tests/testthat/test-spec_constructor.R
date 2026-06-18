@@ -23,8 +23,13 @@ test_that("openapi function creates valid OpenAPI object", {
   expect_equal(result$tags[[1]]$name, "test")
 
   # Test error for invalid paths
-  expect_snapshot(openapi(info = openapi_info(title = "Test", version = "1.0.0"), paths = "invalid"),
-                 error = TRUE)
+  expect_snapshot(
+    openapi(
+      info = openapi_info(title = "Test", version = "1.0.0"),
+      paths = "invalid"
+    ),
+    error = TRUE
+  )
 
   # Test error for missing required parameters
   expect_snapshot(openapi(), error = TRUE)
@@ -138,7 +143,9 @@ test_that("openapi_operation function creates valid operation object", {
     operation_id = "testOperation",
     parameters = list(openapi_parameter(name = "param1", location = "query")),
     request_body = openapi_request_body(
-      content = openapi_content("application/json" = openapi_schema(character()))
+      content = openapi_content(
+        "application/json" = openapi_schema(character())
+      )
     ),
     responses = list("200" = openapi_response(description = "Success")),
     tags = c("tag1", "tag2")
@@ -187,8 +194,10 @@ test_that("openapi_parameter function creates valid parameter object", {
   expect_true(result$required)
 
   # Test error when path parameter is not required
-  expect_snapshot(openapi_parameter(name = "param1", location = "path", required = FALSE),
-                  error = TRUE)
+  expect_snapshot(
+    openapi_parameter(name = "param1", location = "path", required = FALSE),
+    error = TRUE
+  )
 
   # Test error when both schema and content are provided
   expect_snapshot(
@@ -306,10 +315,13 @@ test_that("openapi_schema function creates valid schema object for list class", 
   expect_equal(result$items$type, "integer")
 
   # Test with named list (object)
-  result <- openapi_schema(list(
-    integer_field = 1L,
-    string_field = "test"
-  ), required = c("integer_field"))
+  result <- openapi_schema(
+    list(
+      integer_field = 1L,
+      string_field = "test"
+    ),
+    required = c("integer_field")
+  )
 
   expect_equal(result$type, "object")
   expect_equal(result$properties$integer_field$type, "integer")
@@ -449,8 +461,14 @@ test_that("require_input function validates input presence", {
   expect_snapshot(require_input(test = character()), error = TRUE)
 
   # Test error for multiple missing inputs
-  expect_snapshot(require_input(test1 = character(), test2 = character()), error = TRUE)
+  expect_snapshot(
+    require_input(test1 = character(), test2 = character()),
+    error = TRUE
+  )
 
   # Test mixed valid and invalid inputs
-  expect_snapshot(require_input(valid = "value", invalid = character()), error = TRUE)
+  expect_snapshot(
+    require_input(valid = "value", invalid = character()),
+    error = TRUE
+  )
 })
