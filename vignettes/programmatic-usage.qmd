@@ -57,7 +57,7 @@ The handler functions that you define in these calls are identical to the code y
 The handler functions take additional arguments that allow you to control nuanced behavior of the handler like which serializer(s) it should use. For instance, the following endpoint would use the default HTML serializer from plumber2.
 
 ``` r
-api() %>%
+api() |>
   api_get(
     path = "/",
     handler = function(){

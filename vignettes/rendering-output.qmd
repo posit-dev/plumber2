@@ -295,8 +295,8 @@ In addition to storing plain-text cookies, Plumber also supports handling cookie
 To use this feature, you must explicitly add it to your router after constructing it. For example, you could run the following sequence of commands to create a router that supports encrypted session cookies.
 
 ``` r
-api("myfile.R") %>%
-  api_session_cookie("my_secret_here", "cookie_name", ...) %>%
+api("myfile.R") |>
+  api_session_cookie("my_secret_here", "cookie_name", ...) |>
   api_run()
 ```
 

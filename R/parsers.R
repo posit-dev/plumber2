@@ -134,7 +134,9 @@ get_parsers <- function(parsers = NULL) {
           "No parser registered with {.val {elem_names[i]}} as name"
         )
       }
-      if (!is.list(parsers[[i]])) parsers[[i]] <- list(parsers[[i]])
+      if (!is.list(parsers[[i]])) {
+        parsers[[i]] <- list(parsers[[i]])
+      }
       funs <- rep_named(
         registry$parsers[[elem_names[i]]]$types,
         list(registry$parsers[[elem_names[i]]]$fun)
@@ -169,8 +171,11 @@ get_parsers_internal <- function(
   parsers <- lapply(types, function(type) {
     type <- stringi::stri_split_regex(type, "\\{|\\s", n = 2)[[1]]
     if (stringi::stri_count_fixed(type[[1]], "/") == 1) {
-      parser_fun <- if (length(type) == 2)
-        eval_bare(parse_expr(type[2]), env = env) else function(x, ...) x
+      parser_fun <- if (length(type) == 2) {
+        eval_bare(parse_expr(type[2]), env = env)
+      } else {
+        function(x, ...) x
+      }
       check_function(parser_fun)
       parser <- list(
         fun = parser_fun,

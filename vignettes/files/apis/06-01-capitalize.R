@@ -12,7 +12,7 @@ function(request) {
   alphabet <- letters
 
   # The capitalize cookie will initially be empty (NULL)
-  if (!is.null(capitalize) && capitalize == "1"){
+  if (!is.null(capitalize) && capitalize == "1") {
     alphabet <- LETTERS
   }
 
