@@ -460,13 +460,13 @@ NULL
 ```{r}
 #| eval: false
 #| echo: true
-api() %>%
+api() |>
   api_assets("/", "./assets/files")
 
-api() %>%
+api() |>
   api_assets("/assets", "./assets/files")
 
-api() %>%
+api() |>
   api_statics("/", "./assets/static_files", except = "/secret_files")
 ```
 
@@ -538,13 +538,13 @@ api() |>
 ```r
 #* @plumber
 function(api) {
-  api %>%
+  api |>
     api_doc_setting("swagger")
 }
 
 # Named function
 use_swagger <- function(api) {
-  api %>%
+  api |>
     api_doc_setting("swagger")
 }
 
