@@ -100,3 +100,4 @@ Below is a list with R webserver frameworks known to support the `_server.yml` s
 
 * [plumber2](https://plumber2.posit.co)
 * [fiery](https://fiery.data-imaginist.com)
+* [mcptools](https://posit-dev.github.io/mcptools/)
