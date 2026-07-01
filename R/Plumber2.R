@@ -934,7 +934,7 @@ Plumber2 <- R6Class(
 
       if (add_doc) {
         self$add_api_doc(
-          fp$flow_to_openapi(flow, auth_scope),
+          list(security = fp$flow_to_openapi(flow, auth_scope)),
           subset = c("paths", as_openapi_path(path), method)
         )
       }
