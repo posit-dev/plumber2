@@ -1,5 +1,9 @@
 # plumber2 (development version)
 
+* Fix `@auth`/`add_auth()` not attaching the OpenAPI `security` requirement
+  to the endpoint, which meant docs UIs (RapiDoc, Swagger, Redoc) never send
+  the credential when trying out a protected endpoint. ([#90](https://github.com/posit-dev/plumber2/issues/90)).
+
 # plumber2 0.2.0
 
 * Fix a bug in constructing empty blocks for extending
