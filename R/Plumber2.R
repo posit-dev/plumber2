@@ -550,7 +550,8 @@ Plumber2 <- R6Class(
 
       shiny_proxy <- firestorm::ReverseProxy$new(
         paste0("http://127.0.0.1:", port),
-        path
+        path,
+        except
       )
       self$attach(shiny_proxy)
 
