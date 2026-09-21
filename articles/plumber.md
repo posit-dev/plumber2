@@ -6,6 +6,7 @@ code with special annotations. The example below shows a file named
 API.
 
 ``` r
+
 #* Echo the parameter that was sent in
 #*
 #* @get /echo/<msg>
@@ -32,7 +33,7 @@ function(query) {
   title <- "All Species"
 
   # Filter if the species was specified
-  if (!is.null(query$spec)){
+  if (!is.null(query$spec)) {
     title <- paste0("Only the '", query$spec, "' Species")
     myData <- subset(myData, species == query$spec)
   }
@@ -40,9 +41,9 @@ function(query) {
   plot(
     myData$flipper_len,
     myData$bill_len,
-    main=title,
-    xlab="Flipper Length (mm)",
-    ylab="Bill Length (mm)"
+    main = title,
+    xlab = "Flipper Length (mm)",
+    ylab = "Bill Length (mm)"
   )
 }
 ```
@@ -55,6 +56,7 @@ image showing a simple R plot. You can use the
 translate this R file into a Plumber API:
 
 ``` r
+
 pa <- api("plumber.R")
 pa
 ```
@@ -64,6 +66,7 @@ The `api` object now encapsulates all the logic represented in your
 [`api_run()`](https://plumber2.posit.co/reference/api_run.md) method:
 
 ``` r
+
 pa |>
   api_run()
 ```
@@ -149,6 +152,7 @@ it is unlikely that all formats makes sense to the output you produce so
 you should generally be mindful of the serializers you provide
 
 ``` r
+
 #* @get /hello
 #* @serializer html
 function() {

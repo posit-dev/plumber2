@@ -70,6 +70,7 @@ launch the server. A simple example of this logic is provided below with
 no error handling or anything.
 
 ``` r
+
 if (file.exist("_server.yml")) {
   # Figure out the engine for the server
   # You could probably easily do this without the yaml package
@@ -150,6 +151,7 @@ understands `_server.yml` files as input. Because of this the function
 looks like this:
 
 ``` r
+
 plumber2:::launch_server
 ```
 
@@ -164,7 +166,7 @@ plumber2:::launch_server
     #>     }
     #>     api_run(pa)
     #> }
-    #> <bytecode: 0x55cd873c09e0>
+    #> <bytecode: 0x55575ba74790>
     #> <environment: namespace:plumber2>
 
 ## Supported frameworks

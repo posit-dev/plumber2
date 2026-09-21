@@ -71,6 +71,7 @@ header. The latter will insert all non-selected serializers into the
 list at that position. You could e.g. do this:
 
 ``` r
+
 #* @serializer yaml
 #* @serializer ...
 ```
@@ -85,29 +86,30 @@ explicitly would be to modify their behavior by providing arguments to
 them:
 
 ``` r
+
 #* @serializer json{na="string"}
 ```
 
 ### Standard serializers
 
-| Annotation                | Content Type                        | Description/References                                                                                                                                                                                                                                                                   |
-|---------------------------|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@serializer json`        | `application/json`                  | Object processed with [`jsonlite::toJSON()`](https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html)                                                                                                                                                                             |
-| `@serializer unboxedJSON` | `application/json`                  | Object processed with `jsonlite::toJSON(auto_unbox=TRUE)`                                                                                                                                                                                                                                |
-| `@serializer html`        | `text/html; charset=UTF-8`          | Character strings passed through directly, Objects of class `shiny.tag` (from htmltools) converted with [`as.character()`](https://rdrr.io/r/base/character.html). Other objects converted to html using [`xml2::as_xml_document()`](http://xml2.r-lib.org/reference/as_xml_document.md) |
-| `@serializer rds`         | `application/rds`                   | Object processed with [`base::serialize()`](https://rdrr.io/r/base/serialize.html)                                                                                                                                                                                                       |
-| `@serializer csv`         | `text/csv`                          | Object processed with [`readr::format_csv()`](https://readr.tidyverse.org/reference/format_delim.html)                                                                                                                                                                                   |
-| `@serializer tsv`         | `text/tab-separated-values`         | Object processed with [`readr::format_tsv()`](https://readr.tidyverse.org/reference/format_delim.html)                                                                                                                                                                                   |
-| `@serializer feather`     | `application/vnd.apache.arrow.file` | Object processed with [`arrow::write_feather()`](https://arrow.apache.org/docs/r/reference/write_feather.html)                                                                                                                                                                           |
-| `@serializer parquet`     | `application/parquet`               | Object processed with [`nanoparquet::write_parquet()`](https://nanoparquet.r-lib.org/reference/write_parquet.html)                                                                                                                                                                       |
-| `@serializer yaml`        | `text/x-yaml`                       | Object processed with `yaml::as_yaml()`                                                                                                                                                                                                                                                  |
-| `@serializer xml`         | `text/xml`                          | Objects processed with [`xml2::as_xml_document()`](http://xml2.r-lib.org/reference/as_xml_document.md)                                                                                                                                                                                   |
-| `@serializer text`        | `text/plain`                        | Text output processed by [`as.character()`](https://rdrr.io/r/base/character.html)                                                                                                                                                                                                       |
-| `@serializer format`      | `text/plain`                        | Text output processed by [`format()`](https://rdrr.io/r/base/format.html)                                                                                                                                                                                                                |
-| `@serializer print`       | `text/plain`                        | Text output captured from [`print()`](https://rdrr.io/r/base/print.html)                                                                                                                                                                                                                 |
-| `@serializer cat`         | `text/plain`                        | Text output captured from [`cat()`](https://rdrr.io/r/base/cat.html)                                                                                                                                                                                                                     |
-| `@serializer htmlwidget`  | `text/html; charset=utf-8`          | [`htmlwidgets::saveWidget()`](https://rdrr.io/pkg/htmlwidgets/man/saveWidget.html)                                                                                                                                                                                                       |
-| `@serializer geojson`     | `application/geo+json`              | Objects processed with [`geojsonsf::sfc_geojson()`](https://rdrr.io/pkg/geojsonsf/man/sfc_geojson.html) or [`geojsonsf::sf_geojson()`](https://rdrr.io/pkg/geojsonsf/man/sf_geojson.html)                                                                                                |
+| Annotation | Content Type | Description/References |
+|----|----|----|
+| `@serializer json` | `application/json` | Object processed with [`jsonlite::toJSON()`](https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html) |
+| `@serializer unboxedJSON` | `application/json` | Object processed with `jsonlite::toJSON(auto_unbox=TRUE)` |
+| `@serializer html` | `text/html; charset=UTF-8` | Character strings passed through directly, Objects of class `shiny.tag` (from htmltools) converted with [`as.character()`](https://rdrr.io/r/base/character.html). Other objects converted to html using [`xml2::as_xml_document()`](http://xml2.r-lib.org/reference/as_xml_document.md) |
+| `@serializer rds` | `application/rds` | Object processed with [`base::serialize()`](https://rdrr.io/r/base/serialize.html) |
+| `@serializer csv` | `text/csv` | Object processed with [`readr::format_csv()`](https://readr.tidyverse.org/reference/format_delim.html) |
+| `@serializer tsv` | `text/tab-separated-values` | Object processed with [`readr::format_tsv()`](https://readr.tidyverse.org/reference/format_delim.html) |
+| `@serializer feather` | `application/vnd.apache.arrow.file` | Object processed with [`arrow::write_feather()`](https://arrow.apache.org/docs/r/reference/write_feather.html) |
+| `@serializer parquet` | `application/parquet` | Object processed with [`nanoparquet::write_parquet()`](https://nanoparquet.r-lib.org/reference/write_parquet.html) |
+| `@serializer yaml` | `text/x-yaml` | Object processed with `yaml::as_yaml()` |
+| `@serializer xml` | `text/xml` | Objects processed with [`xml2::as_xml_document()`](http://xml2.r-lib.org/reference/as_xml_document.md) |
+| `@serializer text` | `text/plain` | Text output processed by [`as.character()`](https://rdrr.io/r/base/character.html) |
+| `@serializer format` | `text/plain` | Text output processed by [`format()`](https://rdrr.io/r/base/format.html) |
+| `@serializer print` | `text/plain` | Text output captured from [`print()`](https://rdrr.io/r/base/print.html) |
+| `@serializer cat` | `text/plain` | Text output captured from [`cat()`](https://rdrr.io/r/base/cat.html) |
+| `@serializer htmlwidget` | `text/html; charset=utf-8` | [`htmlwidgets::saveWidget()`](https://rdrr.io/pkg/htmlwidgets/man/saveWidget.html) |
+| `@serializer geojson` | `application/geo+json` | Objects processed with [`geojsonsf::sfc_geojson()`](https://rdrr.io/pkg/geojsonsf/man/sfc_geojson.html) or [`geojsonsf::sf_geojson()`](https://rdrr.io/pkg/geojsonsf/man/sf_geojson.html) |
 
 ### Boxed vs Unboxed JSON
 
@@ -115,6 +117,7 @@ You may have noticed that JSON API responses generated from Plumber
 render singular values (or “scalars”) as arrays. For instance:
 
 ``` r
+
 jsonlite::toJSON(list(a=5))
 ```
 
@@ -131,6 +134,7 @@ Consider the following API which returns all the letters
 lexicographically “higher” than the given letter.
 
 ``` r
+
 #* Get letters after a given letter
 #* @serializer json
 #* @get /boxed
@@ -214,14 +218,14 @@ omitted when using `...` unless a graphics serializer has been selected
 explicitly in which case `...` will refer to the remaining graphics
 serializers and omit the standard ones.
 
-|                    |                   |                                                                                              |
-|--------------------|-------------------|----------------------------------------------------------------------------------------------|
-| `@serializer png`  | `image/png`       | Images created with [`ragg::agg_png()`](https://ragg.r-lib.org/reference/agg_png.html)       |
-| `@serializer jpeg` | `image/jpeg`      | Images created with [`ragg::agg_jpeg()`](https://ragg.r-lib.org/reference/agg_jpeg.html)     |
-| `@serializer tiff` | `image/tiff`      | Images created with [`ragg::agg_tiff()`](https://ragg.r-lib.org/reference/agg_tiff.html)     |
-| `@serializer svg`  | `image/svg+xml`   | Images created with [`svglite::svglite()`](https://svglite.r-lib.org/reference/svglite.html) |
-| `@serializer bmp`  | `image/bmp`       | Images created with [`bmp()`](https://rdrr.io/r/grDevices/png.html)                          |
-| `@serializer pdf`  | `application/pdf` | PDF File created with [`pdf()`](https://rdrr.io/r/grDevices/pdf.html)                        |
+|  |  |  |
+|----|----|----|
+| `@serializer png` | `image/png` | Images created with [`ragg::agg_png()`](https://ragg.r-lib.org/reference/agg_png.html) |
+| `@serializer jpeg` | `image/jpeg` | Images created with [`ragg::agg_jpeg()`](https://ragg.r-lib.org/reference/agg_jpeg.html) |
+| `@serializer tiff` | `image/tiff` | Images created with [`ragg::agg_tiff()`](https://ragg.r-lib.org/reference/agg_tiff.html) |
+| `@serializer svg` | `image/svg+xml` | Images created with [`svglite::svglite()`](https://svglite.r-lib.org/reference/svglite.html) |
+| `@serializer bmp` | `image/bmp` | Images created with [`bmp()`](https://rdrr.io/r/grDevices/png.html) |
+| `@serializer pdf` | `application/pdf` | PDF File created with [`pdf()`](https://rdrr.io/r/grDevices/pdf.html) |
 
 As with the standard serializers the behaviour of these can be modified
 by specifying additional arguments to the serializer. Many of these
@@ -229,6 +233,7 @@ arguments are well-known from using graphics devices in R including
 `width`, `height`, and `bg` among others.
 
 ``` r
+
 #* Example of customizing graphical output
 #* @serializer png{width = 400, height = 500}
 #* @get /
@@ -254,6 +259,7 @@ which will turn off any automatic serialization by plumber. Consider the
 following handler:
 
 ``` r
+
 #* Endpoint that bypasses serialization
 #* @get /
 #* @serializer none
@@ -272,17 +278,18 @@ this annotation when you want more control over the response that you
 send.
 
 ``` r
+
 #* @serializer application/pdf
 #* @get /pdf
 function() {
   tmp <- tempfile()
   pdf(tmp)
-  plot(1:10, type="b")
+  plot(1:10, type = "b")
   text(4, 8, "PDF from plumber!")
   text(6, 2, paste("The time is", Sys.time()))
   dev.off()
 
-  readBin(tmp, "raw", n=file.info(tmp)$size)
+  readBin(tmp, "raw", n = file.info(tmp)$size)
 }
 ```
 
@@ -303,6 +310,7 @@ arguments and return a unary function capable of formatting the response
 body:
 
 ``` r
+
 format_toml <- function(...) {
   function(x) {
     blogdown::write_toml(x)
@@ -314,6 +322,7 @@ You could use this directly in a handler with
 `@serializer application/toml format_toml()` or you could register it:
 
 ``` r
+
 register_serializer("toml", format_toml, "application/toml")
 ```
 
@@ -325,6 +334,7 @@ Plumber wraps each endpoint invocation so that it can gracefully capture
 errors.
 
 ``` r
+
 #* Example of throwing an error
 #* @get /simple
 function() {
@@ -394,6 +404,7 @@ below will return a random letter, but it remembers your preferences on
 whether you like capitalized or lower-case letters.
 
 ``` r
+
 #* @put /preferences
 #* @body capital:integer*
 function(response, body) {
@@ -408,7 +419,7 @@ function(request) {
   alphabet <- letters
 
   # The capitalize cookie will initially be empty (NULL)
-  if (!is.null(capitalize) && capitalize == "1"){
+  if (!is.null(capitalize) && capitalize == "1") {
     alphabet <- LETTERS
   }
 
@@ -428,7 +439,7 @@ endpoint and we’ll see that the API defaults to a lower-case alphabet.
 ``` json
 {
   "letter": [
-    "y"
+    "p"
   ]
 }
 ```
@@ -488,8 +499,9 @@ constructing it. For example, you could run the following sequence of
 commands to create a router that supports encrypted session cookies.
 
 ``` r
-api("myfile.R") %>%
-  api_session_cookie("my_secret_here", "cookie_name", ...) %>%
+
+api("myfile.R") |>
+  api_session_cookie("my_secret_here", "cookie_name", ...) |>
   api_run()
 ```
 
@@ -517,6 +529,7 @@ As an example, we’ll store an encrypted cookie that counts how many
 times this client has visited a particular endpoint:
 
 ``` r
+
 #* @get /sessionCounter
 function(request){
   count <- 0

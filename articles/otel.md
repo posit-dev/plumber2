@@ -135,6 +135,7 @@ fiery and plumber2 comes with a `logger_otel` which you can use to
 collect the logs with OpenTelemetry.
 
 ``` r
+
 pa <- api() |>
   api_logger(logger_otel())
 ```

@@ -13,6 +13,7 @@ but more specifically it entails adding functionality in such a way that
 it *feels* native to plumber2. Consider this function:
 
 ``` r
+
 say_hi <- function(language, api) {
   hi <- c(
     "english" = "hi",
@@ -104,6 +105,7 @@ interval in seconds between the message. Further, we will allow the user
 to add the actual message as a string after the annotation block.
 
 ``` r
+
 add_plumber2_tag("tictoc", function(block, call, tags, values, env) {
   if (!inherits(block, "plumber2_empty_block")) {
     cli::cli_abort(
@@ -170,6 +172,7 @@ example we will look at the `@cors` tag which is implemented as an
 extension inside plumber2 itself:
 
 ``` r
+
 add_plumber2_tag("cors", function(block, call, tags, values, env) {
   class(block) <- c("plumber2_cors_block", class(block))
   block$cors <- trimws(strsplit(values[[which(tags == "cors")[1]]], ",")[[1]])
@@ -219,6 +222,7 @@ we return to our tictoc block above. The
 method could look like this:
 
 ``` r
+
 apply_plumber2_block.plumber2_tictoc_block <- function(
   block, 
   api, 
@@ -259,6 +263,7 @@ method for a block object that has been subclassed, we look again at how
 the `@cors` tag has been implemented:
 
 ``` r
+
 apply_plumber2_block.plumber2_cors_block <- function(
   block,
   api,
@@ -307,6 +312,7 @@ from this the only other ask is that you prefix the function name with
 example we created above it would look something like:
 
 ``` r
+
 api_tictoc <- function(api, interval, message, type = "message") {
   api$time(
     api$log(event = type, message = message),
@@ -335,6 +341,7 @@ which serializers to support, plumber2 will use a set of default
 serializers to cover the most common use cases:
 
 ``` r
+
 names(get_serializers())
 ```
 
@@ -348,6 +355,7 @@ for niche situations. These can be accessed by name, either in
 annotation or in the programmatic interface:
 
 ``` r
+
 get_serializers("geojson")
 ```
 
@@ -362,8 +370,8 @@ get_serializers("geojson")
     #>     }
     #>     cli::cli_abort("{.fun format_geojson} did not receive an `sf` or `sfc` object.")
     #> }
-    #> <bytecode: 0x55a6d7ee9948>
-    #> <environment: 0x55a6d54e8848>
+    #> <bytecode: 0x56325c30d5f8>
+    #> <environment: 0x56325decf858>
 
 While you can always pass in a function directly as a serializer,
 registering them by name makes it much easier to reuse, and making it a
@@ -379,6 +387,7 @@ through the process below by creating a toml serializer based on the
 The first thing to do is to create the serializer function:
 
 ``` r
+
 format_toml <- function() {
   rlang::check_installed("tomledit")
   function(x) {
@@ -395,6 +404,7 @@ allows us to pass in arguments that modify the behavior of the
 serializer, e.g. like for the rds serializer:
 
 ``` r
+
 print(format_rds)
 ```
 
@@ -405,7 +415,7 @@ print(format_rds)
     #>             ...)
     #>     }
     #> }
-    #> <bytecode: 0x55a6d7eb8520>
+    #> <bytecode: 0x56325c3491e0>
     #> <environment: namespace:plumber2>
 
 With our serializer in hand we can now proceed to registering it. For
@@ -421,12 +431,14 @@ format or the community around it suggests. For toml, the
 that.
 
 ``` r
+
 register_serializer("toml", format_toml, "application/toml")
 ```
 
 We can convince ourself that it works by trying to fetch it by name:
 
 ``` r
+
 get_serializers("toml")
 ```
 
@@ -435,11 +447,12 @@ get_serializers("toml")
     #> {
     #>     tomledit::to_toml(x)
     #> }
-    #> <environment: 0x55a6d6d0f1a0>
+    #> <environment: 0x56325f15c828>
 
 We can also see that it is part of the defaults:
 
 ``` r
+
 names(get_serializers())
 ```
 
@@ -458,6 +471,7 @@ that. Graphics serializers are not part of the default serializers and
 you have to specifically request them.
 
 ``` r
+
 names(get_serializers(c("png", "...")))
 ```
 
@@ -474,6 +488,7 @@ Below we create a PostScript serializer based on the
 [`postscript()`](https://rdrr.io/r/grDevices/postscript.html) device:
 
 ``` r
+
 format_postscript <- device_formatter(postscript)
 ```
 
@@ -482,6 +497,7 @@ plumber2 can see that the serializer is a graphics serializer, so there
 is no special thing you need to do differently.
 
 ``` r
+
 register_serializer(
   "postscript", 
   format_postscript, 
@@ -503,6 +519,7 @@ there is the
 function to retrieve parsers from the registry.
 
 ``` r
+
 parse_toml <- function() {
   rlang::check_installed("tomledit")
   function(x, directives) {
@@ -528,6 +545,7 @@ kind of mime type, official and otherwise, you can find since you are
 not in control of what the client decides to use.
 
 ``` r
+
 register_parser(
   "toml", 
   parse_toml, 
@@ -544,6 +562,7 @@ a new one. Below, we show how to create an async evaluator based on the
 `future` package
 
 ``` r
+
 future_async <- function(...) {
   rlang::check_installed("promises")
   function(expr, envir) {
@@ -567,6 +586,7 @@ inner function must return a promise (based on the
 Once the evaluator is in place it can be registered to a name:
 
 ``` r
+
 register_async("future", future_async, c("promises", "future"))
 ```
 

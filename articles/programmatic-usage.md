@@ -52,6 +52,7 @@ API that responds to `GET` requests on `/` and `POST` requests on
 `/submit`, you could use the following code:
 
 ``` r
+
 api() |>
   api_get("/", function(req, res){
     # ...
@@ -71,7 +72,8 @@ should use. For instance, the following endpoint would use the default
 HTML serializer from plumber2.
 
 ``` r
-api() %>%
+
+api() |>
   api_get(
     path = "/",
     handler = function(){
@@ -113,6 +115,7 @@ such as e.g. the `"start"` and `"end"` events. You can do this using the
 [`api_on()`](https://plumber2.posit.co/reference/api_on.md) function:
 
 ``` r
+
 api() |>
   api_on("start", function() {
     print("Yay! I'm starting up")
@@ -127,6 +130,7 @@ add handlers to any event you wish, but you’ll need to trigger the event
 manually if it is not one of the predefined ones.
 
 ``` r
+
 pa <- api() |>
   api_on("hello", function(name) {
     print("Hello", name)
@@ -144,6 +148,7 @@ the R session and serving the files directly. The former approach is
 more flexible, while the latter is more performant
 
 ``` r
+
 # Serving files as a standard route
 api() |>
   api_assets("/assets", "./myfiles") |>

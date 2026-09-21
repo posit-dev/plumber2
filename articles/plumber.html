@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Schibsted_Grotesk-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Schibsted_Grotesk-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/National_Park-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -132,7 +132,7 @@
 <span>  <span class="va">title</span> <span class="op">&lt;-</span> <span class="st">"All Species"</span></span>
 <span></span>
 <span>  <span class="co"># Filter if the species was specified</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">query</span><span class="op">$</span><span class="va">spec</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">query</span><span class="op">$</span><span class="va">spec</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">title</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Only the '"</span>, <span class="va">query</span><span class="op">$</span><span class="va">spec</span>, <span class="st">"' Species"</span><span class="op">)</span></span>
 <span>    <span class="va">myData</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">myData</span>, <span class="va">species</span> <span class="op">==</span> <span class="va">query</span><span class="op">$</span><span class="va">spec</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
@@ -140,9 +140,9 @@
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>    <span class="va">myData</span><span class="op">$</span><span class="va">flipper_len</span>,</span>
 <span>    <span class="va">myData</span><span class="op">$</span><span class="va">bill_len</span>,</span>
-<span>    main<span class="op">=</span><span class="va">title</span>,</span>
-<span>    xlab<span class="op">=</span><span class="st">"Flipper Length (mm)"</span>,</span>
-<span>    ylab<span class="op">=</span><span class="st">"Bill Length (mm)"</span></span>
+<span>    main <span class="op">=</span> <span class="va">title</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">"Flipper Length (mm)"</span>,</span>
+<span>    ylab <span class="op">=</span> <span class="st">"Bill Length (mm)"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
@@ -286,7 +286,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

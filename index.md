@@ -17,6 +17,7 @@ plumber2 can be installed from CRAN using
 development version from github using pak
 
 ``` r
+
 # install.packages("pak")
 pak::pak("posit-dev/plumber2")
 ```
@@ -27,6 +28,7 @@ Below is a simple “hello world” API written for plumber2 that
 illustrates some of the differences from plumber:
 
 ``` r
+
 #* Echo the parameter that was sent in
 #*
 #* @get /echo/<msg>

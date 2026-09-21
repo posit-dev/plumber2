@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Schibsted_Grotesk-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Schibsted_Grotesk-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/National_Park-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -878,13 +878,13 @@ Dont generate OpenAPI documentation from this block
 </h5>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_assets.html">api_assets</a></span><span class="op">(</span><span class="st">"/"</span>, <span class="st">"./assets/files"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_assets.html">api_assets</a></span><span class="op">(</span><span class="st">"/assets"</span>, <span class="st">"./assets/files"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span><span class="fu"><a href="../reference/api.html">api</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/api_assets.html">api_statics</a></span><span class="op">(</span><span class="st">"/"</span>, <span class="st">"./assets/static_files"</span>, except <span class="op">=</span> <span class="st">"/secret_files"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section></section><section class="level2"><h2 id="auth-guard-annotation">Auth guard annotation<a class="anchor" aria-label="anchor" href="#auth-guard-annotation"></a>
@@ -986,13 +986,13 @@ Dont generate OpenAPI documentation from this block
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#* @plumber</span></span>
 <span><span class="kw">function</span><span class="op">(</span><span class="va">api</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">api</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="va">api</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="../reference/api_docs.html">api_doc_setting</a></span><span class="op">(</span><span class="st">"swagger"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="co"># Named function</span></span>
 <span><span class="va">use_swagger</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">api</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">api</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="va">api</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="../reference/api_docs.html">api_doc_setting</a></span><span class="op">(</span><span class="st">"swagger"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
@@ -1215,7 +1215,7 @@ Dont generate OpenAPI documentation from this block
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

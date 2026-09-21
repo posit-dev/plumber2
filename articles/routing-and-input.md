@@ -29,6 +29,7 @@ not present in the same route). You create an endpoint by annotating a
 function like so:
 
 ``` r
+
 #* Return "hello world"
 #* @get /hello
 function() {
@@ -70,6 +71,7 @@ function would be used to service any incoming `GET`, `POST`, or `PUT`
 request to `/cars`.
 
 ``` r
+
 #* @get /cars
 #* @post /cars
 #* @put /cars
@@ -102,6 +104,7 @@ encounter, you can use a dynamic path to associate a handler with a
 variety of paths.
 
 ``` r
+
 users <- data.frame(
   uid = c(12, 13),
   username = c("kim", "john")
@@ -126,6 +129,7 @@ argument to the handler (in this case, both `id`).
 You can even do more complex dynamic routes like:
 
 ``` r
+
 #* @get /user/<from>/connect/<to>
 function(from, to){
   # Do something with the `from` and `to` variables...
@@ -141,6 +145,7 @@ However, plumber2 also support path wildcards which can match to
 globbing or `.*` in regular expressions.
 
 ``` r
+
 #* @get /images/*
 function() {
   # do something
@@ -205,6 +210,7 @@ parameters are being provided directly to your handler as named
 arguments. For example, given the following handler
 
 ``` r
+
 #* @get /user/<user>/setting/<type>
 function(user, type) {
   # ...
@@ -237,10 +243,17 @@ defines a search API that mimics the example from
 receives.
 
 ``` r
+
 #* @get /
 function(query) {
-  paste0("The q parameter is '", query$q %||% "", "'. ",
-         "The pretty parameter is '", query$pretty %||% 0, "'.")
+  paste0(
+    "The q parameter is '",
+    query$q %||% "",
+    "'. ",
+    "The pretty parameter is '",
+    query$pretty %||% 0,
+    "'."
+  )
 }
 ```
 
@@ -295,22 +308,22 @@ tag which works much like `@param` and `@query`.
 Plumber2 comes with a selection of parsers for the most common data
 transfer formats:
 
-| Annotation        | Content Type                                                                          | Description/References                                                                                                                                                              |
-|-------------------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@parser csv`     | `application/csv`, `application/x-csv`, `text/csv`, `text/x-csv`                      | Body processed with [`readr::read_csv()`](https://readr.tidyverse.org/reference/read_delim.html)                                                                                    |
-| `@parser json`    | `application/json`, `text/json`                                                       | Body processed with [`jsonlite::fromJSON()`](https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html)                                                                        |
-| `@parser multi`   | `multipart/*`                                                                         | Body processed with [`webutils::parse_multipart()`](https://jeroen.r-universe.dev/webutils/reference/parse_multipart.html) and each part is then processed by the parsers available |
-| `@parser octet`   | `application/octet-stream`                                                            | Body is set to the unprocessed raw binary value                                                                                                                                     |
-| `@parser form`    | `application/x-www-form-urlencoded`                                                   | Body processed with [`reqres::query_parser()`](https://reqres.data-imaginist.com/reference/query_parser.html)                                                                       |
-| `@parser rds`     | `application/rds`                                                                     | Body processed with [`unserialize()`](https://rdrr.io/r/base/serialize.html)                                                                                                        |
-| `@parser feather` | `application/vnd.apache.arrow.file`, `application/feather`                            | Body processed with [`arrow::read_feather()`](https://arrow.apache.org/docs/r/reference/read_feather.html)                                                                          |
-| `@parser parquet` | `application/vnd.apache.parquet`                                                      | Body processed with [`arrow::read_parquet()`](https://arrow.apache.org/docs/r/reference/read_parquet.html)                                                                          |
-| `@parser text`    | `text/plain`, `text/*`                                                                | Body processed with [`rawToChar()`](https://rdrr.io/r/base/rawConversion.html)                                                                                                      |
-| `@parser tsv`     | `application/tab-separated-values`, `text/tab-separated-values`                       | Body processed with [`readr::read_tsv()`](https://readr.tidyverse.org/reference/read_delim.html)                                                                                    |
-| `@parser yaml`    | `text/vnd.yaml`, `application/yaml`, `application/x-yaml`, `text/yaml`, `text/x-yaml` | Body processed with [`yaml::yaml.load()`](https://yaml.r-lib.org/reference/yaml.load.html)                                                                                          |
-| `@parser xml`     | `application/xml`, `text/xml`                                                         | Body processed with `xml2::as_list()`                                                                                                                                               |
-| `@parser html`    | `text/html`                                                                           | Body processed with `xml2::as_list()`                                                                                                                                               |
-| `@parser geojson` | `application/geo+json`, `application/vdn.geo+json`                                    | Body processed with [`geojsonsf::geojson_sf()`](https://rdrr.io/pkg/geojsonsf/man/geojson_sf.html)                                                                                  |
+| Annotation | Content Type | Description/References |
+|----|----|----|
+| `@parser csv` | `application/csv`, `application/x-csv`, `text/csv`, `text/x-csv` | Body processed with [`readr::read_csv()`](https://readr.tidyverse.org/reference/read_delim.html) |
+| `@parser json` | `application/json`, `text/json` | Body processed with [`jsonlite::fromJSON()`](https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html) |
+| `@parser multi` | `multipart/*` | Body processed with [`webutils::parse_multipart()`](https://jeroen.r-universe.dev/webutils/reference/parse_multipart.html) and each part is then processed by the parsers available |
+| `@parser octet` | `application/octet-stream` | Body is set to the unprocessed raw binary value |
+| `@parser form` | `application/x-www-form-urlencoded` | Body processed with [`reqres::query_parser()`](https://reqres.data-imaginist.com/reference/query_parser.html) |
+| `@parser rds` | `application/rds` | Body processed with [`unserialize()`](https://rdrr.io/r/base/serialize.html) |
+| `@parser feather` | `application/vnd.apache.arrow.file`, `application/feather` | Body processed with [`arrow::read_feather()`](https://arrow.apache.org/docs/r/reference/read_feather.html) |
+| `@parser parquet` | `application/vnd.apache.parquet` | Body processed with [`arrow::read_parquet()`](https://arrow.apache.org/docs/r/reference/read_parquet.html) |
+| `@parser text` | `text/plain`, `text/*` | Body processed with [`rawToChar()`](https://rdrr.io/r/base/rawConversion.html) |
+| `@parser tsv` | `application/tab-separated-values`, `text/tab-separated-values` | Body processed with [`readr::read_tsv()`](https://readr.tidyverse.org/reference/read_delim.html) |
+| `@parser yaml` | `text/vnd.yaml`, `application/yaml`, `application/x-yaml`, `text/yaml`, `text/x-yaml` | Body processed with [`yaml::yaml.load()`](https://yaml.r-lib.org/reference/yaml.load.html) |
+| `@parser xml` | `application/xml`, `text/xml` | Body processed with `xml2::as_list()` |
+| `@parser html` | `text/html` | Body processed with `xml2::as_list()` |
+| `@parser geojson` | `application/geo+json`, `application/vdn.geo+json` | Body processed with [`geojsonsf::geojson_sf()`](https://rdrr.io/pkg/geojsonsf/man/geojson_sf.html) |
 
 You can also provide your own parsers and register them so you can
 reference them by name. There are two special names you can use: `none`
@@ -327,17 +340,19 @@ top of the list so that it is selected over the one provided by plumber.
 An example could be:
 
 ``` r
-#* @parser artisinal_json_parser
+
+#* @parser artisanal_json_parser
 #* @parser ...
 ```
 
 This would give your handler access to all parsers registered with
-plumber2 but will select `artisinal_json_parser` over `json` if the
+plumber2 but will select `artisanal_json_parser` over `json` if the
 content type is `application/json`. You register new parsers using
 [`register_parser()`](https://plumber2.posit.co/reference/register_parser.md),
 but can also provide them directly in the block annotation like so:
 
 ``` r
+
 #* @parser application/toml function(x, ...) blogdown::read_toml(x = rawToChar(x))
 ```
 
@@ -351,6 +366,7 @@ browser, but you can use tools like `curl` on the command line or the
 examples below.
 
 ``` r
+
 #* @post /user
 function(body) {
   list(
@@ -411,6 +427,7 @@ request object. You can either access it with the `get_header()` method
 or the `headers` field from the request object
 
 ``` r
+
 #* Return the value of a custom header and the total number of headers
 #* @get /
 function(request) {
@@ -473,6 +490,7 @@ to these and have plumber automatically cast them to the expected type
 before providing them to your handler. Consider the following API.
 
 ``` r
+
 #* @get /type/<id>
 function(id) {
   list(
@@ -500,6 +518,7 @@ parameter in your dynamic route, you can specify the desired type in the
 path itself, or in the `@param` field.
 
 ``` r
+
 #* @get /user/<id:integer>
 function(id){
   next <- id + 1
@@ -570,6 +589,7 @@ These servers are fairly simple to configure and integrate into your
 plumber application.
 
 ``` r
+
 #* @assets ./files/static
 NULL
 ```
@@ -583,6 +603,7 @@ You can optionally provide an additional argument to configure the path
 used for your server. For instance
 
 ``` r
+
 #* @assets ./files/static /static
 NULL
 ```

@@ -78,6 +78,7 @@ options:
 You can create a scaffold of this file programmatically:
 
 ``` r
+
 # Create _server.yml in the working directory
 create_server_yml(
   "api.R",
@@ -95,6 +96,7 @@ expected before deploying. You can do this by passing it to
 constructed API locally:
 
 ``` r
+
 # Test that it works
 api("_server.yml") |>
   api_run()
@@ -138,6 +140,7 @@ Before deploying to DigitalOcean, you’ll need:
 2.  The `buoyant` and `analogsea` packages installed:
 
 ``` r
+
 install.packages("pak")
 pak::pak(c("buoyant", "analogsea"))
 ```
@@ -150,6 +153,7 @@ pak::pak(c("buoyant", "analogsea"))
 Here’s how to deploy a plumber2 API to DigitalOcean:
 
 ``` r
+
 library(buoyant)
 library(analogsea)
 
@@ -221,6 +225,7 @@ dependencies, use
 [`pak::pkg_sysreqs()`](https://pak.r-lib.org/reference/pkg_sysreqs.html):
 
 ``` r
+
 #| eval: false
 pak::pkg_sysreqs(c("plumber2"), sysreqs_platform = "ubuntu")
 #> ── Install scripts ─────────────────────────────────────────── Ubuntu NA ──
@@ -308,6 +313,7 @@ First, create a wrapper script that pm2 can execute. Create a file
 called `run-api.R`:
 
 ``` r
+
 #!/usr/bin/env Rscript
 
 # Load the API and run it
@@ -372,6 +378,7 @@ Modify your script to accept port as an argument
 Here’s an improved `run-api.R` that accepts a port argument:
 
 ``` r
+
 #!/usr/bin/env Rscript
 
 # Get port from command line argument or environment variable

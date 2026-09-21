@@ -7,6 +7,7 @@ When you `plumb()` a file, plumber2 calls
 evaluate any top-level code that you have defined.
 
 ``` r
+
 # Global code; gets executed at plumb() time.
 counter <- 0
 
@@ -94,6 +95,7 @@ is possible to share state using the environment associated with the
 plumber2 router.
 
 ``` r
+
 # Global code; gets executed at plumb() time.
 counter <- 0
 
@@ -213,6 +215,7 @@ that need to be cleaned up when your plumber2 process is being
 terminated. You can add a handler to the `"end"` event to do this.
 
 ``` r
+
 api("plumber.R") |>
   api_on("end", function(){
     print("Bye bye!")

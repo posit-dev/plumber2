@@ -40,6 +40,7 @@ what comes in and what is send out.
 For example, we can add these lines to our route file:
 
 ``` r
+
 #* @plumber
 function(api) {
   api |>
@@ -55,6 +56,7 @@ function(api) {
 If we were to execute a `GET` request on `/stage_debug`
 
 ``` r
+
 #* @get /stage_debug
 function() {
   return(42)
@@ -103,6 +105,7 @@ your hands dirty with Plumber and get better acquainted with how things
 behave at a low level. Consider the following API endpoint:
 
 ``` r
+
 #* @get /
 function(request, response){
   browser()
@@ -126,6 +129,7 @@ You can then take this object and send it through your API using the
 `test_request()` method in your Plumber API object:
 
 ``` r
+
 pa <- api("plumber.R")
 
 req <- fiery::fake_request("http://localhost:8080/path/to/handler")
@@ -143,6 +147,7 @@ You can use \[httpuv::randomPort()\] to define a range of port for
 Plumber to pick from when running an API.
 
 ``` r
+
 # plumber.R
 options("plumber2.port" = httpuv::randomPort(min = 4000, max = 7000, n = 100))
 
@@ -152,6 +157,7 @@ options("plumber2.port" = httpuv::randomPort(min = 4000, max = 7000, n = 100))
 or more programmatically
 
 ``` r
+
 api(port = httpuv::randomPort(min = 4000, max = 7000, n = 100)) |>
   api_run()
 ```

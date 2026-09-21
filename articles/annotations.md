@@ -35,6 +35,7 @@ If you wish to always allow roxygen prefixes you can set the
 ##### Annotations example
 
 ``` r
+
 #* @roxygenPrefix
 NULL
 ```
@@ -53,13 +54,14 @@ specifying the name to use for all route specific blocks in the file.
 This also makes it possible to split out the specification of a single
 route among multiple files if it begins to grow unwieldy
 
-| Annotation   | Argument | Description/References                                       |
-|--------------|----------|--------------------------------------------------------------|
-| `@routeName` | `name`   | Sets the name of the route to use for all blocks in the file |
+| Annotation | Argument | Description/References |
+|----|----|----|
+| `@routeName` | `name` | Sets the name of the route to use for all blocks in the file |
 
 ##### Annotations example
 
 ``` r
+
 #* @routeName main_route
 NULL
 ```
@@ -80,13 +82,14 @@ multiple files have the same `@routeName` then the lowest `@routeOrder`
 value will be used. Any file without a `@routeOrder` tag will be added
 after those that do, using the default alphanumeric order.
 
-| Annotation    | Argument | Description/References                                                                   |
-|---------------|----------|------------------------------------------------------------------------------------------|
-| `@routeOrder` | `order`  | Sets the order in which routes are added to the api. Lower values means earlier position |
+| Annotation | Argument | Description/References |
+|----|----|----|
+| `@routeOrder` | `order` | Sets the order in which routes are added to the api. Lower values means earlier position |
 
 ##### Annotations example
 
 ``` r
+
 #* @routeOrder 3
 NULL
 ```
@@ -112,6 +115,7 @@ location if necessary.
 ##### Annotations example
 
 ``` r
+
 #* @root /path/to/these/apis
 NULL
 ```
@@ -130,20 +134,21 @@ expression. Instead of `@title` and `@description` you can also use the
 convention that the first line gives the title and any proceeding lines
 until the first tag gives the description.
 
-| Annotation     | Argument                 | Description/References                                                                                                                                                  |
-|----------------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@title`       | `Title`                  | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
-| `@description` | `Description`            | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
-| `@tos`         | `TOS link`               | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
-| `@contact`     | `Name` \[`URL` `Email`\] | [Contact Object](https://spec.openapis.org/oas/v3.0.3#contact-object)                                                                                                   |
-| `@license`     | `License` \[`URL`\]      | [License Object](https://spec.openapis.org/oas/v3.0.3#license-object)                                                                                                   |
-| `@version`     | `Version`                | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object)                                                                                                         |
-| `@tag`         | `Tag` `Description`      | Can be repeated to add multiple tags. Quote with ” or ’ to use non word character (like spaces) in `Tag`. [Tag Object](https://spec.openapis.org/oas/v3.0.3#tag-object) |
-| `@noDoc`       | None                     | Don’t generate OpenAPI documentation from this block                                                                                                                    |
+| Annotation | Argument | Description/References |
+|----|----|----|
+| `@title` | `Title` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
+| `@description` | `Description` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
+| `@tos` | `TOS link` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
+| `@contact` | `Name` \[`URL` `Email`\] | [Contact Object](https://spec.openapis.org/oas/v3.0.3#contact-object) |
+| `@license` | `License` \[`URL`\] | [License Object](https://spec.openapis.org/oas/v3.0.3#license-object) |
+| `@version` | `Version` | [Info Object](https://spec.openapis.org/oas/v3.0.3#info-object) |
+| `@tag` | `Tag` `Description` | Can be repeated to add multiple tags. Quote with ” or ’ to use non word character (like spaces) in `Tag`. [Tag Object](https://spec.openapis.org/oas/v3.0.3#tag-object) |
+| `@noDoc` | None | Don’t generate OpenAPI documentation from this block |
 
 ##### Annotations example
 
 ``` r
+
 #* Sample Pet Store App
 #*
 #* This is a sample server for a pet store.
@@ -161,6 +166,7 @@ until the first tag gives the description.
 ##### Equivalent programmatic usage
 
 ``` r
+
 api() |>
   api_doc_add(
     openapi(
@@ -203,19 +209,19 @@ Some types can have a nested structure which is also supported, but the
 type spec can quickly become difficult to read the further you recurse
 so use with care
 
-| Type                                   | OpenAPI                                                                      |
-|----------------------------------------|------------------------------------------------------------------------------|
-| `boolean`                              | `boolean`                                                                    |
-| `number`                               | `number`                                                                     |
-| `integer`                              | `integer`                                                                    |
-| `string`                               | `string`                                                                     |
-| `date`                                 | `string` `format:date`                                                       |
-| `date-time`                            | `string` `format:date-time`                                                  |
-| `byte`                                 | `string` `format:byte`                                                       |
-| `binary`                               | `string` `format:binary`                                                     |
-| `enum`                                 | `string` `enum:|...|`                                                        |
-| `pattern`                              | `string` `pattern:|...|`                                                     |
-| `[Type]`                               | `array` `items:type:Type`                                                    |
+| Type | OpenAPI |
+|----|----|
+| `boolean` | `boolean` |
+| `number` | `number` |
+| `integer` | `integer` |
+| `string` | `string` |
+| `date` | `string` `format:date` |
+| `date-time` | `string` `format:date-time` |
+| `byte` | `string` `format:byte` |
+| `binary` | `string` `format:binary` |
+| `enum` | `string` `enum:|...|` |
+| `pattern` | `string` `pattern:|...|` |
+| `[Type]` | `array` `items:type:Type` |
 | `{prop_name: Type, prop_name2: Type2}` | `object` `properties:prop_name:type:Type` `properties:prop_name2:type:Type2` |
 
 Types can have a default value, which is given in parentheses after the
@@ -259,6 +265,7 @@ specification you provide.
 ##### Annotations example
 
 ``` r
+
 #* @get /query/parameters
 #* @serializer text
 #* @query name:string*
@@ -298,6 +305,7 @@ function(message, client_id, server) {
 ##### Equivalent programmatic usage
 
 ``` r
+
 text_handler <- function(name, age) {
   sprintf("%s is %i years old", name, max(age))
 }
@@ -382,15 +390,16 @@ since the request never reaches your code and you are unable to modify
 it. In general, you should use `@statics` unless you need to provide any
 additional handling of the request, such as authentication or logging.
 
-| Annotation | Arguments               | Description/References                                                                               |
-|------------|-------------------------|------------------------------------------------------------------------------------------------------|
-| `@assets`  | `Path` \[`Mount path`\] | [Static files](https://plumber2.posit.co/articles/routing-and-input.html#static-file-handler)        |
-| `@statics` | `Path` \[`Mount path`\] |                                                                                                      |
-| `@except`  | `Path`                  | Can be used together with `@statics` to exclude subpaths of the `@statics` `Path` from being served. |
+| Annotation | Arguments | Description/References |
+|----|----|----|
+| `@assets` | `Path` \[`Mount path`\] | [Static files](https://plumber2.posit.co/articles/routing-and-input.html#static-file-handler) |
+| `@statics` | `Path` \[`Mount path`\] |  |
+| `@except` | `Path` | Can be used together with `@statics` to exclude subpaths of the `@statics` `Path` from being served. |
 
 ##### Annotations example
 
 ``` r
+
 #* @assets ./assets/files
 NULL
 
@@ -405,25 +414,27 @@ NULL
 ##### Equivalent programmatic usage (note that argument order is reversed)
 
 ``` r
-api() %>%
+
+api() |>
   api_assets("/", "./assets/files")
 
-api() %>%
+api() |>
   api_assets("/assets", "./assets/files")
 
-api() %>%
+api() |>
   api_statics("/", "./assets/static_files", except = "/secret_files")
 ```
 
 ## Auth guard annotation
 
-| Annotation   | Arguments | Description/References                                                                                                                                                           |
-|--------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@authGuard` | `name`    | Adds a new guard with the given name. The guard is given below the annotation as a [`fireproof::Guard`](https://fireproof.data-imaginist.com/reference/Guard.html) specification |
+| Annotation | Arguments | Description/References |
+|----|----|----|
+| `@authGuard` | `name` | Adds a new guard with the given name. The guard is given below the annotation as a [`fireproof::Guard`](https://fireproof.data-imaginist.com/reference/Guard.html) specification |
 
 ##### Annotations example
 
 ``` r
+
 #* @authGuard auth1
 fireproof::guard_key(
   key_name = "plumber2_key",
@@ -434,6 +445,7 @@ fireproof::guard_key(
 ##### Equivalent programmatic usage
 
 ``` r
+
 api() |>
   api_datastore(storr::driver_environment()) |> 
   api_auth_guard(
@@ -447,13 +459,14 @@ api() |>
 
 ## Datastore annotation
 
-| Annotation   | Arguments | Description/References                                                                                                         |
-|--------------|-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `@datastore` | `[name]`  | Adds a new datastore backend optionally setting a different store name. The driver for the backend is provided below the block |
+| Annotation | Arguments | Description/References |
+|----|----|----|
+| `@datastore` | `[name]` | Adds a new datastore backend optionally setting a different store name. The driver for the backend is provided below the block |
 
 ##### Annotations example
 
 ``` r
+
 #* @datastore persistent_data
 storr::driver_environment()
 ```
@@ -461,6 +474,7 @@ storr::driver_environment()
 ##### Equivalent programmatic usage
 
 ``` r
+
 api() |>
   api_datastore(
     driver = storr::driver_environment(),
@@ -470,22 +484,23 @@ api() |>
 
 ## plumber2 annotation
 
-| Annotation | Arguments | Description/References                                                                                                                                                                                                                                                                                                                                                              |
-|------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@plumber` | None      | Modify plumber router from plumber file. If the function returns a plumber2 api object then this object will be used going forward, otherwise the return value is ignored. In most cases, anonymous functions are used following the `#* @plumber` annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses. |
+| Annotation | Arguments | Description/References |
+|----|----|----|
+| `@plumber` | None | Modify plumber router from plumber file. If the function returns a plumber2 api object then this object will be used going forward, otherwise the return value is ignored. In most cases, anonymous functions are used following the `#* @plumber` annotation. However, named functions can also be used. When a named function is used, it must be referenced without parentheses. |
 
 ##### Annotations example
 
 ``` r
+
 #* @plumber
 function(api) {
-  api %>%
+  api |>
     api_doc_setting("swagger")
 }
 
 # Named function
 use_swagger <- function(api) {
-  api %>%
+  api |>
     api_doc_setting("swagger")
 }
 
@@ -496,6 +511,7 @@ use_swagger
 ##### Equivalent programmatic usage
 
 ``` r
+
 api() |>
   api_doc_setting("swagger")
 ```
@@ -509,14 +525,15 @@ it directly by forwarding the request to another origin and passing
 along the response to the client (this is called a reverse proxy). Both
 of these are considered somewhat advanced use.
 
-| Annotation  | Arguments                 | Description/References                                                                                                                                                                                                                                                                                                            |
-|-------------|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Annotation | Arguments | Description/References |
+|----|----|----|
 | `@redirect` | \[!\]`Method` `From` `To` | Will add a redirect response for the method given as `Method` from the path given in `From` to the path given in `To`. Path parameters are supported and will be matched between `Trom` and `To`. If the method is preceded by a `!` then the redirect is considered permanent (308) — otherwise it is considered temporary (307) |
-| `@forward`  | `Path` `URL`              | Will forward requests from `Path` to `URL`, acting as a reverse proxy. The proxy will also forward any WebSocket messaging that is established with `Path`. All forwarding is performed asynchronously so the api will not block if the URL takes a long time to respond.                                                         |
+| `@forward` | `Path` `URL` | Will forward requests from `Path` to `URL`, acting as a reverse proxy. The proxy will also forward any WebSocket messaging that is established with `Path`. All forwarding is performed asynchronously so the api will not block if the URL takes a long time to respond. |
 
 ##### Annotation example
 
 ``` r
+
 #* @redirect !any old/<path> new/<path>
 #* @redirect get main/<path> temp/main/<path>
 NULL
@@ -528,6 +545,7 @@ NULL
 ##### Equivalent programmatic usage
 
 ``` r
+
 api() |>
   api_redirect("any", "old/<path>", "new/<path>", permanent = TRUE) |>
   api_redirect("get", "main/*", "temp/main/*") |>
@@ -542,13 +560,14 @@ and then forward requests to the defined path to the process. The shiny
 app is automatically launched and stopped along with the main plumber2
 api.
 
-| Annotation | Arguments | Description/References                                                                |
-|------------|-----------|---------------------------------------------------------------------------------------|
-| `@shiny`   | `Path`    | Launc the app defined below the annotation block and forward requests to `Path` to it |
+| Annotation | Arguments | Description/References |
+|----|----|----|
+| `@shiny` | `Path` | Launc the app defined below the annotation block and forward requests to `Path` to it |
 
 ##### Annotation example
 
 ``` r
+
 #* @shiny app/
 shinyAppDir("path/to/shiny/app")
 ```
@@ -556,6 +575,7 @@ shinyAppDir("path/to/shiny/app")
 ##### Equivalent programmatic usage
 
 ``` r
+
 api() |>
   api_shiny("app/", shinyAppDir("path/to/shiny/app"))
 ```
@@ -573,13 +593,14 @@ documentation generated for it. Rendering is performed asynchronously so
 the api is not blocked by someone requesting a report that takes a while
 to render
 
-| Annotation | Arguments | Description/References                                                                                                                                |
-|------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@report`  | `Path`    | Serve a report given by the path specified below the annotation block from `Path`. The report location is relative to the path of the annotation file |
+| Annotation | Arguments | Description/References |
+|----|----|----|
+| `@report` | `Path` | Serve a report given by the path specified below the annotation block from `Path`. The report location is relative to the path of the annotation file |
 
 ##### Annotation example
 
 ``` r
+
 #* Access the quarterly report
 #*
 #* @query quarter:enum|spring, summer, autumn, winter| The quarter to generate the report for
@@ -591,6 +612,7 @@ to render
 ##### Equivalent programmatic usage
 
 ``` r
+
 api() |>
   api_add_route(routr::report_route("quarterly/", "my_amazing_report.qmd"))
 ```
