@@ -205,11 +205,11 @@ Plumber2 comes with a selection of parsers for the most common data transfer for
 You can also provide your own parsers and register them so you can reference them by name. There are two special names you can use: `none` and `...`. If setting `@parser none` then no parsing of the request body will be attempted. This can still be done manually through the `request` at a later stage. While it may seem like a good idea to set `@parser none` if you do not intend to use the request body in your handler in order to speed up processing, it is not necessary since the body is only parsed if your code tries to access it. Setting `@parser ...` selects all the parsers that have not yet been referenced in your handler block. This can be useful if you have registered an alternative parser for a specific mime type and wish to move it to the top of the list so that it is selected over the one provided by plumber. An example could be:
 
 ``` r
-#* @parser artisinal_json_parser
+#* @parser artisanal_json_parser
 #* @parser ...
 ```
 
-This would give your handler access to all parsers registered with plumber2 but will select `artisinal_json_parser` over `json` if the content type is `application/json`. You register new parsers using `register_parser()`, but can also provide them directly in the block annotation like so:
+This would give your handler access to all parsers registered with plumber2 but will select `artisanal_json_parser` over `json` if the content type is `application/json`. You register new parsers using `register_parser()`, but can also provide them directly in the block annotation like so:
 
 ``` r
 #* @parser application/toml function(x, ...) blogdown::read_toml(x = rawToChar(x))

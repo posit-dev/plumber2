@@ -6,15 +6,18 @@ emails <- data.frame(
 
 #* @post /mail
 function(body) {
-  emails <<- rbind(emails, data.frame(
-    from = body$from,
-    time = date(),
-    subject = body$subject
-  ))
+  emails <<- rbind(
+    emails,
+    data.frame(
+      from = body$from,
+      time = date(),
+      subject = body$subject
+    )
+  )
   Next
 }
 
 #* @get /tail
 function() {
-  tail(emails[,-1], n=5)
+  tail(emails[, -1], n = 5)
 }

@@ -24,7 +24,7 @@ function(query) {
   title <- "All Species"
 
   # Filter if the species was specified
-  if (!is.null(query$spec)){
+  if (!is.null(query$spec)) {
     title <- paste0("Only the '", query$spec, "' Species")
     myData <- subset(myData, species == query$spec)
   }
@@ -32,8 +32,8 @@ function(query) {
   plot(
     myData$flipper_len,
     myData$bill_len,
-    main=title,
-    xlab="Flipper Length (mm)",
-    ylab="Bill Length (mm)"
+    main = title,
+    xlab = "Flipper Length (mm)",
+    ylab = "Bill Length (mm)"
   )
 }

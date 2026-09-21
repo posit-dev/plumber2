@@ -63,10 +63,14 @@ create_server_yml <- function(
 }
 
 is_plumber2_server_yml <- function(path) {
-  vapply(path, function(p) {
-    if (!grepl("^_server.ya?ml$", fs::path_file(p))) {
-      return(FALSE)
-    }
-    isTRUE(tolower(yaml::read_yaml(p)$engine) == "plumber2")
-  }, logical(1))
+  vapply(
+    path,
+    function(p) {
+      if (!grepl("^_server.ya?ml$", fs::path_file(p))) {
+        return(FALSE)
+      }
+      isTRUE(tolower(yaml::read_yaml(p)$engine) == "plumber2")
+    },
+    logical(1)
+  )
 }

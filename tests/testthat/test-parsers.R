@@ -164,7 +164,9 @@ test_that("parse_multipart parses correctly", {
 
   # Create the multipart body parts
   part1 <- paste0(
-    "--", boundary, "\r\n",
+    "--",
+    boundary,
+    "\r\n",
     "Content-Disposition: form-data; name=\"text_field\"\r\n",
     "Content-Type: text/plain\r\n",
     "\r\n",
@@ -172,12 +174,16 @@ test_that("parse_multipart parses correctly", {
   )
 
   part2 <- paste0(
-    "--", boundary, "\r\n",
+    "--",
+    boundary,
+    "\r\n",
     "Content-Disposition: form-data; name=\"csv_field\"; filename=\"test.csv\"\r\n",
     "Content-Type: text/csv\r\n",
     "\r\n",
     "a,b\r\n1,x\r\n",
-    "--", boundary, "--\r\n"
+    "--",
+    boundary,
+    "--\r\n"
   )
 
   # Combine parts into a complete multipart body

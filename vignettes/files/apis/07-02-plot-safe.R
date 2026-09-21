@@ -4,7 +4,7 @@
 #* @query pts:integer(10)
 #* @serializer png
 function(query) {
-  if (query$pts > 1000 & query$pts < 1){
+  if (query$pts > 1000 & query$pts < 1) {
     abort_bad_request("pts must be between 1 and 1,000")
   }
   plot(1:pts)
