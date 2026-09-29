@@ -1,5 +1,8 @@
 # plumber2 (development version)
 
+* Fixed a stack overflow when casting a request body containing an array of
+  objects or arrays (#82)
+
 # plumber2 0.2.0
 
 * Fix a bug in constructing empty blocks for extending

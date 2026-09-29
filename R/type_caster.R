@@ -196,7 +196,7 @@ string_caster <- function(schema, required, name, loc, scalar) {
 
 array_caster <- function(schema, required, name, loc, scalar) {
   error_string <- missing_required_error_string(name, loc)
-  caster <- type_caster(schema$items, required, name, loc, FALSE)
+  element_caster <- type_caster(schema$items, required, name, loc, FALSE)
   if (
     schema$items$type %in%
       c("array", "object") ||
@@ -204,8 +204,10 @@ array_caster <- function(schema, required, name, loc, scalar) {
         isTRUE(schema$items$format == "binary"))
   ) {
     caster <- function(val) {
-      lapply(val, caster)
+      lapply(val, element_caster)
     }
+  } else {
+    caster <- element_caster
   }
   default <- schema$default
   if (is_string(default)) {
